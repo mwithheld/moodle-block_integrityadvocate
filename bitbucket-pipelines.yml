@@ -1,0 +1,46 @@
+# This is a sample build configuration for PHP.
+# Check our guides at https://confluence.atlassian.com/x/e8YWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: php:7.4.2
+
+definitions:
+  caches:
+    apt: /var/cache/apt
+
+pipelines:
+  custom: # Pipelines that are triggered manually
+    build_zip:
+      - step:
+          name: "Build the zip for installation"
+          caches:
+            - apt
+          script:
+            - apt-get update && apt-get -qq install zip rsync
+            #- homedir=$(pwd -LP)
+            - mkdir -p /tmp/iaparent/integrityadvocate
+            - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude .git/ --exclude screenshots/ --exclude *.zip --exclude *.pl --exclude Makefile --exclude bitbucket-pipelines.yml --exclude amd/src
+            - cd /tmp/iaparent
+            - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
+            - zip -r9 ${BITBUCKET_CLONE_DIR}/block_integrityadvocate.zip .
+            - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@${BITBUCKET_CLONE_DIR}/block_integrityadvocate.zip"
+          #artifacts: 
+          #  - "./block_integrityadvocate.zip"
+#    build_datatables:
+#      - step:
+#          name: "Download and package DataTables.js"
+#          script:
+#            - wget -O ./jquery.dataTables.js https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.js
+#            - echo "/* jshint unused:false, newcap:false, maxlen:10000 */\n" > ./jquery.dataTables.js
+#            - echo "/* globals require:false, jQuery:false */\n" > ./jquery.dataTables.js
+#
+#            # Remove the embedded module name from the main DataTables module 
+#            # from 'datatables' to 'block_integrityadvocate/jquery.dataTables'
+#            # so that it gets its name from its location in Moodle. 
+#            # We also add comments to suppress extraneous warning messages from the
+#            # jshint pass run when building via grunt.
+#
+#            - while (<>) {
+#               s@define\((\s*)\['jquery',(\s*)'datatables'\]@define(['jquery','block_integrityadvocate/jquery.dataTables']@g;
+#               s@define\(\s*['"]datatables['"],\s*@define(@g;
