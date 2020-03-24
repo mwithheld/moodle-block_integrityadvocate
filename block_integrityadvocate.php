@@ -241,7 +241,8 @@ class block_integrityadvocate extends block_base {
         $hasoverviewcapability = has_capability('block/integrityadvocate:overview', $this->context);
 
         $useriadata = block_integrityadvocate_get_course_user_ia_data($courseid, $userid);
-        // Warning: Huge object output: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $useriadata=' . print_r($useriadata, true));.
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got count($useriadata)=' . count($useriadata));
+        // Warning: Huge object output: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $useriadata=' . print_r($useriadata, true));
 
         if (empty($useriadata)) {
             return $out;
