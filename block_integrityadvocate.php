@@ -329,14 +329,15 @@ class block_integrityadvocate extends block_base {
             // Warning: Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got modulecontext=" . print_r($modulecontext, true));.
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got modulecontext->id=" . print_r($modulecontext->id, true));
 
-            $url = new moodle_url(INTEGRITYADVOCATE_BASEURL . '/Integrity/Embed?' .
-                    http_build_query(array(
-                        'appid' => $this->config->appid,
-                        'participantid' => block_integrityadvocate_encode_useridentifier($modulecontext, $user->id),
-                        'participantfirstname' => $user->firstname,
-                        'participantlastname' => $user->lastname,
-                            // Disabled on purpose: 'proctorname' => 'sampleproctorname', /* This does not do anything with APIv2; s/b fixed in future API */.
-                    ))
+            // The moodle_url class stores params non-urlencoded but outputs them encoded.
+            $url = new moodle_url(INTEGRITYADVOCATE_BASEURL . '/Integrity',
+                    array(
+                'appid' => $this->config->appid,
+                'participantid' => block_integrityadvocate_encode_useridentifier($modulecontext, $user->id),
+                'participantfirstname' => $user->firstname,
+                'participantlastname' => $user->lastname,
+                'participantemail' => $user->email,
+                    // Disabled on purpose: 'proctorname' => 'sampleproctorname', /* This does not do anything with APIv2; s/b fixed in future API */.
             );
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Built url={$url}");
 
