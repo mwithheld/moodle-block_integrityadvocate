@@ -103,10 +103,10 @@ class block_integrityadvocate extends block_base {
     public function get_content() {
         global $USER, $COURSE, $PAGE, $DB, $CFG;
         $debug = false;
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $COURSE->id . '; userid=' . $USER->id);
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $COURSE->id . '; userid=' . $USER->id . '; username=' . $USER->username);
 
-        if ($this->content !== null) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Content has already been generated, so do not generate it again');
+        if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Content has already been generated, so do not generate it again: \n" . print_r($this->content, true));
             return;
         }
         $this->content = new stdClass;
@@ -232,7 +232,7 @@ class block_integrityadvocate extends block_base {
      * @return string HTML to output
      */
     public function get_summary_output($courseid, $userid) {
-        $debug = true;
+        $debug = false;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $courseid=' . $courseid . '; $userid=' . $userid);
 
         // Content to return.
@@ -338,12 +338,15 @@ class block_integrityadvocate extends block_base {
                 'participantlastname' => $user->lastname,
                 'participantemail' => $user->email,
                     // Disabled on purpose: 'proctorname' => 'sampleproctorname', /* This does not do anything with APIv2; s/b fixed in future API */.
+                    )
             );
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Built url={$url}");
 
             if ($debugnoiaproctoroutput) {
                 $this->page->requires->js_init_call('alert("IntegrityAdvocate Proctor block JS output would occur here with url=' . $url . ' if not suppressed")');
             } else {
+                // Pass the URL w/o urlencoding.
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to require->js(' . $url->out(false) . ')');
                 $this->page->requires->js($url);
             }
 
