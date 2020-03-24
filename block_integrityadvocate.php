@@ -280,7 +280,7 @@ class block_integrityadvocate extends block_base {
      * @param stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML to output
      */
-    public function get_proctor_output(moodle_database $db, object $course, object $user) {
+    public function get_proctor_output(moodle_database $db, stdClass $course, stdClass $user) {
         $debug = false;
         // Set to true to disable the IA proctor JS.
         $debugnoiaproctoroutput = false;
