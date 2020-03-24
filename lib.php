@@ -207,7 +207,7 @@ function block_integrityadvocate_completions($activities, $userid, $course, $sub
 /**
  * Finds gradebook exclusions for students in a course
  *
- * @param object $db Moodle DB object
+ * @param moodle_database $db Moodle DB object
  * @param int $courseid The ID of the course containing grade items
  * @return array of exclusions as activity-user pairs
  */
