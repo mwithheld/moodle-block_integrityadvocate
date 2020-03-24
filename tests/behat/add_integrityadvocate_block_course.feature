@@ -37,12 +37,22 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I add the "Integrity Advocate" block
     Then I should see "Completion tracking is not enabled in this course"
     And I log out
+  #Scenario: Students should not see the course-level block
+    When I log in as "student1"
+    And I am on "Course 0" course homepage
+    Then "block_integrityadvocate" "block" should not exist
+    And I log out
 
   Scenario: Teacher should be warned if no activities with completion
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
     Then I should see "There are no activities found with activity completion enabled" in the "block_integrityadvocate" "block"
+    And I log out
+  #Scenario: Students should not see the course-level block
+    When I log in as "student1"
+    And I am on "Course 1" course homepage
+    Then "block_integrityadvocate" "block" should not exist
     And I log out
 
   @javascript
@@ -68,6 +78,15 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I add the "Integrity Advocate" block
     Then I should see "No Api Key is set" in the "block_integrityadvocate" "block"
     And I should see "No Application Id is set" in the "block_integrityadvocate" "block"
+    And I log out
+  #Scenario: Students should not see the course-level block
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    Then "block_integrityadvocate" "block" should not exist
+    And I log out
+  #Scenario: Teachers can configure the block
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
     When I configure the "block_integrityadvocate" block
     And I set the following fields to these values:
       | Application Id | 123e4567-e89b-12d3-a456-426655440000         |
@@ -77,8 +96,10 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I should not see "No Application Id is set" in the "block_integrityadvocate" "block"
     And "Overview" "button" should be visible
     And I log out
-
-  Scenario: Students should not see the course-level block
-    When I log in as "student1"
+  #Scenario: Now students should see the course-level block
+    Given I log in as "student1"
     And I am on "Course 1" course homepage
-    Then "block_integrityadvocate" "block" should not exist
+    Then "block_integrityadvocate" "block" should exist
+    And "Overview" "button" should not be visible
+    And I should see "Privacy Policy"
+    And I log out
