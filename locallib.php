@@ -851,10 +851,11 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user) {
             continue;
         }
 
-        $results[] = array('activity' => $a, 'ia_participant_data' => array_pop($iaparticipantdata));
+        $hash = md5(json_encode($iaparticipantdata));
+        $results[$hash] = array('activity' => $a, 'ia_participant_data' => array_pop($iaparticipantdata));
     }
 
-    return $results;
+    return array_values($results);
 }
 
 /**
