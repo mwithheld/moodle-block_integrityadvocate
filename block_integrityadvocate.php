@@ -274,12 +274,12 @@ class block_integrityadvocate extends block_base {
      * Build content to show to students and returns it.  ATM if there are no errors, nothing is visible.
      * Side effects: Adds JS for video monitoring popup to the page.
      *
-     * @param object $db Moodle DB class
+     * @param moodle_database $db Moodle DB class
      * @param stdClass $course Current course object; needed so we can identify this user to the IA API
      * @param stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML to output
      */
-    public function get_proctor_output(object $db, object $course, object $user) {
+    public function get_proctor_output(moodle_database $db, object $course, object $user) {
         $debug = false;
         // Set to true to disable the IA proctor JS.
         $debugnoiaproctoroutput = false;
