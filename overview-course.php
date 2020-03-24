@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * IntegrityAdvocate block Overview page showing course participants with
  * a summary of their IntegrityAdvocate data.
