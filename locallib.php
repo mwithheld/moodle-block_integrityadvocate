@@ -115,7 +115,7 @@ function block_integrityadvocate_log($message, $dest = false) {
 /**
  * Return if there are config errors
  *
- * @global MoodleDB $DB Moodle DB object
+ * @global moodle_database $DB Moodle DB object
  * @global stdClass $COURSE Moodle COURSE object
  * @param block_integrityadvocate $blockinstance
  * @throws Exception If error
@@ -423,7 +423,7 @@ function block_integrityadvocate_get_participant_flags_output(stdClass $particip
  * Get the user_enrolment.id (UEID) for the given course-user combo
  * Ignores deleted and suspended users
  *
- * @global MoodleDB $DB Moodle DB object
+ * @global moodle_database $DB Moodle DB object
  * @param int $courseid
  * @param int $userid
  * @return int the ueid
@@ -545,7 +545,7 @@ function block_integrityadvocate_decode_useridentifier($useridentifier) {
 /**
  * Returns the results of user_get_user_details() for the user in this course, plus the course-lastaccess time
  *
- * @global MoodleDB $DB Moodle DB object
+ * @global moodle_database $DB Moodle DB object
  * @param stdClass $user Moodle user object
  * @param stdClass $course Moodle course object
  * @return array of user info
@@ -920,7 +920,7 @@ function block_integrityadvocate_do_api_get($endpointpath, $apikey, $appid, arra
 /**
  * Return whether an IA block is visible in the given context
  *
- * @global MoodleDB $DB Moodle DB object
+ * @global moodle_database $DB Moodle DB object
  * @param int $activitycontextid The activity context id
  * @param int $blockinstanceid The block instance id
  * @return boolean true if the block is visible in the given context
@@ -948,7 +948,7 @@ function block_integrityadvocate_blocks_get_visibility($activitycontextid, $bloc
 /**
  * Get all instances of block_integrityadvocate
  *
- * @global MoodleDB $DB Moodle DB object
+ * @global moodle_database $DB Moodle DB object
  * @param boolean $visibleonly Set to true to return only visible instances
  * @return array of block_integrityadvocate instances
  */
@@ -1021,7 +1021,7 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
 /**
  * Get the first block_integrityadvocate instance found in the given context
  *
- * @global MoodleDB $DB Moodle DB object
+ * @global moodle_database $DB Moodle DB object
  * @param context $modulecontext Context to find the IA block in.
  * @param boolean $visibleonly Return only visible instances.
  * @param boolean $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
@@ -1167,7 +1167,7 @@ function block_integrityadvocate_email_user_ia_status_update(stdClass $mailfrom,
 /**
  * Get the student role (in the course) to show by default e.g. on the course-overview page dropdown box.
  *
- * @global MoodleDB $DB Moodle DB object
+ * @global moodle_database $DB Moodle DB object
  * @param context $context Course context in which to get the default role.
  * @return int the role id that is for student archetype in this course
  */

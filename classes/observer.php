@@ -39,7 +39,7 @@ class block_integrityadvocate_observer {
      * Respects [enrolment status] and [enrolment active dates]
      * Excludes deleted and suspended users
      *
-     * @global MoodleDB $DB Moodle DB object
+     * @global moodle_database $DB Moodle DB object
      * @param context $context Course or module context to look for user enrolment in
      * @param int $userid The userid to get the ueid for
      * @return int user-enrolment id; false if nothing found
