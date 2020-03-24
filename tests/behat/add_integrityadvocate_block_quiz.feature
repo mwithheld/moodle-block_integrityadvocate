@@ -1,4 +1,4 @@
-@block @block_integrityadvocate_quiz
+@block @block_integrityadvocate @block_integrityadvocate_quiz
 Feature: Add and configure IntegrityAdvocate block to a quiz
   In order to have an IntegrityAdvocate block on a page
   A a teacher
