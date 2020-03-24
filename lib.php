@@ -211,7 +211,7 @@ function block_integrityadvocate_completions($activities, $userid, $course, $sub
  * @param int $courseid The ID of the course containing grade items
  * @return array of exclusions as activity-user pairs
  */
-function block_integrityadvocate_exclusions(object $db, $courseid) {
+function block_integrityadvocate_exclusions(moodle_database $db, $courseid) {
     $query = "SELECT g.id, " . $db->sql_concat('i.itemmodule', "'-'", 'i.iteminstance', "'-'", 'g.userid') . " as exclusion
                FROM {grade_grades} g, {grade_items} i
               WHERE i.courseid = :courseid

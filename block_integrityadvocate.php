@@ -275,7 +275,7 @@ class block_integrityadvocate extends block_base {
      * Build content to show to students and returns it.  ATM if there are no errors, nothing is visible.
      * Side effects: Adds JS for video monitoring popup to the page.
      *
-     * @param moodle_database $db Moodle DB class
+     * @param moodle_database $db Moodle DB object
      * @param stdClass $course Current course object; needed so we can identify this user to the IA API
      * @param stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML to output
