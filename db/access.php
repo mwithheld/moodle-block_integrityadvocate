@@ -34,7 +34,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW
         ),
-        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
     'block/integrityadvocate:selfview' => array(
         'riskbitmask' => RISK_PERSONAL,
