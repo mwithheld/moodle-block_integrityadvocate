@@ -39,8 +39,8 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/locallib.php');
  * Returns the activities with completion set in current course
  *
  * @param int courseid The id of the course
- * @param object config The block instance configuration
- * @param string forceorder An override for the course order setting
+ * @param object $config The block instance configuration
+ * @param string $forceorder An override for the course order setting
  * @return array(activities) Activities with completion settings in the course
  */
 function block_integrityadvocate_get_activities_with_completion($courseid, $config = null, $forceorder = null) {
@@ -123,8 +123,8 @@ function block_integrityadvocate_compare_times($a, $b) {
  * Filters activities that a user cannot see due to grouping constraints
  *
  * @param stdClass $cfg Pass in the Moodle $CFG object.
- * @param object[] $activities The possible activities that can occur for modules
- * @param int[] $userid The user's id
+ * @param stdClass $activities The possible activities that can occur for modules
+ * @param int $userid The user's id
  * @param string $courseid the course for filtering visibility
  * @param int[] $exclusions Assignment exemptions for students in the course
  * @return object[] The array without the restricted activities
