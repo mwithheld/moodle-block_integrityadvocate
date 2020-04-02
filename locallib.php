@@ -829,6 +829,7 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user) {
     $results = array();
     $iaactivities = block_integrityadvocate_get_course_ia_activities($course);
     if (is_string($iaactivities)) {
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to return $iaactivities=' . print_r($iaactivities));
         return $iaactivities;
     }
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got block_integrityadvocate_get_course_ia_activities() count=' . count($iaactivities));
@@ -845,6 +846,10 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user) {
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance->id=' . $blockinstanceid);
 
         if (!isset($blockinstance->config) || (!isset($blockinstance->config->apikey) && !isset($blockinstance->config->appid))) {
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Skipping: isset($blockinstance->config)=' . isset($blockinstance->config) .
+                            '; isset($blockinstance->config->apikey)=' . isset($blockinstance->config->apikey) .
+                            '; isset($blockinstance->config->appid)=' . isset($blockinstance->config->appid)
+            );
             continue;
         }
 
@@ -852,6 +857,7 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user) {
         $iaparticipantdata = block_integrityadvocate_get_ia_participant_data($blockinstance->config->apikey, $blockinstance->config->appid, array('participantidentifier' => $useridentifier));
         // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::For this activity got $ia_participant_data=<PRE>' . print_r($participantdata, true) . "<PRE><br />\n");.
         if (empty($iaparticipantdata)) {
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Skipping: $iaparticipantdata is empty');
             continue;
         }
 
