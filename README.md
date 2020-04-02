@@ -1,6 +1,14 @@
 The Integrity Advocate block does identity verification & participation monitoring in Moodle activities.
 
-To use this plugin you will need to purchase an API key and App ID from https://integrityadvocate.com/ 
+## Requirements for installation
+- Purchase an API key and App ID from https://integrityadvocate.com/ 
+- Moodle 3.4 and above.
+- Completion must be enabled at the site level and course level.
+- Moodle cron must be running often - ideally every minute or two.
+
+## Requirements for end-users
+- A recent browser version.
+- Disable all browser ad blockers (e.g. uBlock) and privacy plugins (e.g. Privacy Badger).
 
 ## Installation
 
@@ -12,15 +20,19 @@ or
 For more information visit
 http://docs.moodle.org/en/Installing_contributed_modules_or_plugins
 
-Once the Integrity Advocate block is installed, you can use it in a course as follows:
+Once the Integrity Advocate block is installed, you can use it as follows:
 
 1. Turn editing on.
 2. Create your activities/resources as normal.
 3. Set completion settings for each activity you want to appear in the IntegrityAdvocate overview.
-4. Add the IntegrityAdvocate block to an activity page, configure the block with the API key and App ID.
+4. Add the IntegrityAdvocate block to an *activity page*, configure the block with the API key and App ID.
+   - For a quiz, edit settings, open the Appearance section, and  you want to Attempt quiz page
 
-Instructors will see an Overview button leading to a view of student Integrity Advocate sessions.
+You can place the IntegrityAdvocate block on the course page if you want; it'll only show the Overview button -- it won't cause the IntegrityAdvocate popup to show up anywhere.
+You can also place the IntegrityAdvocate block on the student profile page if you want; it'll only show the Overview button -- it'll show a summary of the IntegrityAdvocate info to students, plus an Overview button to teachers.
+
 When Students view the activity page they will see the video proctoring user interface.
+Admins/instructors will not see the video proctoring interface -- they see an Overview button leading to a view of student IntegrityAdvocate sessions.
 
 ## How to restrict access to an activity depending on Integrity Advocate results
 Ref https://docs.moodle.org/38/en/Restrict_access_settings
