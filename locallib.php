@@ -120,7 +120,7 @@ function block_integrityadvocate_log($message, $dest = false) {
  *
  * @global moodle_database $DB Moodle DB object
  * @global stdClass $COURSE Moodle COURSE object
- * @param block_integrityadvocate $blockinstance
+ * @param block_integrityadvocate $blockinstance to check
  * @throws Exception If error
  * @return array(field=>error message)
  */
