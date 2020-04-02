@@ -124,7 +124,9 @@ class process_integrityadvocate extends \core\task\scheduled_task {
                 continue;
             }
 
-            // Get course-module object so we can (a) check activity completion is enabled and (b) update its completion state for the user.
+            // Get course-module object so we can...
+            // (a) check activity completion is enabled and...
+            // (b) update its completion state for the user.
             $modinfo = get_fast_modinfo($courseid);
             // Note the cmid = $modulecontext->instance.
             $cm = $modinfo->get_cm($modulecontext->instanceid);

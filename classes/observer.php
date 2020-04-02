@@ -191,6 +191,7 @@ class block_integrityadvocate_observer {
 
         // On logout, close all IA sessions. Note: This is a read event not a create/update.
         if ($event->eventname == '\\core\\event\\user_loggedout') {
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::User logout detected, so close all remote IA sessions for userid={$event->userid}");
             self::close_all_user_sessions($event);
         }
 
@@ -250,6 +251,7 @@ class block_integrityadvocate_observer {
 
     /**
      * Then close all remote IA sessions for the user attached to the passed-in event.
+     * The event does not need an attached course or activity.
      *
      * Assumes the event is a course-activity event with a userid.
      *
@@ -257,8 +259,8 @@ class block_integrityadvocate_observer {
      * @return true if attempted to close the remote IA session; else false
      */
     static function close_all_user_sessions(\core\event\base $event) {
-        $debug = false;
-        $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
+        $debug = true;
+        $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; userid={$event->userid}";
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
         // Gets visible blocks.
@@ -270,7 +272,7 @@ class block_integrityadvocate_observer {
 
         $success = false;
 
-        // For each IA block instance, process IA data and update the activity completion status accordingly.
+        // For each visible IA block instance, process IA data and update the activity completion status accordingly.
         foreach ($blockinstances as $b) {
             $success &= self::close_session($b, $event->userid);
         }
@@ -288,7 +290,7 @@ class block_integrityadvocate_observer {
      * @return true if attempted to close the remote IA session; else false
      */
     static function close_activity_user_session(\core\event\base $event) {
-        $debug = false;
+        $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
@@ -300,7 +302,7 @@ class block_integrityadvocate_observer {
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-activity so continue');
 
         // Find the user-enrolment-id, which is what the IntegrityAdvocate API uses.
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');
+        //$debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');
         $ueid = self::get_ueid($context, $event->userid);
         if ($ueid < 0) {
             block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find an active user_enrolment.id for userid and context={$$event->contextid}; debuginfo={$debuginfo}");
@@ -329,6 +331,7 @@ class block_integrityadvocate_observer {
             return false;
         }
 
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
         return self::close_session($blockinstance, $event->userid);
     }
 
