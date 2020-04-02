@@ -237,7 +237,7 @@ class block_integrityadvocate_observer {
                 );
 
         /*
-         * Note \core\event\user_graded events are CONTEXT_MODULE=50
+         * Note \core\event\user_graded events are CONTEXT_MODULE=50...
          * but there are other events that should close the IA session.
          */
         if (!$iscoursemodulechangeevent) {
@@ -302,7 +302,7 @@ class block_integrityadvocate_observer {
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-activity so continue');
 
         // Find the user-enrolment-id, which is what the IntegrityAdvocate API uses.
-        //$debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');
+        // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');.
         $ueid = self::get_ueid($context, $event->userid);
         if ($ueid < 0) {
             block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find an active user_enrolment.id for userid and context={$$event->contextid}; debuginfo={$debuginfo}");
@@ -310,7 +310,7 @@ class block_integrityadvocate_observer {
         }
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Found ueid={$ueid}");
 
-        // Get the appid from plugin instance config: 3 parts:
+        // Get the appid from plugin instance config: 3 parts:...
         // ...(1) Get the associated course module contextid.
         $activitycontextid = $event->contextid;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Found contextid={$activitycontextid}");
