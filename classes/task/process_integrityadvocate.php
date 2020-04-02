@@ -89,7 +89,12 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::No integrityadvocate block instances found, so skip this task.');
             return true;
         }
-        mtrace('Found ' . count($blockinstances) . ' blockinstances total; will process those that are configured and added to an activity');
+        $msg = 'Found ' . count($blockinstances) . ' blockinstances total; will process those that are configured and added to an activity';
+        mtrace($msg);
+        if ($debug) {
+            block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::' . $msg);
+            //block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::blockinstances=' . print_r($blockinstances, true));
+        }
 
         // The user to send mail from.
         $mailfrom = block_integrityadvocate_email_build_mailfrom();
@@ -199,7 +204,7 @@ class process_integrityadvocate extends \core\task\scheduled_task {
                 $time_to_close_ia_session = $usercourse_lastaccess + INTEGRITYADVOCATE_SESS_TIMEOUT * 60;
                 $timenow = time();
                 if ($timenow > $time_to_close_ia_session &&
-                        $timenow < ($time_to_close_ia_session + 4 * 60)
+                        $timenow < ($time_to_close_ia_session + (4 * 60))
                 ) {
                     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: This user last course activity is more than " . INTEGRITYADVOCATE_SESS_TIMEOUT . " minutes ago, so close the IA session");
                     block_integrityadvocate_close_api_session($b->config->appid, $modulecontext, $userid);
