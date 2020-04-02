@@ -136,7 +136,7 @@ class block_integrityadvocate_observer {
      * @param \core\event\base $event Event to maybe act on
      * @return true if attempted to close the remote IA session; else false
      */
-    public static function process_events(\core\event\base $event) {
+    public static function process_event(\core\event\base $event) {
         $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
@@ -219,9 +219,9 @@ class block_integrityadvocate_observer {
                 return false;
         }
 
-        // If it's not in the whitelist, make sure
-        // (a) this is a create or update event; and
-        // (b) this is an activity-level event
+        // Make sure...
+        // (a) this is a create or update event; and...
+        // (b) this is an activity-level event.
         $iscreateorupdate = in_array($event->crud, array('c', 'u'), true);
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Found $is_create_or_update=' . $iscreateorupdate);
         if ($iscreateorupdate) {

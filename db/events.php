@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 $observers = array(
     array(
         'eventname' => '*',
-        'callback' => 'block_integrityadvocate_observer::close_integrity_advocate_session',
+        'callback' => 'block_integrityadvocate_observer::process_event',
     ),
 );
