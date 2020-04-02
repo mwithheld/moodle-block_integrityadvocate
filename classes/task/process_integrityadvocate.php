@@ -140,8 +140,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             $course = get_course($courseid);
 
             // Call the API with this block's API key and AppId - this returns cleaned participant data.
-            mtrace('About to get remote IA data for ' . $debugblockidentifier . 'since ' . $lastruntime);
-            $params['lastmodified'] = block_integrityadvocate_to_apitimezone(max($params['lastmodified'], $b->timecreated, $course->timecreated));
+            mtrace('About to get remote IA data for ' . $debugblockidentifier . ' since ' . $lastruntime);
+            $params['lastmodified'] = block_integrityadvocate_to_apitimezone(max($params['lastmodified'], $b->instance->timecreated, $course->timecreated));
             $participants = block_integrityadvocate_get_ia_participant_data($b->config->apikey, $b->config->appid, $params);
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Got participants \$p=" . print_r($participants, true));
             if (empty($participants)) {
