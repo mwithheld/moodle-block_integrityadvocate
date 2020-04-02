@@ -555,11 +555,15 @@ function block_integrityadvocate_get_course_userinfo(stdClass $user, stdClass $c
     $userinfo = user_get_user_details($user, $course);
 
     // The core function user_get_user_details returns lastcourseaccess=0 so get it manually.
-    $record = $DB->get_record('user_lastaccess', array('userid' => $user->id, 'courseid' => $course->id));
-    // Disabled on purpose: $debug && block_integrityadvocate_log('Got $lastaccesses_record=' . print_r($lastaccesses_record, true));.
-    $userinfo['lastaccess'] = $record->timeaccess;
+    $userinfo['lastaccess'] = get_last_access($user->id, $course->id);
 
     return $userinfo;
+}
+
+function get_last_access($userid, $courseid) {
+    global $DB;
+    // Disabled on purpose: $debug && block_integrityadvocate_log('Got $lastaccesses_record=' . print_r($lastaccesses_record, true));.
+    return $DB->get_field('user_lastaccess', 'timeaccess', array('courseid' => $courseid, 'userid' => $userid));
 }
 
 /**
