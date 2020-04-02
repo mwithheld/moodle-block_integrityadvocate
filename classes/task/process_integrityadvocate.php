@@ -234,16 +234,17 @@ class process_integrityadvocate extends \core\task\scheduled_task {
 
                 // Cannot use update_state() in several of the above cases, so dirty hack it in with internal_set_data().
                 $current = $completion->get_data($cm, false, $user->id);
-                $current->completionstate = $targetstate;
-                $current->timemodified = time();
-                $current->overrideby = $USER->id;
-                $completion->internal_set_data($cm, $current);
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so did set the activity completion status; completiondata=' . print_r($completiondata = $completion->get_data($cm, false, $user->id), true));
-                $usersupdatedcount++;
+                if ($current->completionstate != $targetstate) {
+                    $current->completionstate = $targetstate;
+                    $current->timemodified = time();
+                    $current->overrideby = $USER->id;
+                    $completion->internal_set_data($cm, $current);
+                    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so did set the activity completion status; completiondata=' . print_r($completiondata = $completion->get_data($cm, false, $user->id), true));
+                    $usersupdatedcount++;
 
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: About to call block_integrityadvocate_email_user_ia_status_update() for email={$user->email}");
-                block_integrityadvocate_email_user_ia_status_update($mailfrom, $user, $p, $courseid);
-
+                    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: About to call block_integrityadvocate_email_user_ia_status_update() for email={$user->email}");
+                    block_integrityadvocate_email_user_ia_status_update($mailfrom, $user, $p, $courseid);
+                }
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: Done this participant");
             }
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Done this blockinstance");
