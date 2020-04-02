@@ -67,6 +67,9 @@ const INTEGRITYADVOCATE_LOGDEST_MLOG = 'MLOG';
 /** @var string Store logged messaged to STDOUT through htmlentities. */
 const INTEGRITYADVOCATE_LOGDEST_STDOUT = 'STDOUT';
 
+/** @var int Time out remote IA sessions after this many minutes. */
+const INTEGRITYADVOCATE_SESS_TIMEOUT = 10;
+
 static $block_integrityadvocate_log_dest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
 
 /**

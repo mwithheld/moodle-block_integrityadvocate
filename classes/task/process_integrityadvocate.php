@@ -186,8 +186,22 @@ class process_integrityadvocate extends \core\task\scheduled_task {
 
                 $debuguseridentifier = 'userid=' . $user->id;
                 if (!is_enrolled($modulecontext, $user)) {
-                    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: This user is no longer enrolled in this course-module, so skip it");
+                    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: This user is no longer enrolled in this course-module, so close the IA session then skip it");
+                    block_integrityadvocate_close_api_session($b->config->appid, $modulecontext, $userid);
                     continue;
+                }
+
+                // Close IA sessions older than INTEGRITYADVOCATE_SESS_TIMEOUT minutes,
+                // but only do so a few times.
+                $usercourse_lastaccess = get_last_access($user->id, $course->id);
+                $time_to_close_ia_session = $usercourse_lastaccess + INTEGRITYADVOCATE_SESS_TIMEOUT * 60;
+                $timenow = time();
+                if ($timenow > $time_to_close_ia_session &&
+                        $timenow < ($time_to_close_ia_session + 4 * 60)
+                ) {
+                    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}:{$debuguseridentifier}: This user last course activity is more than " . INTEGRITYADVOCATE_SESS_TIMEOUT . " minutes ago, so close the IA session");
+                    block_integrityadvocate_close_api_session($b->config->appid, $modulecontext, $userid);
+                    // DO NOT 'break;' - we want to carry on processing.
                 }
 
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel2}:{$debugblockidentifier}: Before changes, \$cm->completion={$cm->completion}");
