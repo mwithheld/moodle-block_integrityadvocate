@@ -26,7 +26,7 @@ Once the Integrity Advocate block is installed, you can use it as follows:
 2. Create your activities/resources as normal.
 3. Set completion settings for each activity you want to appear in the IntegrityAdvocate overview.
 4. Add the IntegrityAdvocate block to an *activity page*, configure the block with the API key and App ID.
-   - For a quiz, edit settings, open the Appearance section, and  you want to Attempt quiz page
+   - For a quiz, edit the quiz settings > Appearance section > Show more... and set "Show blocks during quiz attempts" to Yes
 
 You can place the IntegrityAdvocate block on the course page if you want; it'll only show the Overview button -- it won't cause the IntegrityAdvocate popup to show up anywhere.
   - Ref https://docs.moodle.org/38/en/Course_homepage#Blocks
