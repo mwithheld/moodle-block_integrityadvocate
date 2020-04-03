@@ -30,7 +30,7 @@ Once the Integrity Advocate block is installed, you can use it as follows:
      - Edit the quiz settings > Appearance section > Show more... and set "Show blocks during quiz attempts" to Yes.
      - Turn on course editing, click into the quiz, click Attempt quiz, then add the IntegrityAdvocate block to that page.  Then configure the block, set the API key and AppID, and make sure "Where this block appears" > "Display on page types" is set to "Attempt quiz page".
 
-You can place the IntegrityAdvocate block on the course page if you want; it'll only show the Overview button -- it won't cause the IntegrityAdvocate popup to show up anywhere.
+You can place the IntegrityAdvocate block on the course page if you want; it'll only show the Overview button, and only to instructors. It won't cause the IntegrityAdvocate proctoring popup to show up anywhere.
   - Ref https://docs.moodle.org/38/en/Course_homepage#Blocks
 You can also place the IntegrityAdvocate block on the student profile page if you want; it'll only show the Overview button -- it'll show a summary of the IntegrityAdvocate info to students, plus an Overview button to teachers.
   - Ref https://docs.moodle.org/38/en/User_profiles#Default_profile_page
