@@ -427,62 +427,93 @@ function block_integrityadvocate_get_participant_flags_output(stdClass $particip
  * Ignores deleted and suspended users
  *
  * @global moodle_database $DB Moodle DB object
- * @param int $courseid
- * @param int $userid
+ * @param context $modulecontext The context of the module the IA block is attached to.
+ * @param int $userid The user id to get the ueid for
  * @return int the ueid
-  function block_integrityadvocate_get_ueid($courseid, $userid) {
-  global $DB;
-  $debug = false;
-
-  if (!is_numeric($courseid)) {
-  throw new InvalidArgumentException('Input $courseid must be numeric');
-  }
-  if (!is_numeric($userid)) {
-  throw new InvalidArgumentException('Input $userid must be numeric');
-  }
-  $debug && block_integrityadvocate_log('Started with courseid=' . $courseid . '; userid=' . $userid);
-
-  $sql = "SELECT  ue.id, max(ue.timestart)
-  FROM    {role_assignments} ra
-  JOIN    {context} ctx ON ra.contextid = ctx.id
-  JOIN    {course} c ON ctx.instanceid = c.id
-  JOIN    {enrol} e ON c.id = e.courseid
-  JOIN    {user} u ON ra.userid = u.id
-  JOIN    {user_enrolments} ue ON e.id = ue.enrolid
-  WHERE   ctx.contextlevel = :contextlevel
-  AND     ue.userid = :userid
-  AND     ctx.instanceid = :courseid
-  AND     u.deleted=0 AND u.suspended=0
-  GROUP BY ue.id";
-  // CONTEXT_COURSE=50.
-  $userenrolment = $DB->get_record_sql($sql, array('contextlevel' => CONTEXT_COURSE, 'userid' => $userid, 'courseid' => $courseid), IGNORE_MULTIPLE);
-  $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got \$userenrolment=" . print_r($userenrolment, true));
-
-  return $userenrolment->id;
-  }
+ * @throws InvalidArgumentException
  */
-/**
- * Returns the user object + courseid where a user enrolment belong to.
- *
- * @param int $ueid user_enrolments id
- * @return stdClass
-  function block_integrityadvocate_enrol_get_user_by_user_enrolment_id($ueid) {
-  if (!is_numeric($ueid)) {
-  throw new InvalidArgumentException('Input $ueid must be numeric');
-  }
+function block_integrityadvocate_get_ueid(context $modulecontext, $userid) {
+    global $DB;
+    $debug = true;
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with userid={$userid}");
 
-  global $DB;
+    if (!is_numeric($userid)) {
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Param validation failed");
+        throw new InvalidArgumentException('userid must be an int');
+    }
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Param validation done");
 
-  $sql = 'SELECT  u.*, e.courseid courseid
-  FROM    {user} u
-  JOIN    {user_enrolments} ue ON ue.userid = u.id
-  JOIN    {enrol} e ON e.id = ue.enrolid
-  WHERE   ue.id = :ueid
-  AND     u.deleted = 0 AND u.suspended = 0';
+    // --This section adapted from enrollib.php::get_enrolled_with_capabilities_join().
+    // Initialize empty arrays to be filled later.
+    $joins = array();
+    $wheres = array();
 
-  return $DB->get_record_sql($sql, array('ueid' => $ueid), IGNORE_MULTIPLE);
-  }
- */
+    $enrolledjoin = get_enrolled_join($modulecontext, 'u.id;', true);
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::get_enrolled_join() returned=" . print_r($enrolledjoin, true));
+
+    // Make the parts easier to use.
+    $joins[] = $enrolledjoin->joins;
+    $wheres[] = $enrolledjoin->wheres;
+    $params = $enrolledjoin->params;
+
+    // Clean up Moodle-provided joins.
+    $joins = implode("\n", str_replace(';', ' ', $joins));
+    // Add our critariae.
+    $wheres[] = "u.suspended=0 AND u.deleted=0 AND u.id=" . intval($userid);
+    $wheres = implode(' AND ', $wheres);
+
+    // Figure out what prefix was used.
+    $matches = array();
+    preg_match('/ej[0-9]+_/', $joins, $matches);
+    $prefix = $matches[0];
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got prefix=$prefix");
+
+    // Build the full join part of the sql.
+    $sqljoin = new \core\dml\sql_join($joins, $wheres, $params);
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Built sqljoin=' . print_r($sqljoin, true));
+    /*
+     * The value of $sqljoin is something like this:
+     * JOIN {user_enrolments} ej1_ue ON ej1_ue.userid = u.id;
+     * JOIN {enrol} ej1_e ON (ej1_e.id = ej1_ue.enrolid AND ej1_e.courseid = :ej1_courseid)
+     * [wheres] => 1 = 1
+     *   AND ej1_ue.status = :ej1_active
+     *   AND ej1_e.status = :ej1_enabled
+     *   AND ej1_ue.timestart < :ej1_now1
+     *   AND (ej1_ue.timeend = 0 OR ej1_ue.timeend > :ej1_now2)
+     *
+     * [params] => Array
+     *       (
+     *           [ej1_courseid] => 2
+     *           [ej1_enabled] => 0
+     *           [ej1_active] => 0
+     *           [ej1_now1] => 1577401300
+     *           [ej1_now2] => 1577401300
+     *       )
+     */
+    //
+    // --This section adapted from enrollib.php::get_enrolled_join()
+    // Build the query including our select clause.
+    // Use MAX and GROUP BY in case there are multiple user-enrolments.
+    $sql = "
+                SELECT  {$prefix}ue.id, max({$prefix}ue.timestart)
+                FROM    {user} u
+                {$sqljoin->joins}
+                WHERE {$sqljoin->wheres}
+                GROUP BY {$prefix}ue.id
+                ";
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Built sql={$sql} with params=" . print_r($params, true));
+
+    $enrolmentinfo = $DB->get_record_sql($sql, $sqljoin->params, IGNORE_MULTIPLE);
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $userEnrolmentInfo=' . print_r($enrolmentinfo, true));
+
+    if (!$enrolmentinfo) {
+        block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find an active user_enrolment.id for \$userid={$userid} and \$modulecontext->id={$modulecontext->id} with \$sql={$sql}");
+        // Return a guaranteed-invalid userid.
+        return -1;
+    }
+
+    return $enrolmentinfo->id;
+}
 
 /**
  * Build a user identifier string to give to the IA API
