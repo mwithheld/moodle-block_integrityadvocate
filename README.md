@@ -29,7 +29,9 @@ Once the Integrity Advocate block is installed, you can use it as follows:
    - For a quiz, edit settings, open the Appearance section, and  you want to Attempt quiz page
 
 You can place the IntegrityAdvocate block on the course page if you want; it'll only show the Overview button -- it won't cause the IntegrityAdvocate popup to show up anywhere.
+  - Ref https://docs.moodle.org/38/en/Course_homepage#Blocks
 You can also place the IntegrityAdvocate block on the student profile page if you want; it'll only show the Overview button -- it'll show a summary of the IntegrityAdvocate info to students, plus an Overview button to teachers.
+  - Ref https://docs.moodle.org/38/en/User_profiles#Default_profile_page
 
 When Students view the activity page they will see the video proctoring user interface.
 Admins/instructors will not see the video proctoring interface -- they see an Overview button leading to a view of student IntegrityAdvocate sessions.
