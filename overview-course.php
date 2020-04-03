@@ -174,8 +174,8 @@ foreach ($activities as $a) {
     $debug && block_integrityadvocate_log(__FILE__ . '::' . "::Started with activity id={$a['id']}; name={$a['name']}");
 
     // See if this activity has an associated IA block.
-    $blockactivitycontext = $a['context'];
-    list($unused, $blockinstance) = block_integrityadvocate_get_ia_block($blockactivitycontext);
+    $modulecontext = $a['context'];
+    list($unused, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext);
     if (empty($blockinstance) || !isset($blockinstance->config) || (!isset($blockinstance->config->apikey) && !isset($blockinstance->config->appid))) {
         // No visible IA block found with valid config, so go on to the next activity.
         continue;
@@ -204,7 +204,7 @@ foreach ($activities as $a) {
 
         // See if our current user has values in $participantdata: 2 parts:
         // X(1) Get the useridentifier.
-        $useridentifier = block_integrityadvocate_encode_useridentifier($blockactivitycontext, $thisuserid);
+        $useridentifier = block_integrityadvocate_encode_useridentifier($modulecontext, $thisuserid);
         $debug && block_integrityadvocate_log(__FILE__ . '::' . "::The Moodle user with userid={$thisuserid} has \$useridentifier={$useridentifier}");
         // X(2) Look in the $participantdata for a match
         $singleuserapidata = block_integrityadvocate_parse_user_data($participantdatacache[$blockinstance->config->apikey], $useridentifier);
