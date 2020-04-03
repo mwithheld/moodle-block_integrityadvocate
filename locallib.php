@@ -805,6 +805,7 @@ function block_integrityadvocate_get_course_ia_activities($course, $apikey = fal
  *
  * @param int|stdClass $course course->id to look it up, or stdClass Moodle course object.
  * @param int|stdClass $user user->id to look it up, or stdClass Moodle user object.
+ * @param int|false $activitycontextid If specified, match only this activity contextid.
  * @return string lang string name if error; else
  *      array {
  *         'activity' => Moodle activity object with additional property
@@ -813,7 +814,7 @@ function block_integrityadvocate_get_course_ia_activities($course, $apikey = fal
  *      }
  * @throws InvalidArgumentException if user or course are invalid.
  */
-function block_integrityadvocate_get_course_user_ia_data($course, $user) {
+function block_integrityadvocate_get_course_user_ia_data($course, $user, $activitycontextid = false) {
     $debug = false;
 
     // Massage the course input if needed.
@@ -843,6 +844,10 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user) {
 
     foreach ($iaactivities as $a) {
         // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at $a=' . print_r($a, true));.
+        if ($activitycontextid && $a['context']->id !== $activitycontextid) {
+            continue;
+        }
+
         $blockinstanceid = $a['block_integrityadvocate_instance']['id'];
         $blockinstance = $a['block_integrityadvocate_instance']['instance'];
         // Disabled on purpopse: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance=' . print_r($blockinstance, true));.
