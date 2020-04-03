@@ -125,7 +125,7 @@ function block_integrityadvocate_log($message, $dest = false) {
  * @return array(field=>error message)
  */
 function block_integrityadvocate_ia_config_errors(block_integrityadvocate $blockinstance) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $blockinstance=' . print_r($blockinstance, true));
 
     $errors = array();
@@ -170,7 +170,7 @@ function block_integrityadvocate_ia_config_errors(block_integrityadvocate $block
  * @return false if nothing found; else Object of IA participant data
  */
 function block_integrityadvocate_parse_user_data(array $participantdata, $useridentifier) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$useridentifier={$useridentifier}; \$participantdata=" . print_r($participantdata, true));
 
     foreach ($participantdata as $p) {
@@ -284,7 +284,7 @@ function block_integrityadvocate_from_apitimezone($datetime) {
  * @throws InvalidValueException If the participant status field does not match one of our known values
  */
 function block_integrityadvocate_get_participant_summary_output(stdClass $participant, $blockinstanceid, $courseid, $userid, $showviewdetailsbutton = true, $includephoto = true) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $userid=' . $userid . '; $participant' . print_r($participant, true));
 
     $out = '<div class="block_integrityadvocate_overview_participant_summary_div">';
@@ -526,7 +526,7 @@ function block_integrityadvocate_get_ueid(context $modulecontext, $userid) {
  * @return string The built identifier
  */
 function block_integrityadvocate_encode_useridentifier(context $modulecontext, $userid) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with userid=' . $userid);
 
     if (!is_numeric($userid)) {
@@ -547,7 +547,7 @@ function block_integrityadvocate_encode_useridentifier(context $modulecontext, $
  * @return array of (courseid, userid); null if nothing valid found.
  */
 function block_integrityadvocate_decode_useridentifier($useridentifier) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $useridentifier=' . $useridentifier);
 
     $strlen = strlen($useridentifier);
@@ -648,7 +648,7 @@ function get_last_access($userid, $courseid) {
  * @return object[]|boolean false if nothing found; else array of IA participants objects
  */
 function block_integrityadvocate_get_ia_participant_data($apikey, $appid, array $params = array()) {
-    $debug = false;
+    $debug = true;
     $path = '/Participants/Get';
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Start with params=' . print_r($params, true));
 
@@ -721,7 +721,7 @@ function block_integrityadvocate_get_ia_participant_data($apikey, $appid, array 
  * @throws InvalidArgumentException
  */
 function block_integrityadvocate_user_as_obj($user) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $user=' . print_r($user, true));
 
     if (is_numeric($user)) {
@@ -769,7 +769,7 @@ function block_integrityadvocate_course_as_obj($course) {
  * @return string|array Array of activities that match; else string error identifier
  */
 function block_integrityadvocate_get_course_ia_activities($course, $apikey = false, $appid = false) {
-    $debug = false;
+    $debug = true;
 
     // Massage the course input if needed.
     $course = block_integrityadvocate_course_as_obj($course);
@@ -799,6 +799,7 @@ function block_integrityadvocate_get_course_ia_activities($course, $apikey = fal
     // Filter for activities with matching apikey and appid.
     foreach ($activities as $key => $a) {
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity with id=' . $a['id'] . '; name=' . $a['name']);
+
         $blockinstanceid = $a['block_integrityadvocate_instance']['id'];
         $blockinstance = $a['block_integrityadvocate_instance']['instance'];
         // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance->config=' . print_r($blockinstance->config, true));.
@@ -846,7 +847,7 @@ function block_integrityadvocate_get_course_ia_activities($course, $apikey = fal
  * @throws InvalidArgumentException if user or course are invalid.
  */
 function block_integrityadvocate_get_course_user_ia_data($course, $user, $activitycontextid = false) {
-    $debug = false;
+    $debug = true;
 
     // Massage the course input if needed.
     $course = block_integrityadvocate_course_as_obj($course);
@@ -917,7 +918,7 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
  * @return string|boolean false if nothing found or error; else the json-decoded curl response body
  */
 function block_integrityadvocate_do_api_get($endpointpath, $apikey, $appid, array $params = array()) {
-    $debug = false;
+    $debug = true;
 
     // Set up request variables to get IA participant info.
     // Ref API docs at https://integrityadvocate.com/Developers#aEvents.
@@ -984,7 +985,7 @@ function block_integrityadvocate_blocks_get_visibility($activitycontextid, $bloc
     }
 
     global $DB;
-    $debug = false;
+    $debug = true;
     $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $activitycontextid));
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $bp_record=' . print_r($record, true));
     if (empty($record)) {
@@ -1004,7 +1005,7 @@ function block_integrityadvocate_blocks_get_visibility($activitycontextid, $bloc
  */
 function block_integrityadvocate_get_all_blocks($visibleonly = true) {
     global $DB;
-    $debug = false;
+    $debug = true;
 
     // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
     $params = array('blockname' => INTEGRITYADVOCATE_SHORTNAME);
@@ -1048,7 +1049,7 @@ function block_integrityadvocate_get_all_blocks($visibleonly = true) {
  * @return array of course activities.
  */
 function block_integrityadvocate_filter_activities_use_ia_block(array $activities, $visibleonly = true) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with ') . count($activities) . ' activities';
 
     foreach ($activities as $key => $a) {
@@ -1079,7 +1080,7 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
  */
 function block_integrityadvocate_get_ia_block(context $modulecontext, $visibleonly = true, $rownotinstance = false) {
     global $DB;
-    $debug = false;
+    $debug = true;
 
     // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
     $params = array('blockname' => INTEGRITYADVOCATE_SHORTNAME, 'parentcontextid' => $modulecontext->id);
@@ -1153,7 +1154,7 @@ function block_integrityadvocate_email_build_mailfrom() {
  * @throws InvalidValueException
  */
 function block_integrityadvocate_email_user_ia_status_update(stdClass $mailfrom, stdClass $mailto, stdClass $participant, $courseid) {
-    $debug = false;
+    $debug = true;
     $message = '';
     $reviewstatus = clean_param($participant->ReviewStatus, PARAM_TEXT);
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$reviewStatus=" . print_r($reviewstatus, true));
@@ -1298,7 +1299,7 @@ function block_integrityadvocate_compare_rows($a, $b) {
  * @return string The sanitized url
  */
 function block_integrityadvocate_fix_api_url($url) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::About to clean \$url={$url}");
     $urlscheme = parse_url($url, PHP_URL_SCHEME);
     if (empty($urlscheme)) {
@@ -1324,7 +1325,7 @@ function block_integrityadvocate_fix_api_url($url) {
  * @return boolean true if the remote API close says it succeeded; else false
  */
 function block_integrityadvocate_close_api_session($appid, context $modulecontext, $userid) {
-    $debug = false;
+    $debug = true;
 
     // Do not cache these requests.
     $curl = new \curl();

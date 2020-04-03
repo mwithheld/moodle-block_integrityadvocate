@@ -38,7 +38,7 @@ const DEFAULT_PAGE_SIZE = 20;
 /** @var int Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 const INTEGRITYADVOCATE_OVERVIEW_INTERNAL = true;
 
-$debug = false;
+$debug = true;
 
 // Gather form data.
 $blockinstanceid = required_param('instanceid', PARAM_INT);

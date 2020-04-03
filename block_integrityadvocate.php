@@ -102,7 +102,7 @@ class block_integrityadvocate extends block_base {
      */
     public function get_content() {
         global $USER, $COURSE, $PAGE, $DB, $CFG;
-        $debug = false;
+        $debug = true;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $COURSE->id . '; userid=' . $USER->id . '; username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
@@ -232,7 +232,7 @@ class block_integrityadvocate extends block_base {
      * @return string HTML to output
      */
     public function get_summary_output($courseid, $userid) {
-        $debug = false;
+        $debug = true;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $courseid=' . $courseid . '; $userid=' . $userid);
 
         // Content to return.
@@ -281,7 +281,7 @@ class block_integrityadvocate extends block_base {
      * @return string HTML to output
      */
     public function get_proctor_output(moodle_database $db, stdClass $course, stdClass $user) {
-        $debug = false;
+        $debug = true;
         // Set to true to disable the IA proctor JS.
         $debugnoiaproctoroutput = false;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started');

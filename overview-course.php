@@ -35,7 +35,7 @@ if (empty($courseid) || empty($course)) {
     throw new InvalidArgumentException('$courseid and $course are required');
 }
 
-$debug = false;
+$debug = true;
 
 // Output roles selector.
 echo $OUTPUT->container_start('progressoverviewmenus');
