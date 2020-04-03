@@ -240,25 +240,25 @@ class block_integrityadvocate extends block_base {
 
         $hasoverviewcapability = has_capability('block/integrityadvocate:overview', $this->context);
 
-        $useriadata = block_integrityadvocate_get_course_user_ia_data($courseid, $userid);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got count($useriadata)=' . count($useriadata));
+        $useriaresults = block_integrityadvocate_get_course_user_ia_data($courseid, $userid);
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got count($useriadata)=' . count($useriaresults));
         // Warning: Huge object output: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $useriadata=' . print_r($useriadata, true));
 
-        if (empty($useriadata)) {
+        if (empty($useriaresults)) {
             return $out;
         }
 
         // If we get back a string we got an error, so quit.
-        if (is_string($useriadata)) {
+        if (is_string($useriaresults)) {
             if ($hasoverviewcapability) {
-                $out .= $useriadata;
+                $out .= $useriaresults;
             }
             // Error output is visible only to instructors.
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($useriadata, true));
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($useriaresults, true));
             return $out;
         }
 
-        foreach ($useriadata as $a) {
+        foreach ($useriaresults as $a) {
             $blockinstanceid = $a['activity']['block_integrityadvocate_instance']['id'];
             $participantdata = $a['ia_participant_data'];
 
