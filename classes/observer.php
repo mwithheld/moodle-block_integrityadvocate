@@ -34,102 +34,6 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 class block_integrityadvocate_observer {
 
     /**
-     * Get the user_enrolment.id value
-     * using Moodle core queries where possible
-     * Respects [enrolment status] and [enrolment active dates]
-     * Excludes deleted and suspended users
-     *
-     * @global moodle_database $DB Moodle DB object
-     * @param context $context Course or module context to look for user enrolment in
-     * @param int $userid The userid to get the ueid for
-     * @return int user-enrolment id; false if nothing found
-     * @throws InvalidArgumentException
-     */
-    private static function get_ueid(context $context, $userid) {
-        global $DB;
-
-        $debug = false;
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with userid={$userid}");
-
-        if (!is_numeric($userid)) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Param validation failed");
-            throw new InvalidArgumentException('userid must be an int');
-        }
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Param validation done");
-
-        // --This section adapted from enrollib.php::get_enrolled_with_capabilities_join().
-        // Initialize empty arrays to be filled later.
-        $joins = array();
-        $wheres = array();
-
-        $enrolledjoin = get_enrolled_join($context, 'u.id;', true);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::get_enrolled_join() returned=" . print_r($enrolledjoin, true));
-
-        // Make the parts easier to use.
-        $joins[] = $enrolledjoin->joins;
-        $wheres[] = $enrolledjoin->wheres;
-        $params = $enrolledjoin->params;
-
-        // Clean up Moodle-provided joins.
-        $joins = implode("\n", str_replace(';', ' ', $joins));
-        // Add our critariae.
-        $wheres[] = "u.suspended=0 AND u.deleted=0 AND u.id=" . intval($userid);
-        $wheres = implode(' AND ', $wheres);
-
-        // Figure out what prefix was used.
-        $matches = array();
-        preg_match('/ej[0-9]+_/', $joins, $matches);
-        $prefix = $matches[0];
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got prefix=$prefix");
-
-        // Build the full join part of the sql.
-        $sqljoin = new \core\dml\sql_join($joins, $wheres, $params);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Built sqljoin=' . print_r($sqljoin, true));
-        /*
-         * The value of $sqljoin is something like this:
-         * JOIN {user_enrolments} ej1_ue ON ej1_ue.userid = u.id;
-         * JOIN {enrol} ej1_e ON (ej1_e.id = ej1_ue.enrolid AND ej1_e.courseid = :ej1_courseid)
-         * [wheres] => 1 = 1
-         *   AND ej1_ue.status = :ej1_active
-         *   AND ej1_e.status = :ej1_enabled
-         *   AND ej1_ue.timestart < :ej1_now1
-         *   AND (ej1_ue.timeend = 0 OR ej1_ue.timeend > :ej1_now2)
-         *
-         * [params] => Array
-         *       (
-         *           [ej1_courseid] => 2
-         *           [ej1_enabled] => 0
-         *           [ej1_active] => 0
-         *           [ej1_now1] => 1577401300
-         *           [ej1_now2] => 1577401300
-         *       )
-         */
-        //
-        // --This section adapted from enrollib.php::get_enrolled_join()
-        // Build the query including our select clause.
-        // Use MAX and GROUP BY in case there are multiple user-enrolments.
-        $sql = "
-                SELECT  {$prefix}ue.id, max({$prefix}ue.timestart)
-                FROM    {user} u
-                {$sqljoin->joins}
-                WHERE {$sqljoin->wheres}
-                GROUP BY {$prefix}ue.id
-                ";
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Built sql={$sql} with params=" . print_r($params, true));
-
-        $enrolmentinfo = $DB->get_record_sql($sql, $sqljoin->params, IGNORE_MULTIPLE);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $userEnrolmentInfo=' . print_r($enrolmentinfo, true));
-
-        if (!$enrolmentinfo) {
-            block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find an active user_enrolment.id for userid={$userid} and context={$context->id} with SQL={$sql}");
-            // Return a guaranteed-invalid userid.
-            return -1;
-        }
-
-        return $enrolmentinfo->id;
-    }
-
-    /**
      * Parse the triggered event and decide if and how to act on it.
      * User logout and other course events lead to the user's remote IA sessions being closed
      *
@@ -137,7 +41,7 @@ class block_integrityadvocate_observer {
      * @return true if attempted to close the remote IA session; else false
      */
     public static function process_event(\core\event\base $event) {
-        $debug = false;
+        $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with event=' . print_r($event, true));.
@@ -155,6 +59,30 @@ class block_integrityadvocate_observer {
         if (is_numeric($event->userid)) {
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
             return false;
+        }
+
+        switch ($event->eventname) {
+            case '\\core\\event\\user_loggedout':
+                // On logout, close all IA sessions. Note: This is a read event not a create/update.
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}: close all remote IA sessions for userid={$event->userid}");
+                self::close_all_user_sessions($event);
+                return;
+            case '\\core\\event\\course_module_completion_updated':
+                // When activity completion updates...
+                // (a) Close the IA session; and...
+                // (b) Update the activity completion info from the IA status.
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Event name={$event->eventname}, so just close the IA session");
+                self::close_activity_user_session($event);
+                $useriaresults = block_integrityadvocate_get_course_user_ia_data($event->courseid, $event->userid, $event->contextid);
+                if ($useriaresults) {
+                    // If we get back a string we got an error, so skip it.
+                    if (is_string($useriaresults)) {
+                        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Skipped closing: " . print_r($useriaresults, true));
+                    } elseif (is_array($participant = $useriaresults[0])) {
+                        process_integrityadvocate::process_single_user($event->oourseid, $participant, __FUNCTION__);
+                        return;
+                    }
+                }
         }
 
         /*
@@ -176,6 +104,7 @@ class block_integrityadvocate_observer {
             case preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
             // None of the \mod_forum\*created events correspond to finishing an activity - they probably jost posted to the forum or added a discussion but that's not finishing with forums.
             case in_array($event->eventname, array(
+                '\\assignsubmission_onlinetext\\event\\submission_updated',
                 '\\mod_assign\\event\\submission_duplicated',
                 '\\mod_quiz\\event\\attempt_becameoverdue',
                 '\\mod_quiz\\event\\attempt_started',
@@ -189,12 +118,6 @@ class block_integrityadvocate_observer {
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is not blacklisted so continue");
         }
 
-        // On logout, close all IA sessions. Note: This is a read event not a create/update.
-        if ($event->eventname == '\\core\\event\\user_loggedout') {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::User logout detected, so close all remote IA sessions for userid={$event->userid}");
-            self::close_all_user_sessions($event);
-        }
-
         /*
          * Whitelist events to act on.
          * Ref event list /report/eventlist/index.php
@@ -204,12 +127,10 @@ class block_integrityadvocate_observer {
         switch (true) {
             case in_array($event->eventname, array(
                 /* Create events */
-                '\\assignsubmission_onlinetext\\event\\submission_updated',
-                '\\core\\event\\course_module_completion_updated', /* Course activity completion updated */
                 '\\mod_assign\\event\\assessable_submitted',
                 '\\mod_choice\\event\\answer_created',
                 '\\mod_feedback\\event\\response_submitted',
-                '\\mod_lesson\\event\\lesson_ended',
+                // This is blacklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
                 '\\mod_quiz\\event\\attempt_abandoned',
                 '\\mod_quiz\\event\\attempt_submitted',
             )):
@@ -294,45 +215,57 @@ class block_integrityadvocate_observer {
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
-        $context = $event->get_context();
-        if (!is_enrolled($context, null, null, true)) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::The user has no active enrolment in this course-activity so skip it; debuginfo={$debuginfo}");
-            return false;
-        }
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-activity so continue');
-
-        // Find the user-enrolment-id, which is what the IntegrityAdvocate API uses.
-        // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');.
-        $ueid = self::get_ueid($context, $event->userid);
-        if ($ueid < 0) {
-            block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find an active user_enrolment.id for userid and context={$$event->contextid}; debuginfo={$debuginfo}");
-            return false;
-        }
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Found ueid={$ueid}");
-
-        // Get the appid from plugin instance config: 3 parts:...
-        // ...(1) Get the associated course module contextid.
-        $activitycontextid = $event->contextid;
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Found contextid={$activitycontextid}");
-
-        // ...(2) Find the non-hidden proctor blocks associated with this module.
-        // Abstracted $blockname to reduce errors in case the block name changes.
-        // Remove the block_ prefix and _observer suffix.
-        $blockname = implode('_', array_slice(explode('_', substr(__CLASS__, strrpos(__CLASS__, '\\') + 1)), 1, -1));
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
-        // Summarize what we have figured out so far.
-        $debuginfo .= "; ueid={$ueid}";
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Maybe we should ask the IA API to close the session; {$debuginfo}");
-
-        // (3) See if an IA block instance is present and visible.
-        list($unused, $blockinstance) = block_integrityadvocate_get_ia_block($context);
-        if (!$blockinstance) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::The block is not present or not visible, so skip it");
+        if (!($blockinstance = check_should_close_user_ia($event))) {
             return false;
         }
 
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
         return self::close_session($blockinstance, $event->userid);
+    }
+
+    static function check_should_close_user_ia(\core\event\base $event) {
+        $debug = true;
+
+        $modulecontext = $event->get_context();
+
+        if ($modulecontext->contextlevel != CONTEXT_MODULE) {
+            $msg = 'The passed-in event is not from a module context level';
+            block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
+            throw new InvalidArgumentException($msg);
+        }
+
+        if (!is_enrolled($modulecontext, null, null, true)) {
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::The user has no active enrolment in this course-activity so skip it");
+            return false;
+        }
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-activity so continue');
+
+        // Check the user has a valid UEID in this context.
+        // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');.
+        $ueid = block_integrityadvocate_get_ueid($modulecontext, $event->userid);
+        if ($ueid < 0) {
+            block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find a UEID for userid and context={$event->contextid}; debuginfo={$debuginfo}");
+            return false;
+        }
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Found ueid={$ueid}");
+
+        if ($debug) {
+            // Abstracted $blockname to reduce errors in case the block name changes.
+            // Remove the block_ prefix and _observer suffix.
+            $blockname = implode('_', array_slice(explode('_', substr(__CLASS__, strrpos(__CLASS__, '\\') + 1)), 1, -1));
+            block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
+        }
+
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Maybe we should ask the IA API to close the session");
+
+        // Make sure an IA block instance is present and visible.
+        list($unused, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext);
+        if (!$blockinstance) {
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::The block is not present or not visible, so skip it");
+            return false;
+        }
+
+        return $blockinstance;
     }
 
     /**
@@ -344,7 +277,7 @@ class block_integrityadvocate_observer {
      * @return boolean true if remote session is closed; else false
      */
     static function close_session(block_integrityadvocate $blockinstance, $userid) {
-        $debug = false;
+        $debug = true;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started");
 
         $appid = trim($blockinstance->config->appid);
