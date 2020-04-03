@@ -125,7 +125,7 @@ function block_integrityadvocate_log($message, $dest = false) {
  * @return array(field=>error message)
  */
 function block_integrityadvocate_ia_config_errors(block_integrityadvocate $blockinstance) {
-    $debug = true;
+    $debug = false;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $blockinstance=' . print_r($blockinstance, true));
 
     $errors = array();
