@@ -49,7 +49,7 @@ class block_integrityadvocate extends block_base {
      * @return bool
      */
     public function has_config() {
-        return true;
+        return false;
     }
 
     /**
