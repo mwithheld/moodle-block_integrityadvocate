@@ -35,13 +35,13 @@ if (empty($courseid) || empty($course)) {
 $userid = required_param('userid', PARAM_INT);
 
 // Note: block_integrityadvocate_get_course_user_ia_data() makes sure the user is enrolled in a course activity.
-$iaresults = block_integrityadvocate_get_course_user_ia_data($course, $userid);
+$useriaresults = block_integrityadvocate_get_course_user_ia_data($course, $userid);
 
 $continue = true;
 
 // If we get back a string we got an error, so display it and quit.
-if (is_string($iaresults)) {
-    echo get_string($iaresults, INTEGRITYADVOCATE_BLOCKNAME);
+if (is_string($useriaresults)) {
+    echo get_string($useriaresults, INTEGRITYADVOCATE_BLOCKNAME);
     $continue = false;
 }
 
@@ -52,7 +52,7 @@ if ($continue) {
     echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
     echo html_writer::end_tag('div');
 
-    foreach ($iaresults as $a) {
+    foreach ($useriaresults as $a) {
         $blockinstanceid = $a['activity']['block_integrityadvocate_instance']['id'];
         $participantdata = $a['ia_participant_data'];
 
