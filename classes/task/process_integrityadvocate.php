@@ -156,7 +156,10 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             mtrace('About to get process IA results for ' . count($participants) . ' participants');
             foreach ($participants as $p) {
                 $usersupdatedcount += self::process_single_user($course, $cm, $modulecontext, $b, $p, $debugblockidentifier);
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
+                if ($debug) {
+                    block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
+                    mtrace("For course {$course->id} updated {$usersupdatedcount} completion items");
+                }
             }
 
             mtrace("Updated {$usersupdatedcount} completion items");
