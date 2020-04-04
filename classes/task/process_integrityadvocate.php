@@ -155,11 +155,12 @@ class process_integrityadvocate extends \core\task\scheduled_task {
                 continue;
             }
 
-            $usersupdatedcount = 0;
 
             $msg = 'About to get process IA results for ' . count($participants) . ' participants';
             mtrace($msg);
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
+
+            $usersupdatedcount = 0;
             foreach ($participants as $p) {
                 $usersupdatedcount += self::process_single_user($course, $cm, $modulecontext, $b, $p, $debugblockidentifier);
                 if ($debug && $usersupdatedcount > 0) {
