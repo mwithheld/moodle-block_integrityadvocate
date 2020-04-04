@@ -79,7 +79,8 @@ class block_integrityadvocate_observer {
                     if (is_string($useriaresults)) {
                         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Skipped closing: " . print_r($useriaresults, true));
                     } elseif (is_array($participant = $useriaresults[0])) {
-                        process_integrityadvocate::process_single_user($event->oourseid, $participant, __FUNCTION__);
+                        require_once('task/process_integrityadvocate.php');
+                        block_integrityadvocate\task\process_integrityadvocate::process_single_user($event->oourseid, $participant, __FUNCTION__);
                         return;
                     }
                 }
@@ -108,6 +109,7 @@ class block_integrityadvocate_observer {
                 '\\mod_assign\\event\\submission_duplicated',
                 '\\mod_quiz\\event\\attempt_becameoverdue',
                 '\\mod_quiz\\event\\attempt_started',
+                '\\mod_quiz\\event\\attempt_viewed',
                 '\\mod_workshop\\event\\submission_reassessed',
             )):
                 // None of these exact string matches on event names correspond to finishing an activity.
