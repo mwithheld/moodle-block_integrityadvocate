@@ -27,7 +27,7 @@
  * so we are just getting results for all students associated with the API key and displaying them.
  */
 // Include required files.
-require_once(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 require_once($CFG->dirroot . '/notes/lib.php');
 require_once($CFG->libdir . '/tablelib.php');
