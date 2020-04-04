@@ -26,8 +26,8 @@ namespace block_integrityadvocate\task;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/completionlib.php');
-require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
+require_once(dirname(__FILE__, 3) . '/lib.php');
+require_once(dirname(__FILE__, 5) . '/lib/completionlib.php');
 
 /**
  * IntegrityAdvocate block capability setup
