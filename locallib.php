@@ -24,6 +24,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/user/lib.php');
+require_once($CFG->libdir . '/filelib.php');
 
 /** @var string Short name for this block */
 const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
@@ -1338,7 +1339,7 @@ function block_integrityadvocate_close_api_session($appid, context $modulecontex
     $url = INTEGRITYADVOCATE_BASEURL . '/Integrity/SessionComplete?appid=' . urlencode($appid) . '&participantid=' . urlencode(block_integrityadvocate_encode_useridentifier($modulecontext, $userid));
     $response = $curl->get($url);
     $responsecode = $curl->get_info('http_code');
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Send url=' . $url . '; http_code=' . $responsecode . '; response body=' . print_r($response, true));
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Send url=' . print_r($url, true) . '; http_code=' . print_r($responsecode, true) . '; response body=' . print_r($response, true));
 
     return intval($responsecode) < 400;
 }
