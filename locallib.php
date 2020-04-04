@@ -337,10 +337,9 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: Before changes, \$current->completionstate={$current->completionstate}");
         $current->completionstate = $targetstate;
         $current->timemodified = time();
-        $current->overrideby = $user->id;
+        $current->overrideby = null;
         $completion->internal_set_data($cm, $current);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so did set the activity completion status; completiondata=' . print_r($completiondata = $completion->get_data($cm, false, $user->id), true));
-
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so set the activity completion status; completiondata=' . print_r($completiondata = $completion->get_data($cm, false, $user->id), true));
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: About to call block_integrityadvocate_email_user_ia_status_update() for email={$user->email}");
         block_integrityadvocate_email_user_ia_status_update($mailfrom, $user, $participant, $course->id);
     }
