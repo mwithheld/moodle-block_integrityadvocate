@@ -297,7 +297,7 @@ class block_integrityadvocate extends block_base {
             if ($hasoverviewcapability) {
                 $out = $configerrors;
             }
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::' . print_r($configerrors, true);
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::' . print_r($configerrors, true));
             return $out;
         }
 
