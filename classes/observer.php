@@ -56,7 +56,7 @@ class block_integrityadvocate_observer {
         }
 
         // If there is no user attached to this event, we can't close the user's IA session, so skip.
-        if (is_numeric($event->userid)) {
+        if (!is_numeric($event->userid)) {
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
             return false;
         }
