@@ -334,6 +334,7 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
     // Cannot use update_state() in several of the above cases, so dirty hack it in with internal_set_data().
     $current = $completion->get_data($cm, false, $user->id);
     if ($current->completionstate != $targetstate) {
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: Before changes, \$current->completionstate={$current->completionstate}");
         $current->completionstate = $targetstate;
         $current->timemodified = time();
         $current->overrideby = $user->id;
