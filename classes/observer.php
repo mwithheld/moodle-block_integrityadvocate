@@ -215,7 +215,7 @@ class block_integrityadvocate_observer {
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
-        if (!($blockinstance = check_should_close_user_ia($event))) {
+        if (!($blockinstance = self::check_should_close_user_ia($event))) {
             return false;
         }
 
