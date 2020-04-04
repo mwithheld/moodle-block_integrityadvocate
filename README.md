@@ -21,7 +21,7 @@ Login to your Moodle site as an admin, navigate to Site administration > Plugins
 **or**
 
 1. Copy the integrityadvocate directory into the blocks/ directory of your Moodle instance;
-2. Visit the notifications page.
+2. Browse to the Moodle admin notifications page.
 
 For more information visit
 http://docs.moodle.org/en/Installing_contributed_modules_or_plugins
