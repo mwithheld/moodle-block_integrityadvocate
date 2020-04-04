@@ -294,7 +294,7 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
     // Get course completion object so we can manipulate activity completion status for each user.
     $completion = new \completion_info($course);
 
-    $modinfo = get_fast_modinfo($courseid);
+    $modinfo = get_fast_modinfo($course->id);
     $cm = $modinfo->get_cm($modulecontext->instanceid);
     if ($cm->completion == COMPLETION_TRACKING_NONE) {
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Completion is disabled at the module level, so skip it");
