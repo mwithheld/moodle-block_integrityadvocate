@@ -290,7 +290,6 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: This user last course activity is less than " . INTEGRITYADVOCATE_SESS_TIMEOUT . " minutes ago, so do not close the IA session");
     }
 
-
     // Get course completion object so we can manipulate activity completion status for each user.
     $completion = new \completion_info($course);
 
@@ -579,7 +578,7 @@ function block_integrityadvocate_get_ueid(context $modulecontext, $userid) {
     }
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Param validation done");
 
-    // --This section adapted from enrollib.php::get_enrolled_with_capabilities_join().
+    // This section adapted from enrollib.php::get_enrolled_with_capabilities_join().
     // Initialize empty arrays to be filled later.
     $joins = array();
     $wheres = array();
@@ -627,7 +626,7 @@ function block_integrityadvocate_get_ueid(context $modulecontext, $userid) {
      *       )
      */
     //
-    // --This section adapted from enrollib.php::get_enrolled_join()
+    // This section adapted from enrollib.php::get_enrolled_join()
     // Build the query including our select clause.
     // Use MAX and GROUP BY in case there are multiple user-enrolments.
     $sql = "

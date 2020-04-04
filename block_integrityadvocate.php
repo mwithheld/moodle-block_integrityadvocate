@@ -101,7 +101,7 @@ class block_integrityadvocate extends block_base {
      * @return string
      */
     public function get_content() {
-        global $USER, $COURSE, $PAGE, $DB, $CFG;
+        global $USER, $COURSE, $DB, $CFG;
         $debug = true;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $COURSE->id . '; userid=' . $USER->id . '; username=' . $USER->username);
 
@@ -173,7 +173,7 @@ class block_integrityadvocate extends block_base {
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
                 switch (true) {
                     case $hasoverviewcapability:
-                        if (stripos($PAGE->url, '/user/view.php?') > 0) {
+                        if (stripos($this->page->url, '/user/view.php?') > 0) {
                             $courseid = required_param('course', PARAM_INT);
                             $userid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::This is the course-user page, so in the block show the IA proctor summary for the specified courseid=' . $courseid . '; userid=' . $userid);
@@ -242,7 +242,7 @@ class block_integrityadvocate extends block_base {
 
         $useriaresults = block_integrityadvocate_get_course_user_ia_data($courseid, $userid);
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got count($useriadata)=' . count($useriaresults));
-        // Warning: Huge object output: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $useriadata=' . print_r($useriadata, true));
+        // Warning: Huge object output: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $useriadata=' . print_r($useriadata, true));.
 
         if (empty($useriaresults)) {
             return $out;

@@ -206,7 +206,7 @@ foreach ($activities as $a) {
         // X(1) Get the useridentifier.
         $useridentifier = block_integrityadvocate_encode_useridentifier($modulecontext, $thisuserid);
         $debug && block_integrityadvocate_log(__FILE__ . '::' . "::The Moodle user with userid={$thisuserid} has \$useridentifier={$useridentifier}");
-        // X(2) Look in the $participantdata for a match
+        // X(2) Look in the $participantdata for a match.
         $singleuserapidata = block_integrityadvocate_parse_user_data($participantdatacache[$blockinstance->config->apikey], $useridentifier);
         $debug && block_integrityadvocate_log(__FILE__ . '::' . '::Got $ia_single_user_data=' . print_r($singleuserapidata, true));
         if (!$singleuserapidata) {

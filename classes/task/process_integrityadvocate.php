@@ -93,7 +93,7 @@ class process_integrityadvocate extends \core\task\scheduled_task {
         mtrace($msg);
         if ($debug) {
             block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::' . $msg);
-            //block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::blockinstances=' . print_r($blockinstances, true));
+            // Disabled on purpose: block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::blockinstances=' . print_r($blockinstances, true));.
         }
 
         // For each IA block instance, process IA data and update the activity completion status accordingly.
