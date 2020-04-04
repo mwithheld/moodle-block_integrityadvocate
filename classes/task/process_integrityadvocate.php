@@ -144,7 +144,7 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             mtrace('About to get remote IA data for ' . $debugblockidentifier . ' since ' . $lastruntime);
             $params['lastmodified'] = block_integrityadvocate_to_apitimezone(max($params['lastmodified'], $b->instance->timecreated, $course->timecreated));
             $participants = block_integrityadvocate_get_ia_participant_data($b->config->apikey, $b->config->appid, $params);
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Got participants \$p=" . print_r($participants, true));
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Got participants=" . print_r($participants, true));
             if (empty($participants)) {
                 mtrace('No remote IA participant data returned');
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: No participants in the IA data, so skip it");
@@ -156,13 +156,13 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             mtrace('About to get process IA results for ' . count($participants) . ' participants');
             foreach ($participants as $p) {
                 $usersupdatedcount += self::process_single_user($course, $cm, $modulecontext, $b, $p, $debugblockidentifier);
-                if ($debug) {
+                if ($debug && $usersupdatedcount > 0) {
                     block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
-                    mtrace("For course {$course->id} updated {$usersupdatedcount} completion items");
+                    mtrace("For IA participant {$p->ParticipantIdentifier} updated {$usersupdatedcount} completion items");
                 }
             }
 
-            mtrace("Updated {$usersupdatedcount} completion items");
+            mtrace("For course {$course->id} updated {$usersupdatedcount} completion items");
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Done the scheduled task');
 
             // Reset the log output destination to default.
