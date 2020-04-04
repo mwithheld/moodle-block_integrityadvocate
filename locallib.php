@@ -1055,8 +1055,8 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
 
     foreach ($activities as $key => $a) {
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity=' . print_r($a, true));
-        $blockactivitycontext = $a['context'];
-        list($blockinstanceid, $blockinstance) = block_integrityadvocate_get_ia_block($blockactivitycontext, $visibleonly);
+        $modulecontext = $a['context'];
+        list($blockinstanceid, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext, $visibleonly);
         // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::This activity has $blockinstance_row=' . print_r($blockinstance_row, true));.
         if (empty($blockinstance)) {
             unset($activities[$key]);
