@@ -106,6 +106,13 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             $debugblockidentifier = 'courseid=' . $courseid . '; moduleid=' . $modulecontext->instanceid . '; blockinstanceid=' . $b->instance->id;
             $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:Looking at {$debugblockidentifier}");
 
+            // Get the course object so we can get the timemodified and the completion info.
+            $course = get_course($courseid);
+            if ($course->timemodified < (time() - 60 * 60 * 24)) {
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}:{$debuguseridentifier}: This course has not been modified in 24 hours, so skip it");
+                continue;
+            }
+
             // Check if completion is setup at the course level.
             if (block_integrityadvocate_completion_setup_errors($courseid)) {
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}:{$debuguseridentifier}: This courses completion is not setup at the course level, so skip it");
@@ -136,9 +143,6 @@ class process_integrityadvocate extends \core\task\scheduled_task {
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Completion is disabled at the module level, so skip it");
                 continue;
             }
-
-            // Get the course object so we can get the timemodified and the completion info.
-            $course = get_course($courseid);
 
             // Call the API with this block's API key and AppId - this returns cleaned participant data.
             $msg = 'About to get remote IA data for ' . $debugblockidentifier . ' since ' . $lastruntime;
