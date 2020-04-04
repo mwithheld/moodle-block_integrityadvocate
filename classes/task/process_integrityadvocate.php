@@ -164,7 +164,7 @@ class process_integrityadvocate extends \core\task\scheduled_task {
                 $usersupdatedcount += self::process_single_user($course, $cm, $modulecontext, $b, $p, $debugblockidentifier);
                 if ($debug && $usersupdatedcount > 0) {
                     block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
-                    $msg = "For IA participant {$p->ParticipantIdentifier} updated {$usersupdatedcount} completion items";
+                    $msg = "For IA participant {$p->ParticipantIdentifier} updated completion item";
                     mtrace($msg);
                     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
                 }
