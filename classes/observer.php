@@ -225,6 +225,14 @@ class block_integrityadvocate_observer {
         return self::close_session($blockinstance, $event->userid);
     }
 
+    /**
+     * Figure out from the event info if we should close the remote IA session.
+     * Checks the user is enrolled and the block is visible.
+     *
+     * @param \core\event\base $event Triggered event.
+     * @return boolean true if should close the remote IA session.
+     * @throws InvalidArgumentException if the passed-in event is not from a module context level.
+     */
     static function check_should_close_user_ia(\core\event\base $event) {
         $debug = true;
 
