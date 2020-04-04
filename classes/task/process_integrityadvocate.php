@@ -162,7 +162,7 @@ class process_integrityadvocate extends \core\task\scheduled_task {
 
             $usersupdatedcount = 0;
             foreach ($participants as $p) {
-                $usersupdatedcount += self::process_single_user($course, $cm, $modulecontext, $b, $p, $debugblockidentifier);
+                $usersupdatedcount += \block_integrityadvocate_cron_single_user($course, $modulecontext, $b, $p, $debugblockidentifier);
                 if ($debug && $usersupdatedcount > 0) {
                     block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
                     $msg = "For IA participant {$p->ParticipantIdentifier} updated completion item";
@@ -178,109 +178,6 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             // Reset the log output destination to default.
             // Disabled on purpose: $block_integrityadvocate_log_dest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;.
         }
-    }
-
-    function process_single_user(\stdClass $course, \cm_info $cm, \context $modulecontext, \block_integrityadvocate $blockinstance, \stdClass $participant, $debugblockidentifier = '') {
-        global $DB;
-        $debug = true;
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier);
-
-        if (empty($participant->ParticipantIdentifier) || !ctype_alnum($participant->ParticipantIdentifier)) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Invalid \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' so skip it');
-            return false;
-        }
-
-        $parsedparticipantinfo = block_integrityadvocate_decode_useridentifier($participant->ParticipantIdentifier);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' got thisuserid=' . print_r($parsedparticipantinfo, true));
-        if (empty($parsedparticipantinfo)) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' is empty or an incorrect format, so skip it');
-            return false;
-        }
-
-        $participantcourseid = $parsedparticipantinfo[0];
-        if ($participantcourseid !== $course->id) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' this info is for a different courseid, so skip it');
-            return false;
-        }
-
-        $participantuserid = $parsedparticipantinfo[1];
-        $user = $DB->get_record('user', array('id' => $participantuserid));
-        // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::For $participant->ParticipantIdentifier=' . $participant->ParticipantIdentifier . ' got $user with id=' . $user->id);.
-        if (empty($user)) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' got an empty user, so skip it');
-            return false;
-        }
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' got a $user');
-
-        $debuguseridentifier = 'userid=' . $user->id;
-        if (!is_enrolled($modulecontext, $user)) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: This user is no longer enrolled in this course-module, so close the IA session then skip it");
-            block_integrityadvocate_close_api_session($blockinstance->config->appid, $modulecontext, $user->id);
-            return false;
-        }
-
-        // Close IA sessions older than INTEGRITYADVOCATE_SESS_TIMEOUT minutes,
-        // but only do so a few times.
-        $usercourse_lastaccess = get_last_access($user->id, $course->id);
-        $time_to_close_ia_session = $usercourse_lastaccess + INTEGRITYADVOCATE_SESS_TIMEOUT * 60;
-        $timenow = time();
-        if ($timenow > $time_to_close_ia_session &&
-                $timenow < ($time_to_close_ia_session + (4 * 60))
-        ) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: This user last course activity is more than " . INTEGRITYADVOCATE_SESS_TIMEOUT . " minutes ago, so close the IA session");
-            block_integrityadvocate_close_api_session($blockinstance->config->appid, $modulecontext, $user->id);
-            // DO NOT 'break;' - we want to carry on processing.
-        }
-
-
-        // Get course completion object so we can manipulate activity completion status for each user.
-        $completion = new \completion_info($course);
-
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: Before changes, \$cm->completion={$cm->completion}");
-        $targetstate = COMPLETION_INCOMPLETE;
-        switch ($reviewstatus = clean_param($participant->ReviewStatus, PARAM_TEXT)) {
-            case INTEGRITYADVOCATE_API_STATUS_INPROGRESS:
-                // No need to set again: $targetstate = COMPLETION_INCOMPLETE;.
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to INCOMPLETE');
-                break;
-            case INTEGRITYADVOCATE_API_STATUS_VALID:
-                // If the returned IA status is "Valid", we'd want the course marked Complete/Passed (if scored... if not scored, just "Complete" would work).
-                $targetstate = COMPLETION_COMPLETE;
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to COMPLETE');
-                break;
-            case INTEGRITYADVOCATE_API_STATUS_INVALID_ID:
-                // In the case of "Invalid (ID)" status from IA, we'd want it to remain in the incomplete/pending review state (until the user submits their ID again via the link provided in the email sent out by the cron job and IA returns a different status).
-                // No need to set again: $targetstate = COMPLETION_INCOMPLETE;.
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to INCOMPLETE');
-                break;
-            case INTEGRITYADVOCATE_API_STATUS_INVALID_RULES:
-                // In the case of an "Invalid (Rules)" status returned from IA, we'd want the course to be marked as Failed by the cron job.
-                $targetstate = COMPLETION_COMPLETE_FAIL;
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to COMPLETE_FAIL');
-                break;
-            default:
-                throw new Exception("{$debugblockidentifier}:{$debuguseridentifier}: The IA API returned an invalid participant \$reviewtatus=" . $reviewstatus);
-        }
-
-        // The user to send mail from.
-        $mailfrom = block_integrityadvocate_email_build_mailfrom();
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Built mailfrom=' . $mailfrom->email);
-
-        // Cannot use update_state() in several of the above cases, so dirty hack it in with internal_set_data().
-        $current = $completion->get_data($cm, false, $user->id);
-        if ($current->completionstate != $targetstate) {
-            $current->completionstate = $targetstate;
-            $current->timemodified = time();
-            $current->overrideby = $user->id;
-            $completion->internal_set_data($cm, $current);
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so did set the activity completion status; completiondata=' . print_r($completiondata = $completion->get_data($cm, false, $user->id), true));
-
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: About to call block_integrityadvocate_email_user_ia_status_update() for email={$user->email}");
-            block_integrityadvocate_email_user_ia_status_update($mailfrom, $user, $participant, $course->id);
-        }
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: Done this participant");
-
-        return true;
     }
 
 }
