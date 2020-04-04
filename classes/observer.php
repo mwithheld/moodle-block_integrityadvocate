@@ -72,17 +72,19 @@ class block_integrityadvocate_observer {
                 // (a) Close the IA session; and...
                 // (b) Update the activity completion info from the IA status.
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Event name={$event->eventname}, so just close the IA session");
-                self::close_activity_user_session($event);
                 $useriaresults = block_integrityadvocate_get_course_user_ia_data($event->courseid, $event->userid, $event->contextid);
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults=" . print_r($useriaresults, true));
                 if ($useriaresults && $event->contextlevel === CONTEXT_MODULE) {
                     if (is_string($useriaresults)) {
                         // If we get back a string we got an error, so skip it.
                         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Skipped closing: " . print_r($useriaresults, true));
-                    } elseif (is_array($participants = $useriaresults['ia_participant_data'])) {
+                    } elseif (is_array($participant = $useriaresults[0]['ia_participant_data'])) {
+                        self::close_activity_user_session($event);
+
                         $modulecontext = $event->get_context();
                         list($blockinstanceid, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext, $visibleonly);
                         $debugblockidentifier = 'courseid=' . $courseid . '; moduleid=' . $modulecontext->instanceid . '; blockinstanceid=' . $blockinstanceid;
-                        block_integrityadvocate_cron_single_user($event->courseid, $modulecontext, $blockinstance, $participants[0], $debugblockidentifier);
+                        block_integrityadvocate_cron_single_user($event->courseid, $modulecontext, $blockinstance, $participant, $debugblockidentifier);
                         return;
                     }
                 }
