@@ -4,6 +4,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 image: php:7.4.2
+#image: node:13.12.0
 
 definitions:
   caches:
@@ -11,6 +12,16 @@ definitions:
 
 pipelines:
   custom: # Pipelines that are triggered manually
+#    build_js:
+#      - step:
+#         name: "Build the JS modules"
+#         caches:
+#           - node
+#         script:
+#           - cd amd/
+#           - npm install
+#           - npm install -g grunt-cli
+#           - 
     build_zip:
       - step:
           name: "Build the zip for installation"
@@ -19,11 +30,11 @@ pipelines:
           script:
             - apt-get update && apt-get -qq install zip rsync
             #- homedir=$(pwd -LP)
-            - mkdir -p /tmp/iaparent/integrityadvocate
-            - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude .git/ --exclude screenshots/ --exclude *.zip --exclude *.pl --exclude Makefile --exclude bitbucket-pipelines.yml --exclude amd/src
+            - mkdir -p /tmp/iaparent/moodle-block_integrityadvocate
+            - rsync -av ./ /tmp/iaparent/moodle-block_integrityadvocate --exclude .git/ --exclude screenshots/ --exclude *.zip --exclude *.pl --exclude Makefile --exclude bitbucket-pipelines.yml --exclude amd/src
             - cd /tmp/iaparent
             - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
-            - zip -r9 ${BITBUCKET_CLONE_DIR}/block_integrityadvocate.zip .
+            - zip -r9 ${BITBUCKET_CLONE_DIR}/moodle-block_integrityadvocate.zip .
             - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@${BITBUCKET_CLONE_DIR}/block_integrityadvocate.zip"
           #artifacts: 
           #  - "./block_integrityadvocate.zip"
