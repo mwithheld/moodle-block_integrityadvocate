@@ -896,14 +896,13 @@ function block_integrityadvocate_course_as_obj($course) {
 
 /**
  * Get the activities in this course that have a configured, visible IA block attached,
- * optionally filtered to IA blocks having a matching apikey and appid
+ * optionally filtered to IA blocks having a matching apikey and appid or visible
  *
  * @param stdClass|int $course The course to get activities from; if int the course object will be looked up
- * @param string $apikey The apikey to filter results for
- * @param string $appid The appID to filter results for
+ * @param array $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
  * @return string|array Array of activities that match; else string error identifier
  */
-function block_integrityadvocate_get_course_ia_activities($course, $apikey = false, $appid = false) {
+function block_integrityadvocate_get_course_ia_activities($course, $filter = array()) {
     $debug = true;
 
     // Massage the course input if needed.
@@ -911,7 +910,7 @@ function block_integrityadvocate_get_course_ia_activities($course, $apikey = fal
     if (!$course) {
         return 'no_course';
     }
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $apikey=' . $apikey . '; $appid=' . $appid);
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $filter=' . print_r($filter, true));
 
     // Get activities in this course.
     $activities = block_integrityadvocate_get_activities_with_completion($course->id);
@@ -921,44 +920,8 @@ function block_integrityadvocate_get_course_ia_activities($course, $apikey = fal
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . count($activities) . ' activities in this course');
 
     // Filter for activities that use an IA block.
-    $activities = block_integrityadvocate_filter_activities_use_ia_block($activities);
+    $activities = block_integrityadvocate_filter_activities_use_ia_block($activities, $filter);
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . count($activities) . ' activities that use IA');
-    if (!$activities) {
-        return 'no_activities_config_message';
-    }
-
-    if (empty($apikey) || empty($apikey)) {
-        return $activities;
-    }
-
-    // Filter for activities with matching apikey and appid.
-    foreach ($activities as $key => $a) {
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity with id=' . $a['id'] . '; name=' . $a['name']);
-
-        $blockinstanceid = $a['block_integrityadvocate_instance']['id'];
-        $blockinstance = $a['block_integrityadvocate_instance']['instance'];
-        // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance->config=' . print_r($blockinstance->config, true));.
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity with id=' . $a['id'] . '; name=' . $a['name']);
-
-        if (empty($blockinstance) || !isset($blockinstance->config) || (!isset($blockinstance->config->apikey) && !isset($blockinstance->config->appid))) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstance, or config, or apikey/appid');
-            unset($activities[$key]);
-            continue;
-        }
-
-        if (isset($apikey) && $blockinstance->config->apikey !== $apikey) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $apikey);
-            unset($activities[$key]);
-            continue;
-        }
-        if (isset($appid) && $blockinstance->config->appid !== $apikey) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $appid);
-            unset($activities[$key]);
-            continue;
-        }
-    }
-
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::After filtering for apikey/appid, count($activities)=' . count($activities));
 
     if (!$activities) {
         return 'no_activities_config_message';
@@ -1180,25 +1143,59 @@ function block_integrityadvocate_get_all_blocks($visibleonly = true) {
  * Filter the input Moodle activities array for ones that use an IA block.
  *
  * @param object[] $activities Course activities to check
- * @param boolean $visibleonly True to include only visible blocks (default)
+ * @param array $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
  * @return array of course activities.
  */
-function block_integrityadvocate_filter_activities_use_ia_block(array $activities, $visibleonly = true) {
+function block_integrityadvocate_filter_activities_use_ia_block(array $activities, $filter = array()) {
     $debug = true;
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with ') . count($activities) . ' activities';
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with ') . count($activities) . ' activities; $filter=' . print_r($filter, true);
 
     foreach ($activities as $key => $a) {
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity=' . print_r($a, true));
         $modulecontext = $a['context'];
-        list($blockinstanceid, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext, $visibleonly);
+        list($blockinstanceid, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext, isset($filter['visible']) && (bool) $filter['visible']);
         // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::This activity has $blockinstance_row=' . print_r($blockinstance_row, true));.
+        // No block instances found for this activity, so remove it.
         if (empty($blockinstance)) {
             unset($activities[$key]);
             continue;
         }
-        $activities[$key]['block_integrityadvocate_instance']['id'] = $blockinstanceid;
-        $activities[$key]['block_integrityadvocate_instance']['instance'] = $blockinstance;
+
+        if (isset($filter['apikey']) && $filter['apikey']) {
+            $apikey = $filter['apikey'];
+        }
+        if (isset($filter['appid']) && $filter['appid']) {
+            $appid = $filter['appid'];
+        }
+        if ($apikey || $appid) {
+            // Filter for activities with matching apikey and appid.
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking to filter for apikey and appid');
+
+            $blockinstanceid = $a['block_integrityadvocate_instance']['id'];
+            $blockinstance = $a['block_integrityadvocate_instance']['instance'];
+            // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance->config=' . print_r($blockinstance->config, true));.
+
+            if (!isset($blockinstance->config) || (!isset($blockinstance->config->apikey) && !isset($blockinstance->config->appid))) {
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstance config or config-apikey/appid');
+                unset($activities[$key]);
+                continue;
+            }
+
+            if (isset($apikey) && $blockinstance->config->apikey !== $apikey) {
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $apikey);
+                unset($activities[$key]);
+                continue;
+            }
+            if (isset($appid) && $blockinstance->config->appid !== $appid) {
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $appid);
+                unset($activities[$key]);
+                continue;
+            }
+            $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::After filtering for apikey/appid, count($activities)=' . count($activities));
+        }
     }
+    $activities[$key]['block_integrityadvocate_instance']['id'] = $blockinstanceid;
+    $activities[$key]['block_integrityadvocate_instance']['instance'] = $blockinstance;
 
     // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to return $activities=' . print_r($activities, true));.
     return $activities;
