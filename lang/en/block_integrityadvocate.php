@@ -21,7 +21,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// Put this string first for re-use below.
+// Put these strings first for re-use below.
 $string['pluginname'] = 'Integrity Advocate';
 
 // Other strings go here.
