@@ -127,7 +127,7 @@ function block_integrityadvocate_log($message, $dest = false) {
  * @return array(field=>error message)
  */
 function block_integrityadvocate_ia_config_errors(block_integrityadvocate $blockinstance) {
-    $debug = false;
+    $debug = true;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $blockinstance=' . print_r($blockinstance, true));
 
     $errors = array();
@@ -959,7 +959,7 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
     if (!$user) {
         return 'no_user';
     }
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with course->id=' . $course->id . '; $user->id=' . $user->id);
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with course->id=' . $course->id . '; $user->id=' . $user->id . '; $activitycontextid=' . $activitycontextid);
 
     $results = array();
     $iaactivities = block_integrityadvocate_get_course_ia_activities($course);
@@ -967,7 +967,7 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to return $iaactivities=' . print_r($iaactivities));
         return $iaactivities;
     }
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got block_integrityadvocate_get_course_ia_activities() count=' . count($iaactivities));
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got block_integrityadvocate_get_course_ia_activities() count=' . count($activities));
 
     // How to identify this user to the IA API?.
     $useridentifier = block_integrityadvocate_encode_useridentifier(\context_course::instance($course->id), $user->id);
@@ -1149,12 +1149,14 @@ function block_integrityadvocate_get_all_blocks($visibleonly = true) {
  */
 function block_integrityadvocate_filter_activities_use_ia_block(array $activities, $filter = array()) {
     $debug = true;
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with ') . count($activities) . ' activities; $filter=' . print_r($filter, true);
+    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with ' . count($activities) . ' activities; $filter=' . print_r($filter, true));
+    // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $activities=' . print_r($activities, true));.
 
     foreach ($activities as $key => $a) {
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity=' . print_r($a, true));
+        // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity with url=' . $a->url);.
         $modulecontext = $a['context'];
         list($blockinstanceid, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext, isset($filter['visible']) && (bool) $filter['visible']);
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' . $blockinstanceid . '; $blockinstance->instance->id=' . empty($blockinstance) ? '' : $blockinstance->instance->id);
         // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::This activity has $blockinstance_row=' . print_r($blockinstance_row, true));.
         // No block instances found for this activity, so remove it.
         if (empty($blockinstance)) {
