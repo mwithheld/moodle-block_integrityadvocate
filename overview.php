@@ -91,8 +91,8 @@ if (!$userid) {
 
     /*
      * We didn't need the style at this time, so leaving it here disabled.
-     * X $url = new moodle_url('https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css');.
-     * X $PAGE->requires->css($url);.
+     * I. $url = new moodle_url('https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css');.
+     * I. $PAGE->requires->css($url);.
      */
     // Override options set in amd/build/init.js.
     $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init',
