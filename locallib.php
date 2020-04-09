@@ -23,8 +23,9 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot . '/user/lib.php');
-require_once($CFG->libdir . '/filelib.php');
+$block_integrityadvocate_wwwroot = dirname(__FILE__, 3);
+require_once($block_integrityadvocate_wwwroot . '/user/lib.php');
+require_once($block_integrityadvocate_wwwroot . '/lib/filelib.php');
 
 /** @var string Short name for this block */
 const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
