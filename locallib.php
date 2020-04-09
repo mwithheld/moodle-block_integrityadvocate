@@ -84,7 +84,7 @@ static $block_integrityadvocate_log_dest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
  */
 function block_integrityadvocate_log($message, $dest = false) {
     global $CFG, $block_integrityadvocate_log_dest;
-    $debug = false;
+    $debug = /* Do not make this true except in unusual circumstances - it can cause a FATAL */ false;
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $dest=' . $dest . "\n");
 
     // I did not use the PHP7.4 null coalesce b/c we want compat back to PHP5.6.
