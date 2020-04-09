@@ -32,8 +32,10 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->libdir . '/completionlib.php');
-require_once($CFG->dirroot . '/blocks/integrityadvocate/locallib.php');
+$block_integrityadvocate_wwwroot = dirname(__FILE__, 3);
+require_once($block_integrityadvocate_wwwroot . '/config.php');
+require_once($block_integrityadvocate_wwwroot . '/lib/completionlib.php');
+require_once(__DIR__ . '/locallib.php');
 
 /**
  * Returns the activities with completion set in current course
