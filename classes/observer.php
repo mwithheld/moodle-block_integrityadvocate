@@ -73,7 +73,7 @@ class block_integrityadvocate_observer {
                 // (b) Update the activity completion info from the IA status.
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Event name={$event->eventname}, so just close the IA session");
                 $useriaresults = block_integrityadvocate_get_course_user_ia_data($event->courseid, $event->userid, $event->contextid);
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults=" . print_r($useriaresults, true));
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults with ia_participant_data=" . print_r($useriaresults['ia_participant_data'], true));
                 if ($useriaresults && $event->contextlevel === CONTEXT_MODULE) {
                     if (is_string($useriaresults)) {
                         // If we get back a string we got an error, so skip it.
