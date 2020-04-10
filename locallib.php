@@ -82,10 +82,10 @@ static $block_integrityadvocate_log_dest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
  * @param string $message Message to log
  * @param string $dest One of the INTEGRITYADVOCATE_LOGDEST_* constants.
  */
-function block_integrityadvocate_log($message, $dest = false) {
+function block_integrityadvocate_log($message, $dest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG) {
     global $CFG, $block_integrityadvocate_log_dest;
-    $debug = /* Do not make this true except in unusual circumstances - it can cause a FATAL */ false;
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $dest=' . $dest . "\n");
+    $debug = /* Do not make this true except in unusual circumstances */ false;
+    $debug && error_log(__FILE__ . '::' . __FUNCTION__ . '::Started with $dest=' . $dest . "\n");
 
     // I did not use the PHP7.4 null coalesce b/c we want compat back to PHP5.6.
     $dest = $dest ?: $block_integrityadvocate_log_dest;
@@ -93,7 +93,7 @@ function block_integrityadvocate_log($message, $dest = false) {
 
     // If the file path is included, strip it.
     $cleanedmsg = str_replace($CFG->dirroot, '', $message);
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::After cleanup, $dest=' . $dest . "\n");
+    $debug && error_log(__FILE__ . '::' . __FUNCTION__ . '::After cleanup, $dest=' . $dest . "\n");
 
     switch ($dest) {
         case INTEGRITYADVOCATE_LOGDEST_HTML:
