@@ -1183,7 +1183,7 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
             default:
                 // No blockinstanceid found.
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstanceid found on attempt to get it from the activity array');
-                continue;
+                continue 2;
         }
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Set from activity array: $blockinstanceid=' . $blockinstanceid);
 
@@ -1198,7 +1198,7 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
                 break;
             default:
                 $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstance found on attempt to get it from the activity array');
-                continue;
+                continue 2;
         }
         // Disabled on purpose: $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Set from activity array: $blockinstance=' . print_r($blockinstance, true));
         // I.
