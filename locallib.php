@@ -970,7 +970,7 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
     $results = array();
     $activities = block_integrityadvocate_get_course_ia_activities($course);
     if (is_string($activities)) {
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to return $iaactivities=' . print_r($activities));
+        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to return $iaactivities=' . $activities);
         return $activities;
     }
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Got block_integrityadvocate_get_course_ia_activities() count=' . count($activities));
