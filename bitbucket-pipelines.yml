@@ -17,6 +17,6 @@ pipelines:
             - mkdir -p /tmp/iaparent/moodle-block_integrityadvocate
             - rsync -av ./ /tmp/iaparent/moodle-block_integrityadvocate --exclude .git/ --exclude screenshots/ --exclude *.zip --exclude *.pl --exclude Makefile --exclude bitbucket-pipelines.yml --exclude amd/src
             - cd /tmp/iaparent
-            - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
+            #- find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
             - zip -r9 ${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip ./ -x .git/** **/node_modules/** screenshots/** .gitignore Gruntfile.js \*.yml \*.json
             - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip"
