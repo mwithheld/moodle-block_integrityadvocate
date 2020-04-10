@@ -21,13 +21,13 @@ Login to your Moodle site as an admin, navigate to Site administration > Plugins
 **or**
 
 1. Copy the integrityadvocate directory into the blocks/ directory of your Moodle instance;
-2. Browse to the Moodle admin notifications page.
+2. Browse to the Moodle admin notifications page and step through the installer.
 
 For more information visit
 http://docs.moodle.org/en/Installing_contributed_modules_or_plugins
 
 ## Setup
-Once the Integrity Advocate block is installed, you can use it as follows:
+Once installed, you can use it as follows:
 
 1. Turn editing on.
 2. Create your activities/resources as normal.
