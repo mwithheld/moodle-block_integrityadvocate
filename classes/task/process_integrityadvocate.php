@@ -109,13 +109,13 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             // Get the course object so we can get the timemodified and the completion info.
             $course = get_course($courseid);
             if ($course->timemodified < (time() - 60 * 60 * 24)) {
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}:{$debuguseridentifier}: This course has not been modified in 24 hours, so skip it");
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: This course has not been modified in 24 hours, so skip it");
                 continue;
             }
 
             // Check if completion is setup at the course level.
             if (block_integrityadvocate_completion_setup_errors($courseid)) {
-                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}:{$debuguseridentifier}: This courses completion is not setup at the course level, so skip it");
+                $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: This courses completion is not setup at the course level, so skip it");
                 continue;
             }
 
