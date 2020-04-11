@@ -65,13 +65,13 @@ function block_integrityadvocate_get_activities_with_completion($courseid, $conf
                     'modulename' => $modulename,
                     'id' => $cm->id,
                     'instance' => $cm->instance,
-                    'name' => format_string($cm->name),
+                    'name' => $cm->name,
                     'expected' => $cm->completionexpected,
                     'section' => $cm->sectionnum,
                     'position' => array_search($cm->id, $sections[$cm->sectionnum]),
                     'url' => method_exists($cm->url, 'out') ? $cm->url->out() : '',
                     'context' => $cm->context,
-                    'icon' => $cm->get_icon_url(),
+                    //'icon' => $cm->get_icon_url(),
                     'available' => $cm->available,
                 );
             }
