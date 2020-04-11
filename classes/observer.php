@@ -79,7 +79,7 @@ class block_integrityadvocate_observer {
                     } else if (is_array($useriaresults) && isset($useriaresults['ia_participant_data'])) {
                         block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults with ia_participant_data=" . print_r($useriaresults['ia_participant_data'], true));
                     } else if (is_array($useriaresults)) {
-                        block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got array of \$useriaresults =" . print_r($useriaresults, true));
+                        block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got array of \$useriaresults; count=" . count($useriaresults));
                     } else {
                         block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Got unknown type \$useriaresults=" . print_r($useriaresults, true));
                     }
@@ -88,7 +88,7 @@ class block_integrityadvocate_observer {
                 if ($useriaresults && $event->contextlevel === CONTEXT_MODULE) {
                     if (is_string($useriaresults)) {
                         // If we get back a string we got an error, so skip it.
-                        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Skipped closing: " . print_r($useriaresults, true));
+                        $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Skipped closing due to string error: " . print_r($useriaresults, true));
                     } elseif (is_array($participant = $useriaresults[0]['ia_participant_data'])) {
                         self::close_activity_user_session($event);
 
