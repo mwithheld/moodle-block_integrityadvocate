@@ -964,7 +964,7 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
     $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with course->id=' . $course->id . '; $user->id=' . $user->id . '; $activitycontextid=' . $activitycontextid);
 
     if (defined('BEHAT_SITE_RUNNING') || (defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
-        // Do something special for Behat
+        // Do something special for Behat.
     }
 
     $results = array();

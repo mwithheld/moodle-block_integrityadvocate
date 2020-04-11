@@ -89,8 +89,7 @@ $PAGE->set_pagelayout('report');
 if (!$userid) {
     $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCKNAME . '-overview-course');
 
-    /*
-     * We didn't need the style at this time, so leaving it here disabled.
+    /* We didn't need the style at this time, so leaving it here disabled.
      * I. $url = new moodle_url('https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css');.
      * I. $PAGE->requires->css($url);.
      */

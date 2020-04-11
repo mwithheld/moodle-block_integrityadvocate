@@ -89,7 +89,7 @@ class block_integrityadvocate_observer {
                     if (is_string($useriaresults)) {
                         // If we get back a string we got an error, so skip it.
                         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}::Skipped closing due to string error: {$useriaresults}");
-                    } elseif (is_array($participant = $useriaresults[0]['ia_participant_data'])) {
+                    } else if (is_array($participant = $useriaresults[0]['ia_participant_data'])) {
                         self::close_activity_user_session($event);
 
                         $modulecontext = $event->get_context();
@@ -196,7 +196,7 @@ class block_integrityadvocate_observer {
      * @param \core\event\base $event Event to maybe act on
      * @return true if attempted to close the remote IA session; else false
      */
-    static function close_all_user_sessions(\core\event\base $event) {
+    protected static function close_all_user_sessions(\core\event\base $event) {
         $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; userid={$event->userid}";
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
@@ -227,7 +227,7 @@ class block_integrityadvocate_observer {
      * @param \core\event\base $event Event to maybe act on
      * @return true if attempted to close the remote IA session; else false
      */
-    static function close_activity_user_session(\core\event\base $event) {
+    protected static function close_activity_user_session(\core\event\base $event) {
         $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
@@ -248,7 +248,7 @@ class block_integrityadvocate_observer {
      * @return boolean true if should close the remote IA session.
      * @throws InvalidArgumentException if the passed-in event is not from a module context level.
      */
-    static function check_should_close_user_ia(\core\event\base $event) {
+    protected static function check_should_close_user_ia(\core\event\base $event) {
         $debug = true;
 
         $modulecontext = $event->get_context();
@@ -300,7 +300,7 @@ class block_integrityadvocate_observer {
      * @param int $userid The Moodle userid to close the session for
      * @return boolean true if remote session is closed; else false
      */
-    static function close_session(block_integrityadvocate $blockinstance, $userid) {
+    protected static function close_session(block_integrityadvocate $blockinstance, $userid) {
         $debug = true;
         $debug && block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . "::Started");
 

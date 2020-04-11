@@ -71,7 +71,7 @@ function block_integrityadvocate_get_activities_with_completion($courseid, $conf
                     'position' => array_search($cm->id, $sections[$cm->sectionnum]),
                     'url' => method_exists($cm->url, 'out') ? $cm->url->out() : '',
                     'context' => $cm->context,
-                    //'icon' => $cm->get_icon_url(),
+                    // Removed b/c it caused error with developer debug display on: 'icon' => $cm->get_icon_url().
                     'available' => $cm->available,
                 );
             }
