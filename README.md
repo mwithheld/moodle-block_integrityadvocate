@@ -1,3 +1,4 @@
+
 # IntegrityAdvocate Moodle block
 
 The Integrity Advocate block does identity verification & participation monitoring in Moodle activities.
@@ -49,12 +50,16 @@ Admins/instructors will not see the video proctoring interface -- they see an Ov
 
 ## How to restrict access to an activity depending on Integrity Advocate results
 Ref https://docs.moodle.org/en/Restrict_access_settings
-- Your site administrator will need to enable the use of restrict access sitewide (https://docs.moodle.org/en/Restrict_access_settings#Enabling_the_use_of_restrict_access_sitewide).
-- In the quiz / external tool / etc module, setup the IntegrityAdvocate block.
-- In the certificate module:
-  - Scroll down and expand the Restrict Access section.
-  - Click the "Add restriction..." button, then on the popup click the "Activity Completion" button.
-  - Under the Choose... option, select the quiz / external tool / etc module that uses the IntegrityAdvocate block.
-  - At the bottom of the form, click "Save and return to course".
-  - The IntegrityAdvocate block marks the quiz / external tool / etc module as complete once the proctoring is successful.
-  - Students will not be allowed to access the certificate until this is the case.
+
+  - Your site administrator will need to enable the use of restrict
+   access sitewide
+   (https://docs.moodle.org/en/Restrict_access_settings#Enabling_the_use_of_restrict_access_sitewide).
+  - Your site administrator will need to install the IntegrityAdvocate availability restriction plugin (https://bitbucket.org/mwebv/moodle-availability_integrityadvocate/downloads/). 
+  - In the quiz / external tool / etc module, setup the IntegrityAdvocate block.
+  - In the certificate module:
+	  - Scroll down and expand the Restrict Access section.
+	  - Click the "Add restriction..." button, then on the popup click the "Integrity Advocate" button.
+	  - Under the Choose... option, select the quiz / external tool / etc module that uses the IntegrityAdvocate block.
+	  - At the bottom of the form, click "Save and return to course".
+	  - The IntegrityAdvocate block marks the quiz / external tool / etc module as complete once the proctoring is successful.
+	  - Students will not be allowed to access the certificate until this is the case.
