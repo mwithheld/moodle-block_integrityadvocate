@@ -177,7 +177,6 @@ function block_integrityadvocate_filter_var_status(stdClass $participant) {
  * Do cron processes for one user: ...
  *  - Check if should close remote IA session;...
  *  - Get IA data and update completion status.
- *  - Send completion email.
  *
  * @global moodle_database $DB
  * @param int|stdClass $course The course object or courseid to check
@@ -273,7 +272,7 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
             $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to COMPLETE');
             break;
         case INTEGRITYADVOCATE_API_STATUS_INVALID_ID:
-            // In the case of "Invalid (ID)" status from IA, we'd want it to remain in the incomplete/pending review state (until the user submits their ID again via the link provided in the email sent out by the cron job and IA returns a different status).
+            // In the case of "Invalid (ID)" status from IA, we'd want it to remain in the incomplete/pending review state (until the user submits their ID again and IA returns a different status).
             // No need to set again: $targetstate = COMPLETION_INCOMPLETE;.
             $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to INCOMPLETE');
             break;
@@ -286,10 +285,6 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
             throw new Exception("{$debugblockidentifier}:{$debuguseridentifier}: The IA API returned an invalid participant \$reviewtatus=" . $reviewstatus);
     }
 
-    // The user to send mail from.
-    $mailfrom = block_integrityadvocate_email_build_mailfrom();
-    $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Built mailfrom=' . $mailfrom->email);
-
     // Cannot use update_state() in several of the above cases, so dirty hack it in with internal_set_data().
     $current = $completion->get_data($cm, false, $user->id);
     if ($current->completionstate != $targetstate) {
@@ -299,8 +294,6 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
         $current->overrideby = null;
         $completion->internal_set_data($cm, $current);
         $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so set the activity completion status; completiondata=' . print_r($completiondata = $completion->get_data($cm, false, $user->id), true));
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: About to call block_integrityadvocate_email_user_ia_status_update() for email={$user->email}");
-        block_integrityadvocate_email_user_ia_status_update($mailfrom, $user, $participant, $course->id);
     }
     $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: Done this participant");
 
@@ -691,102 +684,6 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
 
     // Disabled on purpose: $debug && IntegrityAdvocate_Moodle_Utility::block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to return $activities=' . print_r($activities, true));.
     return $activities;
-}
-
-/**
- * Build the mailfrom address to use for emails from this plugin.
- *
- * @return \stdClass Moodle User object to sent email from.
- */
-function block_integrityadvocate_email_build_mailfrom() {
-    $mailfrom = new \stdClass;
-    $mailfrom->username = 'integrityadvocate';
-    $mailfrom->email = 'admin@integrityadvocate.com';
-    $mailfrom->firstname = 'Integrity';
-    $mailfrom->firstnamephonetic = '';
-    $mailfrom->lastname = 'Advocate';
-    $mailfrom->lastnamephonetic = '';
-    $mailfrom->middlename = '';
-    $mailfrom->alternatename = '';
-    $mailfrom->maildisplay = true;
-    $mailfrom->mailformat = 1;
-    $mailfrom->id = -99;
-
-    return $mailfrom;
-}
-
-/**
- * Depending on the IA status, send an appropriate email to the user.
- *
- * @global object $CFG Moodle CFG object
- * @global object $SITE Moodle SITE object
- * @param stdClass $mailfrom User to send the email from
- * @param stdClass $mailto User to send the email to
- * @param stdClass $participant IA participant info
- * @param int $courseid The course the IA participation applies to
- * @return boolean true if email sent
- * @throws InvalidValueException
- */
-function block_integrityadvocate_email_user_ia_status_update(stdClass $mailfrom, stdClass $mailto, stdClass $participant, $courseid) {
-    $debug = true;
-    $message = '';
-    $reviewstatus = clean_param($participant->ReviewStatus, PARAM_TEXT);
-    $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$reviewStatus=" . print_r($reviewstatus, true));
-
-    $body = get_string('email_greeting', INTEGRITYADVOCATE_BLOCKNAME, fullname($mailto));
-    $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Built start of body=" . print_r($body, true));
-
-    switch ($reviewstatus) {
-        case INTEGRITYADVOCATE_API_STATUS_INPROGRESS:
-            // Do not send any email.
-            return true;
-        case INTEGRITYADVOCATE_API_STATUS_VALID:
-            // Process enrolment with passed ID verification/participation monitoring.
-            // Send valid email notification.
-            $subject = get_string('email_valid_subject', INTEGRITYADVOCATE_BLOCKNAME);
-            $body .= get_string('email_valid_body_top', INTEGRITYADVOCATE_BLOCKNAME, $participant->Application);
-            $body .= get_string('email_valid_body_bottom', INTEGRITYADVOCATE_BLOCKNAME);
-            break;
-        case INTEGRITYADVOCATE_API_STATUS_INVALID_ID:
-            // Invalid (ID) status allows for a participant to re-submit their photo ID.
-            // Send email with link to re-submit URL.
-            $subject = get_string('email_invalid_id_subject', INTEGRITYADVOCATE_BLOCKNAME);
-            $body .= get_string('email_invalid_id_body_top', INTEGRITYADVOCATE_BLOCKNAME, $participant->Application);
-            foreach ($participant->Flags as $flag) {
-                $body .= get_string('email_invalid_flags', INTEGRITYADVOCATE_BLOCKNAME, $flag);
-            }
-            $body .= get_string('email_invalid_id_body_bottom', INTEGRITYADVOCATE_BLOCKNAME, $participant);
-            break;
-        case INTEGRITYADVOCATE_API_STATUS_INVALID_RULES:
-            // Process enrolment with failed ID verification/participation monitoring.
-            // Send invalid email notification.
-            $subject = get_string('email_invalid_rules_subject', INTEGRITYADVOCATE_BLOCKNAME);
-            $body .= get_string('email_invalid_rules_body_top', INTEGRITYADVOCATE_BLOCKNAME, $participant->Application);
-            foreach ($participant->Flags as $flag) {
-                $body .= get_string('email_invalid_flags', INTEGRITYADVOCATE_BLOCKNAME, $flag);
-            }
-            $body .= get_string('email_invalid_rules_body_bottom', INTEGRITYADVOCATE_BLOCKNAME, $participant);
-            break;
-        default:
-            $error = 'Invalid participant review status value=' . serialize($reviewstatus);
-            IntegrityAdvocate_Moodle_Utility::log($error);
-            throw new InvalidValueException($error);
-    }
-    $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::In select built body=" . print_r($body, true));
-    $body .= get_string('email_signoff', INTEGRITYADVOCATE_BLOCKNAME, $mailfrom);
-
-    global $CFG, $SITE;
-
-    // Do string substitutions.
-    $message = str_replace('[[mailcontent]]', $body, get_string('email_template', INTEGRITYADVOCATE_BLOCKNAME));
-    $course = get_course($courseid);
-    $message = str_replace(
-            array('[[wwwroot]]', '[[site_fullname]]', '[[course_id]]', '[[course_shortname]]', '[[course_fullname]]'),
-            array($CFG->wwwroot, $SITE->fullname, $course->id, $course->shortname, $course->fullname),
-            $message
-    );
-
-    return email_to_user($mailto, $mailfrom, $subject, html_to_text($message), $message);
 }
 
 /**

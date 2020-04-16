@@ -34,46 +34,6 @@ $string['config_default_title'] = $string['pluginname'];
 $string['disabled_editingmode'] = 'Course editing mode is enabled, so video monitoring is disabled';
 $string['disabled_haseditcap'] = 'Disabled for non-students';
 $string['disabled_notenrolled'] = 'Not available - you are not enrolled in this course';
-
-/*
- * You can use one of these template strings and they will be substituted with the relevant info:
- * [[wwwroot]]
- * [[site_fullname]]
- * [[course_id]]
- * [[course_shortname]]
- * [[course_fullname]]
- */
-$string['email_greeting'] = '<p>Dear {$a},</p>';
-$string['email_invalid_flags'] = '<p>{$a->FlagName} {$a->FlagId})</p>' . '<p>{$a->FlagDetails}</p>' . '<p><img src="https:{$a->ImageUrl}" style="height:240px;width:320px" /></p><br /><br />';
-$string['email_invalid_id_body_bottom'] = '<p><strong>Please ensure you address any problem listed above and click the link below to provide your identification again.</strong></p><p><a href="{$a->IDResubmitUrl}" target="_blank" rel="noreferrer noopener">{$a->IDResubmitUrl}</a></p>';
-$string['email_invalid_id_body_top'] = '<p>Your recent submission for {$a} on [[site_fullname]] was marked invalid due to the following issue(s) with the confirmation of your identity:</p>';
-$string['email_invalid_id_subject'] = 'IMPORTANT: Please re-submit your photo ID';
-$string['email_invalid_rules_body_bottom'] = '<p><strong>Unfortunately, this means your completion of {$a->Application} was not valid and you will need to purchase and repeat the activity again. Please contact our office for more information.</strong></p>';
-$string['email_invalid_rules_body_top'] = '<p>Your recent submission for {$a} on [[site_fullname]] was marked invalid due to the following issue(s) with the confirmation of your identity and/or your participation:</p>';
-$string['email_invalid_rules_subject'] = 'IMPORTANT: Your submission was invalid';
-$string['email_signoff'] = '<p>Thank you,</p><p><strong>' . $string['pluginname'] . '</strong><br />{$a->email}</p>';
-$string['email_template'] = "<html style='height: 100%;'><head>
-
-<title>{$string['pluginname']} Results</title>
-<style>
-* {padding:0px;margin:0px}
-a {color:#4fbee0}
-#mailcontent p{margin-bottom:20px}
-</style>
-</head>
-<body style='height: 100%;'>
-<div id='container' style='font-family:sans-serif;width:700px;margin:0px auto;min-height:100%;height:auto!important;height:100%;position:relative;background-color:#FFF'>
-<div id='header' style='padding:5px 20px 5px 5px;font-size:18px'>
-<a href='[[wwwroot]]' target='_blank' rel='noreferrer noopener'>[[site_fullname]]</a>
-</div>
-<div id='mailcontent' style='padding:10px 20px'>
-[[mailcontent]]
-</div><!-- mailcontent -->
-</div><!-- container -->
-</body></html>";
-$string['email_valid_body_bottom'] = '';
-$string['email_valid_body_top'] = '<p><strong>No action is required on your part. This is only a notification.</strong></p><p>Your recent submission for {$a} on [[site_fullname]] was marked valid.</p>';
-$string['email_valid_subject'] = 'Thank you! Your identification has been verified.';
 $string['end_time'] = 'Activity completed';
 $string['error_curlcloseia'] = 'Curl error closing the IA session';
 $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info - check the API key and app id are valid';
