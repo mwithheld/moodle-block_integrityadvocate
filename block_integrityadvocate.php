@@ -334,6 +334,7 @@ class block_integrityadvocate extends block_base {
             $url = new moodle_url(INTEGRITYADVOCATE_BASEURL . '/Integrity',
                     array(
                 'appid' => $this->config->appid,
+                'activityid' => $modulecontext->instanceid,
                 'participantid' => block_integrityadvocate_encode_useridentifier($modulecontext, $user->id),
                 'participantfirstname' => $user->firstname,
                 'participantlastname' => $user->lastname,
