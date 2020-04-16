@@ -44,51 +44,51 @@ class block_integrityadvocate_observer {
         $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
-            // Disabled on purpose: IntegrityAdvocate_Moodle_Utility::block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::Started with event=' . print_r($event, true));.
-            IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
-            IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
+            // Disabled on purpose: \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with event=' . print_r($event, true));.
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
         }
 
         // No CLI events correspond to a user finishing an IA session.
         if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
             return false;
         }
 
         // If there is no user attached to this event, we can't close the user's IA session, so skip.
         if (!is_numeric($event->userid)) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
             return false;
         }
 
         switch ($event->eventname) {
             case '\\core\\event\\user_loggedout':
                 // On logout, close all IA sessions. Note: This is a read event not a create/update.
-                $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}: close all remote IA sessions for userid={$event->userid}");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}: close all remote IA sessions for userid={$event->userid}");
                 self::close_all_user_sessions($event);
                 return;
             case '\\core\\event\\course_module_completion_updated':
                 // When activity completion updates...
                 // (a) Close the IA session; and...
                 // (b) Update the activity completion info from the IA status.
-                $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Event name={$event->eventname}, so just close the IA session");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Event name={$event->eventname}, so just close the IA session");
                 $useriaresults = block_integrityadvocate_get_course_user_ia_data($event->courseid, $event->userid, $event->contextid);
                 if ($debug) {
                     if (is_string($useriaresults)) {
-                        IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got string \$useriaresults=" . $useriaresults);
+                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got string \$useriaresults=" . $useriaresults);
                     } else if (is_array($useriaresults) && isset($useriaresults['ia_participant_data'])) {
-                        IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults with ia_participant_data=" . print_r($useriaresults['ia_participant_data'], true));
+                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults with ia_participant_data=" . print_r($useriaresults['ia_participant_data'], true));
                     } else if (is_array($useriaresults)) {
-                        IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got array of \$useriaresults; count=" . count($useriaresults));
+                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got array of \$useriaresults; count=" . count($useriaresults));
                     } else {
-                        IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got unknown type \$useriaresults=" . print_r($useriaresults, true));
+                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got unknown type \$useriaresults=" . print_r($useriaresults, true));
                     }
                 }
 
                 if ($useriaresults && $event->contextlevel === CONTEXT_MODULE) {
                     if (is_string($useriaresults)) {
                         // If we get back a string we got an error, so skip it.
-                        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}::Skipped closing due to string error: {$useriaresults}");
+                        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}::Skipped closing due to string error: {$useriaresults}");
                         /*
                           } else if (is_array($participant = $useriaresults[0]['ia_participant_data'])) {
                           self::close_activity_user_session($event);
@@ -130,11 +130,11 @@ class block_integrityadvocate_observer {
                 '\\mod_workshop\\event\\submission_reassessed',
             )):
                 // None of these exact string matches on event names correspond to finishing an activity.
-                $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
             default:
                 // Do nothing.
-                $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is not blacklisted so continue");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is not blacklisted so continue");
         }
 
         /*
@@ -153,10 +153,10 @@ class block_integrityadvocate_observer {
                 '\\mod_quiz\\event\\attempt_abandoned',
                 '\\mod_quiz\\event\\attempt_submitted',
             )):
-                IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
+                \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
-                $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
                 return false;
         }
 
@@ -164,9 +164,9 @@ class block_integrityadvocate_observer {
         // (a) this is a create or update event; and...
         // (b) this is an activity-level event.
         $iscreateorupdate = in_array($event->crud, array('c', 'u'), true);
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found $is_create_or_update=' . $iscreateorupdate);
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found $is_create_or_update=' . $iscreateorupdate);
         if ($iscreateorupdate) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This is not a create or update event, so skip it');
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This is not a create or update event, so skip it');
             return false;
         }
 
@@ -181,10 +181,10 @@ class block_integrityadvocate_observer {
          * but there are other events that should close the IA session.
          */
         if (!$iscoursemodulechangeevent) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This is not a course activity module create or update so skip it; debuginfo={$debuginfo}");
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This is not a course activity module create or update so skip it; debuginfo={$debuginfo}");
             return false;
         }
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This is a course activity module create or update so continue');
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This is a course activity module create or update so continue');
 
         return self::close_activity_user_session($event);
     }
@@ -201,12 +201,12 @@ class block_integrityadvocate_observer {
     protected static function close_all_user_sessions(\core\event\base $event) {
         $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; userid={$event->userid}";
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
         // Gets visible blocks.
-        $blockinstances = IntegrityAdvocate_Moodle_Utility::get_all_blocks(INTEGRITYADVOCATE_SHORTNAME);
+        $blockinstances = \IntegrityAdvocate_Moodle_Utility::get_all_blocks(INTEGRITYADVOCATE_SHORTNAME);
         if (empty($blockinstances)) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::No integrityadvocate block instances found, so skip this task.');
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::No integrityadvocate block instances found, so skip this task.');
             return true;
         }
 
@@ -232,13 +232,13 @@ class block_integrityadvocate_observer {
     protected static function close_activity_user_session(\core\event\base $event) {
         $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
         if (!($blockinstance = self::check_should_close_user_ia($event))) {
             return false;
         }
 
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
         return self::close_session($blockinstance, $event->userid);
     }
 
@@ -256,38 +256,38 @@ class block_integrityadvocate_observer {
         $modulecontext = $event->get_context();
         if ($modulecontext->contextlevel != CONTEXT_MODULE) {
             $msg = 'The passed-in event is not from a module context level';
-            IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
             throw new InvalidArgumentException($msg);
         }
 
         if (!is_enrolled($modulecontext, null, null, true)) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The user has no active enrolment in this course-activity so skip it");
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The user has no active enrolment in this course-activity so skip it");
             return false;
         }
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-activity so continue');
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-activity so continue');
 
         // Check the user has a valid UEID in this context.
-        // Disabled on purpose: $debug && IntegrityAdvocate_Moodle_Utility::block_integrityadvocate_log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');.
+        // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');.
         $ueid = block_integrityadvocate_get_ueid($modulecontext, $event->userid);
         if ($ueid < 0) {
-            IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find a UEID for userid and context={$event->contextid}; debuginfo={$debuginfo}");
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find a UEID for userid and context={$event->contextid}; debuginfo={$debuginfo}");
             return false;
         }
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found ueid={$ueid}");
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found ueid={$ueid}");
 
         if ($debug) {
             // Abstracted $blockname to reduce errors in case the block name changes.
             // Remove the block_ prefix and _observer suffix.
             $blockname = implode('_', array_slice(explode('_', substr(__CLASS__, strrpos(__CLASS__, '\\') + 1)), 1, -1));
-            IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
         }
 
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Maybe we should ask the IA API to close the session");
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Maybe we should ask the IA API to close the session");
 
         // Make sure an IA block instance is present and visible.
-        list($unused, $blockinstance) = IntegrityAdvocate_Moodle_Utility::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME);
+        list($unused, $blockinstance) = \IntegrityAdvocate_Moodle_Utility::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME);
         if (!$blockinstance) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The block is not present or not visible, so skip it");
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The block is not present or not visible, so skip it");
             return false;
         }
 
@@ -304,19 +304,19 @@ class block_integrityadvocate_observer {
      */
     protected static function close_session(block_integrityadvocate $blockinstance, $userid) {
         $debug = true;
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started");
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started");
 
         $appid = trim($blockinstance->config->appid);
-        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
         if (!$appid) {
-            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The block instance has no appid configured, so skip it");
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The block instance has no appid configured, so skip it");
             return false;
         }
 
         $blockcontext = $blockinstance->context;
         $modulecontext = $blockcontext->get_parent_context();
 
-        return IntegrityAdvocate_Api::close_remote_session($appid, $modulecontext, $userid);
+        return \IntegrityAdvocate_Api::close_remote_session($appid, $modulecontext, $userid);
     }
 
 }

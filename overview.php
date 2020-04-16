@@ -61,7 +61,7 @@ require_capability('block/integrityadvocate:overview', $coursecontext);
 confirm_sesskey();
 
 // Find the role to display, defaulting to students.
-$roleid = optional_param('role', IntegrityAdvocate_Moodle_Utility::get_default_course_role($coursecontext), PARAM_INT);
+$roleid = optional_param('role', \IntegrityAdvocate_Moodle_Utility::get_default_course_role($coursecontext), PARAM_INT);
 
 // Set up page parameters.
 $PAGE->set_course($course);
@@ -118,7 +118,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 2);
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCKNAME);
 
-$setuperrors = IntegrityAdvocate_Moodle_Utility::get_completion_setup_errors($course);
+$setuperrors = \IntegrityAdvocate_Moodle_Utility::get_completion_setup_errors($course);
 $continue = true;
 if ($setuperrors) {
     foreach ($setuperrors as $err) {
@@ -134,16 +134,16 @@ if ($continue) {
         echo get_string($activities, INTEGRITYADVOCATE_BLOCKNAME) . "<br/>\n";
         $continue = false;
     }
-    $debug && IntegrityAdvocate_Moodle_Utility::log(basename(__FILE__) . '::Got activities count=' . count($activities));
+    $debug && \IntegrityAdvocate_Moodle_Utility::log(basename(__FILE__) . '::Got activities count=' . count($activities));
 }
 
 
 if ($continue) {
     if ($userid) {
-        $debug && IntegrityAdvocate_Moodle_Utility::log(basename(__FILE__) . '::Got a userid so show the single user IA results');
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(basename(__FILE__) . '::Got a userid so show the single user IA results');
         require_once('overview-user.php');
     } else {
-        $debug && IntegrityAdvocate_Moodle_Utility::log(basename(__FILE__) . '::Got no userid so show the course users IA results');
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(basename(__FILE__) . '::Got no userid so show the course users IA results');
         require_once('overview-course.php');
     }
 }
