@@ -74,7 +74,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
     public function validation($data, $files) {
         $errors = array();
 
-        if (!empty($data['config_appid']) && !block_integrityadvocate_is_guid($data['config_appid'])) {
+        if (!empty($data['config_appid']) && !IntegrityAdvocate_Utility::is_guid($data['config_appid'])) {
             $data['config_appid'] = rtrim(ltrim(trim($data['config_appid']), '{'), '}');
             $errors['config_appid'] = get_string('error_invalidappid', INTEGRITYADVOCATE_BLOCKNAME);
         }

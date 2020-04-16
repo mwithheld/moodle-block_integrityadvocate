@@ -57,9 +57,9 @@ if ($continue) {
         $participantdata = $a['ia_participant_data'];
 
         // Display summary.
-        echo block_integrityadvocate_get_participant_summary_output($participantdata, $blockinstanceid, $courseid, $userid, false);
+        echo IntegrityAdvocate_Output::get_participant_summary_output($participantdata, $blockinstanceid, $courseid, $userid, false);
 
         // Display flag info.
-        echo block_integrityadvocate_get_participant_flags_output($participantdata);
+        echo IntegrityAdvocate_Output::get_participant_flags_output($participantdata);
     }
 }

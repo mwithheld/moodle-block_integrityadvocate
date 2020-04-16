@@ -171,52 +171,52 @@ $participanttable->setup_and_populate($perpage);
 // Start gathring IA info here.
 $participantdatacache = array();
 foreach ($activities as $a) {
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . "::Started with activity id={$a['id']}; name={$a['name']}");
+    $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . "::Started with activity id={$a['id']}; name={$a['name']}");
 
     // See if this activity has an associated IA block.
     $modulecontext = $a['context'];
-    list($unused, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext);
+    list($unused, $blockinstance) = IntegrityAdvocate_Moodle_Utility::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME);
     if (empty($blockinstance) || !isset($blockinstance->config) || (!isset($blockinstance->config->apikey) && !isset($blockinstance->config->appid))) {
         // No visible IA block found with valid config, so go on to the next activity.
         continue;
     }
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
+    $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
     // This activity-block has its own API key.
     // Use that to get IA-side data for all participants matching that API key.
     // Note the use of static caching here.
     if (!isset($participantdatacache[$blockinstance->config->apikey]) | empty($participantdatacache[$blockinstance->config->apikey])) {
-        $debug && block_integrityadvocate_log(__FILE__ . '::No cached data found; About to call block_integrityadvocate_get_ia_participant_data()');
-        $participantdatacache[$blockinstance->config->apikey] = block_integrityadvocate_get_ia_participant_data($blockinstance->config->apikey, $blockinstance->config->appid);
+        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::No cached data found; About to call block_integrityadvocate_get_ia_participant_data()');
+        $participantdatacache[$blockinstance->config->apikey] = IntegrityAdvocate_Api::get_participant_data($blockinstance->config->apikey, $blockinstance->config->appid);
     }
 
     // Check again if it is set.
     if (empty($participantdatacache[$blockinstance->config->apikey])) {
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . '::No API key set, so it cannot retrieve data from the API.  Go on to the next activity');
+        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::No API key set, so it cannot retrieve data from the API.  Go on to the next activity');
         continue;
     }
-    $debug && block_integrityadvocate_log(__FILE__ . '::' . '::Got $participantdata[apikey]=' . print_r($participantdatacache[$blockinstance->config->apikey], true));
+    $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::Got $participantdata[apikey]=' . print_r($participantdatacache[$blockinstance->config->apikey], true));
 
 
     // Check each participant table row to see if they have a match in the $blockinstance participant data from IA.
     foreach ($participanttable->rawdata as $thisuserid => $thisuser) {
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . '::Looking at $thisuserid=' . $thisuserid);
+        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::Looking at $thisuserid=' . $thisuserid);
 
         // See if our current user has values in $participantdata: 2 parts:
         // I.(1) Get the useridentifier.
         $useridentifier = block_integrityadvocate_encode_useridentifier($modulecontext, $thisuserid);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . "::The Moodle user with userid={$thisuserid} has \$useridentifier={$useridentifier}");
+        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . "::The Moodle user with userid={$thisuserid} has \$useridentifier={$useridentifier}");
         // I.(2) Look in the $participantdata for a match.
         $singleuserapidata = block_integrityadvocate_parse_user_data($participantdatacache[$blockinstance->config->apikey], $useridentifier);
-        $debug && block_integrityadvocate_log(__FILE__ . '::' . '::Got $ia_single_user_data=' . print_r($singleuserapidata, true));
+        $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::Got $ia_single_user_data=' . print_r($singleuserapidata, true));
         if (!$singleuserapidata) {
-            $debug && block_integrityadvocate_log(__FILE__ . '::' . '::No single-user api data found. Skip to the next user');
+            $debug && IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::No single-user api data found. Skip to the next user');
             continue;
         }
 
         // Gather formatted data for this user.
-        $participanttable->rawdata[$thisuserid]->iadata = block_integrityadvocate_get_participant_summary_output($singleuserapidata, $blockinstanceid, $courseid, $thisuserid, true, false);
-        $participanttable->rawdata[$thisuserid]->iaphoto = block_integrityadvocate_get_summary_photo_html($singleuserapidata, block_integrityadvocate_parse_status($singleuserapidata));
+        $participanttable->rawdata[$thisuserid]->iadata = IntegrityAdvocate_Output::get_participant_summary_output($singleuserapidata, $blockinstanceid, $courseid, $thisuserid, true, false);
+        $participanttable->rawdata[$thisuserid]->iaphoto = IntegrityAdvocate_Output::get_summary_photo_html($singleuserapidata, block_integrityadvocate_filter_var_status($singleuserapidata));
     }
 }
 
