@@ -17,6 +17,6 @@ pipelines:
             - mkdir -p /tmp/iaparent/integrityadvocate
             - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
             - cd /tmp/iaparent/
-            #- find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
+            - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
             - zip -r9 ${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
             - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip"
