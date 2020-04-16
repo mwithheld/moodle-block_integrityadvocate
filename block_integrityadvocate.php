@@ -272,7 +272,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Build content to show to students and returns it.  ATM if there are no errors, nothing is visible.
+     * Build proctoring content to show to students and returns it.  ATM if there are no errors, nothing is visible.
      * Side effects: Adds JS for video monitoring popup to the page.
      *
      * @param moodle_database $db Moodle DB object
