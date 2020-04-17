@@ -306,7 +306,7 @@ class block_integrityadvocate_observer {
         $debug = true;
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started");
 
-        $appid = trim($blockinstance->config->appid);
+        $appid = isset($blockinstance->config->appid) ? trim($blockinstance->config->appid) : false;
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
         if (!$appid) {
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The block instance has no appid configured, so skip it");
