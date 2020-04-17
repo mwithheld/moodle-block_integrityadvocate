@@ -1,7 +1,7 @@
-
 # IntegrityAdvocate Moodle block
 
-The Integrity Advocate block does identity verification & participation monitoring in Moodle activities.
+Integrity Advocate does identity verification & participation monitoring.
+This block can be added to Moodle activities and makes the IntegrityAdvocate proctoring interface show up for students, and shows instructors an overview button so they can view IA results.
 
 ## Requirements for installation
 
