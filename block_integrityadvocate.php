@@ -88,10 +88,19 @@ class block_integrityadvocate extends block_base {
      */
     public function applicable_formats() {
         return array(
+            'admin' => false,
             'course-view' => true,
             'site' => false,
             'mod' => true,
-            'my' => false
+            'my' => false,
+                // Unused: 'all'.
+                // Unused: 'course'.
+                // Unused: 'course-view-social'.
+                // Unused: 'course-view-topics'.
+                // Unused: 'course-view-weeks'.
+                // Unused: 'mod-quiz'.
+                // Unused: 'site-index'.
+                // Unused: 'tag'.
         );
     }
 
