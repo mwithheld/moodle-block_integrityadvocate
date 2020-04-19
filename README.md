@@ -8,6 +8,6 @@ Want [Support for Integrity Advocate](https://support.integrityadvocate.com/hc/e
 
 The [IntegrityAdvocate block plugin](https://bitbucket.org/mwebv/moodle-block_integrityadvocate/downloads/moodle-block_integrityadvocate.zip) can be added to Moodle activities and makes the IntegrityAdvocate proctoring interface show up for students, and gives instructors a way to view IntegrityAdvocate results.  See also [What are Moodle blocks?](https://docs.moodle.org/en/Blocks)
 
-The [IntegrityAdvocate resrict access plugin](https://bitbucket.org/mwebv/moodle-availability_integrityadvocate/downloads/moodle-availability_integrityadvocate.zip) can be added to a Moodle activities and prevents access to a that activity depending on the IA results in another module.  See also [What are activity restrictions?](https://docs.moodle.org/38/en/Using_restrict_access)
+The [IntegrityAdvocate resrict access plugin](https://bitbucket.org/mwebv/moodle-availability_integrityadvocate/downloads/moodle-availability_integrityadvocate.zip) can be added to a Moodle activities and prevents access to a that activity depending on the IntegrityAdvocate results in another activity.
 
 Requirements, installation, setup, etc can be found in the [Integrity Advocate Moodle plugins wiki](https://bitbucket.org/mwebv/moodle-block_integrityadvocate/wiki/)
