@@ -49,7 +49,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
 
     /**
      * Overridden to create any form fields specific to this type of block.
-     * @param stdClass $mform the form being built.
+     *
+     * @param MoodleQuickForm $mform the form being built.
      */
     protected function specific_definition_ia(MoodleQuickForm $mform) {
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCKNAME), array('size' => 39));

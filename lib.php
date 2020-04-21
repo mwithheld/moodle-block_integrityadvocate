@@ -43,7 +43,7 @@ require_once(__DIR__ . '/locallib.php');
  * @param int courseid The id of the course
  * @param object $config The block instance configuration
  * @param string $forceorder An override for the course order setting
- * @return array(activities) Activities with completion settings in the course
+ * @return array[activities] Activities with completion settings in the course
  */
 function block_integrityadvocate_get_activities_with_completion($courseid, $config = null, $forceorder = null) {
     $modinfo = get_fast_modinfo($courseid, -1);
