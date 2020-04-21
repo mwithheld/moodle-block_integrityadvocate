@@ -161,7 +161,6 @@ class process_integrityadvocate extends \core\task\scheduled_task {
                 continue;
             }
 
-
             $msg = 'About to get process IA results for ' . count($participants) . ' participants';
             mtrace($msg);
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
