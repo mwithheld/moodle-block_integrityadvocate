@@ -177,7 +177,6 @@ function block_integrityadvocate_filter_var_status(stdClass $participant) {
  *  - Get IA data and update completion status.
  *
  * @param int|stdClass $course The course object or courseid to check
- * @param \cm_info $cm
  * @param \context $modulecontext
  * @param \block_integrityadvocate $blockinstance
  * @param \stdClass $participant
@@ -743,6 +742,7 @@ class IntegrityAdvocate_Moodle_Utility {
      * Get all instances of block_integrityadvocate in the Moodle site
      * If there are multiple blocks in a single parent context just return the first from that context.
      *
+     * @param string $blockname Shortname of the block to get.
      * @param boolean $visibleonly Set to true to return only visible instances
      * @return array of block_integrityadvocate instances
      */
