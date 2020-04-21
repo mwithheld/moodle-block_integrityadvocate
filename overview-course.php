@@ -22,9 +22,9 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-/*
- * Security check - this file must be included from overview.php.
- */
+defined('MOODLE_INTERNAL') || die;
+
+// Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') or die();
 
 // Sanity checks.
@@ -161,8 +161,11 @@ class integrityadvocate_overview_participants extends \core_user\participants_ta
 
 // Z==============================================================================.
 
-$participanttable = new integrityadvocate_overview_participants($courseid, $groupid = false, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1,
-        $searchkeywords = array(), $bulkoperations, $selectall = optional_param('selectall', false, PARAM_BOOL));
+$participanttable = new integrityadvocate_overview_participants(
+        $courseid, $groupid = false, $lastaccess = 0, $roleid,
+        $enrolid = 0, $status = -1, $searchkeywords = array(), $bulkoperations,
+        $selectall = optional_param('selectall', false, PARAM_BOOL)
+);
 $participanttable->define_baseurl($baseurl);
 
 // Do this so we can get the participant rawdata values and iterate through them.
