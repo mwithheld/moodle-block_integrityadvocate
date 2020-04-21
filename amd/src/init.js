@@ -1,13 +1,13 @@
 define(['jquery', 'block_integrityadvocate/jquery.dataTables', 'core/log'],
-        function ($, datatables) {
+        function($, datatables) {
             return {
-                test: function () {
+                test: function() {
                     window.console.log('$.fn is:');
                     window.console.log($.fn);
                     window.console.log('datatables is:');
                     window.console.log(datatables);
                 },
-                init: function (selector, params) {
+                init: function(selector, params) {
                     // Configure element matched by selector as a DataTable,
                     // adding params to the default options.
                     if (params.debug) {
