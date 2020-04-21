@@ -75,7 +75,8 @@ class block_integrityadvocate_observer {
                 // (a) Close the IA session; and...
                 // (b) Update the activity completion info from the IA status.
                 $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Event name={$event->eventname}, so just close the IA session");
-                $useriaresults = block_integrityadvocate_get_course_user_ia_data($event->courseid, $event->userid, $event->contextid);
+                $useriaresults = block_integrityadvocate_get_course_user_ia_data(
+                        $event->courseid, $event->userid, $event->contextid);
                 if ($debug) {
                     if (is_string($useriaresults)) {
                         \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got string \$useriaresults=" . $useriaresults);
@@ -87,23 +88,6 @@ class block_integrityadvocate_observer {
                     } else {
                         \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got unknown type \$useriaresults=" . print_r($useriaresults,
                                         true));
-                    }
-                }
-
-                if ($useriaresults && $event->contextlevel === CONTEXT_MODULE) {
-                    if (is_string($useriaresults)) {
-                        // If we get back a string we got an error, so skip it.
-                        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}::Skipped closing due to string error: {$useriaresults}");
-                        /*
-                          } else if (is_array($participant = $useriaresults[0]['ia_participant_data'])) {
-                          self::close_activity_user_session($event);
-
-                          $modulecontext = $event->get_context();
-                          list($blockinstanceid, $blockinstance) = block_integrityadvocate_get_ia_block($modulecontext, $visibleonly);
-                          $debugblockidentifier = 'courseid=' . $courseid . '; moduleid=' . $modulecontext->instanceid . '; blockinstanceid=' . $blockinstanceid;
-                          block_integrityadvocate_cron_single_user($event->courseid, $modulecontext, $blockinstance, $participant, $debugblockidentifier);
-                          return;
-                         */
                     }
                 }
         }
@@ -126,7 +110,8 @@ class block_integrityadvocate_observer {
             )):
             // None of the event names starting with these strings correspond to finishing an activity.
             case preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
-            // None of the \mod_forum\*created events correspond to finishing an activity - they probably jost posted to the forum or added a discussion but that's not finishing with forums.
+            // None of the \mod_forum\*created events correspond to finishing an activity...
+            // They probably jost posted to the forum or added a discussion but that's not finishing with forums.
             case in_array($event->eventname,
                     array(
                         '\\assignsubmission_onlinetext\\event\\submission_updated',
