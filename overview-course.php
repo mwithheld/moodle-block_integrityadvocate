@@ -218,8 +218,10 @@ foreach ($activities as $a) {
         }
 
         // Gather formatted data for this user.
-        $participanttable->rawdata[$thisuserid]->iadata = \IntegrityAdvocate_Output::get_participant_summary_output($singleuserapidata, $blockinstanceid, $courseid, $thisuserid, true, false);
-        $participanttable->rawdata[$thisuserid]->iaphoto = \IntegrityAdvocate_Output::get_summary_photo_html($singleuserapidata, block_integrityadvocate_filter_var_status($singleuserapidata));
+        $participanttable->rawdata[$thisuserid]->iadata = \IntegrityAdvocate_Output::get_participant_summary_output(
+                        $singleuserapidata, $blockinstanceid, $courseid, $thisuserid, true, false);
+        $participanttable->rawdata[$thisuserid]->iaphoto = \IntegrityAdvocate_Output::get_summary_photo_html(
+                        $singleuserapidata, block_integrityadvocate_filter_var_status($singleuserapidata));
     }
 }
 
