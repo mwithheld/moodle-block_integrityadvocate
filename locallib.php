@@ -265,17 +265,20 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to INCOMPLETE');
             break;
         case INTEGRITYADVOCATE_API_STATUS_VALID:
-            // If the returned IA status is "Valid", we'd want the course marked Complete/Passed (if scored... if not scored, just "Complete" would work).
+            // If the returned IA status is "Valid", we'd want the course marked...
+            // Complete/Passed (if scored... if not scored, just "Complete" would work).
             $targetstate = COMPLETION_COMPLETE;
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to COMPLETE');
             break;
         case INTEGRITYADVOCATE_API_STATUS_INVALID_ID:
-            // In the case of "Invalid (ID)" status from IA, we'd want it to remain in the incomplete/pending review state (until the user submits their ID again and IA returns a different status).
+            // In the case of "Invalid (ID)" status from IA, we'd want it to remain in the incomplete/pending review state...
+            // I (Until the user submits their ID again and IA returns a different status).
             // No need to set again: $targetstate = COMPLETION_INCOMPLETE;.
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to INCOMPLETE');
             break;
         case INTEGRITYADVOCATE_API_STATUS_INVALID_RULES:
-            // In the case of an "Invalid (Rules)" status returned from IA, we'd want the course to be marked as Failed by the cron job.
+            // In the case of an "Invalid (Rules)" status returned from IA, we'd want the course to be marked as...
+            // Failed by the cron job.
             $targetstate = COMPLETION_COMPLETE_FAIL;
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus . ' so we should set the activity completion status to COMPLETE_FAIL');
             break;
@@ -1485,8 +1488,8 @@ class IntegrityAdvocate_Api {
                                 $userid));
         $response = $curl->get($url);
         $responsecode = $curl->get_info('http_code');
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Send url=' . print_r($url, true) . '; http_code=' . print_r($responsecode,
-                                true) . '; response body=' . print_r($response, true));
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Send url=' . print_r($url, true)
+                        . '; http_code=' . print_r($responsecode, true) . '; response body=' . print_r($response, true));
 
         return intval($responsecode) < 400;
     }
