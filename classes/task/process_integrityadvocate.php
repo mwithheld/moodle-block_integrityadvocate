@@ -71,7 +71,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
         }
 
         $scheduledtask = \core\task\manager::get_scheduled_task(INTEGRITYADVOCATE_TASKNAME);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::For $taskname=' . INTEGRITYADVOCATE_TASKNAME . ' got $scheduled_task=' . print_r($scheduledtask, true));
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::For $taskname=' . INTEGRITYADVOCATE_TASKNAME . ' got $scheduled_task=' . print_r($scheduledtask,
+                                true));
 
         // Workaround: block_integrityadvocate_to_apitimezone() returns the string for unix zero time if passed $scheduledtask->get_last_run_time() directly.
         $lastruntime = $scheduledtask->get_last_run_time();
@@ -148,9 +149,11 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             mtrace($msg);
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
 
-            $params['lastmodified'] = \IntegrityAdvocate_Api::convert_to_apitimezone(max($params['lastmodified'], $b->instance->timecreated, $course->timecreated));
+            $params['lastmodified'] = \IntegrityAdvocate_Api::convert_to_apitimezone(max($params['lastmodified'],
+                                    $b->instance->timecreated, $course->timecreated));
             $participants = \IntegrityAdvocate_Api::get_participant_data($b->config->apikey, $b->config->appid, $params);
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Got participants=" . print_r($participants, true));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Got participants=" . print_r($participants,
+                                    true));
             if (empty($participants)) {
                 $msg = 'No remote IA participant data returned';
                 mtrace($msg);
@@ -165,7 +168,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
 
             $usersupdatedcount = 0;
             foreach ($participants as $p) {
-                $usersupdatedcount += \block_integrityadvocate_cron_single_user($course, $modulecontext, $b, $p, $debugblockidentifier);
+                $usersupdatedcount += \block_integrityadvocate_cron_single_user($course, $modulecontext, $b, $p,
+                        $debugblockidentifier);
                 if ($debug && $usersupdatedcount > 0) {
                     \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
                     $msg = "For IA participant {$p->ParticipantIdentifier} updated completion item";

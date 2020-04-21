@@ -45,13 +45,16 @@ class block_integrityadvocate_observer {
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with event=' . print_r($event, true));.
-            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
-            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud,
+                            array('c', 'u'), true)));
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel ===
+                    CONTEXT_MODULE));
         }
 
         // No CLI events correspond to a user finishing an IA session.
         if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud,
+                                    array('c', 'u'), true)));
             return false;
         }
 
@@ -77,11 +80,13 @@ class block_integrityadvocate_observer {
                     if (is_string($useriaresults)) {
                         \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got string \$useriaresults=" . $useriaresults);
                     } else if (is_array($useriaresults) && isset($useriaresults['ia_participant_data'])) {
-                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults with ia_participant_data=" . print_r($useriaresults['ia_participant_data'], true));
+                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults with ia_participant_data=" . print_r($useriaresults['ia_participant_data'],
+                                        true));
                     } else if (is_array($useriaresults)) {
                         \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got array of \$useriaresults; count=" . count($useriaresults));
                     } else {
-                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got unknown type \$useriaresults=" . print_r($useriaresults, true));
+                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got unknown type \$useriaresults=" . print_r($useriaresults,
+                                        true));
                     }
                 }
 
@@ -110,24 +115,26 @@ class block_integrityadvocate_observer {
          *   - Database query type=create or update
          */
         switch (true) {
-            case IntegrityAdvocate_Utility::strposa($event->eventname, array(
-                '\\mod_chat\\event\\',
-                '\\mod_data\\event\\',
-                '\\mod_glossary\\event\\',
-                '\\mod_lesson\\event\\',
-                '\\mod_scorm\\event\\',
-                '\\mod_wiki\\event\\',
+            case IntegrityAdvocate_Utility::strposa($event->eventname,
+                    array(
+                        '\\mod_chat\\event\\',
+                        '\\mod_data\\event\\',
+                        '\\mod_glossary\\event\\',
+                        '\\mod_lesson\\event\\',
+                        '\\mod_scorm\\event\\',
+                        '\\mod_wiki\\event\\',
             )):
             // None of the event names starting with these strings correspond to finishing an activity.
             case preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
             // None of the \mod_forum\*created events correspond to finishing an activity - they probably jost posted to the forum or added a discussion but that's not finishing with forums.
-            case in_array($event->eventname, array(
-                '\\assignsubmission_onlinetext\\event\\submission_updated',
-                '\\mod_assign\\event\\submission_duplicated',
-                '\\mod_quiz\\event\\attempt_becameoverdue',
-                '\\mod_quiz\\event\\attempt_started',
-                '\\mod_quiz\\event\\attempt_viewed',
-                '\\mod_workshop\\event\\submission_reassessed',
+            case in_array($event->eventname,
+                    array(
+                        '\\assignsubmission_onlinetext\\event\\submission_updated',
+                        '\\mod_assign\\event\\submission_duplicated',
+                        '\\mod_quiz\\event\\attempt_becameoverdue',
+                        '\\mod_quiz\\event\\attempt_started',
+                        '\\mod_quiz\\event\\attempt_viewed',
+                        '\\mod_workshop\\event\\submission_reassessed',
             )):
                 // None of these exact string matches on event names correspond to finishing an activity.
                 $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
@@ -144,14 +151,15 @@ class block_integrityadvocate_observer {
          *   - Database query type=create or update
          */
         switch (true) {
-            case in_array($event->eventname, array(
-                /* Create events */
-                '\\mod_assign\\event\\assessable_submitted',
-                '\\mod_choice\\event\\answer_created',
-                '\\mod_feedback\\event\\response_submitted',
-                // This is blacklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
-                '\\mod_quiz\\event\\attempt_abandoned',
-                '\\mod_quiz\\event\\attempt_submitted',
+            case in_array($event->eventname,
+                    array(
+                        /* Create events */
+                        '\\mod_assign\\event\\assessable_submitted',
+                        '\\mod_choice\\event\\answer_created',
+                        '\\mod_feedback\\event\\response_submitted',
+                        // This is blacklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
+                        '\\mod_quiz\\event\\attempt_abandoned',
+                        '\\mod_quiz\\event\\attempt_submitted',
             )):
                 \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
                 break;
@@ -172,8 +180,7 @@ class block_integrityadvocate_observer {
 
         $iscoursemodulechangeevent = (
                 // CONTEXT_MODULE=70.
-                $event->contextlevel === CONTEXT_MODULE &&
-                is_numeric($event->courseid) && $event->courseid != SITEID
+                $event->contextlevel === CONTEXT_MODULE && is_numeric($event->courseid) && $event->courseid != SITEID
                 );
 
         /*
@@ -285,7 +292,8 @@ class block_integrityadvocate_observer {
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Maybe we should ask the IA API to close the session");
 
         // Make sure an IA block instance is present and visible.
-        list($unused, $blockinstance) = \IntegrityAdvocate_Moodle_Utility::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME);
+        list($unused, $blockinstance) = \IntegrityAdvocate_Moodle_Utility::get_first_block($modulecontext,
+                        INTEGRITYADVOCATE_SHORTNAME);
         if (!$blockinstance) {
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::The block is not present or not visible, so skip it");
             return false;

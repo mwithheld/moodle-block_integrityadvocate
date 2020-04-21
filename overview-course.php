@@ -79,10 +79,9 @@ class integrityadvocate_overview_participants extends \core_user\participants_ta
      * @param bool $bulkoperations Is the user allowed to perform bulk operations?
      * @param bool $selectall Has the user selected all users on the page?
      */
-    public function __construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search,
-            $bulkoperations, $selectall) {
-        parent::__construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search,
-                $bulkoperations, $selectall);
+    public function __construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search, $bulkoperations,
+            $selectall) {
+        parent::__construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search, $bulkoperations, $selectall);
 
         $this->attributes['class'] .= ' datatable';
 
@@ -162,9 +161,8 @@ class integrityadvocate_overview_participants extends \core_user\participants_ta
 // Z==============================================================================.
 
 $participanttable = new integrityadvocate_overview_participants(
-        $courseid, $groupid = false, $lastaccess = 0, $roleid,
-        $enrolid = 0, $status = -1, $searchkeywords = array(), $bulkoperations,
-        $selectall = optional_param('selectall', false, PARAM_BOOL)
+        $courseid, $groupid = false, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1, $searchkeywords = array(),
+        $bulkoperations, $selectall = optional_param('selectall', false, PARAM_BOOL)
 );
 $participanttable->define_baseurl($baseurl);
 
@@ -190,7 +188,8 @@ foreach ($activities as $a) {
     // Note the use of static caching here.
     if (!isset($participantdatacache[$blockinstance->config->apikey]) | empty($participantdatacache[$blockinstance->config->apikey])) {
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::No cached data found; About to call block_integrityadvocate_get_ia_participant_data()');
-        $participantdatacache[$blockinstance->config->apikey] = \IntegrityAdvocate_Api::get_participant_data($blockinstance->config->apikey, $blockinstance->config->appid);
+        $participantdatacache[$blockinstance->config->apikey] = \IntegrityAdvocate_Api::get_participant_data($blockinstance->config->apikey,
+                        $blockinstance->config->appid);
     }
 
     // Check again if it is set.
@@ -198,7 +197,8 @@ foreach ($activities as $a) {
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::No API key set, so it cannot retrieve data from the API.  Go on to the next activity');
         continue;
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::Got $participantdata[apikey]=' . print_r($participantdatacache[$blockinstance->config->apikey], true));
+    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::Got $participantdata[apikey]=' . print_r($participantdatacache[$blockinstance->config->apikey],
+                            true));
 
 
     // Check each participant table row to see if they have a match in the $blockinstance participant data from IA.
@@ -210,8 +210,10 @@ foreach ($activities as $a) {
         $useridentifier = block_integrityadvocate_encode_useridentifier($modulecontext, $thisuserid);
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . "::The Moodle user with userid={$thisuserid} has \$useridentifier={$useridentifier}");
         // I.(2) Look in the $participantdata for a match.
-        $singleuserapidata = block_integrityadvocate_parse_user_data($participantdatacache[$blockinstance->config->apikey], $useridentifier);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::Got $ia_single_user_data=' . print_r($singleuserapidata, true));
+        $singleuserapidata = block_integrityadvocate_parse_user_data($participantdatacache[$blockinstance->config->apikey],
+                $useridentifier);
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::Got $ia_single_user_data=' . print_r($singleuserapidata,
+                                true));
         if (!$singleuserapidata) {
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . '::No single-user api data found. Skip to the next user');
             continue;
@@ -234,10 +236,12 @@ if ($bulkoperations) {
     echo html_writer::start_tag('div', array('class' => 'buttons'));
 
     echo html_writer::start_tag('div', array('class' => 'btn-group'));
-    echo html_writer::tag('input', '', array('type' => 'button', 'id' => 'checkallonpage', 'class' => 'btn btn-secondary',
-        'value' => get_string('selectall')));
-    echo html_writer::tag('input', '', array('type' => 'button', 'id' => 'checknone', 'class' => 'btn btn-secondary',
-        'value' => get_string('deselectall')));
+    echo html_writer::tag('input', '',
+            array('type' => 'button', 'id' => 'checkallonpage', 'class' => 'btn btn-secondary',
+                'value' => get_string('selectall')));
+    echo html_writer::tag('input', '',
+            array('type' => 'button', 'id' => 'checknone', 'class' => 'btn btn-secondary',
+                'value' => get_string('deselectall')));
     echo html_writer::end_tag('div');
     $displaylist = array();
     if ($messagingallowed) {

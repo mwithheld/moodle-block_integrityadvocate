@@ -115,7 +115,8 @@ class block_integrityadvocate extends block_base {
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $COURSE->id . '; userid=' . $USER->id . '; username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Content has already been generated, so do not generate it again: \n" . print_r($this->content, true));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Content has already been generated, so do not generate it again: \n" . print_r($this->content,
+                                    true));
             return;
         }
         $this->content = new stdClass;
@@ -132,8 +133,10 @@ class block_integrityadvocate extends block_base {
         $setuperrors = \IntegrityAdvocate_Moodle_Utility::get_completion_setup_errors($COURSE);
         $hasoverviewcapability = has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
-            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . print_r($hasoverviewcapability, true));
-            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got setup errors=' . print_r($setuperrors, true));
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . print_r($hasoverviewcapability,
+                            true));
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got setup errors=' . print_r($setuperrors,
+                            true));
         }
         if ($setuperrors && $hasoverviewcapability) {
             foreach ($setuperrors as $err) {
@@ -165,7 +168,8 @@ class block_integrityadvocate extends block_base {
 
         // Check if there is any errors.
         if ($configerrors = block_integrityadvocate_ia_config_errors($this)) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($configerrors, true));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($configerrors,
+                                    true));
 
             // Error output is visible only to instructors.
             if ($hasoverviewcapability) {
@@ -190,7 +194,8 @@ class block_integrityadvocate extends block_base {
                         }
 
                         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
-                        $this->content->text .= \IntegrityAdvocate_Output::get_overview_course_button($this->instance->id, $COURSE->id);
+                        $this->content->text .= \IntegrityAdvocate_Output::get_overview_course_button($this->instance->id,
+                                        $COURSE->id);
                         break;
                     case $hasselfviewcapability:
                         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
@@ -204,7 +209,8 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hasoverviewcapability:
                         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Teacher should see the overview button');
-                        $this->content->text .= \IntegrityAdvocate_Output::get_overview_course_button($this->instance->id, $COURSE->id);
+                        $this->content->text .= \IntegrityAdvocate_Output::get_overview_course_button($this->instance->id,
+                                        $COURSE->id);
                         break;
                     default:
                         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
@@ -263,7 +269,8 @@ class block_integrityadvocate extends block_base {
                 $out .= $useriaresults;
             }
             // Error output is visible only to instructors.
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($useriaresults, true));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($useriaresults,
+                                    true));
             return $out;
         }
 
@@ -272,8 +279,10 @@ class block_integrityadvocate extends block_base {
             $participantdata = $a['ia_participant_data'];
 
             // Display summary.
-            $summaryoutput = \IntegrityAdvocate_Output::get_participant_summary_output($participantdata, $blockinstanceid, $courseid, $userid, false);
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $summaryoutput=' . print_r($summaryoutput, true));
+            $summaryoutput = \IntegrityAdvocate_Output::get_participant_summary_output($participantdata, $blockinstanceid,
+                            $courseid, $userid, false);
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $summaryoutput=' . print_r($summaryoutput,
+                                    true));
             $out .= $summaryoutput;
         }
 
@@ -324,8 +333,10 @@ class block_integrityadvocate extends block_base {
                     AND     u.deleted=0 AND u.suspended=0
                     GROUP BY ue.id";
             // CONTEXT_COURSE=50.
-            $userenrolment = $db->get_record_sql($sql, array('contextlevel' => CONTEXT_COURSE, 'userid' => $user->id, 'courseid' => $course->id), IGNORE_MULTIPLE);
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::user={$user->id}; courseid={$course->id}; Got userenrolment from DB=" . print_r($userenrolment, true));
+            $userenrolment = $db->get_record_sql($sql,
+                    array('contextlevel' => CONTEXT_COURSE, 'userid' => $user->id, 'courseid' => $course->id), IGNORE_MULTIPLE);
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::user={$user->id}; courseid={$course->id}; Got userenrolment from DB=" . print_r($userenrolment,
+                                    true));
 
             if (empty($userenrolment) || !isset($userenrolment->id)) {
                 $error = get_string('error_notenrolled', INTEGRITYADVOCATE_BLOCKNAME);
@@ -337,7 +348,8 @@ class block_integrityadvocate extends block_base {
 
             $modulecontext = $blockcontext->get_parent_context();
             // Warning: Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got modulecontext=" . print_r($modulecontext, true));.
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got modulecontext->id=" . print_r($modulecontext->id, true));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got modulecontext->id=" . print_r($modulecontext->id,
+                                    true));
 
             // The moodle_url class stores params non-urlencoded but outputs them encoded.
             $url = new moodle_url(INTEGRITYADVOCATE_BASEURL . '/Integrity',
