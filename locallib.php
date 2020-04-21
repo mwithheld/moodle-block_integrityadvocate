@@ -1019,6 +1019,9 @@ class IntegrityAdvocate_Moodle_Utility {
 
 }
 
+/**
+ * Functions for generating user-visible output.
+ */
 class IntegrityAdvocate_Output {
 
     /**
