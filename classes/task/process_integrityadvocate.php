@@ -50,7 +50,6 @@ class process_integrityadvocate extends \core\task\scheduled_task {
     /**
      * Do the job.
 
-     * @global moodle_database $DB Moodle DB object
      * @throws Exception The job will be retried.
      */
     public function execute() {

@@ -77,8 +77,6 @@ static $block_integrityadvocate_log_dest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
 /**
  * Return if there are config errors
  *
- * @global moodle_database $DB Moodle DB object
- * @global stdClass $COURSE Moodle COURSE object
  * @param block_integrityadvocate $blockinstance to check
  * @throws Exception If error
  * @return array(field=>error message)
@@ -178,7 +176,6 @@ function block_integrityadvocate_filter_var_status(stdClass $participant) {
  *  - Check if should close remote IA session;...
  *  - Get IA data and update completion status.
  *
- * @global moodle_database $DB
  * @param int|stdClass $course The course object or courseid to check
  * @param \cm_info $cm
  * @param \context $modulecontext
@@ -303,7 +300,6 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
 /**
  * Generate the HTML to view details for this user.
  *
- * @global object $OUTPUT Moodle OUTPUT object so we can use its single_button() function
  * @param int $blockinstanceid The block instance id
  * @param int $courseid The course id
  * @param int $userid The user id
@@ -322,7 +318,6 @@ function block_integrityadvocate_get_overview_user_button($blockinstanceid, $cou
  * Get the user_enrolment.id (UEID) for the given course-user combo
  * Ignores deleted and suspended users
  *
- * @global moodle_database $DB Moodle DB object
  * @param context $modulecontext The context of the module the IA block is attached to.
  * @param int $userid The user id to get the ueid for
  * @return int the ueid
@@ -748,7 +743,6 @@ class IntegrityAdvocate_Moodle_Utility {
      * Get all instances of block_integrityadvocate in the Moodle site
      * If there are multiple blocks in a single parent context just return the first from that context.
      *
-     * @global moodle_database $DB Moodle DB object
      * @param boolean $visibleonly Set to true to return only visible instances
      * @return array of block_integrityadvocate instances
      */
@@ -793,7 +787,6 @@ class IntegrityAdvocate_Moodle_Utility {
     /**
      * Return whether an IA block is visible in the given context
      *
-     * @global moodle_database $DB Moodle DB object
      * @param int $activitycontextid The activity context id
      * @param int $blockinstanceid The block instance id
      * @return boolean true if the block is visible in the given context
@@ -821,7 +814,6 @@ class IntegrityAdvocate_Moodle_Utility {
     /**
      * Check if site and optionally also course completion is enabled.
      *
-     * @global object $CFG Moodle CFG object
      * @param int|object $course Optional courseid or course object to check.  If not specified, only site-level completion is checked.
      * @return array of error identifier strings
      */
@@ -869,7 +861,6 @@ class IntegrityAdvocate_Moodle_Utility {
     /**
      * Returns the results of user_get_user_details() for the user in this course, plus the course-lastaccess time
      *
-     * @global moodle_database $DB Moodle DB object
      * @param stdClass $user Moodle user object
      * @param stdClass $course Moodle course object
      * @return array of user info
@@ -888,7 +879,6 @@ class IntegrityAdvocate_Moodle_Utility {
     /**
      * Get the student role (in the course) to show by default e.g. on the course-overview page dropdown box.
      *
-     * @global moodle_database $DB Moodle DB object
      * @param context $context Course context in which to get the default role.
      * @return int the role id that is for student archetype in this course
      */
@@ -912,7 +902,6 @@ class IntegrityAdvocate_Moodle_Utility {
     /**
      * Get the first block instance matching the shortname in the given context
      *
-     * @global moodle_database $DB Moodle DB object
      * @param context $modulecontext Context to find the IA block in.
      * @param context $blockname Block shortname e.g. for block_html it would be html.
      * @param boolean $visibleonly Return only visible instances.
@@ -977,7 +966,6 @@ class IntegrityAdvocate_Moodle_Utility {
     /**
      * Get user last access in course.
      *
-     * @global moodle_database $DB Moodle DB object
      * @param int $userid The user id to look for.
      * @param int $courseid The course id to look in.
      * @return int User last access unix time.
@@ -991,8 +979,6 @@ class IntegrityAdvocate_Moodle_Utility {
     /**
      * Log $message to HTML output, mlog, stdout, or error log
      *
-     * @global object $CFG Moodle CFG object
-     * @global string $block_integrityadvocate_log_dest The current logging destination so it can be overridden globally.
      * @param string $message Message to log
      * @param string $dest One of the INTEGRITYADVOCATE_LOGDEST_* constants.
      */
@@ -1170,7 +1156,6 @@ class IntegrityAdvocate_Output {
     /**
      * Generate the HTML to view details for all course users.
      *
-     * @global object $OUTPUT Moodle OUTPUT object so we can use its single_button() function
      * @param int $blockinstanceid The block instance id
      * @param int $courseid The course id
      * @return HTML to view user details
