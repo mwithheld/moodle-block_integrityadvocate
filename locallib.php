@@ -496,14 +496,15 @@ function block_integrityadvocate_get_course_ia_activities($course, $filter = arr
 
     // Get activities in this course.
     $activities = \block_integrityadvocate_get_activities_with_completion($course->id);
-    if (!$activities) {
+    if (empty($activities)) {
         return 'no_activities_message';
     }
     $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . count($activities) . ' activities in this course');
 
     // Filter for activities that use an IA block.
     $activities = block_integrityadvocate_filter_activities_use_ia_block($activities, $filter);
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . count($activities) . ' activities that use IA');
+    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+                    . '::Found ' . (is_countable($activities) ? count($activities) : 0) . ' activities that use IA');
 
     if (!$activities) {
         return 'no_activities_config_message';
@@ -551,6 +552,11 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
     if (is_string($activities)) {
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $iaactivities=' . $activities);
         return $activities;
+    }
+    if (empty($activities)) {
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+                        . '::Got block_integrityadvocate_get_course_ia_activities() count=' . 0);
+        return $results;
     }
     $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got block_integrityadvocate_get_course_ia_activities() count=' . count($activities));
 
@@ -604,8 +610,8 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
  */
 function block_integrityadvocate_filter_activities_use_ia_block(array $activities, $filter = array()) {
     $debug = true;
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with ' . count($activities) . ' activities; $filter=' . print_r($filter,
-                            true));
+    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+                    . '::Started with ' . count($activities) . ' activities; $filter=' . print_r($filter, true));
     // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $activities=' . print_r($activities, true));.
 
     foreach ($activities as $key => $a) {
@@ -683,7 +689,8 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
                 unset($activities[$key]);
                 continue;
             }
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::After filtering for apikey/appid, count($activities)=' . count($activities));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+                            . '::After filtering for apikey/appid, count($activities)=' . count($activities));
         }
 
         // Add the blockinstance data to the $activities array to be returned.
@@ -1053,7 +1060,10 @@ class IntegrityAdvocate_Output {
      * @return string HTML to output
      */
     public static function get_participant_flags_output(stdClass $participant) {
-        if (count($participant->Flags) < 1) {
+        if (!isset($participant->Flags) || !is_countable($participant->Flags)) {
+            throw new InvalidArgumentException('Input $participants must contain Flags array');
+        }
+        if (!count($participant->Flags) < 1) {
             return '';
         }
         $out = '<div class="block_integrityadvocate_overview_flags_div">';
