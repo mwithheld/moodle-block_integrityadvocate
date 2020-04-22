@@ -132,7 +132,7 @@ if ($continue) {
         $continue = false;
     }
     $debug && \IntegrityAdvocate_Moodle_Utility::log(basename(__FILE__)
-                    . '::Got activities count=' . is_countable($activities) ? count($activities) : 0);
+                    . '::Got activities count=' . (is_countable($activities) ? count($activities) : 0));
 }
 
 

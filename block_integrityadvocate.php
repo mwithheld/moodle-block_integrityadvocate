@@ -151,7 +151,7 @@ class block_integrityadvocate extends block_base {
         $activities = block_integrityadvocate_get_activities_with_completion($COURSE->id, $this->config);
         $activities = block_integrityadvocate_filter_visibility($CFG, $activities, $USER->id, $COURSE->id, $exclusions);
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
-                        . '::Activities found=' . is_countable($activities) ? count($activities) : 0);
+                        . '::Activities found=' . (is_countable($activities) ? count($activities) : 0));
         if (empty($activities)) {
             if ($hasoverviewcapability) {
                 $this->content->text .= get_string('no_activities_config_message', INTEGRITYADVOCATE_BLOCKNAME);
@@ -258,7 +258,7 @@ class block_integrityadvocate extends block_base {
 
         $useriaresults = block_integrityadvocate_get_course_user_ia_data($courseid, $userid);
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
-                        . '::Got count($useriadata)=' . is_countable($useriaresults) ? count($useriaresults) : 0);
+                        . '::Got count($useriadata)=' . (is_countable($useriaresults) ? count($useriaresults) : 0));
         // Warning: Huge object output: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $useriadata=' . print_r($useriadata, true));.
 
         if (empty($useriaresults)) {
