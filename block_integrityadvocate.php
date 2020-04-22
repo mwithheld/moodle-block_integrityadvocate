@@ -147,9 +147,9 @@ class block_integrityadvocate extends block_base {
         }
 
         // Check if any activities/resources have been created.
-        $exclusions = block_integrityadvocate_exclusions($DB, $COURSE->id);
-        $activities = block_integrityadvocate_get_activities_with_completion($COURSE->id, $this->config);
-        $activities = block_integrityadvocate_filter_visibility($CFG, $activities, $USER->id, $COURSE->id, $exclusions);
+        $exclusions = \IntegrityAdvocate_Moodle_Utility::get_gradebook_exclusions($DB, $COURSE->id);
+        $activities = \IntegrityAdvocate_Moodle_Utility::get_activities_with_completion($COURSE->id, $this->config);
+        $activities = \IntegrityAdvocate_Moodle_Utility::filter_for_visible($CFG, $activities, $USER->id, $COURSE->id, $exclusions);
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
                         . '::Activities found=' . (is_countable($activities) ? count($activities) : 0));
         if (empty($activities)) {

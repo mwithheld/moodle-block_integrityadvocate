@@ -240,7 +240,7 @@ class block_integrityadvocate_observer {
 
         // Check the user has a valid UEID in this context.
         // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');.
-        $ueid = block_integrityadvocate_get_ueid($modulecontext, $event->userid);
+        $ueid = \IntegrityAdvocate_Moodle_Utility::get_ueid($modulecontext, $event->userid);
         if ($ueid < 0) {
             \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find a UEID for userid and context={$event->contextid}; debuginfo={$debuginfo}");
             return false;
