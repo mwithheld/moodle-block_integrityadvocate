@@ -74,6 +74,26 @@ const INTEGRITYADVOCATE_SESS_TIMEOUT = 10;
 
 static $block_integrityadvocate_log_dest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
 
+/*
+ * Polyfill functions
+ */
+if (version_compare(phpversion(), '7.3.0', '<')) {
+    if (!function_exists('is_countable')) {
+
+        /**
+         * Polyfill for is_countable()
+         *
+         * @link https://www.php.net/manual/en/function.is-countable.php#123089
+         * @param Countable $var object to check if it is countable.
+         * @return bool true if is countable.
+         */
+        function is_countable($var) {
+            return (is_array($var) || $var instanceof Countable);
+        }
+
+    }
+}
+
 /**
  * Return if there are config errors
  *
