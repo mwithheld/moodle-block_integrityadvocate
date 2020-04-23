@@ -106,9 +106,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             $debugblockidentifier = 'courseid=' . $courseid . '; moduleid=' . $modulecontext->instanceid . '; blockinstanceid=' . $b->instance->id;
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:Looking at {$debugblockidentifier}");
 
-            // Get the course object so we can get the timemodified and the completion info.
-            $course = get_course($courseid);
-            if ($course->timemodified < (time() - 60 * 60 * 24)) {
+            $courselastmodified = \IntegrityAdvocate_Moodle_Utility::get_course_lastaccess($courseid);
+            if ($courselastmodified < (time() - 60 * 60 * 24)) {
                 $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: This course has not been modified in 24 hours, so skip it");
                 continue;
             }
@@ -148,6 +147,9 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             $msg = 'About to get remote IA data for ' . $debugblockidentifier . ' since ' . $lastruntime;
             mtrace($msg);
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
+
+            // Get the course object so we can get timecreated and pass it to block_integrityadvocate_cron_single_user.
+            $course = get_course($courseid);
 
             $params['lastmodified'] = \IntegrityAdvocate_Api::convert_to_apitimezone(max($params['lastmodified'],
                                     $b->instance->timecreated, $course->timecreated));

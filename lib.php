@@ -17,7 +17,7 @@
 /**
  * IntegrityAdvocate block common configuration and helper functions
  *
- * This entire file comes from block_completion_progress
+ * Some code in this file comes from block_completion_progress
  * https://moodle.org/plugins/block_completion_progress
  * with full credit and thanks due to Michael de Raadt.
  *
@@ -1084,6 +1084,27 @@ class IntegrityAdvocate_Moodle_Utility {
         global $DB;
         // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log('Got $lastaccesses_record=' . print_r($lastaccesses_record, true));.
         return $DB->get_field('user_lastaccess', 'timeaccess', array('courseid' => $courseid, 'userid' => $userid));
+    }
+
+    /**
+     * Get the UNIX timestamp for the last user access to the course.
+     * 
+     * @global type $DB
+     * @param type $courseid
+     * @return type
+     * @throws InvalidArgumentException
+     */
+    public static function get_course_lastaccess($courseid) {
+        global $DB;
+        if (!is_int($courseid)) {
+            throw new InvalidArgumentException('Input $courseid must be an integer');
+        }
+
+        $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
+                array($courseid), IGNORE_MISSING);
+
+        // Convert false to int 0.
+        return intval($lastaccess);
     }
 
     /**
