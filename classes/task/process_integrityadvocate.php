@@ -71,8 +71,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
         }
 
         $scheduledtask = \core\task\manager::get_scheduled_task(INTEGRITYADVOCATE_TASKNAME);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::For $taskname=' . INTEGRITYADVOCATE_TASKNAME . ' got $scheduled_task=' . print_r($scheduledtask,
-                                true));
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                        '::For $taskname=' . INTEGRITYADVOCATE_TASKNAME . ' got $scheduled_task=' . print_r($scheduledtask, true));
 
         // Workaround: block_integrityadvocate_to_apitimezone() returns the string for unix zero time if passed $scheduledtask->get_last_run_time() directly.
         $lastruntime = $scheduledtask->get_last_run_time();
@@ -112,26 +112,30 @@ class process_integrityadvocate extends \core\task\scheduled_task {
 
             $courselastmodified = \IntegrityAdvocate_Moodle_Utility::get_course_lastaccess($courseid);
             if ($courselastmodified < (time() - $courselastmodifiedmax)) {
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: This course has not been modified in 7 days, so skip it");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::{$debuglooplevel1}:{$debugblockidentifier}: This course has not been modified in 7 days, so skip it");
                 continue;
             }
 
             // Check if completion is setup at the course level.
             if (\IntegrityAdvocate_Moodle_Utility::get_completion_setup_errors($courseid)) {
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: This courses completion is not setup at the course level, so skip it");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::{$debuglooplevel1}:{$debugblockidentifier}: This courses completion is not setup at the course level, so skip it");
                 continue;
             }
 
             // Only process module-level blocks.
             if ($modulecontext->contextlevel != CONTEXT_MODULE) {
                 // The context may also be CONTEXT_SITE or CONTEXT_COURSE, for example.
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: This is not a module-level block, so skip it");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::{$debuglooplevel1}:{$debugblockidentifier}: This is not a module-level block, so skip it");
                 continue;
             }
 
             // Check the block has apikey and appid.
             if (!isset($b->config) || (!isset($b->config->apikey) && !isset($b->config->appid))) {
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: This block has no apikey and appid, so skip it");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::{$debuglooplevel1}:{$debugblockidentifier}: This block has no apikey and appid, so skip it");
                 continue;
             }
 
@@ -143,7 +147,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             $cm = $modinfo->get_cm($modulecontext->instanceid);
 
             if ($cm->completion == COMPLETION_TRACKING_NONE) {
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Completion is disabled at the module level, so skip it");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::{$debuglooplevel1}:{$debugblockidentifier}: Completion is disabled at the module level, so skip it");
                 continue;
             }
 
@@ -158,8 +163,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             $params['lastmodified'] = \IntegrityAdvocate_Api::convert_to_apitimezone(max($params['lastmodified'],
                                     $b->instance->timecreated, $course->timecreated));
             $participants = \IntegrityAdvocate_Api::get_participant_data($b->config->apikey, $b->config->appid, $params);
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Got participants=" . print_r($participants,
-                                    true));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                            "::{$debuglooplevel1}:{$debugblockidentifier}: Got participants=" . print_r($participants, true));
             if (empty($participants)) {
                 $msg = 'No remote IA participant data returned';
                 mtrace($msg);
@@ -176,7 +181,8 @@ class process_integrityadvocate extends \core\task\scheduled_task {
                 $usersupdatedcount += \block_integrityadvocate_cron_single_user($course, $modulecontext, $b, $p,
                         $debugblockidentifier);
                 if ($debug && $usersupdatedcount > 0) {
-                    \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
+                    \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                            "::{$debuglooplevel1}:{$debugblockidentifier}: Updated {$usersupdatedcount} completion items");
                     $msg = "For IA participant {$p->ParticipantIdentifier} updated completion item";
                     mtrace($msg);
                     $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$msg");

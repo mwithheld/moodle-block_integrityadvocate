@@ -45,16 +45,17 @@ class block_integrityadvocate_observer {
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with event=' . print_r($event, true));.
-            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud,
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                    "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud,
                             array('c', 'u'), true)));
-            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel ===
-                    CONTEXT_MODULE));
+            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                    "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
         }
 
         // No CLI events correspond to a user finishing an IA session.
         if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud,
-                                    array('c', 'u'), true)));
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                            "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
             return false;
         }
 
@@ -102,11 +103,13 @@ class block_integrityadvocate_observer {
                         '\\mod_workshop\\event\\submission_reassessed',
             )):
                 // None of these exact string matches on event names correspond to finishing an activity.
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
             default:
                 // Do nothing.
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is not blacklisted so continue");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::This eventname is not blacklisted so continue");
         }
 
         /*
@@ -126,10 +129,12 @@ class block_integrityadvocate_observer {
                         '\\mod_quiz\\event\\attempt_abandoned',
                         '\\mod_quiz\\event\\attempt_submitted',
             )):
-                \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
+                \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                        "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
+                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                                "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
                 return false;
         }
 
@@ -137,9 +142,11 @@ class block_integrityadvocate_observer {
         // (a) this is a create or update event; and...
         // (b) this is an activity-level event.
         $iscreateorupdate = in_array($event->crud, array('c', 'u'), true);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found $is_create_or_update=' . $iscreateorupdate);
+        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                        '::Found $is_create_or_update=' . $iscreateorupdate);
         if ($iscreateorupdate) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This is not a create or update event, so skip it');
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                            '::This is not a create or update event, so skip it');
             return false;
         }
 
@@ -153,7 +160,8 @@ class block_integrityadvocate_observer {
          * but there are other events that should close the IA session.
          */
         if (!$iscoursemodulechangeevent) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::This is not a course activity module create or update so skip it; debuginfo={$debuginfo}");
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                            "::This is not a course activity module create or update so skip it; debuginfo={$debuginfo}");
             return false;
         }
         $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This is a course activity module create or update so continue');

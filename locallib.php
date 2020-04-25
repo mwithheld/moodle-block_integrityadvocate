@@ -21,5 +21,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
+
 // This is a legacy file - everything is in lib.php.
 require_once(__DIR__ . '/lib.php');
