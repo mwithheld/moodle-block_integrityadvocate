@@ -36,6 +36,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
 
     /**
      * Overridden to create any form fields specific to this type of block.
+     * We can't add a type check here without causing a warning b/c the parent class does not have the type check.
+     *
      * @param stdClass $mform the form being built.
      */
     protected function specific_definition($mform) {
@@ -43,12 +45,10 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
         $this->specific_definition_ia($mform);
-
-        /* IA: The rest of what was in this function is removed on purpose */
     }
 
     /**
-     * Overridden to create any form fields specific to this type of block.
+     * Build form fields for this block's settings.
      *
      * @param MoodleQuickForm $mform the form being built.
      */
@@ -68,11 +68,11 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * Server side rules do not work for uploaded files, implement serverside rules here if needed.
      *
      * @param object[] $data array of ("fieldname"=>value) of submitted data
-     * @param object[] $files array of uploaded files "element_name"=>tmp_file_path
+     * @param object[] $unused Unused array of uploaded files "element_name"=>tmp_file_path
      * @return object[] of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
-    public function validation($data, $files) {
+    public function validation($data, $unused) {
         $errors = array();
 
         if (!empty($data['config_appid']) && !\IntegrityAdvocate_Utility::is_guid($data['config_appid'])) {
