@@ -25,7 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 $tasks = array(
     array(
         // I'm choosing not to use the constant INTEGRITYADVOCATE_TASKNAME...
-        // So I don't have the overhead of including the locallib.php file.
+        // So I don't have the overhead of including the lib.php file.
         'classname' => 'block_integrityadvocate\task\process_integrityadvocate',
         'blocking' => 0,
         'minute' => '*',
