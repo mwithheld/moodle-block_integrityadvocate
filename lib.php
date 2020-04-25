@@ -787,10 +787,9 @@ class IntegrityAdvocate_Moodle_Utility {
      *
      * @param int courseid The id of the course
      * @param object $config The block instance configuration
-     * @param string $forceorder An override for the course order setting
      * @return array[activities] Activities with completion settings in the course
      */
-    public static function get_activities_with_completion($courseid, $config = null, $forceorder = null) {
+    public static function get_activities_with_completion($courseid, $config = null) {
         $modinfo = get_fast_modinfo($courseid, -1);
         $sections = $modinfo->get_sections();
         $activities = array();
