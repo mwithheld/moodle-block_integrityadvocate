@@ -796,13 +796,7 @@ class IntegrityAdvocate_Moodle_Utility {
         foreach ($modinfo->instances as $module => $instances) {
             $modulename = get_string('pluginname', $module);
             foreach ($instances as $cm) {
-                if (
-                        $cm->completion != COMPLETION_TRACKING_NONE && (
-                        $config == null || (
-                        !isset($config->activitiesincluded) || (
-                        $config->activitiesincluded != 'selectedactivities' || !empty($config->selectactivities) && in_array($module . '-' . $cm->instance,
-                                $config->selectactivities))))
-                ) {
+                if ($cm->completion != COMPLETION_TRACKING_NONE) {
                     $activities[] = array(
                         'type' => $module,
                         'modulename' => $modulename,
