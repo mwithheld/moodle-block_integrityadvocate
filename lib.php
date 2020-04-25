@@ -786,10 +786,9 @@ class IntegrityAdvocate_Moodle_Utility {
      * Returns the activities with completion set in current course
      *
      * @param int courseid The id of the course
-     * @param object $config The block instance configuration
      * @return array[activities] Activities with completion settings in the course
      */
-    public static function get_activities_with_completion($courseid, $config = null) {
+    public static function get_activities_with_completion($courseid) {
         $modinfo = get_fast_modinfo($courseid, -1);
         $sections = $modinfo->get_sections();
         $activities = array();
