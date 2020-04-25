@@ -1088,7 +1088,7 @@ class IntegrityAdvocate_Moodle_Utility {
 
     /**
      * Get the UNIX timestamp for the last user access to the course.
-     * 
+     *
      * @global type $DB
      * @param type $courseid
      * @return type
@@ -1096,12 +1096,13 @@ class IntegrityAdvocate_Moodle_Utility {
      */
     public static function get_course_lastaccess($courseid) {
         global $DB;
-        if (!is_int($courseid)) {
+        $courseidcleaned = filter_var($courseid, FILTER_VALIDATE_INT);
+        if (!is_int($courseidcleaned)) {
             throw new InvalidArgumentException('Input $courseid must be an integer');
         }
 
         $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
-                array($courseid), IGNORE_MISSING);
+                array($courseidcleaned), IGNORE_MISSING);
 
         // Convert false to int 0.
         return intval($lastaccess);
