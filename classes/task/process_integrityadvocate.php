@@ -152,7 +152,7 @@ class process_integrityadvocate extends \core\task\scheduled_task {
             mtrace($msg);
             $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$msg");
 
-            // Get the course object so we can get timecreated and pass it to block_integrityadvocate_cron_single_user.
+            // Get the course object so we can pass it to block_integrityadvocate_cron_single_user.
             $course = get_course($courseid);
 
             $params['lastmodified'] = \IntegrityAdvocate_Api::convert_to_apitimezone(max($params['lastmodified'],

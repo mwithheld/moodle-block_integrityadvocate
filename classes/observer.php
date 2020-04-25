@@ -35,7 +35,7 @@ class block_integrityadvocate_observer {
 
     /**
      * Parse the triggered event and decide if and how to act on it.
-     * User logout and other course events lead to the user's remote IA sessions being closed
+     * User logout and other course events lead to the user's remote IA sessions being closed.
      *
      * @param \core\event\base $event Event to maybe act on
      * @return true if attempted to close the remote IA session; else false
@@ -64,32 +64,12 @@ class block_integrityadvocate_observer {
             return false;
         }
 
-        switch ($event->eventname) {
-            case '\\core\\event\\user_loggedout':
-                // On logout, close all IA sessions. Note: This is a read event not a create/update.
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}: close all remote IA sessions for userid={$event->userid}");
-                self::close_all_user_sessions($event);
-                return;
-            case '\\core\\event\\course_module_completion_updated':
-                // When activity completion updates...
-                // (a) Close the IA session; and...
-                // (b) Update the activity completion info from the IA status.
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::$event->eventname::Event name={$event->eventname}, so just close the IA session");
-                $useriaresults = block_integrityadvocate_get_course_user_ia_data(
-                        $event->courseid, $event->userid, $event->contextid);
-                if ($debug) {
-                    if (is_string($useriaresults)) {
-                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got string \$useriaresults=" . $useriaresults);
-                    } else if (is_array($useriaresults) && isset($useriaresults['ia_participant_data'])) {
-                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got \$useriaresults with ia_participant_data=" . print_r($useriaresults['ia_participant_data'],
-                                        true));
-                    } else if (is_array($useriaresults)) {
-                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got array of \$useriaresults; count=" . count($useriaresults));
-                    } else {
-                        \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got unknown type \$useriaresults=" . print_r($useriaresults,
-                                        true));
-                    }
-                }
+        // This is the only site-level event to act on.
+        if ($event->eventname == '\\core\\event\\user_loggedout') {
+            // On logout, close all IA sessions. Note: This is a read event not a create/update.
+            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$event->eventname}: close all remote IA sessions for userid={$event->userid}");
+            self::close_all_user_sessions($event);
+            return;
         }
 
         /*
@@ -260,7 +240,7 @@ class block_integrityadvocate_observer {
 
         // Check the user has a valid UEID in this context.
         // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to get_ueid');.
-        $ueid = block_integrityadvocate_get_ueid($modulecontext, $event->userid);
+        $ueid = \IntegrityAdvocate_Moodle_Utility::get_ueid($modulecontext, $event->userid);
         if ($ueid < 0) {
             \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Failed to find a UEID for userid and context={$event->contextid}; debuginfo={$debuginfo}");
             return false;
