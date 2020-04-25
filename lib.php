@@ -30,6 +30,8 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use IntegrityAdvocate_Moodle_Utility as ia_u;
+
 defined('MOODLE_INTERNAL') || die;
 
 $blockintegrityadvocatewwwroot = dirname(__FILE__, 3);
@@ -114,7 +116,7 @@ if (version_compare(phpversion(), '7.3.0', '<')) {
  */
 function block_integrityadvocate_ia_config_errors(block_integrityadvocate $blockinstance) {
     $debug = true;
-    // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $blockinstance=' . print_r($blockinstance, true));.
+    // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $blockinstance=' . print_r($blockinstance, true));.
 
     $errors = array();
     $hasblockconfig = isset($blockinstance->config) && !empty($blockinstance->config);
@@ -161,16 +163,16 @@ function block_integrityadvocate_ia_config_errors(block_integrityadvocate $block
  */
 function block_integrityadvocate_parse_user_data(array $participantdata, $useridentifier) {
     $debug = true;
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                     "::Started with \$useridentifier={$useridentifier}; \$participantdata=" . print_r($participantdata, true));
 
     foreach ($participantdata as $p) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at $p=' . print_r($p, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at $p=' . print_r($p, true));
         if ($p->ParticipantIdentifier == $useridentifier) {
             return $p;
         }
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::No data found for \$useridentifier={$useridentifier}");
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::No data found for \$useridentifier={$useridentifier}");
     return false;
 }
 
@@ -197,7 +199,7 @@ function block_integrityadvocate_filter_var_status(stdClass $participant) {
             break;
         default:
             $error = 'Invalid participant review status value=' . serialize($reviewstatus);
-            \IntegrityAdvocate_Moodle_Utility::log($error);
+            ia_u::log($error);
             throw new InvalidValueException($error);
     }
     return $status;
@@ -219,10 +221,10 @@ function block_integrityadvocate_filter_var_status(stdClass $participant) {
 function block_integrityadvocate_cron_single_user($course, \context $modulecontext, \block_integrityadvocate $blockinstance, \stdClass $participant, $debugblockidentifier = '') {
     global $DB;
     $debug = true;
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier);
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Started with \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier);
 
     if (empty($participant->ParticipantIdentifier) || !ctype_alnum($participant->ParticipantIdentifier)) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::Invalid \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' so skip it');
         return false;
     }
@@ -235,11 +237,11 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
     }
 
     $parsedparticipantinfo = block_integrityadvocate_decode_useridentifier($participant->ParticipantIdentifier);
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                     "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' got thisuserid=' .
                     print_r($parsedparticipantinfo, true));
     if (empty($parsedparticipantinfo)) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier .
                         ' is empty or an incorrect format, so skip it');
         return false;
@@ -247,7 +249,7 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
 
     $participantcourseid = $parsedparticipantinfo[0];
     if ($participantcourseid !== $course->id) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier .
                         ' this info is for a different courseid, so skip it');
         return false;
@@ -255,18 +257,18 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
 
     $participantuserid = $parsedparticipantinfo[1];
     $user = $DB->get_record('user', array('id' => $participantuserid));
-    // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::For $participant->ParticipantIdentifier=' . $participant->ParticipantIdentifier . ' got $user with id=' . $user->id);.
+    // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::For $participant->ParticipantIdentifier=' . $participant->ParticipantIdentifier . ' got $user with id=' . $user->id);.
     if (empty($user)) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' got an empty user, so skip it');
         return false;
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                     "::{$debugblockidentifier}: For \$participant->ParticipantIdentifier=" . $participant->ParticipantIdentifier . ' got a $user');
 
     $debuguseridentifier = 'userid=' . $user->id;
     if (!is_enrolled($modulecontext, $user)) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debugblockidentifier}:{$debuguseridentifier}: This user is no longer enrolled in this course-module, so close the IA session then skip it");
         \IntegrityAdvocate_Api::close_remote_session($blockinstance->config->appid, $modulecontext, $user->id);
         return false;
@@ -274,18 +276,18 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
 
     // Close IA sessions older than INTEGRITYADVOCATE_SESS_TIMEOUT minutes,
     // but only do so a few times.
-    $usercourselastaccess = \IntegrityAdvocate_Moodle_Utility::get_user_last_access($user->id, $course->id);
+    $usercourselastaccess = ia_u::get_user_last_access($user->id, $course->id);
     $timetocloseiasession = $usercourselastaccess + INTEGRITYADVOCATE_SESS_TIMEOUT * 60;
     $timenow = time();
     if ($timenow > $timetocloseiasession && $timenow < ($timetocloseiasession + (4 * 60))
     ) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debugblockidentifier}:{$debuguseridentifier}: This user last course activity is more than " .
                         INTEGRITYADVOCATE_SESS_TIMEOUT . " minutes ago, so close the IA session");
         \IntegrityAdvocate_Api::close_remote_session($blockinstance->config->appid, $modulecontext, $user->id);
         // DO NOT 'break;' - we want to carry on processing.
     } else {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debugblockidentifier}:{$debuguseridentifier}: This user last course activity is less than " .
                         INTEGRITYADVOCATE_SESS_TIMEOUT . " minutes ago, so do not close the IA session");
     }
@@ -296,38 +298,38 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
     $modinfo = get_fast_modinfo($course->id);
     $cm = $modinfo->get_cm($modulecontext->instanceid);
     if ($cm->completion == COMPLETION_TRACKING_NONE) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debuglooplevel1}:{$debugblockidentifier}: Completion is disabled at the module level, so skip it");
         return false;
     }
 
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: Before changes, \$cm->completion={$cm->completion}");
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}: Before changes, \$cm->completion={$cm->completion}");
     $targetstate = COMPLETION_INCOMPLETE;
     switch ($reviewstatus = clean_param($participant->ReviewStatus, PARAM_TEXT)) {
         case INTEGRITYADVOCATE_API_STATUS_INPROGRESS:
             // No need to set again: $targetstate = COMPLETION_INCOMPLETE;.
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
                             ' so we should set the activity completion status to INCOMPLETE');
             break;
         case INTEGRITYADVOCATE_API_STATUS_VALID:
             // If the returned IA status is "Valid", we'd want the course marked...
             // Complete/Passed (if scored... if not scored, just "Complete" would work).
             $targetstate = COMPLETION_COMPLETE;
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
                             ' so we should set the activity completion status to COMPLETE');
             break;
         case INTEGRITYADVOCATE_API_STATUS_INVALID_ID:
             // In the case of "Invalid (ID)" status from IA, we'd want it to remain in the incomplete/pending review state...
             // I (Until the user submits their ID again and IA returns a different status).
             // No need to set again: $targetstate = COMPLETION_INCOMPLETE;.
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
                             ' so we should set the activity completion status to INCOMPLETE');
             break;
         case INTEGRITYADVOCATE_API_STATUS_INVALID_RULES:
             // In the case of an "Invalid (Rules)" status returned from IA, we'd want the course to be marked as...
             // Failed by the cron job.
             $targetstate = COMPLETION_COMPLETE_FAIL;
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
                             ' so we should set the activity completion status to COMPLETE_FAIL');
             break;
         default:
@@ -337,16 +339,16 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
     // Cannot use update_state() in several of the above cases, so dirty hack it in with internal_set_data().
     $current = $completion->get_data($cm, false, $user->id);
     if ($current->completionstate != $targetstate) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         "::{$debugblockidentifier}:{$debuguseridentifier}: Before changes, \$current->completionstate={$current->completionstate}");
         $current->completionstate = $targetstate;
         $current->timemodified = time();
         $current->overrideby = null;
         $completion->internal_set_data($cm, $current);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: IA status=" . $reviewstatus .
                         ' so set the activity completion status; completiondata=' . print_r($completiondata = $completion->get_data($cm, false, $user->id), true));
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: Done this participant");
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::{$debugblockidentifier}:{$debuguseridentifier}: Done this participant");
 
     return true;
 }
@@ -363,14 +365,14 @@ function block_integrityadvocate_cron_single_user($course, \context $moduleconte
  */
 function block_integrityadvocate_encode_useridentifier(context $modulecontext, $userid) {
     $debug = true;
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with userid=' . $userid);
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with userid=' . $userid);
 
     if (!is_numeric($userid)) {
         throw new InvalidArgumentException('Input $userid must be numeric');
     }
 
     $coursecontext = $modulecontext->get_course_context();
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got courseid={$coursecontext->instanceid}");
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Got courseid={$coursecontext->instanceid}");
 
     return bin2hex("{$coursecontext->instanceid}-{$userid}");
 }
@@ -384,28 +386,28 @@ function block_integrityadvocate_encode_useridentifier(context $modulecontext, $
  */
 function block_integrityadvocate_decode_useridentifier($useridentifier) {
     $debug = true;
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $useridentifier=' . $useridentifier);
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $useridentifier=' . $useridentifier);
 
     $strlen = strlen($useridentifier);
     // The minimum valid length of the identifier is 6 chars, e.g. hex2bin('0-0').
     if ($strlen < 6) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier is too short, so skip it');
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier is too short, so skip it');
         return null;
     }
 
     if ($strlen % 2 !== 0) {
         // Note: hex2bin(): Hexadecimal input string must have an even length.
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier does not have an even length, so skip it');
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier does not have an even length, so skip it');
         return null;
     }
 
     $decoded = hex2bin($useridentifier);
     if (strlen($decoded) < 3) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier is too short, so skip it');
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier is too short, so skip it');
         return null;
     }
     if (stripos($decoded, '-') === false) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier does not contain the expected delimiter (-), so skip it');
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::The $useridentifier does not contain the expected delimiter (-), so skip it');
         return null;
     }
 
@@ -424,22 +426,22 @@ function block_integrityadvocate_get_course_ia_activities($course, $filter = arr
     $debug = true;
 
     // Massage the course input if needed.
-    $course = \IntegrityAdvocate_Moodle_Utility::get_course_as_obj($course);
+    $course = ia_u::get_course_as_obj($course);
     if (!$course) {
         return 'no_course';
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $filter=' . print_r($filter, true));
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $filter=' . print_r($filter, true));
 
     // Get activities in this course.
-    $activities = \IntegrityAdvocate_Moodle_Utility::get_activities_with_completion($course->id);
+    $activities = ia_u::get_activities_with_completion($course->id);
     if (empty($activities)) {
         return 'no_activities_message';
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . count($activities) . ' activities in this course');
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . count($activities) . ' activities in this course');
 
     // Filter for activities that use an IA block.
     $activities = block_integrityadvocate_filter_activities_use_ia_block($activities, $filter);
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__
                     . '::Found ' . (is_countable($activities) ? count($activities) : 0) . ' activities that use IA');
 
     if (!$activities) {
@@ -467,17 +469,17 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
     $debug = true;
 
     // Massage the course input if needed.
-    $course = \IntegrityAdvocate_Moodle_Utility::get_course_as_obj($course);
+    $course = ia_u::get_course_as_obj($course);
     if (!$course) {
         return 'no_course';
     }
 
     // Massage the user input if needed.
-    $user = \IntegrityAdvocate_Moodle_Utility::get_user_as_obj($user);
+    $user = ia_u::get_user_as_obj($user);
     if (!$user) {
         return 'no_user';
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with course->id=' . $course->id . '; $user->id=' . $user->id .
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with course->id=' . $course->id . '; $user->id=' . $user->id .
                     '; $activitycontextid=' . $activitycontextid);
 
     if (defined('BEHAT_SITE_RUNNING') || (defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
@@ -487,23 +489,23 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
     $results = array();
     $activities = block_integrityadvocate_get_course_ia_activities($course);
     if (is_string($activities)) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $iaactivities=' . $activities);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $iaactivities=' . $activities);
         return $activities;
     }
     if (empty($activities)) {
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__
                         . '::Got block_integrityadvocate_get_course_ia_activities() count=' . 0);
         return $results;
     }
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got block_integrityadvocate_get_course_ia_activities() count=' . count($activities));
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got block_integrityadvocate_get_course_ia_activities() count=' . count($activities));
 
     // How to identify this user to the IA API?.
     $useridentifier = block_integrityadvocate_encode_useridentifier(\context_course::instance($course->id), $user->id);
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Looking for $useridentifier=' . $useridentifier);
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Looking for $useridentifier=' . $useridentifier);
 
     foreach ($activities as $a) {
-        // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at $a=' . print_r($a, true));
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Looking for $activitycontextid=' . $activitycontextid .
+        // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at $a=' . print_r($a, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Looking for $activitycontextid=' . $activitycontextid .
                         ' vs $a[\'context\']->id=' . $a['context']->id);
 
         if ($activitycontextid && ($a['context']->id !== $activitycontextid)) {
@@ -512,11 +514,11 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
 
         $blockinstanceid = $a['block_integrityadvocate_instance']['id'];
         $blockinstance = $a['block_integrityadvocate_instance']['instance'];
-        // Disabled on purpopse: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance=' . print_r($blockinstance, true));.
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance->id=' . $blockinstanceid);
+        // Disabled on purpopse: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance=' . print_r($blockinstance, true));.
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance->id=' . $blockinstanceid);
 
         if (!isset($blockinstance->config) || (!isset($blockinstance->config->apikey) && !isset($blockinstance->config->appid))) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Skipping: isset($blockinstance->config)=' . isset($blockinstance->config) .
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Skipping: isset($blockinstance->config)=' . isset($blockinstance->config) .
                             '; isset($blockinstance->config->apikey)=' . isset($blockinstance->config->apikey) .
                             '; isset($blockinstance->config->appid)=' . isset($blockinstance->config->appid)
             );
@@ -526,9 +528,9 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
         // Get IA participation data for this user in this course-activity.
         $iaparticipantdata = \IntegrityAdvocate_Api::get_participant_data($blockinstance->config->apikey, $blockinstance->config->appid,
                         array('participantidentifier' => $useridentifier));
-        // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::For this activity got $ia_participant_data=<PRE>' . print_r($participantdata, true) . "<PRE><br />\n");.
+        // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::For this activity got $ia_participant_data=<PRE>' . print_r($participantdata, true) . "<PRE><br />\n");.
         if (empty($iaparticipantdata)) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Skipping: $iaparticipantdata is empty');
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Skipping: $iaparticipantdata is empty');
             continue;
         }
 
@@ -548,18 +550,17 @@ function block_integrityadvocate_get_course_user_ia_data($course, $user, $activi
  */
 function block_integrityadvocate_filter_activities_use_ia_block(array $activities, $filter = array()) {
     $debug = true;
-    $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+    $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__
                     . '::Started with ' . count($activities) . ' activities; $filter=' . print_r($filter, true));
-    // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $activities=' . print_r($activities, true));.
+    // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $activities=' . print_r($activities, true));.
 
     foreach ($activities as $key => $a) {
-        // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity with url=' . $a->url);.
+        // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at activity with url=' . $a->url);.
         $modulecontext = $a['context'];
-        list($blockinstanceid, $blockinstance) = \IntegrityAdvocate_Moodle_Utility::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME,
-                        isset($filter['visible']) && (bool) $filter['visible']);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' .
+        list($blockinstanceid, $blockinstance) = ia_u::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, isset($filter['visible']) && (bool) $filter['visible']);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' .
                         $blockinstanceid . '; $blockinstance->instance->id=' . empty($blockinstance) ? '' : $blockinstance->instance->id);
-        // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This activity has $blockinstance_row=' . print_r($blockinstance_row, true));.
+        // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::This activity has $blockinstance_row=' . print_r($blockinstance_row, true));.
         // No block instances found for this activity, so remove it.
         if (empty($blockinstance)) {
             unset($activities[$key]);
@@ -576,10 +577,10 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
                 break;
             default:
                 // No blockinstanceid found.
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstanceid found on attempt to get it from the activity array');
+                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstanceid found on attempt to get it from the activity array');
                 continue 2;
         }
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Set from activity array: $blockinstanceid=' . $blockinstanceid);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Set from activity array: $blockinstanceid=' . $blockinstanceid);
 
         $blockinstance = null;
         switch (true) {
@@ -587,18 +588,18 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
                 $blockinstance = $a['block_integrityadvocate_instance']['instance'];
                 break;
             case ($a['context']):
-                // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Will try to set from activity array $a=' . print_r($a, true));.
-                list($blockinstanceid, $blockinstance) = \IntegrityAdvocate_Moodle_Utility::get_first_block($a['context'], INTEGRITYADVOCATE_SHORTNAME);
+                // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Will try to set from activity array $a=' . print_r($a, true));.
+                list($blockinstanceid, $blockinstance) = ia_u::get_first_block($a['context'], INTEGRITYADVOCATE_SHORTNAME);
                 break;
             default:
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstance found on attempt to get it from the activity array');
+                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::No blockinstance found on attempt to get it from the activity array');
                 continue 2;
         }
-        // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Set from activity array: $blockinstance=' . print_r($blockinstance, true));
+        // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Set from activity array: $blockinstance=' . print_r($blockinstance, true));
         // I.
         // Init the result to false.
         if (isset($filter['configured']) && $filter['configured'] && block_integrityadvocate_ia_config_errors($blockinstance)) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::This blockinstance is not fully configured');
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::This blockinstance is not fully configured');
             unset($activities[$key]);
             continue;
         }
@@ -614,21 +615,21 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
         }
         if ($requireapikey || $requireappid) {
             // Filter for activities with matching apikey and appid.
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Looking to filter for apikey and appid');
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Looking to filter for apikey and appid');
 
             if ($requireapikey && $blockinstance->config->apikey !== $requireapikey) {
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey .
+                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey .
                                 ' does not match requested apikey=' . $apikey);
                 unset($activities[$key]);
                 continue;
             }
             if ($requireappid && $blockinstance->config->appid !== $requireappid) {
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey .
+                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey .
                                 ' does not match requested appid=' . $appid);
                 unset($activities[$key]);
                 continue;
             }
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__
                             . '::After filtering for apikey/appid, count($activities)=' . count($activities));
         }
 
@@ -637,7 +638,7 @@ function block_integrityadvocate_filter_activities_use_ia_block(array $activitie
         $activities[$key]['block_integrityadvocate_instance']['instance'] = $blockinstance;
     }
 
-    // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $activities=' . print_r($activities, true));.
+    // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $activities=' . print_r($activities, true));.
     return $activities;
 }
 
@@ -713,29 +714,29 @@ class IntegrityAdvocate_Moodle_Utility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . print_r($params, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . print_r($params, true));
         $records = $DB->get_records('block_instances', $params);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found $records=' . print_r($records, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Found $records=' . print_r($records, true));
         if (!$records) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::No instances of block_{$blockname} found");
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::No instances of block_{$blockname} found");
             return false;
         }
 
         // Go through each of the block instances and check visibility.
         $blockinstances = array();
         foreach ($records as $br) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at $br=' . print_r($br, true));
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at $br=' . print_r($br, true));
 
             // Check if it is visible and get the IA appid from the block instance config.
-            $blockinstancevisible = \IntegrityAdvocate_Moodle_Utility::get_block_visibility($br->parentcontextid, $br->id);
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found \$blockinstancevisible={$blockinstancevisible}");
+            $blockinstancevisible = ia_u::get_block_visibility($br->parentcontextid, $br->id);
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Found \$blockinstancevisible={$blockinstancevisible}");
 
             if ($visibleonly && !$blockinstancevisible) {
                 continue;
             }
 
             if (isset($blockinstances[$br->id])) {
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                                 "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
                 continue;
             }
@@ -896,7 +897,7 @@ class IntegrityAdvocate_Moodle_Utility {
         global $DB;
         $debug = true;
         $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $activitycontextid));
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $bp_record=' . print_r($record, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got $bp_record=' . print_r($record, true));
         if (empty($record)) {
             // There is no block_positions record, and the default is visible.
             return true;
@@ -920,7 +921,7 @@ class IntegrityAdvocate_Moodle_Utility {
             $errors[] = 'completion_not_enabled';
         }
 
-        if ($course = \IntegrityAdvocate_Moodle_Utility::get_course_as_obj($course)) {
+        if ($course = ia_u::get_course_as_obj($course)) {
             // Check if completion is enabled at course level.
             $completion = new completion_info($course);
             if (!$completion->is_enabled()) {
@@ -964,7 +965,7 @@ class IntegrityAdvocate_Moodle_Utility {
       $userinfo = user_get_user_details($user, $course);
 
       // The core function user_get_user_details returns lastcourseaccess=0 so get it manually.
-      $userinfo['lastaccess'] = \IntegrityAdvocate_Moodle_Utility::get_user_last_access($user->id, $course->id);
+      $userinfo['lastaccess'] = ia_u::get_user_last_access($user->id, $course->id);
 
       return $userinfo;
       }
@@ -1030,18 +1031,18 @@ class IntegrityAdvocate_Moodle_Utility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . print_r($params, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . print_r($params, true));
         // If there are multiple blocks in this context just return the first one .
         $record = $DB->get_record('block_instances', $params, '*', IGNORE_MULTIPLE);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Found blockinstance=' . print_r($record, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Found blockinstance=' . print_r($record, true));
         if (!$record) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::No instance of block_{$blockname} is associated with this context");
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::No instance of block_{$blockname} is associated with this context");
             return false;
         }
 
         // Check if it is visible and get the IA appid from the block instance config.
-        $record->visible = \IntegrityAdvocate_Moodle_Utility::get_block_visibility($modulecontext->id, $record->id);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Found \$record->visible={$record->visible}");
+        $record->visible = ia_u::get_block_visibility($modulecontext->id, $record->id);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Found \$record->visible={$record->visible}");
 
         if ($visibleonly && !$record->visible) {
             return false;
@@ -1063,7 +1064,7 @@ class IntegrityAdvocate_Moodle_Utility {
      */
     public static function get_user_as_obj($user) {
         $debug = true;
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $user=' . print_r($user, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $user=' . print_r($user, true));
 
         if (is_numeric($user)) {
             $userarr = user_get_users_by_id(array(intval($user)));
@@ -1088,7 +1089,7 @@ class IntegrityAdvocate_Moodle_Utility {
      */
     public static function get_user_last_access($userid, $courseid) {
         global $DB;
-        // Disabled on purpose: $debug && \IntegrityAdvocate_Moodle_Utility::log('Got $lastaccesses_record=' . print_r($lastaccesses_record, true));.
+        // Disabled on purpose: $debug && ia_u::log('Got $lastaccesses_record=' . print_r($lastaccesses_record, true));.
         return $DB->get_field('user_lastaccess', 'timeaccess', array('courseid' => $courseid, 'userid' => $userid));
     }
 
@@ -1124,13 +1125,13 @@ class IntegrityAdvocate_Moodle_Utility {
     public static function get_ueid(context $modulecontext, $userid) {
         global $DB;
         $debug = true;
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Started with userid={$userid}");
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Started with userid={$userid}");
 
         if (!is_numeric($userid)) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Param validation failed");
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Param validation failed");
             throw new InvalidArgumentException('userid must be an int');
         }
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Param validation done");
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Param validation done");
 
         // This section adapted from enrollib.php::get_enrolled_with_capabilities_join().
         // Initialize empty arrays to be filled later.
@@ -1138,7 +1139,7 @@ class IntegrityAdvocate_Moodle_Utility {
         $wheres = array();
 
         $enrolledjoin = get_enrolled_join($modulecontext, 'u.id;', true);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::get_enrolled_join() returned=" . print_r($enrolledjoin, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::get_enrolled_join() returned=" . print_r($enrolledjoin, true));
 
         // Make the parts easier to use.
         $joins[] = $enrolledjoin->joins;
@@ -1155,11 +1156,11 @@ class IntegrityAdvocate_Moodle_Utility {
         $matches = array();
         preg_match('/ej[0-9]+_/', $joins, $matches);
         $prefix = $matches[0];
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Got prefix=$prefix");
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Got prefix=$prefix");
 
         // Build the full join part of the sql.
         $sqljoin = new \core\dml\sql_join($joins, $wheres, $params);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Built sqljoin=' . print_r($sqljoin, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Built sqljoin=' . print_r($sqljoin, true));
         /*
          * The value of $sqljoin is something like this:
          * JOIN {user_enrolments} ej1_ue ON ej1_ue.userid = u.id;
@@ -1190,13 +1191,13 @@ class IntegrityAdvocate_Moodle_Utility {
                 WHERE {$sqljoin->wheres}
                 GROUP BY {$prefix}ue.id
                 ";
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Built sql={$sql} with params=" . print_r($params, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Built sql={$sql} with params=" . print_r($params, true));
 
         $enrolmentinfo = $DB->get_record_sql($sql, $sqljoin->params, IGNORE_MULTIPLE);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $userEnrolmentInfo=' . print_r($enrolmentinfo, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got $userEnrolmentInfo=' . print_r($enrolmentinfo, true));
 
         if (!$enrolmentinfo) {
-            \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+            ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                     "::Failed to find an active user_enrolment.id for \$userid={$userid} and \$modulecontext->id={$modulecontext->id} with \$sql={$sql}");
             // Return a guaranteed-invalid userid.
             return -1;
@@ -1325,7 +1326,7 @@ class IntegrityAdvocate_Output {
      */
     public static function get_participant_summary_output(stdClass $participant, $blockinstanceid, $courseid, $userid, $showviewdetailsbutton = true, $includephoto = true) {
         $debug = true;
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $userid=' . $userid . '; $participant' . print_r($participant, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $userid=' . $userid . '; $participant' . print_r($participant, true));
 
         $out = '<div class="block_integrityadvocate_overview_participant_summary_div">';
         $out .= '<div class="block_integrityadvocate_overview_participant_summary_text">';
@@ -1343,7 +1344,7 @@ class IntegrityAdvocate_Output {
         $reviewstatus = clean_param($participant->ReviewStatus, PARAM_TEXT);
         $statusnumeric = block_integrityadvocate_filter_var_status($participant);
         $resubmithtml = '';
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to switch on $reviewstatus=' . $reviewstatus);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to switch on $reviewstatus=' . $reviewstatus);
 
         switch ($reviewstatus) {
             case INTEGRITYADVOCATE_API_STATUS_INPROGRESS:
@@ -1355,7 +1356,7 @@ class IntegrityAdvocate_Output {
             case INTEGRITYADVOCATE_API_STATUS_INVALID_ID:
                 $statushtml = '<span class="block_integrityadvocate_status_invalid_id">' . get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCKNAME) . '</span>';
                 $resubmiturl = isset($participant->IDResubmitUrl) ? \IntegrityAdvocate_Api::fix_api_url($participant->IDResubmitUrl) : '';
-                $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ .
+                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                                 '::Status is INTEGRITYADVOCATE_API_STATUS_INVALID_ID; got $resubmiturl=' . $resubmiturl);
                 if ($resubmiturl) {
                     $resubmithtml = '<span class="block_integrityadvocate_resubmit_link">' . format_text(html_writer::link($resubmiturl,
@@ -1367,7 +1368,7 @@ class IntegrityAdvocate_Output {
                 break;
             default:
                 $error = 'Invalid participant review status value=' . serialize($reviewstatus);
-                \IntegrityAdvocate_Moodle_Utility::log($error);
+                ia_u::log($error);
                 throw new InvalidValueException($error);
         }
 
@@ -1396,10 +1397,10 @@ class IntegrityAdvocate_Output {
         // Close .block_integrityadvocate_overview_participant_summary_text.
         $out .= '</div>';
 
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to check if should include photo; $include_photo=' . $includephoto);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to check if should include photo; $include_photo=' . $includephoto);
         if ($includephoto) {
             $photohtml = \IntegrityAdvocate_Output::get_summary_photo_html($participant, $statusnumeric);
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Built photo html=' . $photohtml);
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Built photo html=' . $photohtml);
             $out .= $photohtml;
         }
 
@@ -1463,13 +1464,13 @@ class IntegrityAdvocate_Api {
      */
     public static function fix_api_url($url) {
         $debug = true;
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::About to clean \$url={$url}");
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::About to clean \$url={$url}");
         $urlscheme = parse_url($url, PHP_URL_SCHEME);
         if (empty($urlscheme)) {
             $url = 'https://' . ltrim($url, '/:');
         }
         $cleanurl = filter_var($url, FILTER_SANITIZE_URL);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . "::Cleaned url={$cleanurl}");
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Cleaned url={$cleanurl}");
 
         // Make sure the url matches the expected IA URL.
         if (stripos($cleanurl, INTEGRITYADVOCATE_BASEURL) !== 0) {
@@ -1553,14 +1554,14 @@ class IntegrityAdvocate_Api {
     public static function get_participant_data($apikey, $appid, array $params = array()) {
         $debug = true;
         $path = '/Participants/Get';
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Start with params=' . print_r($params, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Start with params=' . print_r($params, true));
 
         // Gets a max of 50 records.
         $result = \IntegrityAdvocate_Api::get($path, $apikey, $appid, $params);
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got $response=' . print_r($result, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got $response=' . print_r($result, true));
 
         if (empty($result) || empty($result->ParticipantCount)) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::' . get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::' . get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
             return false;
         }
 
@@ -1593,7 +1594,7 @@ class IntegrityAdvocate_Api {
                 }
             }
             $p = (array) $p;
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::About to clean $p=' . print_r($p, true));
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to clean $p=' . print_r($p, true));
 
             // Clean all as PARAM_TEXT.
             $p = clean_param_array($p, PARAM_TEXT, true);
@@ -1631,14 +1632,14 @@ class IntegrityAdvocate_Api {
         // Set up request variables to get IA participant info.
         // Ref API docs at https://integrityadvocate.com/Developers#aEvents.
         $requesturi = INTEGRITYADVOCATE_BASEURL . '/' . INTEGRITYADVOCATE_API_PATH . $endpointpath . ($params ? '?' . http_build_query($params) : '');
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Built $requesturi=' . $requesturi);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Built $requesturi=' . $requesturi);
         $requesttimestamp = time();
         $microtime = explode(' ', microtime());
         $nonce = $microtime[1] . substr($microtime[0], 2, 6);
 
         // Create the signature data.
         $signaturerawdata = $appid . 'GET' . strtolower(urlencode($requesturi)) . $requesttimestamp . $nonce;
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Built $signaturerawdata=' . $signaturerawdata);
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Built $signaturerawdata=' . $signaturerawdata);
 
         // Decode the API Key.
         $secretkeybytearray = base64_decode($apikey);
@@ -1666,10 +1667,10 @@ class IntegrityAdvocate_Api {
         $curl->setHeader('Authorization: amx ' . $appid . ':' . $requestsignaturebase64string . ':' . $nonce . ':' . $requesttimestamp);
         $response = $curl->get($requesturi);
 
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Got curl response=' . print_r($response, true));
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got curl response=' . print_r($response, true));
         $response = json_decode(clean_param($response, PARAM_RAW_TRIMMED));
         if (empty($response)) {
-            $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::' . get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
+            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::' . get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
             return false;
         }
 
@@ -1699,7 +1700,7 @@ class IntegrityAdvocate_Api {
                 '&participantid=' . urlencode(block_integrityadvocate_encode_useridentifier($modulecontext, $userid));
         $response = $curl->get($url);
         $responsecode = $curl->get_info('http_code');
-        $debug && \IntegrityAdvocate_Moodle_Utility::log(__FILE__ . '::' . __FUNCTION__ . '::Send url=' . print_r($url, true)
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Send url=' . print_r($url, true)
                         . '; http_code=' . print_r($responsecode, true) . '; response body=' . print_r($response, true));
 
         return intval($responsecode) < 400;
