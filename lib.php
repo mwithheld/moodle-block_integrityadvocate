@@ -1631,7 +1631,8 @@ class IntegrityAdvocate_Api {
 
         // Set up request variables to get IA participant info.
         // Ref API docs at https://integrityadvocate.com/Developers#aEvents.
-        $requesturi = INTEGRITYADVOCATE_BASEURL . '/' . INTEGRITYADVOCATE_API_PATH . $endpointpath . ($params ? '?' . http_build_query($params) : '');
+        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to build $requesturi with $params=' . print_r($params, true));
+        $requesturi = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpointpath . ($params ? '?' . http_build_query($params, null, '&') : '');
         $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Built $requesturi=' . $requesturi);
         $requesttimestamp = time();
         $microtime = explode(' ', microtime());
