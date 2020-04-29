@@ -145,7 +145,7 @@ class block_integrityadvocate_observer {
         $iscreateorupdate = in_array($event->crud, array('c', 'u'), true);
         $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                         '::Found $is_create_or_update=' . $iscreateorupdate);
-        if ($iscreateorupdate) {
+        if (!$iscreateorupdate) {
             $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
                             '::This is not a create or update event, so skip it');
             return false;
