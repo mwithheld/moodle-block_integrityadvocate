@@ -5,10 +5,10 @@ definitions:
     apt: /var/cache/apt
 
 pipelines:
-  tags:
-    '*':
-  #custom: # Pipelines that are triggered manually
-    #build_zip:
+  #tags:
+    #'*':
+  custom: # Pipelines that are triggered manually
+    build_zip:
       - step:
           name: "Build the zip for installation"
           caches:
