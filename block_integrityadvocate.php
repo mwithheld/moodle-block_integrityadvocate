@@ -219,7 +219,7 @@ class block_integrityadvocate extends block_base {
         $this->content->footer = '';
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Done setting up $this->content');
 
-        // Guests do not have any progress. Don't show them the block.
+        // Guests do not have any IA use. Don't show them the block.
         if (!\isloggedin() or \isguestuser()) {
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Not logged in or is guest user, so skip it');
             return;
@@ -326,7 +326,13 @@ class block_integrityadvocate extends block_base {
                         $this->content->text .= ia_output::get_button_course_overview($this);
                         break;
                     case \is_enrolled($parentcontext, $USER, null, true):
-                        // Check the user is enrolled in this course, but they must be active.
+                        // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
+                        // Other pages should show the summary.
+                        if (stripos($this->page->pagetype, 'mod-quiz-') !== false && ($this->page->pagetype !== 'mod-quiz-attempt')) {
+                            $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                            break;
+                        }
+
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
                         $this->content->text .= ia_output::add_proctor_js($this, $USER);
                         break;
