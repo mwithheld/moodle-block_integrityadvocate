@@ -61,14 +61,15 @@ class block_integrityadvocate extends block_base {
      */
     function instance_create() {
         $debug = false;
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . '::Started');
 
-        // Get the first IA block with APIKey and APPId.
+        // Get the first IA block with APIKey and APPId, and use it for this block.
         global $COURSE;
         $blocks = ia_mu::get_all_course_blocks($COURSE->id, INTEGRITYADVOCATE_SHORTNAME);
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got count(blocks)=' . count($blocks));
+        $debug && ia_mu::log($fxn . '::Got count(blocks)=' . count($blocks));
         foreach ($blocks as $key => $b) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking at block_instance.id={$key}");
+            $debug && ia_mu::log($fxn . "::Looking at block_instance.id={$key}");
 
             // Only look in other blocks, and skip those with apikey/appid errors
             if ($b->get_apikey_appid_errors()) {
@@ -81,6 +82,25 @@ class block_integrityadvocate extends block_base {
             ];
             $this->instance_config_save((object) $configdata);
             break;
+        }
+
+        // If this is a quiz, auto-configure the quiz to...
+        // A. Show blocks during quiz attempt; and...
+        $debug && ia_mu::log($fxn . "::Looking at pagetype={$this->page->pagetype}");
+        if (stripos($this->page->pagetype, 'mod-quiz-') !== false) {
+            $modulecontext = $this->context->get_parent_context();
+            $debug && ia_mu::log($fxn . '::Got $modulecontext=' . var_export($modulecontext, true));
+            $modinfo = \get_fast_modinfo($COURSE);
+            $cm = $modinfo->get_cm($modulecontext->instanceid);
+//            $debug && ia_mu::log($fxn . '::Got $cm=' . var_export($cm, true));
+            $debug && ia_mu::log($fxn . '::Got $cm->instance=' . var_export($cm->instance, true));
+            global $DB;
+            $record = $DB->get_record('quiz', array('id' => intval($cm->instance)), '*', \MUST_EXIST);
+            $debug && ia_mu::log($fxn . '::Got record=' . var_export($record, true));
+            if ($record->showblocks < 1) {
+                $record->showblocks = 1;
+                $DB->update_record('quiz', $record);
+            }
         }
 
         return true;
