@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * IntegrityAdvocate block Overview showing a single user's Integrity Advocate detailed info.
  *
@@ -22,6 +21,11 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use block_integrityadvocate\Api as ia_api;
+use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Output as ia_output;
+use block_integrityadvocate\Utility as ia_u;
+
 defined('MOODLE_INTERNAL') || die;
 
 // Security check - this file must be included from overview.php.
@@ -31,37 +35,48 @@ defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') or die();
 if (empty($blockinstanceid)) {
     throw new InvalidArgumentException('$blockinstanceid is required');
 }
-if (empty($courseid) || empty($course)) {
-    throw new InvalidArgumentException('$courseid and $course are required');
+if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) {
+    throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
 }
-$userid = required_param('userid', PARAM_INT);
+$userid = \required_param('userid', PARAM_INT);
+$debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
-// Note: block_integrityadvocate_get_course_user_ia_data() makes sure the user is enrolled in a course activity.
-$useriaresults = block_integrityadvocate_get_course_user_ia_data($course, $userid);
+$parentcontext = $blockinstance->context->get_parent_context();
 
-$continue = true;
+if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
+    // For teachersm allow access to any enrolled course user, even if not active.
+    if (!\is_enrolled($parentcontext, $userid)) {
+        throw new \Exception('That user is not in this course');
+    }
+} else if (is_enrolled($parentcontext, $userid, 'block/integrityadvocate:selfview', true)) {
+    if (intval($USER->id) !== $userid) {
+        throw new \Exception("You cannot view other users: \$USER->id={$USER->id}; \$userid={$userid}");
+    }
+} else {
+    throw new \Exception('No capabilities to view this course user');
+}
 
-// If we get back a string we got an error, so display it and quit.
-if (is_string($useriaresults)) {
-    echo get_string($useriaresults, INTEGRITYADVOCATE_BLOCKNAME);
+// Show basic user info at the top.  Adapted from user/view.php.
+echo html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCKNAME . '_overview_user_userinfo'));
+$user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
+echo html_writer::end_tag('div');
+
+$participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
+
+if (empty($participant)) {
+    $msg = 'No participant found';
+    if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
+        $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
+    }
+    echo $msg;
     $continue = false;
 }
 
 if ($continue) {
-    // Show basic user info at the top.  Adapted from user/view.php.
-    echo html_writer::start_tag('div', array('class' => 'block_integrityadvocate_overview_user_userinfo'));
-    $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
-    echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
-    echo html_writer::end_tag('div');
+    // Display user basic info.
+    echo ia_output::get_participant_basic_output($blockinstance, $participant, false, true);
 
-    foreach ($useriaresults as $a) {
-        $blockinstanceid = $a['activity']['block_integrityadvocate_instance']['id'];
-        $participantdata = $a['ia_participant_data'];
-
-        // Display summary.
-        echo \IntegrityAdvocate_Output::get_participant_summary_output($participantdata, $blockinstanceid, $courseid, $userid, false);
-
-        // Display flag info.
-        echo \IntegrityAdvocate_Output::get_participant_flags_output($participantdata);
-    }
+    // Display summary.
+    echo ia_output::get_sessions_output($participant);
 }

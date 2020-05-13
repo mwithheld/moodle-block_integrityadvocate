@@ -14,18 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * IntegrityAdvocate block version details
+ * IntegrityAdvocate class to represent a single IA participant.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_integrityadvocate;
+
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2020051103;
-$plugin->requires = 2018051700; // Moodle 3.5.0.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 2020051103;
-$plugin->component = 'block_integrityadvocate';
+/**
+ * Class to represent a single IA participant.
+ */
+class Participant {
+
+    // Our minimun-supported PHP is 7.2.  PHP < 7.4 does not support typed properties.
+    public $courseid;
+    public $created = -1;
+    public $email;
+    public $firstname;
+    public $lastname;
+    public $modified = -1;
+    public $overridedate = -1;
+    public $overridelmsuserfirstname;
+    public $overridelmsuserid;
+    public $overridelmsuserlastname;
+    public $overridereason;
+    public $overridestatus;
+    public $participantidentifier;
+    public $participantphoto;
+    public $resubmiturl;
+    public $sessions = array();
+    public $status;
+
+}

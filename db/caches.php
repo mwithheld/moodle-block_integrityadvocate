@@ -15,23 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block capability setup
+ * block_integrityadvocate cache definitions.
  *
  * @package    block_integrityadvocate
- * @copyright  IntegrityAdvocate.com
+ * @copyright IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-$tasks = array(
-    array(
-        // I'm choosing not to use the constant INTEGRITYADVOCATE_TASKNAME...
-        // So I don't have the overhead of including the lib.php file.
-        'classname' => 'block_integrityadvocate\task\process_integrityadvocate',
-        'blocking' => 0,
-        'minute' => '*',
-        'hour' => '*',
-        'day' => '*',
-        'month' => '*',
-        'dayofweek' => '*',
+
+$definitions = array(
+    'perrequest' => array(
+        'mode' => cache_store::MODE_REQUEST,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 5,
+        'canuselocalstore' => true,
     ),
 );

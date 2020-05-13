@@ -15,13 +15,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block common configuration and helper functions
+ * IntegrityAdvocate class to represent a single IA participant session.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_integrityadvocate;
+
 defined('MOODLE_INTERNAL') || die;
 
-// This is a legacy file - everything is in lib.php.
-require_once(__DIR__ . '/lib.php');
+/**
+ * Class to represent a single IA participant session.
+ */
+class Session {
+
+    public $activityid;
+    public $clickiamherecount;
+    public $end;
+    public $exitfullscreencount;
+    public $flags = array();
+    public $id;
+    public $participantphoto;
+    public $start;
+    public $status;
+
+}

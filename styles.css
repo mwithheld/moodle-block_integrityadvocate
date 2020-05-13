@@ -63,18 +63,6 @@
 .block_integrityadvocate_overview_participant_summary_img_invalid img {
     border: solid 1px #f00;
 }
-.block_integrityadvocate_overview_flags_title {
-    border-top: 1px solid;
-    border-bottom: 1px solid;
-    background-color: lightgrey;
-    padding-left: 0.5em;
-}
-.block_integrityadvocate_overview_flags_title {
-    display: block;
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
 .block_integrityadvocate_overview_flags_table,
 .block_integrityadvocate_overview_participant_summary_table {
     width: 100%;
@@ -97,7 +85,7 @@
 .block_integrityadvocate_overview_flags_errorcode_text {
     display: inline;
 }
-.block_integrityadvocate_overview_flags_img img {
+.block_integrityadvocate_overview_flag_img img {
     max-width: 95%;
     display: block;
     margin: 5px 0;
@@ -108,4 +96,38 @@
 }
 .block_integrityadvocate_overview_user_userinfo {
     padding-bottom: 1em;
+}
+
+.block_integrityadvocate_table {
+    display: table;
+    width: 100%;
+    padding-top: 0.5em;
+    padding-bottom: 2em;
+    border-top: 1em solid lightgrey;
+}
+.block_integrityadvocate_overview_session_status {
+    padding-bottom: 0.25em;
+}
+.block_integrityadvocate_overview_flags_div {
+    border-top: 1px dashed lightgrey;
+}
+.block_integrityadvocate_tableheader{
+    font-weight:bold;
+}
+.block_integrityadvocate_tablerow{
+    display: table-row;
+}
+.block_integrityadvocate_tablelabel {
+    display: table-cell;
+    padding-right: 0.5em;
+    vertical-align: top;
+}
+.block_integrityadvocate_tablevalue {
+    display: table-cell;
+}
+.block_integrityadvocate_tablelabel:after {
+    content: ":";
+}
+.block_integrityadvocate_overview_flag_type {
+    background-color: #DCDCDC;
 }

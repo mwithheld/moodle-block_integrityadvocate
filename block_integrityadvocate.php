@@ -21,11 +21,13 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use IntegrityAdvocate_Moodle_Utility as ia_u;
+use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Output as ia_output;
+use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
+require_once(__DIR__ . '/lib.php');
 
 /**
  * IntegrityAdvocate block class
@@ -41,7 +43,7 @@ class block_integrityadvocate extends block_base {
      * @return void
      */
     public function init() {
-        $this->title = get_string('config_default_title', INTEGRITYADVOCATE_BLOCKNAME);
+        $this->title = \get_string('config_default_title', \INTEGRITYADVOCATE_BLOCKNAME);
     }
 
     /**
@@ -49,8 +51,39 @@ class block_integrityadvocate extends block_base {
      *
      * @return bool
      */
-    public function has_config() {
+    public function has_config(): bool {
         return false;
+    }
+
+    /**
+     * Do any additional initialization you may need at the time a new block instance is created
+     * @return boolean
+     */
+    function instance_create() {
+        $debug = false;
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
+
+        // Get the first IA block with APIKey and APPId.
+        global $COURSE;
+        $blocks = ia_mu::get_all_course_blocks($COURSE->id, INTEGRITYADVOCATE_SHORTNAME);
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got count(blocks)=' . count($blocks));
+        foreach ($blocks as $key => $b) {
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking at block_instance.id={$key}");
+
+            // Only look in other blocks, and skip those with apikey/appid errors
+            if ($b->get_apikey_appid_errors()) {
+                continue;
+            }
+
+            $configdata = (object) [
+                        'apikey' => $b->config->apikey,
+                        'appid' => $b->config->appid,
+            ];
+            $this->instance_config_save((object) $configdata);
+            break;
+        }
+
+        return true;
     }
 
     /**
@@ -60,7 +93,7 @@ class block_integrityadvocate extends block_base {
      */
     public function specialization() {
         if (isset($this->config->progressTitle) && trim($this->config->progressTitle) != '') {
-            $this->title = format_string($this->config->progressTitle);
+            $this->title = \format_string($this->config->progressTitle);
         }
     }
 
@@ -69,7 +102,7 @@ class block_integrityadvocate extends block_base {
      *
      * @return bool
      */
-    public function instance_allow_multiple() {
+    public function instance_allow_multiple(): bool {
         return false;
     }
 
@@ -78,7 +111,7 @@ class block_integrityadvocate extends block_base {
      *
      * @return bool
      */
-    public function instance_allow_config() {
+    public function instance_allow_config(): bool {
         return true;
     }
 
@@ -87,13 +120,13 @@ class block_integrityadvocate extends block_base {
      *
      * @return array
      */
-    public function applicable_formats() {
+    public function applicable_formats(): array {
         return array(
             'admin' => false,
             'course-view' => true,
-            'site' => false,
             'mod' => true,
             'my' => false,
+            'site' => false,
                 // Unused: 'all'.
                 // Unused: 'course'.
                 // Unused: 'course-view-social'.
@@ -102,292 +135,229 @@ class block_integrityadvocate extends block_base {
                 // Unused: 'mod-quiz'.
                 // Unused: 'site-index'.
                 // Unused: 'tag'.
+                // Unused: 'user-profile'.
         );
+    }
+
+    private function get_apikey_appid_errors(): array {
+        $debug = false;
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
+
+        $errors = array();
+        $hasblockconfig = isset($this->config) && !ia_u::is_empty($this->config);
+
+        if (!$hasblockconfig) {
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: This block has no config');
+            $errors = array('This block has no config');
+        }
+
+        if (!isset($this->config->apikey) || !ia_mu::is_base64($this->config->apikey)) {
+            $errors['config_apikey'] = \get_string('error_noapikey', \INTEGRITYADVOCATE_BLOCKNAME);
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::' . $errors['config_apikey']);
+        }
+        if (!isset($this->config->appid) || !ia_u::is_guid($this->config->appid)) {
+            $errors['config_appid'] = \get_string('error_noappid', \INTEGRITYADVOCATE_BLOCKNAME);
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::' . $errors['config_appid']);
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Return config errors if there are any.
+     *
+     * @throws Exception If error
+     * @return array(field=>error message)
+     */
+    public function get_config_errors(): array {
+        // Check for errors that don't matter what context we are in.
+        $errors = $this->get_apikey_appid_errors();
+
+        $modulecontext = $this->context->get_parent_context();
+        // Check the context we got is module context and not course context.
+        // If this is a course-level block, just return what errors we have so far.
+        if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
+            return $errors;
+        }
+
+        /*
+         * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
+         */
+        if (stripos($modulecontext->get_context_name(), 'quiz') === 0) {
+            global $DB, $COURSE;
+            if ($COURSE->id == \SITEID) {
+                throw new \Exception('This block cannot exist on the site context');
+            }
+            $modinfo = \get_fast_modinfo($COURSE);
+            $cm = $modinfo->get_cm($modulecontext->instanceid);
+            $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
+            if ($record->showblocks < 1) {
+                $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCKNAME);
+            }
+        }
+
+        return $errors;
     }
 
     /**
      * Creates the blocks main content
-     *
-     * @return string
      */
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
         $debug = true;
-        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
-                        '::Started with courseid=' . $COURSE->id . '; userid=' . $USER->id . '; username=' . $USER->username);
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
+                        '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
-                            "::Content has already been generated, so do not generate it again: \n" . print_r($this->content, true));
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
+                            "::Content has already been generated, so do not generate it again: \n" . var_export($this->content, true));
             return;
         }
 
-        $this->content = new stdClass;
+        $this->content = new \stdClass;
         $this->content->text = '';
         $this->content->footer = '';
-        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Done setting up $this->content');
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Done setting up $this->content');
 
         // Guests do not have any progress. Don't show them the block.
-        if (!isloggedin() or isguestuser()) {
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Not logged in or is guest user, so skip it');
+        if (!\isloggedin() or \isguestuser()) {
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Not logged in or is guest user, so skip it');
             return;
         }
 
-        $setuperrors = ia_u::get_completion_setup_errors($COURSE);
-        $hasoverviewcapability = has_capability('block/integrityadvocate:overview', $this->context);
+        // The block is hidden so don't show anything.
+        if (!$this->instance->visible) {
+            return;
+        }
+
+        $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
+        $hasoverviewcapability = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
-            ia_u::log(__FILE__ . '::' . __FUNCTION__ .
-                    '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . print_r($hasoverviewcapability, true));
-            ia_u::log(__FILE__ . '::' . __FUNCTION__ .
-                    '::Got setup errors=' . print_r($setuperrors, true));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
+                    '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . var_export($hasoverviewcapability, true));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
+                    '::Got setup errors=' . ($setuperrors ? var_export($setuperrors, true) : ''));
         }
         if ($setuperrors && $hasoverviewcapability) {
             foreach ($setuperrors as $err) {
-                $this->content->text .= get_string($err, INTEGRITYADVOCATE_BLOCKNAME) . "<br />\n";
+                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCKNAME) . "<br />\n";
             }
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Setup errors, so skip it');
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Setup errors, so skip it');
             return;
         }
 
-        // Check if any activities/resources have been created.
-        $exclusions = ia_u::get_gradebook_exclusions($DB, $COURSE->id);
-        $activities = ia_u::get_activities_with_completion($COURSE->id);
-        $activities = ia_u::filter_for_visible($CFG, $activities, $USER->id, $COURSE->id, $exclusions);
-        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__
-                        . '::Activities found=' . (is_countable($activities) ? count($activities) : 0));
-        if (empty($activities)) {
+        // Check if any modules have been created.
+        $exclusions = ia_mu::get_gradebook_exclusions($DB, $COURSE->id);
+        $modules = ia_mu::get_modules_with_completion($COURSE->id);
+        $modules = ia_mu::filter_for_visible($CFG, $modules, $USER->id, $COURSE->id, $exclusions);
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__
+                        . '::Modules found=' . (is_countable($modules) ? count($modules) : 0));
+        if (empty($modules)) {
             if ($hasoverviewcapability) {
-                $this->content->text .= get_string('no_activities_config_message', INTEGRITYADVOCATE_BLOCKNAME);
+                $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCKNAME);
             }
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::No activities, so skip it');
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::No modules, so skip it');
             return;
         }
 
         $blockinstancesonpage = array($this->instance->id);
 
-        // ATM we *never* need the module JS, so this stays false.
+        // ATM we have no module-specific JS file, so this stays false.
         $needmodulejs = false;
 
-        $hasselfviewcapability = has_capability('block/integrityadvocate:selfview', $this->context);
+        $hasselfviewcapability = \has_capability('block/integrityadvocate:selfview', $this->context);
 
         // Check if there is any errors.
-        if ($configerrors = block_integrityadvocate_ia_config_errors($this)) {
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($configerrors, true));
+        if ($configerrors = $this->get_config_errors()) {
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: ' . var_export($configerrors, true));
 
             // Error output is visible only to instructors.
             if ($hasoverviewcapability) {
                 $this->content->text .= implode("<br />\n", $configerrors);
-                return;
             }
+            return;
         }
 
         // Figure out what context we are in so we can decide what to show for whom.
         $blockcontext = $this->context;
         $parentcontext = $blockcontext->get_parent_context();
+
         switch ($parentcontext->contextlevel) {
             case CONTEXT_COURSE:
-                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
                 switch (true) {
                     case $hasoverviewcapability:
                         if (stripos($this->page->url, '/user/view.php?') > 0) {
                             $courseid = required_param('course', PARAM_INT);
-                            $userid = optional_param('id', $USER->id, PARAM_INT);
-                            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
-                                            '::This is the course-user page, so in the block show the IA proctor summary for the specified courseid=' . $courseid
-                                            . '; userid=' . $userid);
-                            $this->content->text .= $this->get_summary_output($courseid, $userid);
+                            $targetuserid = optional_param('id', $USER->id, PARAM_INT);
+                            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
+                                            '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' .
+                                            $courseid .
+                                            '; $targetuserid=' . $targetuserid);
+
+                            // Check the user is enrolled in this course, even if inactive.
+                            if (!\is_enrolled($parentcontext, $targetuserid)) {
+                                throw new \Exception('That user is not in this course');
+                            }
+
+                            $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid);
                         }
 
-                        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
-                        $this->content->text .= \IntegrityAdvocate_Output::get_overview_course_button($this->instance->id, $COURSE->id);
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
+                        $this->content->text .= ia_output::get_button_course_overview($this);
                         break;
                     case $hasselfviewcapability:
-                        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
-                        $this->content->text .= $this->get_summary_output($COURSE->id, $USER->id);
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
+                        // Check the user is enrolled in this course, but they must be active.
+                        if (!\is_enrolled($parentcontext, $USER, null, true)) {
+                            throw new \Exception('That user is not in this course');
+                        }
+
+                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                         break;
                 }
 
                 break;
             case CONTEXT_MODULE:
-                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Context=CONTEXT_MODULE');
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_MODULE');
                 switch (true) {
                     case $hasoverviewcapability:
-                        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Teacher should see the overview button');
-                        $this->content->text .= \IntegrityAdvocate_Output::get_overview_course_button($this->instance->id, $COURSE->id);
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher should see the overview button');
+                        $this->content->text .= ia_output::get_button_course_overview($this);
+                        break;
+                    case \is_enrolled($parentcontext, $USER, null, true):
+                        // Check the user is enrolled in this course, but they must be active.
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
+                        $this->content->text .= ia_output::add_proctor_js($this, $USER);
                         break;
                     default:
-                        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
-                        $this->content->text .= $this->get_proctor_output($DB, $COURSE, $USER);
+                        throw new \Exception('The user is not enrolled in this course');
                 }
 
                 break;
             default:
-                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::In some unknown context, so show nothing');
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::In some unknown context, so show nothing');
                 return;
         }
 
         if ($needmodulejs) {
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to organize access to JS.');
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::About to add module JS');
 
             // Organize access to JS.
             $jsmodule = array(
-                'name' => INTEGRITYADVOCATE_BLOCKNAME,
+                'name' => \INTEGRITYADVOCATE_BLOCKNAME,
                 'fullpath' => '/blocks/integrityadvocate/module.js',
                 'requires' => array(),
                 'strings' => array(),
             );
             $arguments = array($blockinstancesonpage, array($USER->id));
             $this->page->requires->js_init_call('M.block_integrityadvocate.init', $arguments, false, $jsmodule);
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Done.');
         }
     }
 
-    /**
-     * Build the HTML output for the "summary" output - the summary info for all users in the course
-     *
-     * @param int $courseid Course to get IA participant info for
-     * @param int $userid User to get IA info for
-     * @return string HTML to output
-     */
-    public function get_summary_output($courseid, $userid) {
-        $debug = true;
-        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $courseid=' . $courseid . '; $userid=' . $userid);
-
-        // Content to return.
-        $out = '';
-
-        $hasoverviewcapability = has_capability('block/integrityadvocate:overview', $this->context);
-
-        $useriaresults = block_integrityadvocate_get_course_user_ia_data($courseid, $userid);
-        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__
-                        . '::Got count($useriadata)=' . (is_countable($useriaresults) ? count($useriaresults) : 0));
-        // Warning: Huge object output: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got $useriadata=' . print_r($useriadata, true));.
-
-        if (empty($useriaresults)) {
-            return $out;
-        }
-
-        // If we get back a string we got an error, so quit.
-        if (is_string($useriaresults)) {
-            if ($hasoverviewcapability) {
-                $out .= $useriaresults;
-            }
-            // Error output is visible only to instructors.
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Error: ' . print_r($useriaresults, true));
-            return $out;
-        }
-
-        foreach ($useriaresults as $a) {
-            $blockinstanceid = $a['activity']['block_integrityadvocate_instance']['id'];
-            $participantdata = $a['ia_participant_data'];
-
-            // Display summary.
-            $summaryoutput = \IntegrityAdvocate_Output::get_participant_summary_output($participantdata, $blockinstanceid, $courseid, $userid, false);
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Got $summaryoutput=' . print_r($summaryoutput, true));
-            $out .= $summaryoutput;
-        }
-
-        return $out;
-    }
-
-    /**
-     * Build proctoring content to show to students and returns it.
-     * Side effects: Adds JS for video monitoring popup to the page.
-     *
-     * @param moodle_database $db Moodle DB object
-     * @param stdClass $course Current course object; needed so we can identify this user to the IA API
-     * @param stdClass $user Current user object; needed so we can identify this user to the IA API
-     * @return string HTML to output
-     */
-    public function get_proctor_output(moodle_database $db, stdClass $course, stdClass $user) {
-        $debug = true;
-        // Set to true to disable the IA proctor JS.
-        $debugnoiaproctoroutput = false;
-        $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::Started');
-
-        // Content to return.
-        $out = '';
-
-        $blockcontext = $this->context;
-        $hasoverviewcapability = has_capability('block/integrityadvocate:overview', $blockcontext);
-        $configerrors = block_integrityadvocate_ia_config_errors($this);
-        if ($configerrors) {
-            // Only teachers should see config errors.
-            if ($hasoverviewcapability) {
-                $out = $configerrors;
-            }
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::' . print_r($configerrors, true));
-            return $out;
-        }
-
-        try {
-            $sql = "SELECT  ue.id, max(ue.timestart)
-                    FROM    {role_assignments} ra
-                    JOIN    {context} ctx ON ra.contextid = ctx.id
-                    JOIN    {course} c ON ctx.instanceid = c.id
-                    JOIN    {enrol} e ON c.id = e.courseid
-                    JOIN    {user} u ON ra.userid = u.id
-                    JOIN    {user_enrolments} ue ON e.id = ue.enrolid
-                    WHERE   ctx.contextlevel = :contextlevel
-                    AND     ue.userid = :userid
-                    AND     ctx.instanceid = :courseid
-                    AND     u.deleted=0 AND u.suspended=0
-                    GROUP BY ue.id";
-            // CONTEXT_COURSE=50.
-            $userenrolment = $db->get_record_sql($sql, array('contextlevel' => CONTEXT_COURSE, 'userid' => $user->id, 'courseid' => $course->id), IGNORE_MULTIPLE);
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
-                            "::user={$user->id}; courseid={$course->id}; Got userenrolment from DB=" . print_r($userenrolment, true));
-
-            if (empty($userenrolment) || !isset($userenrolment->id)) {
-                $error = get_string('error_notenrolled', INTEGRITYADVOCATE_BLOCKNAME);
-                // Teachers and students can see this error.
-                $out = $error;
-                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::user={$user->id}; courseid={$course->id}: error={$error}");
-                return $out;
-            }
-
-            $modulecontext = $blockcontext->get_parent_context();
-            // Disabled on purpose: $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Got modulecontext=" . print_r($modulecontext, true));.
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ .
-                            "::Got modulecontext->id=" . print_r($modulecontext->id, true));
-
-            // The moodle_url class stores params non-urlencoded but outputs them encoded.
-            $url = new moodle_url(INTEGRITYADVOCATE_BASEURL . '/Integrity',
-                    array(
-                'appid' => $this->config->appid,
-                'activityid' => $modulecontext->instanceid,
-                'participantid' => block_integrityadvocate_encode_useridentifier($modulecontext, $user->id),
-                'participantfirstname' => $user->firstname,
-                'participantlastname' => $user->lastname,
-                'participantemail' => $user->email,
-                    // Disabled on purpose: 'proctorname' => 'sampleproctorname', /* This does not do anything with APIv2; s/b fixed in future API */.
-                    )
-            );
-            $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::Built url={$url}");
-
-            if ($debugnoiaproctoroutput) {
-                $this->page->requires->js_init_call('alert("IntegrityAdvocate Proctor block JS output would occur here with url=' . $url . ' if not suppressed")');
-            } else {
-                // Pass the URL w/o urlencoding.
-                $debug && ia_u::log(__FILE__ . '::' . __FUNCTION__ . '::About to require->js(' . $url->out(false) . ')');
-                $this->page->requires->js($url);
-            }
-
-            /*
-             * Development / testing code
-              //$this->page->requires->js_init_code("jQuery.getScript('$url');", true);
-              // Test JS injection.
-              global $CFG;
-              $encodeUrlComponentJSEquivalent = strtr(rawurlencode($encodeUrlComponentJSEquivalent), array('%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')'));
-              $this->page->requires->js("{$CFG->wwwroot}/blocks/integrityadvocate/helloworld.js?ia_url=". $encodeUrlComponentJSEquivalent, true);
-             */
-        } catch (Exception $e) {
-            ia_u::log(__FILE__ . '::' . __FUNCTION__ . "::user={$user->id}; courseid={$course->id}");
-            // Some other error happened - show it to anyone.
-            $out = $e->getMessage();
-        }
-
-        return $out;
+    public function get_course() {
+        global $COURSE;
+        return $COURSE;
     }
 
 }

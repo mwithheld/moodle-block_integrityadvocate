@@ -14,18 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * IntegrityAdvocate block version details
+ * IntegrityAdvocate class to represent a single IA participant session flag.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_integrityadvocate;
+
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2020051103;
-$plugin->requires = 2018051700; // Moodle 3.5.0.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 2020051103;
-$plugin->component = 'block_integrityadvocate';
+/**
+ * Class to represent a single IA participant session flag.
+ */
+class Flag {
+
+    public $capturedata;
+    public $capturedate = -1;
+    public $comment;
+    public $created = -1;
+    public $flagtypeid;
+    public $flagtypename;
+    public $id;
+
+}

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * IntegrityAdvocate block configuration form definition
  *
@@ -22,6 +21,8 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use block_integrityadvocate\Utility as ia_u;
+
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
@@ -38,7 +39,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * Overridden to create any form fields specific to this type of block.
      * We can't add a type check here without causing a warning b/c the parent class does not have the type check.
      *
-     * @param stdClass $mform the form being built.
+     * @param stdClass|MoodleQuickForm $mform the form being built.
      */
     protected function specific_definition($mform) {
         // Start block specific section in config form.
@@ -72,12 +73,12 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * @return object[] of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
-    public function validation($data, $unused) {
+    public function validation($data, $unused): array {
         $errors = array();
 
-        if (!empty($data['config_appid']) && !\IntegrityAdvocate_Utility::is_guid($data['config_appid'])) {
+        if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {
             $data['config_appid'] = rtrim(ltrim(trim($data['config_appid']), '{'), '}');
-            $errors['config_appid'] = get_string('error_invalidappid', INTEGRITYADVOCATE_BLOCKNAME);
+            $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCKNAME);
         }
         return $errors;
     }
