@@ -62,7 +62,7 @@ class block_integrityadvocate extends block_base {
     function instance_create() {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started');
+        $debug && ia_mu::log($fxn . '::Started with configdata=' . var_export($this->config, true));
 
         // Get the first IA block with APIKey and APPId, and use it for this block.
         global $COURSE;
@@ -76,23 +76,22 @@ class block_integrityadvocate extends block_base {
                 continue;
             }
 
-            $configdata = (object) [
-                        'apikey' => $b->config->apikey,
-                        'appid' => $b->config->appid,
-            ];
+            // Holds the block config and changes we want to make to it.
+            $configdata = (array) $this->config;
+            $configdata['apikey'] = $b->config->apikey;
+            $configdata['appid'] = $b->config->appid;
             $this->instance_config_save((object) $configdata);
             break;
         }
 
         // If this is a quiz, auto-configure the quiz to...
-        // A. Show blocks during quiz attempt; and...
         $debug && ia_mu::log($fxn . "::Looking at pagetype={$this->page->pagetype}");
         if (stripos($this->page->pagetype, 'mod-quiz-') !== false) {
+            // A. Show blocks during quiz attempt; and...
             $modulecontext = $this->context->get_parent_context();
             $debug && ia_mu::log($fxn . '::Got $modulecontext=' . var_export($modulecontext, true));
             $modinfo = \get_fast_modinfo($COURSE);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
-//            $debug && ia_mu::log($fxn . '::Got $cm=' . var_export($cm, true));
             $debug && ia_mu::log($fxn . '::Got $cm->instance=' . var_export($cm->instance, true));
             global $DB;
             $record = $DB->get_record('quiz', array('id' => intval($cm->instance)), '*', \MUST_EXIST);
@@ -101,6 +100,10 @@ class block_integrityadvocate extends block_base {
                 $record->showblocks = 1;
                 $DB->update_record('quiz', $record);
             }
+
+            // B. By default show the block on all quiz pages.
+            $DB->set_field('block_instances', 'pagetypepattern', 'mod-quiz-*', array('id' => $this->instance->id));
+            $debug && ia_mu::log($fxn . '::Set DB [pagetypepattern] = mod-quiz-*');
         }
 
         return true;
