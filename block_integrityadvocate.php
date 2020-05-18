@@ -59,7 +59,7 @@ class block_integrityadvocate extends block_base {
      * Do any additional initialization you may need at the time a new block instance is created
      * @return boolean
      */
-    function instance_create() {
+    public function instance_create() {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with configdata=' . var_export($this->config, true));
