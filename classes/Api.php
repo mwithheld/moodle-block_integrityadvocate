@@ -685,7 +685,7 @@ class Api {
             return false;
         }
         $flag = new Flag();
-        $flag->Id = $input->id;
+        $flag->id = $input->Id;
 
         // Clean int fields.
         if (true) {
