@@ -189,6 +189,15 @@ class Api {
         return $responseparsed;
     }
 
+    /**
+     * Get the URL to deliver the IA proctoring JS.
+     *
+     * @param string $appid The App ID.
+     * @param int $courseid The course id.
+     * @param int $cmid The CMID.
+     * @param \stdClass $user The user.
+     * @return \moodle_url The IA proctoring JS url.
+     */
     public static function get_js_url(string $appid, int $courseid, int $cmid, \stdClass $user) {
         return new \moodle_url(INTEGRITYADVOCATE_BASEURL . '/participants/integrity',
                 array(
