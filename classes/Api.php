@@ -398,7 +398,7 @@ class Api {
         $parsedparticipants = array();
         foreach ($participantsraw as $pr) {
             $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : var_export($pr, true)));
-            if (empty($pr)) {
+            if (ia_u::is_empty($pr)) {
                 continue;
             }
 

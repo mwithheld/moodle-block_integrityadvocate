@@ -64,7 +64,7 @@ echo html_writer::end_tag('div');
 
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
 
-if (empty($participant)) {
+if (ia_u::is_empty($participant)) {
     $msg = 'No participant found';
     if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
         $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
