@@ -97,9 +97,9 @@ class Api {
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
      * @param array[string]string $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
-     * @return array Empty array if nothing found or error; else an array represeting the JSON-decoded curl response body.
+     * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
-    private static function get(string $endpoint, string $apikey, string $appid, array $params = array()): array {
+    private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn .
@@ -178,9 +178,10 @@ class Api {
                         '; $response=' . var_export($response, true) .
                         '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
 
-        if (empty($responseparsed)) {
-            $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
-            return array();
+        if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
+            $msg = 'Error: json_decode found no results: ' . json_last_error_msg();
+            $debug && ia_mu::log($fxn . '::' . $msg);
+            throw new Exception('Failed to json_decode: ' . $msg);
         }
 
         if (!$cache->set($cachekey, $responseparsed)) {
@@ -302,10 +303,10 @@ class Api {
      * @param string $appid The app id.
      * @param type $courseid The course id to get info for.
      * @param type $userid The user id to get info for.
-     * @return array Empty array if nothing found; else Json-decoded array which needs to be parsed into a single Participant object.
+     * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
      * @throws InvalidArgumentException
      */
-    private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): array {
+    private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): object {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}, \$userid={$userid}";
@@ -322,9 +323,9 @@ class Api {
         $result = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
 
-        if (empty($result)) {
+        if (ia_u::is_empty($result) || !is_object($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
-            return array();
+            return new \stdClass();
         }
 
         return $result;
@@ -359,7 +360,7 @@ class Api {
         $debug && ia_mu::log($fxn .
                         '::Got API result=' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
 
-        if (ia_u::is_empty($result)) {
+        if (ia_u::is_empty($result) || !isset($result->Participants) || empty($result->Participants) || !is_array($result->Participants)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
             return array();
         }
@@ -379,7 +380,7 @@ class Api {
                             "::Getting more records: \$nexttoken=[$nexttoken}; count(\$result->Participants)=" . count($result->Participants));
             $params = array('courseid' => $courseid, 'nexttoken' => $result->NextToken, 'backwardsearch' => false);
             $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
-            if (ia_u::is_empty($result)) {
+            if (ia_u::is_empty($result) || !isset($result->Participants) || empty($result->Participants) || !is_array($result->Participants)) {
                 break;
             }
 
@@ -393,6 +394,10 @@ class Api {
             }
         }
         $debug && ia_mu::log($fxn . '::Built $participantsraw=' . ($participantsraw ? var_export($participantsraw, true) : ''));
+
+        if (ia_u::is_empty($participantsraw)) {
+            return array();
+        }
 
         // Process the partcipants returned.
         $parsedparticipants = array();
@@ -436,10 +441,10 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @return array Empty array if nothing found; else array of json-decoded stdClass objects = the API curl result.
+     * @return stdClass Empty object if nothing found; else an object representing the API curl results.  For the structure see tests\fixtures\participants1.json.
      * @throws InvalidArgumentException
      */
-    private static function get_participants_data(string $apikey, string $appid, int $courseid): array {
+    private static function get_participants_data(string $apikey, string $appid, int $courseid): object {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
@@ -458,7 +463,7 @@ class Api {
 
         if (ia_u::is_empty($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
-            return array();
+            return new \stdClass();
         }
 
         return $result;
@@ -729,12 +734,12 @@ class Api {
     }
 
     /**
-     * Extract Session objects from API Participant data, cleaning all the fields.
+     * Extract a Session object from API Participant data, cleaning all the fields.
      *
      * @param stdClass $input API session data
-     * @return Session[] Empty array if failed to parse, otherwise an array of parsed Session objects.
+     * @return Session Null if failed to parse, otherwise a parsed Session object.
      */
-    private static function parse_sessions(\stdClass $input): array {
+    private static function parse_session(\stdClass $input) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : var_export($input, true)));
@@ -869,7 +874,7 @@ class Api {
         if (isset($input->Sessions) && is_array($input->Sessions)) {
             $debug && ia_mu::log($fxn . '::Found some sessions to look at');
             foreach ($input->Sessions as $s) {
-                if (!ia_u::is_empty($session = self::parse_sessions($s))) {
+                if (!ia_u::is_empty($session = self::parse_session($s))) {
                     $debug && ia_mu::log($fxn . '::Got a valid session back, so add it to the participant');
                     $participant->sessions[] = $session;
                 } else {
