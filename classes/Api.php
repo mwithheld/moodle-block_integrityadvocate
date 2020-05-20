@@ -97,9 +97,9 @@ class Api {
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
      * @param array[string]string $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
-     * @return string|bool false if nothing found or error; else the json-decoded curl response body (an array)
+     * @return array Empty array if nothing found or error; else an array represeting the JSON-decoded curl response body.
      */
-    private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
+    private static function get(string $endpoint, string $apikey, string $appid, array $params = array()): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn .
@@ -180,7 +180,7 @@ class Api {
 
         if (empty($responseparsed)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
-            return false;
+            return array();
         }
 
         if (!$cache->set($cachekey, $responseparsed)) {
@@ -198,7 +198,7 @@ class Api {
      * @param \stdClass $user The user.
      * @return \moodle_url The IA proctoring JS url.
      */
-    public static function get_js_url(string $appid, int $courseid, int $cmid, \stdClass $user) {
+    public static function get_js_url(string $appid, int $courseid, int $cmid, \stdClass $user): \moodle_url {
         return new \moodle_url(INTEGRITYADVOCATE_BASEURL . '/participants/integrity',
                 array(
             'appid' => $appid,
@@ -217,7 +217,7 @@ class Api {
      *
      * @param \context $modulecontext Module context to look in.
      * @param int $userid User to get participant data for.
-     * @return array Array of sessions.
+     * @return array Array of sessions; Empty array if nothing found.
      * @throws \InvalidArgumentException
      */
     public static function get_module_user_sessions(\context $modulecontext, int $userid): array {
@@ -236,7 +236,6 @@ class Api {
         // Get the APIKey and AppID for this module.
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
 
-        $notfoundval = array();
         // If the block is not configured yet, simply return empty result.
         if (!isset($blockinstance->config->apikey) || empty($blockinstance->config->apikey) || !isset($blockinstance->config->appid) || empty($blockinstance->config->appid)) {
             return array();
@@ -245,7 +244,7 @@ class Api {
         $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $userid);
 
         if (!isset($participantcoursedata->sessions) || empty($participantcoursedata->sessions)) {
-            return $notfoundval;
+            return array();
         }
 
         $moduleusersessions = array();
@@ -268,7 +267,7 @@ class Api {
      * @param string $appid The AppId to get data for
      * @param int $courseid The course id
      * @param int $userid The user id
-     * @return object[]|bool false if nothing found; else array of Participant objects
+     * @return Participant Null if nothing found; else the parsed Participant object.
      */
     public static function get_participant(string $apikey, string $appid, int $courseid, int $userid) {
         $debug = true;
@@ -287,7 +286,7 @@ class Api {
         $participantraw = self::get_participant_data($apikey, $appid, $courseid, $userid);
         $debug && ia_mu::log($fxn . '::Got $participantraw=' . (ia_u::is_empty($participantraw) ? '' : var_export($participantraw, true)));
         if (ia_u::is_empty($participantraw)) {
-            return false;
+            return null;
         }
 
         $participant = self::parse_participant($participantraw);
@@ -303,10 +302,10 @@ class Api {
      * @param string $appid The app id.
      * @param type $courseid The course id to get info for.
      * @param type $userid The user id to get info for.
-     * @return stdClass Json-decoded object which is the API curl result - needs to be parsed into a Participant object.
+     * @return array Empty array if nothing found; else Json-decoded array which needs to be parsed into a single Participant object.
      * @throws InvalidArgumentException
      */
-    private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid) {
+    private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}, \$userid={$userid}";
@@ -325,7 +324,7 @@ class Api {
 
         if (empty($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
-            return false;
+            return array();
         }
 
         return $result;
@@ -339,9 +338,9 @@ class Api {
      *
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
-     * @return object[]|bool false if nothing found; else array of IA participants objects
+     * @return object[] Empty array if nothing found; else array of IA participants objects.
      */
-    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null) {
+    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn .
@@ -362,7 +361,7 @@ class Api {
 
         if (ia_u::is_empty($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
-            return false;
+            return array();
         }
 
         $nexttoken = false;
@@ -380,6 +379,10 @@ class Api {
                             "::Getting more records: \$nexttoken=[$nexttoken}; count(\$result->Participants)=" . count($result->Participants));
             $params = array('courseid' => $courseid, 'nexttoken' => $result->NextToken, 'backwardsearch' => false);
             $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
+            if (ia_u::is_empty($result)) {
+                break;
+            }
+
             $debug && ia_mu::log($fxn . '::Got API result = ' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
             $nexttoken = false;
             if (isset($result->NextToken) && !empty($result->NextToken)) {
@@ -403,7 +406,13 @@ class Api {
             $participant = self::parse_participant($pr);
             $debug && ia_mu::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : var_export($participant, true)));
 
-            // Filter for the courseid and userid.
+            // Skip if parsing failed.
+            if (ia_u::is_empty(($participant))) {
+                $debug && ia_mu::log($fxn . "::The participant failed to parse");
+                continue;
+            }
+
+            // Filter for the input courseid and userid.
             if (is_numeric($courseid) && intval($participant->courseid) !== intval($courseid)) {
                 $debug && ia_mu::log($fxn . "::Skip: \$participant->courseid={$participant->courseid} !== \$courseid={$courseid}");
                 continue;
@@ -427,10 +436,10 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @return bool|array False if not found; else json-decoded array = the API curl result.
+     * @return array Empty array if nothing found; else array of json-decoded stdClass objects = the API curl result.
      * @throws InvalidArgumentException
      */
-    private static function get_participants_data(string $apikey, string $appid, int $courseid) {
+    private static function get_participants_data(string $apikey, string $appid, int $courseid): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
@@ -443,13 +452,13 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        // The $result is a json-decoded array.
+        // The $result is a array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, array('courseid' => $courseid));
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
 
-        if (empty($result)) {
+        if (ia_u::is_empty($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
-            return false;
+            return array();
         }
 
         return $result;
@@ -514,7 +523,7 @@ class Api {
      *
      * @param \context $modulecontext The module context to look for IA info in.
      * @param int $userid The userid to get participant info for.
-     * @return Session The most recent session for that user in that activity.
+     * @return Session Null if nothing found; else the most recent session for that user in that activity.
      * @throws \InvalidArgumentException
      */
     public static function get_session_latest(\context $modulecontext, int $userid) {
@@ -676,22 +685,22 @@ class Api {
      * Extract Flag object info from API session data, cleaning all the fields.
      *
      * @param stdClass $input API flag data
-     * @return bool|Session[] False if failed to parse, otherwise a Flag object.
+     * @return Flag Null if failed to parse; otherwise a Flag object.
      */
-    private static function parse_flags(\stdClass $input) {
+    private static function parse_flag(\stdClass $input) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $f=' . (ia_u::is_empty($input) ? '' : var_export($input, true)));
 
         if (ia_u::is_empty($input)) {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
-            return false;
+            return null;
         }
 
         // Check required field #1.
         if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found');
-            return false;
+            return null;
         }
         $flag = new Flag();
         $flag->id = $input->Id;
@@ -723,9 +732,9 @@ class Api {
      * Extract Session objects from API Participant data, cleaning all the fields.
      *
      * @param stdClass $input API session data
-     * @return bool|Session[] False if failed to parse, otherwise an array of parsed Session objects.
+     * @return Session[] Empty array if failed to parse, otherwise an array of parsed Session objects.
      */
-    private static function parse_session(\stdClass $input) {
+    private static function parse_sessions(\stdClass $input): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : var_export($input, true)));
@@ -733,7 +742,7 @@ class Api {
         // Sanity check.
         if (ia_u::is_empty($input)) {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
-            return false;
+            return array();
         }
 
         $debug && ia_mu::log($fxn . '::About to create \block_integrityadvocate\Session()');
@@ -742,7 +751,7 @@ class Api {
         // Check required field #1.
         if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found: Id');
-            return false;
+            return array();
         }
         $session->id = $input->Id;
         $debug && ia_mu::log($fxn . '::Got $session->id=' . $session->id);
@@ -750,7 +759,7 @@ class Api {
         // Check required field #2.
         if (!isset($input->Status) || !is_string($input->Status) || strlen($input->Status) < 5) {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found: Status');
-            return false;
+            return array();
         }
         // This function throws an error if the status is invalid.
         $session->status = ia_participant_status::parse_status_string($input->Status);
@@ -776,7 +785,7 @@ class Api {
 
         if (isset($input->Flags) && is_array($input->Flags)) {
             foreach ($input->Flags as $f) {
-                if ($flag = self::parse_flags($f)) {
+                if (!ia_u::is_empty($flag = self::parse_flag($f))) {
                     $session->flags[] = $flag;
                 }
             }
@@ -790,7 +799,7 @@ class Api {
      * Extract a Participant object from API data, cleaning all the fields.
      *
      * @param stdClass $input API participant data
-     * @return bool|ia_participant False if failed to parse, otherwise the parsed Participant object.
+     * @return ia_participant Null if failed to parse, otherwise the parsed Participant object.
      */
     public static function parse_participant(\stdClass $input) {
         $debug = false;
@@ -800,7 +809,7 @@ class Api {
         // Sanity check.
         if (ia_u::is_empty($input)) {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
-            return false;
+            return null;
         }
 
         $participant = new ia_participant();
@@ -813,7 +822,7 @@ class Api {
             // Check for minimally-required data.
             if (!isset($participant->participantidentifier) || !isset($participant->courseid)) {
                 $debug && ia_mu::log($fxn . '::Minimally-required fields not found');
-                return false;
+                return null;
             }
 
             isset($input->Created) && ($participant->created = \clean_param($input->Created, PARAM_INT));
@@ -860,7 +869,7 @@ class Api {
         if (isset($input->Sessions) && is_array($input->Sessions)) {
             $debug && ia_mu::log($fxn . '::Found some sessions to look at');
             foreach ($input->Sessions as $s) {
-                if ($session = self::parse_session($s)) {
+                if (!ia_u::is_empty($session = self::parse_sessions($s))) {
                     $debug && ia_mu::log($fxn . '::Got a valid session back, so add it to the participant');
                     $participant->sessions[] = $session;
                 } else {

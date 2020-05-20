@@ -148,7 +148,7 @@ class ParticipantsTable extends \core_user\participants_table {
         $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
         $debug && ia_mu::log($fxn . '::Got count($participants)=' . (is_countable($participants) ? count($participants) : 0));
 
-        if (empty($participants)) {
+        if (ia_u::is_empty($participants)) {
             return;
         }
 
