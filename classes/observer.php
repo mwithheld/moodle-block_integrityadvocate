@@ -88,7 +88,6 @@ class block_integrityadvocate_observer {
                         '\\mod_data\\event\\',
                         '\\mod_glossary\\event\\',
                         '\\mod_lesson\\event\\',
-                        '\\mod_scorm\\event\\',
                         '\\mod_wiki\\event\\',
             )):
             // None of the event names starting with these strings correspond to finishing a module.
@@ -128,6 +127,7 @@ class block_integrityadvocate_observer {
                         '\\mod_choice\\event\\answer_created',
                         '\\mod_feedback\\event\\response_submitted',
                         // This is blacklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
+                        '\\mod_scorm\\event\\scoreraw_submitted',
                         '\\mod_quiz\\event\\attempt_abandoned',
                         '\\mod_quiz\\event\\attempt_submitted',
             )):
