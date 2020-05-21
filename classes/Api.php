@@ -306,7 +306,7 @@ class Api {
      * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
      * @throws InvalidArgumentException
      */
-    private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): object {
+    private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): \stdClass {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}, \$userid={$userid}";
@@ -444,7 +444,7 @@ class Api {
      * @return stdClass Empty object if nothing found; else an object representing the API curl results.  For the structure see tests\fixtures\participants1.json.
      * @throws InvalidArgumentException
      */
-    private static function get_participants_data(string $apikey, string $appid, int $courseid): object {
+    private static function get_participants_data(string $apikey, string $appid, int $courseid): \stdClass {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
