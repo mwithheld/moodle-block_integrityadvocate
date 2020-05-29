@@ -50,7 +50,7 @@ class MoodleUtility {
         $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found $records=' . (ia_u::is_empty($records) ? '' : var_export($records, true)));
         if (ia_u::is_empty($records)) {
             $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::No instances of block_{$blockname} found");
-            return false;
+            return array();
         }
 
         // Go through each of the block instances and check visibility.
