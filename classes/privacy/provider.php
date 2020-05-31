@@ -87,7 +87,6 @@ class provider implements
      * @param   \userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(\userlist $userlist) {
-        global $DB;
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
@@ -96,30 +95,7 @@ class provider implements
             return;
         }
 
-        // Get IA participant data from the remote API.
-        $participants = \block_integrityadvocate_get_participants_for_blockcontext($userlist->get_context());
-        $debug && ia_mu::log($fxn . '::Got count($participants)=' . (is_countable($participants) ? count($participants) : 0));
-        if (ia_u::is_empty($participants)) {
-            return;
-        }
-
-
-        // Populate this list with user ids who have IA data in this context.
-        // This lets us use add_users() to minimize DB calls rather than add_user() in the below loop.
-        $userids = array();
-        foreach ($participants as $p) {
-            // Populate if is a participant.
-            if (isset($p->participantidentifier) && !empty($p->participantidentifier)) {
-                $userids[] = $p->participantidentifier;
-            }
-
-            // Populate if is an override instructor.
-            if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid)) {
-                $userids[] = $p->overridelmsuserid;
-            }
-        }
-
-        $userlist->add_users(array_unique($userids));
+        $userlist->add_users(self::get_participants_from_blockcontext($userlist->get_context()));
     }
 
     /**
@@ -127,7 +103,7 @@ class provider implements
      *
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
-    public static function delete_data_for_users(\approved_userlist $userlist) {
+    public static function delete_data_for_users(\approved_userlist $userlist, \context_block $blockcontext) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
@@ -143,29 +119,8 @@ class provider implements
             return;
         }
 
-        // Prevent multiple messages for the same user by tracking the IDs we have sent to.
-        $participantmessagesent = array();
-        $overridemessagesent = array();
-
-        foreach ($participants as $p) {
-            // Check the participant is one we should delete.
-            if (isset($p->participantidentifier) && !empty($p->participantidentifier) && in_array($p->participantidentifier, $userids)) {
-                // Request participant data delete.
-                if (!in_array($p->participantidentifier, $participantmessagesent)) {
-                    self::send_delete_request('Please remove IA participant data for ' . self::BRNL . self::get_participant_info_to_send($p));
-                    $participantmessagesent[] = $p->participantidentifier;
-                }
-            }
-
-            // Check the override user is one we should delete.
-            if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) && in_array($p->overridelmsuserid, $userids)) {
-                // Request override instructor data delete.
-                if (!in_array($p->overridelmsuserid, $overridemessagesent)) {
-                    self::send_delete_request('Please remove IA *overrider* data for ' . self::BRNL . self::get_override_info_to_send($p));
-                    $overridemessagesent[] = $p->overridelmsuserid;
-                }
-            }
-        }
+        // If we got participants, we are in the block context and the parent is a module.
+        self::delete_participants($blockcontext, $participants, $userids);
     }
 
     /**
@@ -185,29 +140,13 @@ class provider implements
             return;
         }
 
-        // Prevent multiple messages for the same user by tracking the IDs we have sent to.
-        $participantmessagesent = array();
-        $overridemessagesent = array();
-
-        foreach ($participants as $p) {
-            // Check the participant is one we should delete.
-            if (isset($p->participantidentifier) && !empty($p->participantidentifier)) {
-                // Request participant data delete.
-                if (!in_array($p->participantidentifier, $participantmessagesent)) {
-                    self::send_delete_request('Please remove IA participant data for ' . self::BRNL . self::get_participant_info_to_send($p));
-                    $participantmessagesent[] = $p->participantidentifier;
-                }
-            }
-
-            // Check the override user is one we should delete.
-            if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid)) {
-                // Request override instructor data delete.
-                if (!in_array($p->overridelmsuserid, $overridemessagesent)) {
-                    self::send_delete_request('Please remove IA *overrider* data for ' . self::BRNL . self::get_override_info_to_send($p));
-                    $overridemessagesent[] = $p->overridelmsuserid;
-                }
-            }
-        }
+        // If we got participants, we are in the block context and the parent is a module.
+        $coursecontext = $context->get_course_context(true);
+        $modulecontext = $context->get_parent_context();
+        self::send_delete_request($moduulecontext, 'Please remove all IA participant and overrider data for ' . self::BRNL .
+                '&nbsp;&nbsp;&bull;&nbsp;courseid=' . $coursecontext->instanceid . self::BRNL .
+                '&nbsp;&nbsp;&bull;&nbsp;activityid=' . $modulecontext->instanceid . self::BRNL
+        );
     }
 
     /**
@@ -233,34 +172,93 @@ class provider implements
             if (ia_u::is_empty($participants)) {
                 continue;
             }
+
+            // If we got participants, we are in the block context and the parent is a module.
+            self::delete_participants($context, $participants, array($user->id));
+        }
+    }
+
+    //==========================================================================
+    // IA functions below this line
+    //==========================================================================
+
+    /**
+     * Get list of unique IA participant and overrider IDs from the remote API.
+     *
+     * @param \context $blockcontext The IA block context.
+     * @return array List of unique IA participant and overrider IDs from the remote API.
+     */
+    public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
+
+        $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
+        $debug && ia_mu::log($fxn . '::Got count($participants)=' . (is_countable($participants) ? count($participants) : 0));
+        if (ia_u::is_empty($participants)) {
+            return array();
         }
 
+        // If we got participants, we are in the block context and the parent is a module.
+        //
+        // Populate this list with user ids who have IA data in this context.
+        // This lets us use add_users() to minimize DB calls rather than add_user() in the below loop.
+        $userids = array();
+        foreach ($participants as $p) {
+            // Populate if is a participant.
+            if (isset($p->participantidentifier) && !empty($p->participantidentifier)) {
+                $userids[] = $p->participantidentifier;
+            }
+
+            // Populate if is an override instructor.
+            if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid)) {
+                $userids[] = $p->overridelmsuserid;
+            }
+        }
+
+        return array_unique($userids);
+    }
+
+    /**
+     * Request delete for the IA participants and overriders from the remote API.
+     * One request per userid is sent, even if someone is both participant and overrider.
+     *
+     * @param array $participants IA Participants associated with the block.
+     * @param array $useridstodelete List of userid to send deletion requests for.  If empty, requests are sent for all participants.
+     * @return bool True on success.
+     */
+    public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = array()): bool {
         // Prevent multiple messages for the same user by tracking the IDs we have sent to.
         $participantmessagesent = array();
         $overridemessagesent = array();
 
-        // Find the one we should delete.
         foreach ($participants as $p) {
             // Check the participant is one we should delete.
-            if (isset($p->participantidentifier) && !empty($p->participantidentifier) && (intval($p->participantidentifier) === intval($user->id))) {
+            if (isset($p->participantidentifier) && !empty($p->participantidentifier) &&
+                    (ia_u::is_empty($useridstodelete) || in_array($p->participantidentifier, $useridstodelete))
+            ) {
                 // Request participant data delete.
-                $useridentifier = $context->instanceid . '-' . $p->participantidentifier;
+                $useridentifier = $blockcontext->instanceid . '-' . $p->participantidentifier;
                 if (!in_array($useridentifier, $participantmessagesent)) {
-                    self::send_delete_request('Please remove IA participant data for ' . self::BRNL . self::get_participant_info_to_send($p));
+                    self::send_delete_request($blockcontext, 'Please remove IA participant data for ' . self::BRNL . self::get_participant_info_to_send($p));
                     $participantmessagesent[] = $useridentifier;
                 }
             }
 
             // Check the override user is one we should delete.
-            if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) && (intval($p->overridelmsuserid) === intval($user->id))) {
+            if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) &&
+                    (ia_u::is_empty($useridstodelete) || in_array($p->overridelmsuserid, $useridstodelete))
+            ) {
+                $useridentifier = $blockcontext->instanceid . '-' . $p->overridelmsuserid;
                 // Request override instructor data delete.
-                $useridentifier = $context->instanceid . '-' . $p->overridelmsuserid;
                 if (!in_array($useridentifier, $overridemessagesent)) {
-                    self::send_delete_request('Please remove IA *overrider* data for ' . self::BRNL . self::get_override_info_to_send($p));
-                    $overridemessagesent[] = $context->instanceid . '-' . $p->overridelmsuserid;
+                    self::send_delete_request($blockcontext, 'Please remove IA *overrider* data for ' . self::BRNL . self::get_override_info_to_send($p));
+                    $overridemessagesent[] = $useridentifier;
                 }
             }
         }
+
+        return true;
     }
 
     /**
@@ -271,6 +269,7 @@ class provider implements
      */
     private static function get_participant_info_to_send(Participant $participant): string {
         $usefulfields = array(
+            'cmid',
             'courseid',
             'created',
             'modified',
@@ -298,6 +297,7 @@ class provider implements
      */
     private static function get_override_info_to_send(Participant $participant): string {
         $usefulfields = array(
+            'cmid',
             'courseid',
             'created',
             'modified',
@@ -326,7 +326,7 @@ class provider implements
      *
      * @return bool True on emailing success; else false.
      */
-    private static function send_delete_request(string $msg): bool {
+    private static function send_delete_request(\context_block $blockcontext, string $msg): bool {
         global $USER, $CFG, $SITE;
 
         // Throws an exception if email is invalid.
@@ -344,9 +344,16 @@ class provider implements
             $mailfrom = $mailto;
         }
 
+        $coursecontext = $blockcontext->get_course_context(true);
+        $modulecontext = $blockcontext->get_parent_context();
+
+        // Assemble email params.
         $subject = 'Moodle privacy API data removal request from "' . $SITE->fullname . '" ' . $CFG->wwwroot;
         $message = $subject . self::BRNL;
         $message .= "Admin email={$siteadmin->email}" . self::BRNL;
+        $message .= "Course_Id={$coursecontext->instanceid}" . self::BRNL;
+        // The $modulecontext->instanceid is the CMID.
+        $message .= "Activity_Id={$modulecontext->instanceid}" . self::BRNL;
         $message .= '--' . self::BRNL;
         $message .= $msg;
 
