@@ -49,8 +49,8 @@ require_once(__DIR__ . '/classes/Session.php');
 /** @var string Short name for this plugin. */
 const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
 
-/** @var string Longer name for this block. */
-const INTEGRITYADVOCATE_BLOCKNAME = 'block_integrityadvocate';
+/** @var string Longer name for this plugin. */
+const INTEGRITYADVOCATE_BLOCK_NAME = 'block_integrityadvocate';
 
 /** @var string Scheduled cron task name. */
 const INTEGRITYADVOCATE_TASKNAME = 'block_integrityadvocate\task\process_integrityadvocate';

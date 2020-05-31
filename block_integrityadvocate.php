@@ -43,7 +43,7 @@ class block_integrityadvocate extends block_base {
      * @return void
      */
     public function init() {
-        $this->title = \get_string('config_default_title', \INTEGRITYADVOCATE_BLOCKNAME);
+        $this->title = \get_string('config_default_title', \INTEGRITYADVOCATE_BLOCK_NAME);
     }
 
     /**
@@ -175,11 +175,11 @@ class block_integrityadvocate extends block_base {
         }
 
         if (!isset($this->config->apikey) || !ia_mu::is_base64($this->config->apikey)) {
-            $errors['config_apikey'] = \get_string('error_noapikey', \INTEGRITYADVOCATE_BLOCKNAME);
+            $errors['config_apikey'] = \get_string('error_noapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::' . $errors['config_apikey']);
         }
         if (!isset($this->config->appid) || !ia_u::is_guid($this->config->appid)) {
-            $errors['config_appid'] = \get_string('error_noappid', \INTEGRITYADVOCATE_BLOCKNAME);
+            $errors['config_appid'] = \get_string('error_noappid', \INTEGRITYADVOCATE_BLOCK_NAME);
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::' . $errors['config_appid']);
         }
 
@@ -215,7 +215,7 @@ class block_integrityadvocate extends block_base {
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
             if ($record->showblocks < 1) {
-                $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCKNAME);
+                $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
         }
 
@@ -263,7 +263,7 @@ class block_integrityadvocate extends block_base {
         }
         if ($setuperrors && $hasoverviewcapability) {
             foreach ($setuperrors as $err) {
-                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCKNAME) . "<br />\n";
+                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . "<br />\n";
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Setup errors, so skip it');
             return;
@@ -277,7 +277,7 @@ class block_integrityadvocate extends block_base {
                         . '::Modules found=' . (is_countable($modules) ? count($modules) : 0));
         if (empty($modules)) {
             if ($hasoverviewcapability) {
-                $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCKNAME);
+                $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::No modules, so skip it');
             return;
@@ -382,7 +382,7 @@ class block_integrityadvocate extends block_base {
 
             // Organize access to JS.
             $jsmodule = array(
-                'name' => \INTEGRITYADVOCATE_BLOCKNAME,
+                'name' => \INTEGRITYADVOCATE_BLOCK_NAME,
                 'fullpath' => '/blocks/integrityadvocate/module.js',
                 'requires' => array(),
                 'strings' => array(),

@@ -57,7 +57,7 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
 }
 
 // Show basic user info at the top.  Adapted from user/view.php.
-echo html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCKNAME . '_overview_user_userinfo'));
+echo html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
 $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
 echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
 echo html_writer::end_tag('div');

@@ -86,14 +86,14 @@ $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview
         ));
 $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
-$title = get_string('overview', INTEGRITYADVOCATE_BLOCKNAME);
+$title = get_string('overview', INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
 $PAGE->set_pagelayout('report');
 
 if (!$userid) {
-    $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCKNAME . '-overview-course');
+    $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-course');
 
     // Override options set in amd/build/init.js.
     $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init',
@@ -112,13 +112,13 @@ if (!$userid) {
             )
     );
 } else {
-    $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCKNAME . '-overview-user');
+    $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-user');
 }
 
 // Start page output.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 2);
-echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCKNAME);
+echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
 // If there is an error, stops further processing, but still displays the page footer.
 $continue = true;
@@ -144,7 +144,7 @@ $continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey=
 $setuperrors = ia_mu::get_completion_setup_errors($course);
 if ($setuperrors) {
     foreach ($setuperrors as $err) {
-        echo get_string($err, INTEGRITYADVOCATE_BLOCKNAME) . "<br/>\n";
+        echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME) . "<br/>\n";
     }
     $continue = false;
 }
@@ -153,7 +153,7 @@ if ($continue) {
     // Check if module have been selected in config.
     $modules = block_integrityadvocate_get_course_ia_modules($courseid);
     if (is_string($modules)) {
-        echo get_string($modules, INTEGRITYADVOCATE_BLOCKNAME) . "<br/>\n";
+        echo get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . "<br/>\n";
         $continue = false;
     }
     $debug && ia_mu::log(basename(__FILE__)

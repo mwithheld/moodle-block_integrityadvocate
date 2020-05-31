@@ -66,8 +66,8 @@ class ParticipantsTable extends \core_user\participants_table {
         // Do not strip tags from these colums (i.e. do not pass through the s() function).
         $this->column_nostrip = array('iadata');
 
-        $this->headers[] = \get_string('column_iadata', \INTEGRITYADVOCATE_BLOCKNAME);
-        $this->headers[] = \get_string('column_iaphoto', \INTEGRITYADVOCATE_BLOCKNAME);
+        $this->headers[] = \get_string('column_iadata', \INTEGRITYADVOCATE_BLOCK_NAME);
+        $this->headers[] = \get_string('column_iaphoto', \INTEGRITYADVOCATE_BLOCK_NAME);
 
         $this->prefs['collapse']['status'] = true;
         $this->define_columns($this->columns);

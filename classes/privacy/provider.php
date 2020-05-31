@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Privacy Subsystem for block_integrityadvocate.
  *
@@ -72,11 +70,11 @@ class provider implements
         // Combine the above keys with corresponding values into a new key-value array.
         $privacyitemsarr = array();
         foreach ($privacyitems as $key) {
-            $privacyitemsarr[$key] = self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCKNAME . ':' . $key;
+            $privacyitemsarr[$key] = self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':' . $key;
         }
 
-        $collection->add_external_location_link(INTEGRITYADVOCATE_BLOCKNAME, $privacyitemsarr,
-                self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCKNAME);
+        $collection->add_external_location_link(INTEGRITYADVOCATE_BLOCK_NAME, $privacyitemsarr,
+                self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME);
 
         return $collection;
     }

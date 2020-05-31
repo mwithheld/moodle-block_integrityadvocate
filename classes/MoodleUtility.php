@@ -555,7 +555,7 @@ class MoodleUtility {
         }
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'perrequest');
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($courserormodulecontext->id . '_' . $userid);
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
