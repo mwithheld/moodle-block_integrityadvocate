@@ -83,6 +83,7 @@ $string['overview_view_details'] = 'View details';
 $string['privacy:metadata'] = 'The IntegrityAdvocate block only displays existing completion data.';
 $string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate:cmid'] = 'Id number of the course module.';
+$string['privacy:metadata:block_integrityadvocate:courseid'] = 'Id number of the course.';
 $string['privacy:metadata:block_integrityadvocate:email'] = 'Your email address.';
 $string['privacy:metadata:block_integrityadvocate:fullname'] = 'Your full name.';
 $string['privacy:metadata:block_integrityadvocate:identification_card'] = 'A picture of your government-issued ID.';

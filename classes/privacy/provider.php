@@ -51,6 +51,7 @@ class provider implements
         $privacyitems = array(
             // Course info.
             'cmid',
+            'courseid',
             // Moodle user info.
             'email',
             'fullname',
