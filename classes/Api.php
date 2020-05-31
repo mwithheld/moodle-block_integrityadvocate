@@ -688,9 +688,9 @@ class Api {
 
         $statusinmodule = self::get_status_in_module($modulecontext, $userid);
         $debug && ia_mu::log($fxn . "::Comparing \$statusinmodule={$statusinmodule} === " . ia_participant_status::VALID);
-        $statusisvalid = (intval($statusinmodule) === intval(ia_participant_status::VALID));
+        $isstatusvalid = (intval($statusinmodule) === intval(ia_participant_status::VALID));
 
-        return $statusisvalid;
+        return $isstatusvalid;
     }
 
     /**
