@@ -40,7 +40,8 @@ class PaticipantStatus {
     const INVALID_ID = 'Invalid (ID)';
     const INVALID_ID_INT = 1;
 
-    /** @var string String the IA API uses for a proctor session that is complete but in participating the user broke 1+ rules.  See IA flags for details. */
+    /** @var string String the IA API uses for a proctor session that is complete but in participating the user broke 1+ rules.
+     * See IA flags for details. */
     const INVALID_RULES = 'Invalid (Rules)';
     const INVALID_RULES_INT = 2;
 
@@ -82,7 +83,11 @@ class PaticipantStatus {
      * @return true if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
      */
     public static function is_status_int(int $statusint): bool {
-        return in_array($statusint, array(self::INPROGRESS_INT, self::VALID_INT, self::INVALID_ID_INT, self::INVALID_RULES_INT), true);
+        return in_array(
+                $statusint,
+                array(self::INPROGRESS_INT, self::VALID_INT, self::INVALID_ID_INT, self::INVALID_RULES_INT),
+                true
+        );
     }
 
     /**
