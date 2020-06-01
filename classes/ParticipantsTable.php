@@ -49,8 +49,10 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param bool $bulkoperations Is the user allowed to perform bulk operations?
      * @param bool $selectall Has the user selected all users on the page?
      */
-    public function __construct(int $courseid, $currentgroup, int $accesssince, int $roleid, int $enrolid, int $status, $search, bool $bulkoperations, bool $selectall) {
-        parent::__construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search, $bulkoperations, $selectall);
+    public function __construct(int $courseid, $currentgroup, int $accesssince, int $roleid, int $enrolid, int $status, $search,
+            bool $bulkoperations, bool $selectall) {
+        parent::__construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search,
+                $bulkoperations, $selectall);
 
         $this->attributes['class'] .= ' datatable';
 
