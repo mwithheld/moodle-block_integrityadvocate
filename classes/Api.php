@@ -133,7 +133,8 @@ class Api {
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid .
+                        json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
 
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
@@ -238,11 +239,13 @@ class Api {
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
 
         // If the block is not configured yet, simply return empty result.
-        if (!isset($blockinstance->config->apikey) || empty($blockinstance->config->apikey) || !isset($blockinstance->config->appid) || empty($blockinstance->config->appid)) {
+        if (!isset($blockinstance->config->apikey) || empty($blockinstance->config->apikey) ||
+                !isset($blockinstance->config->appid) || empty($blockinstance->config->appid)) {
             return array();
         }
 
-        $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $userid);
+        $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid,
+                        $modulecontext->get_course_context()->instanceid, $userid);
 
         if (!isset($participantcoursedata->sessions) || empty($participantcoursedata->sessions)) {
             return array();
@@ -304,7 +307,8 @@ class Api {
      * @param string $appid The app id.
      * @param type $courseid The course id to get info for.
      * @param type $userid The user id to get info for.
-     * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
+     * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a
+     *          single Participant object.
      * @throws InvalidArgumentException
      */
     private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): \stdClass {
@@ -492,12 +496,13 @@ class Api {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn .
-                "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; "
-                . "\$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
+                "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; "
+                . "\$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
-        if (!filter_var($requesturi, FILTER_VALIDATE_URL) || strlen($requestmethod) < 3 || !is_numeric($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !is_string($nonce) ||
+        if (!filter_var($requesturi, FILTER_VALIDATE_URL) || strlen($requestmethod) < 3 ||
+                !is_numeric($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !is_string($nonce) ||
                 !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
@@ -507,8 +512,8 @@ class Api {
         if (parse_url($requesturi, PHP_URL_QUERY)) {
             $msg = 'The requesturi should not contain a querystring';
             ia_mu::log($fxn .
-                    "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; "
-                    . "\$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+                    "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; "
+                    . "\$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
             ia_mu::log($fxn . '::' . $msg);
             throw new InvalidArgumentException();
         }
@@ -837,7 +842,8 @@ class Api {
 
         // Clean int fields.
         if (true) {
-            isset($input->ParticipantIdentifier) && ($participant->participantidentifier = \clean_param($input->ParticipantIdentifier, PARAM_INT));
+            isset($input->ParticipantIdentifier) &&
+                    ($participant->participantidentifier = \clean_param($input->ParticipantIdentifier, PARAM_INT));
             isset($input->Course_Id) && ($participant->courseid = \clean_param($input->Course_Id, PARAM_INT));
 
             // Check for minimally-required data.
@@ -850,7 +856,8 @@ class Api {
             isset($input->Modified) && ($participant->modified = \clean_param($input->Modified, PARAM_INT));
 
             isset($input->Override_Date) && ($participant->overridedate = \clean_param($input->Override_Date, PARAM_INT));
-            isset($input->Override_LMSUser_Id) && ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
+            isset($input->Override_LMSUser_Id) &&
+                    ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done int fields');.
         //
@@ -863,15 +870,18 @@ class Api {
                 $participant->email = $val;
             }
 
-            isset($input->Override_LMSUser_FirstName) && ($participant->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
-            isset($input->Override_LMSUser_LastName) && ($participant->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
+            isset($input->Override_LMSUser_FirstName) &&
+                    ($participant->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
+            isset($input->Override_LMSUser_LastName) &&
+                    ($participant->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
             isset($input->Override_Reason) && ($participant->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done text fields');.
         //
         // Clean URL fields.
         if (true) {
-            isset($input->Participant_Photo) && ($participant->participantphoto = filter_var($input->Participant_Photo, FILTER_SANITIZE_URL));
+            isset($input->Participant_Photo) &&
+                    ($participant->participantphoto = filter_var($input->Participant_Photo, FILTER_SANITIZE_URL));
             isset($input->ResubmitUrl) && ($participant->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done url fields');.
@@ -945,7 +955,8 @@ class Api {
         // If there are params missing $requiredparams[] list, throw an exception.
         // Compare the incoming keys in $params vs the list of required params (the values of that array).
         if ($missingparams = array_diff($requiredparams, array_keys($params))) {
-            $msg = 'The ' . $endpoint . ' endpoint requires params=' . implode(', ', $missingparams) . '; got params=' . implode(', ', array_keys($params));
+            $msg = 'The ' . $endpoint . ' endpoint requires params=' . implode(', ', $missingparams) .
+                    '; got params=' . implode(', ', array_keys($params));
             ia_mu::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
         }
@@ -954,7 +965,8 @@ class Api {
         // Use array_diff_key: Returns an array containing all the entries from array1 whose keys are...
         // Absent from all of the other arrays.
         if ($extraparams = array_diff_key($params, $validparams)) {
-            $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . implode(', ', $extraparams) . '; got params=' . implode(', ', array_keys($params));
+            $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . implode(', ', $extraparams) .
+                    '; got params=' . implode(', ', array_keys($params));
             ia_mu::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
         }
