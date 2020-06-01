@@ -68,7 +68,8 @@ class MoodleUtility {
 
             if (isset($blockinstances[$r->id])) {
                 $debug && self::log(__CLASS__ . '::' . __FUNCTION__ .
-                                "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
+                                "::Multiple visible block_{$blockname} instances found in the same parentcontextid - "
+                                . "just return the first one");
                 continue;
             }
 
@@ -117,7 +118,8 @@ class MoodleUtility {
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
+            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking at \$c->id={$c->id}; "
+                            . "\$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
             if (intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
                 continue;
             }
@@ -294,7 +296,8 @@ class MoodleUtility {
     /**
      * Check if site and optionally also course completion is enabled.
      *
-     * @param int|object $course Optional courseid or course object to check.  If not specified, only site-level completion is checked.
+     * @param int|object $course Optional courseid or course object to check.
+     * If not specified, only site-level completion is checked.
      * @return array of error identifier strings
      */
     public static function get_completion_setup_errors($course = null): array {
@@ -527,7 +530,8 @@ class MoodleUtility {
         }
 
         global $DB;
-        $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?', array($courseidcleaned), IGNORE_MISSING);
+        $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
+                array($courseidcleaned), IGNORE_MISSING);
 
         // Convert false to int 0.
         return intval($lastaccess);
