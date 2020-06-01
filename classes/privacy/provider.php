@@ -44,8 +44,7 @@ class provider implements \core_privacy\local\metadata\provider \core_userlist_p
      * @param  collection $collection An object for storing metadata.
      * @return collection The metadata.
      */
-    public static function get_metadata(collection $collection):
-    collection {
+    public static function get_metadata(collection $collection): collection {
         $privacyitems = array(
             // Course info.
             'cmid',
