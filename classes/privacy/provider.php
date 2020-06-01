@@ -33,9 +33,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 
-class provider implements
-\core_privacy\local\metadata\provider
-\core_userlist_provider {
+class provider implements \core_privacy\local\metadata\provider \core_userlist_provider {
 
     const PRIVACYMETADATA_STR = 'privacy:metadata';
     const BRNL = "<br>\n";
@@ -178,9 +176,9 @@ class provider implements
         }
     }
 
-    //==========================================================================
-    // IA functions below this line
-    //==========================================================================
+    // Z==========================================================================.
+    // IA functions below this line.
+    // Z==========================================================================.
 
     /**
      * Get list of unique IA participant and overrider IDs from the remote API.
@@ -224,10 +222,12 @@ class provider implements
      * One request per userid is sent, even if someone is both participant and overrider.
      *
      * @param array $participants IA Participants associated with the block.
-     * @param array $useridstodelete List of userid to send deletion requests for.  If empty, requests are sent for all participants.
+     * @param array $useridstodelete List of userid to send deletion requests for.
+     * If empty, requests are sent for all participants.
      * @return bool True on success.
      */
-    public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = array()): bool {
+    public static function delete_participants(\context_block $blockcontext, array $participants,
+            array $useridstodelete = array()): bool {
         // Prevent multiple messages for the same user by tracking the IDs we have sent to.
         $participantmessagesent = array();
         $overridemessagesent = array();
@@ -240,7 +240,8 @@ class provider implements
                 // Request participant data delete.
                 $useridentifier = $blockcontext->instanceid . '-' . $p->participantidentifier;
                 if (!in_array($useridentifier, $participantmessagesent)) {
-                    self::send_delete_request($blockcontext, 'Please remove IA participant data for ' . self::BRNL . self::get_participant_info_to_send($p));
+                    self::send_delete_request($blockcontext, 'Please remove IA participant data for ' . self::BRNL .
+                            self::get_participant_info_to_send($p));
                     $participantmessagesent[] = $useridentifier;
                 }
             }
@@ -252,7 +253,8 @@ class provider implements
                 $useridentifier = $blockcontext->instanceid . '-' . $p->overridelmsuserid;
                 // Request override instructor data delete.
                 if (!in_array($useridentifier, $overridemessagesent)) {
-                    self::send_delete_request($blockcontext, 'Please remove IA *overrider* data for ' . self::BRNL . self::get_override_info_to_send($p));
+                    self::send_delete_request($blockcontext, 'Please remove IA *overrider* data for ' . self::BRNL .
+                            self::get_override_info_to_send($p));
                     $overridemessagesent[] = $useridentifier;
                 }
             }
