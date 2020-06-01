@@ -147,7 +147,8 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
     $coursecontext = $blockcontext->get_course_context();
 
     // Get IA participant data from the remote API.
-    $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $coursecontext->instanceid);
+    $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid,
+                    $coursecontext->instanceid);
     $debug && ia_mu::log($fxn . '::Got count($participants)=' . (is_countable($participants) ? count($participants) : 0));
 
     return $participants;
@@ -238,13 +239,14 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
             $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Looking to filter for apikey and appid');
 
             if ($requireapikey && $blockinstance->config->apikey !== $requireapikey) {
-                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey .
-                                ' does not match requested apikey=' . $apikey);
+                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' .
+                                $blockinstance->config->apikey . ' does not match requested apikey=' . $apikey);
                 unset($modules[$key]);
                 continue;
             }
             if ($requireappid && $blockinstance->config->appid !== $requireappid) {
-                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey .
+                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' .
+                                $blockinstance->config->apikey .
                                 ' does not match requested appid=' . $appid);
                 unset($modules[$key]);
                 continue;
