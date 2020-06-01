@@ -71,7 +71,7 @@ class block_integrityadvocate extends block_base {
         foreach ($blocks as $key => $b) {
             $debug && ia_mu::log($fxn . "::Looking at block_instance.id={$key}");
 
-            // Only look in other blocks, and skip those with apikey/appid errors
+            // Only look in other blocks, and skip those with apikey/appid errors.
             if ($b->get_apikey_appid_errors()) {
                 continue;
             }
@@ -229,7 +229,8 @@ class block_integrityadvocate extends block_base {
         global $USER, $COURSE, $DB, $CFG;
         $debug = false;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                        '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
+                        '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER132->id .
+                        '; $USER->username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
@@ -314,8 +315,8 @@ class block_integrityadvocate extends block_base {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                                            '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' .
-                                            $courseid .
+                                            '::This is the course-user page, so in the block show the IA proctor summary for ' .
+                                            'this course-user combo: courseid=' . $courseid .
                                             '; $targetuserid=' . $targetuserid);
 
                             // Check the user is enrolled in this course, even if inactive.
@@ -351,12 +352,14 @@ class block_integrityadvocate extends block_base {
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
-                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false && ($this->page->pagetype !== 'mod-quiz-attempt')):
+                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false &&
+                            ($this->page->pagetype !== 'mod-quiz-attempt')):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
                                 $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                 break;
-                            case (stripos($this->page->pagetype, 'mod-scorm-') !== false && ($this->page->pagetype !== 'mod-scorm-player')):
+                            case (stripos($this->page->pagetype, 'mod-scorm-') !== false &&
+                            ($this->page->pagetype !== 'mod-scorm-player')):
                                 // If we are in a scorm, only show the JS proctoring UI if on the scorm player page.
                                 // Other pages should show the summary.
                                 $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
