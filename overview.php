@@ -138,7 +138,8 @@ if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_confi
     }
     $continue = false;
 }
-$continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
+$continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; "
+                . "appid={$blockinstance->config->appid}");
 
 // Check site and course completion are set up.
 $setuperrors = ia_mu::get_completion_setup_errors($course);
