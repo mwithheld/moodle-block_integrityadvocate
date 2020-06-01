@@ -109,7 +109,6 @@ class Output {
             $blockinstance->page->requires->js($url);
         }
 
-
         return $out;
     }
 
@@ -270,6 +269,7 @@ class Output {
         list($unused, $cm) = \get_course_and_cm_from_cmid($session->activityid, null, $courseid, $session->participant->participantidentifier);
 
         $prefix = \INTEGRITYADVOCATE_BLOCK_NAME;
+        $out = '';
         $out .= \html_writer::start_tag('div',
                         array('class' => $prefix . '_overview_session_div ' . self::CLASS_TABLE));
         $out .= \html_writer::start_tag('div',
