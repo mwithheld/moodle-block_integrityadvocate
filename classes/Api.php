@@ -108,6 +108,7 @@ class Api {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
+        // That's all the debug info I want from this function for now.
         $debug = false;
 
         // If the block is not configured yet, simply return empty result.
@@ -348,7 +349,7 @@ class Api {
      * @param int $userid Optionally filter for this user.
      * @return object[] Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
-    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null, int $page = 0): array {
+    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}; \$page={$page}";
@@ -476,7 +477,6 @@ class Api {
             $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $courseid, $result->NextToken));
         }
 
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
         return $participants;
     }
 
