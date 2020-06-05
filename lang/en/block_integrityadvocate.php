@@ -80,11 +80,12 @@ $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
 $string['overview_view_details'] = 'View details';
 
-$string['privacy:metadata'] = 'The IntegrityAdvocate block only displays existing completion data.';
+$string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate:cmid'] = 'Id number of the course module.';
 $string['privacy:metadata:block_integrityadvocate:courseid'] = 'Id number of the course.';
 $string['privacy:metadata:block_integrityadvocate:email'] = 'Your email address.';
+$string['privacy:metadata:block_integrityadvocate:exit_fullscreen_count'] = 'Number of times the user exited fullscreen mode during the activity.';
 $string['privacy:metadata:block_integrityadvocate:fullname'] = 'Your full name.';
 $string['privacy:metadata:block_integrityadvocate:identification_card'] = 'A picture of your government-issued ID.';
 $string['privacy:metadata:block_integrityadvocate:override_date'] = 'If applicable, the date the IntegrityAdvocate status is overridden by an instructor.';
@@ -93,6 +94,7 @@ $string['privacy:metadata:block_integrityadvocate:override_reason'] = 'If applic
 $string['privacy:metadata:block_integrityadvocate:override_status'] = 'If applicable, the IntegrityAdvocate status applied by the override.';
 $string['privacy:metadata:block_integrityadvocate:session_end'] = 'The time your proctoring session session ends.';
 $string['privacy:metadata:block_integrityadvocate:session_start'] = 'The time your proctoring session session starts.';
+$string['privacy:metadata:block_integrityadvocate:tableexplanation'] = 'IntegrityAdvocate block information is stored here.';
 $string['privacy:metadata:block_integrityadvocate:user_video'] = 'A video (with audio) recording of you completing an activity.';
 $string['privacy:metadata:block_integrityadvocate:userid'] = 'Your database user id number.';
 
