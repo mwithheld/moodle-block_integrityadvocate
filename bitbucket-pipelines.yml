@@ -22,6 +22,7 @@ pipelines:
             - cd /tmp/iaparent/integrityadvocate
 
             - npm install
+            - npm install grunt
             - npm install -g grunt-cli
             - grunt --verbose shifter
 
