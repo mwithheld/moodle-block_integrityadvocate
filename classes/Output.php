@@ -101,7 +101,7 @@ class Output {
         $debug && ia_mu::log($fxn . "::Built url={$url}");
 
         if ($debugnoiaproctoroutput) {
-            $blockinstance->page->requires->js_init_call('alert("IntegrityAdvocate Proctor block JS output '
+            $blockinstance->page->requires->js_init_call('alert("IntegrityAdvocate block JS output '
                     . 'would occur here with url=' . $url . ' if not suppressed")');
         } else {
             // Pass the URL w/o urlencoding.
