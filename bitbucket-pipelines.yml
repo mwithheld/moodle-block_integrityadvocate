@@ -4,33 +4,36 @@ definitions:
   caches:
     apt: /var/cache/apt
 
-commonStep1: &commonStep1
+buildJS: &buildJS
  - step:
-    name: Step 1a
+    name: "Build the JS module"
+    caches:
+      - apt
+      - node
     script:
-     - echo "Lots of duplicate code"
+      - apt-get update && apt-get -qq install zip rsync git
+      - repodir=$(pwd -LP)
+      - mkdir -p /tmp/iaparent/integrityadvocate
+      - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
+      - cd /tmp/iaparent/integrityadvocate
+
+      - npm install
+      - npm install grunt
+      - npm install -g grunt-cli
+      - grunt --verbose shifter
+
+      - ls -Rhl
+      
+      - rsync -av /tmp/iaparent/integrityadvocate/amd/build $repodir/amd/build
+      - cd $repodir
+      - haschanges=$(git status --porcelain --short 2>&1)
+      - f [ -n "$hasstatus" ]; then git add ./amd/build && git commit -m 'Built JS [SKIP CI]' && git push origin master
 
 pipelines:
   custom: # Pipelines that are triggered manually
     build_js:
     #build_zip:
-#  tags:
-#    '*':
-      - step:
-          name: "Build the JS module and download zip"
-          caches:
-            - apt
-            - node
-          script:
-            - apt-get update && apt-get -qq install zip rsync
-            - mkdir -p /tmp/iaparent/integrityadvocate
-            - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
-            - cd /tmp/iaparent/integrityadvocate
-
-            - npm install
-            - npm install grunt
-            - npm install -g grunt-cli
-            - grunt --verbose shifter
-
-            - ls -Rhl
-      - <<: *commonStep1
+      - <<: *buildJS
+  tags:
+    '*':
+      - <<: *buildJS
