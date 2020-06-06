@@ -286,8 +286,8 @@ class block_integrityadvocate extends block_base {
 
         $blockinstancesonpage = array($this->instance->id);
 
-        // ATM we have no module-specific JS file, so this stays false.
-        $needmodulejs = false;
+        // Only load module-specific JS file if needed.
+        $needmodulejs = true;
 
         $hasselfviewcapability = \has_capability('block/integrityadvocate:selfview', $this->context);
 
@@ -352,11 +352,16 @@ class block_integrityadvocate extends block_base {
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
-                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false &&
-                            ($this->page->pagetype !== 'mod-quiz-attempt')):
+                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
-                                $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                if ($this->page->pagetype == 'mod-quiz-attempt') {
+                                    $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
+                                    $this->content->text .= ia_output::add_proctor_js($this, $USER);
+                                    $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';
+                                } else {
+                                    $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                }
                                 break;
                             case (stripos($this->page->pagetype, 'mod-scorm-') !== false &&
                             ($this->page->pagetype !== 'mod-scorm-player')):

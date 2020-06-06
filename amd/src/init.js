@@ -1,7 +1,7 @@
 define(['jquery', 'block_integrityadvocate/jquery.dataTables', 'core/log'],
-        function($, datatables) {
+        function ($, datatables) {
             return {
-                test: function() {
+                test: function () {
                     window.console.log('$.fn is:');
                     window.console.log($.fn);
                     window.console.log('datatables is:');

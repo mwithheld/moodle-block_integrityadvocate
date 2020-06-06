@@ -1,25 +1,45 @@
-M.block_integrityadvocate = {
-    /* We do not need these ATM.
-    init: function (YUIObject, instances, users) {
-         var instance;
-         var user;
-     },
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-     addEvent: function (target, evt, func) {
-         if (target.addEventListener) {
-             target.removeEventListener(evt, func);
-             target.addEventListener(evt, func);
-         } else if (target.attachEvent) {
-             target.detachEvent('on' + evt, func);
-             target.attachEvent('on' + evt, func);
-         }
-     }
-     */
+/**
+ * Init private files treeview
+ *
+ * @package    block_integrityadvocate
+ * @copyright  IntegrityAdvocate.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+M.block_integrityadvocate = {
+    init: function () {
+        // Disabled on purpose: window.console.log('IA moodle js init started');.
+        // On quizzes,disable the submit button and hide the questions until the IA modal is loaded.
+        if (document.body.id === 'page-mod-quiz-attempt') {
+            jQuery('.mod_quiz-next-nav').attr('disabled', 1);
+            window.console.log('Disabled quiz submission until IA loads');
+            $.when($('integrityadvocate-activityblocker')).then((self) => {
+                jQuery('.mod_quiz-next-nav').attr('disabled', 0);
+                jQuery('#block_integrityadvocate_hidequiz').remove();
+                window.console.log('Enabled quiz submission now that IA is loaded');
+            });
+        }
+    }
 };
 
 // Sets up the DataGrid.
-require(['core/first'], function() {
-    require(['block_integrityadvocate/init'], function(dt) {
+require(['core/first'], function () {
+    require(['block_integrityadvocate/init'], function (dt) {
         dt.init('#mod-block-integrityadvocate-overview', {});
     });
 });
