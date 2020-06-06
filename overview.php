@@ -158,7 +158,7 @@ if ($continue) {
         $continue = false;
     }
     $debug && ia_mu::log(basename(__FILE__)
-                    . '::Got module count=' . (is_countable($modules) ? count($modules) : 0));
+                    . '::Got module count=' . is_u::count_if_countable($modules));
 }
 
 if ($continue) {
