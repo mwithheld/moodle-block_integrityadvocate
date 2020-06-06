@@ -193,6 +193,12 @@ class block_integrityadvocate extends block_base {
      * @return array(field=>error message)
      */
     public function get_config_errors(): array {
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id;
+        if ($cachedvalue = $cache->get($cachekey)) {
+            return $cachedvalue;
+        }
+
         // Check for errors that don't matter what context we are in.
         $errors = $this->get_apikey_appid_errors();
 
@@ -200,6 +206,9 @@ class block_integrityadvocate extends block_base {
         // Check the context we got is module context and not course context.
         // If this is a course-level block, just return what errors we have so far.
         if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
+            if (!$cache->set($cachekey, $errors)) {
+                throw new \Exception('Failed to set value in perrequest cache');
+            }
             return $errors;
         }
 
@@ -217,6 +226,10 @@ class block_integrityadvocate extends block_base {
             if ($record->showblocks < 1) {
                 $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
+        }
+
+        if (!$cache->set($cachekey, $errors)) {
+            throw new \Exception('Failed to set value in perrequest cache');
         }
 
         return $errors;
@@ -274,8 +287,7 @@ class block_integrityadvocate extends block_base {
         $exclusions = ia_mu::get_gradebook_exclusions($DB, $COURSE->id);
         $modules = ia_mu::get_modules_with_completion($COURSE->id);
         $modules = ia_mu::filter_for_visible($CFG, $modules, $USER->id, $COURSE->id, $exclusions);
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__
-                        . '::Modules found=' . (is_countable($modules) ? count($modules) : 0));
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Modules found=' . ia_u::count_if_countable($modules));
         if (empty($modules)) {
             if ($hasoverviewcapability) {
                 $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCK_NAME);
@@ -283,11 +295,6 @@ class block_integrityadvocate extends block_base {
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::No modules, so skip it');
             return;
         }
-
-        $blockinstancesonpage = array($this->instance->id);
-
-        // Only load module-specific JS file if needed.
-        $needmodulejs = true;
 
         $hasselfviewcapability = \has_capability('block/integrityadvocate:selfview', $this->context);
 
@@ -357,8 +364,12 @@ class block_integrityadvocate extends block_base {
                                 // Other pages should show the summary.
                                 if ($this->page->pagetype == 'mod-quiz-attempt') {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
-                                    $this->content->text .= ia_output::add_proctor_js($this, $USER);
+
+                                    // Hide quiz questions until JS is loaded and the IA modal is open.
                                     $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';
+
+                                    $this->content->text .= ia_output::add_module_js($this, $USER);
+                                    $this->content->text .= ia_output::add_proctor_js($this, $USER);
                                 } else {
                                     $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                 }
@@ -383,20 +394,6 @@ class block_integrityadvocate extends block_base {
             default:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::In some unknown context, so show nothing');
                 return;
-        }
-
-        if ($needmodulejs) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::About to add module JS');
-
-            // Organize access to JS.
-            $jsmodule = array(
-                'name' => \INTEGRITYADVOCATE_BLOCK_NAME,
-                'fullpath' => '/blocks/integrityadvocate/module.js',
-                'requires' => array(),
-                'strings' => array(),
-            );
-            $arguments = array($blockinstancesonpage, array($USER->id));
-            $this->page->requires->js_init_call('M.block_integrityadvocate.init', $arguments, false, $jsmodule);
         }
     }
 
