@@ -4,6 +4,24 @@ definitions:
   caches:
     apt: /var/cache/apt
 
+buildZip: &buildZip
+ - step:
+    name: "Build the install zip"
+    caches:
+      - apt
+    script:
+      - apt-get update && apt-get -qq install zip rsync git
+      - repodir=$(pwd -LP)
+      - mkdir -p /tmp/iaparent/integrityadvocate
+      - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
+      - cd /tmp/iaparent/integrityadvocate
+      - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
+      - cd /tmp/iaparent/
+      #- ls -altrh
+      - zip -r9 ${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
+      - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip"
+
+
 buildJS: &buildJS
  - step:
     name: "Build the JS module"
@@ -22,8 +40,7 @@ buildJS: &buildJS
       - npm install -g grunt-cli
       - grunt --verbose shifter
 
-      - ls -Rhl
-      
+      #- ls -Rhl
       - rsync -av /tmp/iaparent/integrityadvocate/amd/build $repodir/amd/build
       - cd $repodir
       - haschanges=$(git status --porcelain --short 2>&1)
@@ -37,3 +54,4 @@ pipelines:
   tags:
     '*':
       - <<: *buildJS
+      - <<: *buildZip
