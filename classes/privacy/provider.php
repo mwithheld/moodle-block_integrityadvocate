@@ -134,7 +134,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Get IA participant data from the remote API.
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && ia_mu::log($fxn . '::Got count($participants)=' . is_u::count_if_countable($participants));
+        $debug && ia_mu::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants) || ia_u::is_empty($userlist) || ia_u::is_empty($userids = $userlist->get_userids())) {
             return;
         }
@@ -159,7 +159,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Get IA participant data from the remote API.
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && ia_mu::log($fxn . '::Got count($participants)=' . is_u::count_if_countable($participants));
+        $debug && ia_mu::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return;
         }
@@ -195,7 +195,7 @@ class provider implements \core_privacy\local\metadata\provider,
         foreach ($contextlist->get_contexts() as $context) {
             // Get IA participant data from the remote API.
             $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-            $debug && ia_mu::log($fxn . '::Got count($participants)=' . is_u::count_if_countable($participants));
+            $debug && ia_mu::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
             if (ia_u::is_empty($participants)) {
                 continue;
             }
@@ -284,7 +284,7 @@ class provider implements \core_privacy\local\metadata\provider,
         $debug && ia_mu::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
 
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
-        $debug && ia_mu::log($fxn . '::Got count($participants)=' . is_u::count_if_countable($participants));
+        $debug && ia_mu::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return array();
         }
