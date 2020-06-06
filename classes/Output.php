@@ -41,6 +41,47 @@ class Output {
     const CLASS_TABLE_LABEL = 'block_integrityadvocate_tablelabel';
     const CLASS_TABLE_VALUE = 'block_integrityadvocate_tablevalue';
 
+    public static function add_module_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . '::Started');
+
+        // Sanity check.
+        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK) ||
+                ia_u::is_empty($user) || !isset($user->id)) {
+            $msg = 'Input params are invalid';
+            ia_mu::log($fxn . '::' . $msg);
+            throw new \InvalidArgumentException($msg);
+        }
+
+        // If the block is not configured yet, simply return empty result.
+        if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
+            // No visible IA block found with valid config, so skip any output.
+            if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
+                echo implode("<br />\n", $configerrors);
+            }
+            return '';
+        }
+
+        global $CFG;
+        $blockinstance->page->requires->jquery();
+        $blockinstance->page->requires->js(new \moodle_url($CFG->wwwroot . '/blocks/integrityadvocate/module.js'));
+
+//        // Organize access to JS.
+//        $jsmodule = array(
+//            'name' => \INTEGRITYADVOCATE_BLOCK_NAME,
+//            'fullpath' => '/blocks/integrityadvocate/module.js',
+//            'requires' => array(),
+//            'strings' => array(),
+//        );
+//
+//        $blockinstancesonpage = array($this->instance->id);
+//        $arguments = array($blockinstancesonpage, array($USER->id));
+//        $this->page->requires->js_init_call('M.block_integrityadvocate.init', $arguments, false, $jsmodule);
+
+        return '';
+    }
+
     /**
      * Build proctoring content to show to students and returns it.
      * Side effects: Adds JS for video monitoring popup to the page.
@@ -94,6 +135,8 @@ class Output {
             $debug && ia_mu::log($fxn . "::user={$user->id}; courseid={$course->id}: error={$error}");
             return $error;
         }
+
+        $blockinstance->page->requires->jquery();
 
         // The moodle_url class stores params non-urlencoded but outputs them encoded.
         // Note $modulecontext->instanceid is the cmid.
