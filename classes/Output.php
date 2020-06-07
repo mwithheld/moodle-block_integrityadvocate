@@ -40,8 +40,16 @@ class Output {
     const CLASS_TABLE_ROW = 'block_integrityadvocate_tablerow';
     const CLASS_TABLE_LABEL = 'block_integrityadvocate_tablelabel';
     const CLASS_TABLE_VALUE = 'block_integrityadvocate_tablevalue';
+    const BLOCK_JS_PATH = '/blocks/integrityadvocate';
 
-    public static function add_module_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
+    /**
+     * Add block.js to the current $blockinstance page.
+     *
+     * @param stdClass $blockinstance Instance of block_integrityadvocate.
+     * @param stdClass $user Current user object.
+     * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
+     */
+    public static function add_block_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started');
@@ -55,7 +63,7 @@ class Output {
         }
 
         // If the block is not configured yet, simply return empty result.
-        if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
+        if ($configerrors = $blockinstance->get_config_errors()) {
             // No visible IA block found with valid config, so skip any output.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
                 echo implode("<br />\n", $configerrors);
@@ -63,38 +71,29 @@ class Output {
             return '';
         }
 
-        global $CFG;
-        $blockinstance->page->requires->jquery();
-        $blockinstance->page->requires->js(new \moodle_url($CFG->wwwroot . '/blocks/integrityadvocate/module.js'));
+        // Organize access to JS.
+        $jsmodule = array(
+            'name' => \INTEGRITYADVOCATE_BLOCK_NAME,
+            'fullpath' => self::BLOCK_JS_PATH . '/module.js',
+            'requires' => array(),
+            'strings' => array(),
+        );
 
-//        // Organize access to JS.
-//        $jsmodule = array(
-//            'name' => \INTEGRITYADVOCATE_BLOCK_NAME,
-//            'fullpath' => '/blocks/integrityadvocate/module.js',
-//            'requires' => array(),
-//            'strings' => array(),
-//        );
-//
-//        $blockinstancesonpage = array($this->instance->id);
-//        $arguments = array($blockinstancesonpage, array($USER->id));
-//        $this->page->requires->js_init_call('M.block_integrityadvocate.init', $arguments, false, $jsmodule);
-
+        $blockinstance->page->requires->jquery_plugin('jquery');
+        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', null, false, $jsmodule);
         return '';
     }
 
     /**
-     * Build proctoring content to show to students and returns it.
-     * Side effects: Adds JS for video monitoring popup to the page.
+     * Build proctoring.js to the page..
      *
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      * @param stdClass $user Current user object; needed so we can identify this user to the IA API
-     * @return string HTML if error; Also adds the student proctoring JS to the page.
+     * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
      */
     public static function add_proctor_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        // Set to true to disable the IA proctor JS.
-        $debugnoiaproctoroutput = false;
         $debug && ia_mu::log($fxn . '::Started');
 
         // Sanity check.
@@ -105,7 +104,7 @@ class Output {
         }
 
         // If the block is not configured yet, simply return empty result.
-        if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
+        if ($configerrors = $blockinstance->get_config_errors()) {
             // No visible IA block found with valid config, so skip any output.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
                 echo implode("<br />\n", $configerrors);
@@ -114,10 +113,6 @@ class Output {
         }
 
         $blockcontext = $blockinstance->context;
-
-        // Content to return.
-        $out = '';
-
         $blockparentcontext = $blockcontext->get_parent_context();
         // Disabled on purpose: $debug && ia_mu::log($fxn . "::Got modulecontext=" . ia_u::var_dump($modulecontext, true));.
         $debug && ia_mu::log($fxn . "::Got \$blockparentcontext->id=" . ia_u::var_dump($blockparentcontext->id, true));
@@ -136,23 +131,31 @@ class Output {
             return $error;
         }
 
-        $blockinstance->page->requires->jquery();
-
         // The moodle_url class stores params non-urlencoded but outputs them encoded.
         // Note $modulecontext->instanceid is the cmid.
         $url = ia_api::get_js_url($blockinstance->config->appid, $course->id, $blockparentcontext->instanceid, $user);
         $debug && ia_mu::log($fxn . "::Built url={$url}");
 
+        // Set to true to disable the IA proctor JS.
+        $debugnoiaproctoroutput = false;
         if ($debugnoiaproctoroutput) {
             $blockinstance->page->requires->js_init_call('alert("IntegrityAdvocate block JS output '
                     . 'would occur here with url=' . $url . ' if not suppressed")');
         } else {
             // Pass the URL w/o urlencoding.
             $debug && ia_mu::log($fxn . '::About to require->js(' . $url->out(false) . ')');
-            $blockinstance->page->requires->js($url);
+
+            // We are violating a rather silly Moodle standard here in using an external URL.
+            // This is needed b/c the URL is user-specific and contents change.
+            // And IntegrityAdvocate does not support offline use.
+            // It makes no sense to download it to the Moodle server each time and then send it to the user.
+            //
+            // This also causes an error in the JS console on first load, but it doesn't cause any problems.
+            //     Error: Mismatched anonymous define() module...
+            $blockinstance->page->requires->js($url, true);
         }
 
-        return $out;
+        return '';
     }
 
     /**
@@ -568,7 +571,7 @@ class Output {
         }
 
         // If the block is not configured yet, simply return empty result.
-        if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
+        if ($configerrors = $blockinstance->get_config_errors()) {
             // No visible IA block found with valid config, so skip any output.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
                 echo implode("<br />\n", $configerrors);
