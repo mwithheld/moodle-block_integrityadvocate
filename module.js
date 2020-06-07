@@ -14,15 +14,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Init private files treeview
+ * JS for when the block is shown.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 M.block_integrityadvocate = {
-    init: function () {
+    blockinit: function () {
         // Disabled on purpose: window.console.log('IA moodle js init started');.
         // On quizzes,disable the submit button and hide the questions until the IA modal is loaded.
         if (document.body.id === 'page-mod-quiz-attempt') {
@@ -36,10 +35,3 @@ M.block_integrityadvocate = {
         }
     }
 };
-
-// Sets up the DataGrid.
-require(['core/first'], function () {
-    require(['block_integrityadvocate/init'], function (dt) {
-        dt.init('#mod-block-integrityadvocate-overview', {});
-    });
-});
