@@ -65,11 +65,14 @@ class ParticipantsTable extends \core_user\participants_table {
         // Why does this not need flipping back, Moodle?  Dunno, but it borks otherwise.
         $this->columns = $columnsflipped;
 
-        // Do not strip tags from these colums (i.e. do not pass through the s() function).
-        $this->column_nostrip = array('iadata');
-
         $this->headers[] = \get_string('column_iadata', \INTEGRITYADVOCATE_BLOCK_NAME);
         $this->headers[] = \get_string('column_iaphoto', \INTEGRITYADVOCATE_BLOCK_NAME);
+
+        // Do not strip tags from these colums (i.e. do not pass through the s() function).
+        $this->column_nostrip[] = 'iadata';
+        // Do not allow sorting by these columns.
+        $this->column_nosort[] = 'iadata';
+        $this->column_nosort[] = 'iaphoto';
 
         $this->prefs['collapse']['status'] = true;
         $this->define_columns($this->columns);
@@ -221,6 +224,21 @@ class ParticipantsTable extends \core_user\participants_table {
 
         // Disabled on purpose: $debug && ia_mu::log($fxn . "::About to return; \$this->rawdata=" . ia_u::var_dump($this->rawdata, true));.
         $debug && ia_mu::log($fxn . '::About to return');
+    }
+
+    /**
+     * Get the columns to sort by, in the form required by {@link construct_order_by()}.
+     * Remove the non-DB IA columns otherwise they throw an error.
+     * Do this b/c just adding iadata and iaphoto to $this->column_nosort[] in the contructor didn't work.
+     *
+     * @return array column name => SORT_... constant.
+     */
+    public function get_sort_columns() {
+        $sortcolumns = parent::get_sort_columns();
+        foreach ($this->column_nosort as $key) {
+            unset($sortcolumns[$key]);
+        }
+        return $sortcolumns;
     }
 
 }
