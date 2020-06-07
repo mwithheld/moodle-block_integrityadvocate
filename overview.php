@@ -92,25 +92,11 @@ $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
 $PAGE->set_pagelayout('report');
 
+// We only need JS for the overview-users page, not the single-user view.
 if (!$userid) {
     $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-course');
-
-    // Override options set in amd/build/init.js.
-    $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init',
-            // DataTable options ref https://datatables.net/reference/option/.
-            array('.datatable', array(
-                    'autoWidth' => false,
-                    'info' => false,
-                    'ordering' => false,
-                    'paging' => false,
-                    'searching' => true,
-                    'language' => array(
-                        // Language options ref https://datatables.net/reference/option/language.
-                        'search' => get_string('filter') . '&nbsp;'
-                    )
-                )
-            )
-    );
+    $PAGE->requires->string_for_js('filter', 'moodle');
+    $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');
 } else {
     $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-user');
 }
