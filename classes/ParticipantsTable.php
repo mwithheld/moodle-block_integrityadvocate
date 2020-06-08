@@ -138,7 +138,7 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      */
     public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
 
