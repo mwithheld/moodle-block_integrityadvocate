@@ -21,12 +21,14 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 /**
  * This code is adapted from block_completion_progress::lib.php::block_completion_progress_bar
  * ATM with IA APIv2 we cannot label and get back proctoring results per module,
  * so we are just getting results for all students associated with the API key and displaying them.
  */
+
+namespace block_integrityadvocate;
+
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
@@ -41,35 +43,35 @@ require_once($CFG->libdir . '/tablelib.php');
 const DEFAULT_PAGE_SIZE = 20;
 
 /** @var int Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
-const INTEGRITYADVOCATE_OVERVIEW_INTERNAL = true;
+define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false;
 
 \require_login();
 
 // Gather form data.
-$blockinstanceid = required_param('instanceid', PARAM_INT);
-$courseid = required_param('courseid', PARAM_INT);
+$blockinstanceid = \required_param('instanceid', PARAM_INT);
+$courseid = \required_param('courseid', PARAM_INT);
 // If userid is specified, show info only for that user.
-$userid = optional_param('userid', 0, PARAM_INT); // Which user to show.
+$userid = \optional_param('userid', 0, PARAM_INT); // Which user to show.
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 // These are only used in the course view.
-$groupid = optional_param('group', 0, PARAM_ALPHANUMEXT); // Group selected.
-$perpage = optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many per page.
+$groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT); // Group selected.
+$perpage = \optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many per page.
 // Determine course and context.
-$course = get_course($courseid);
+$course = \get_course($courseid);
 if (ia_u::is_empty($course)) {
     throw new InvalidArgumentException('Invalid $courseid specified');
 }
-$coursecontext = CONTEXT_COURSE::instance($courseid, MUST_EXIST);
+$coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST);
 
 // Check user is logged in and capable of accessing the overview.
 \require_login($course, false);
-confirm_sesskey();
+\confirm_sesskey();
 
 // Find the role to display, defaulting to students.
-$roleid = optional_param('role', ia_mu::get_default_course_role($coursecontext), PARAM_INT);
+$roleid = \optional_param('role', ia_mu::get_default_course_role($coursecontext), PARAM_INT);
 
 // Set up page parameters.
 $PAGE->set_course($course);
@@ -87,7 +89,7 @@ $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview
         ));
 $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
-$title = get_string('overview', INTEGRITYADVOCATE_BLOCK_NAME);
+$title = \get_string('overview', INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
@@ -95,13 +97,15 @@ $PAGE->set_pagelayout('report');
 
 // We only need JS for the overview-users page, not the single-user view.
 if (!$userid) {
+    // This is the overview-course page.
     $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-course');
+
     $PAGE->requires->string_for_js('filter', 'moodle');
     $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');
 } else {
+    // This is the overview-user page.
     $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-user');
 
-    ia_mu::log(__FILE__ . '::About to add the overview.js');
     ia_output::add_overview_js($PAGE);
 }
 
@@ -155,7 +159,7 @@ if ($continue) {
         $debug && ia_mu::log(basename(__FILE__) . "::Got a \$userid={$userid} so show the single user IA results");
         require_once('overview-user.php');
     } else {
-        $debug && ia_mu::log(basename(__FILE__) . '::Got no userid so show the course users IA results');
+        $debug && ia_mu::log(basename(__FILE__) . '::Got no userid so show the course IA results');
         require_once('overview-course.php');
     }
 }

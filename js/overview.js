@@ -23,15 +23,17 @@
 
 M.block_integrityadvocate = {
     overviewinit: function () {
-        window.console.log('overviewinit::Started');
-//        if (document.body.id === 'page-mod-quiz-attempt') {
-//            jQuery('.mod_quiz-next-nav').attr('disabled', 1);
-//            window.console.log('Disabled quiz submission until IA loads');
-//            $.when($('integrityadvocate-activityblocker')).then((self) => {
-//                jQuery('.mod_quiz-next-nav').attr('disabled', 0).removeAttr('disabled');
-//                jQuery('#block_integrityadvocate_hidequiz').remove();
-//                window.console.log('Enabled quiz submission now that IA is loaded');
-//            });
-//        }
+        var fadetime = 300;
+
+        var showoverrideui = function () {
+            window.console.log('override_edit_click::Started');
+            $('.block_integrityadvocate_override_edit, .block_integrityadvocate_status_val').hide();
+            $('.block_integrityadvocate_override_select, .block_integrityadvocate_override_cancel_span').fadeIn(fadetime);
+            $('.block_integrityadvocate_override_save_span').show().fadeOut(fadetime).fadeIn(fadetime).fadeOut(fadetime).fadeIn(fadetime).fadeOut(fadetime).fadeIn(fadetime);
+        }
+
+        $('.block_integrityadvocate_override_edit').click(function () {
+            showoverrideui();
+        });
     }
 };

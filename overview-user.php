@@ -21,6 +21,9 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_integrityadvocate;
+
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
@@ -48,7 +51,7 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     if (!\is_enrolled($parentcontext, $userid)) {
         throw new \Exception('That user is not in this course');
     }
-} else if (is_enrolled($parentcontext, $userid, 'block/integrityadvocate:selfview', true)) {
+} else if (\is_enrolled($parentcontext, $userid, 'block/integrityadvocate:selfview', true)) {
     if (intval($USER->id) !== $userid) {
         throw new \Exception("You cannot view other users: \$USER->id={$USER->id}; \$userid={$userid}");
     }
@@ -57,10 +60,10 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
 }
 
 // Show basic user info at the top.  Adapted from user/view.php.
-echo html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
-$user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+echo \html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
+$user = $DB->get_record('user', array('id' => $userid), '*', \MUST_EXIST);
 echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
-echo html_writer::end_tag('div');
+echo \html_writer::end_tag('div');
 
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
 
@@ -75,7 +78,7 @@ if (ia_u::is_empty($participant)) {
 
 if ($continue) {
     // Display user basic info.
-    echo ia_output::get_participant_basic_output($blockinstance, $participant, false, true);
+    echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, true /** TODO: check priv * */);
 
     // Display summary.
     echo ia_output::get_sessions_output($participant);

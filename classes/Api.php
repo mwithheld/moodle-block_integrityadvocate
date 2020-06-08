@@ -662,13 +662,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        return in_array(
-                self::get_status_in_module($modulecontext, $userid),
-                array(
-                    ia_participant_status::INVALID_ID_INT,
-                    ia_participant_status::INVALID_RULES_INT,
-                ), true
-        );
+        return in_array(self::get_status_in_module($modulecontext, $userid), ia_participant_status::get_invalids(), true);
     }
 
     /**

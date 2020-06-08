@@ -109,8 +109,13 @@ $string['showallinfo'] = 'Show all info';
 
 $string['status_in_progress'] = 'In progress';
 $string['status_invalid_id'] = 'Invalid (ID)';
+$string['status_invalid_override'] = 'Invalid (Override)';
 $string['status_invalid_rules'] = 'Invalid (Rules)';
 $string['status_valid'] = 'Valid';
 
 $string['submitted'] = 'Submitted';
 $string['time_expected'] = 'Expected';
+
+$string['override_reason_identity_successful_later'] = 'A later IntegrityAdvocate session was valid';
+$string['override_reason_identity_manually_verified'] = 'Their session was validated manually by the instructor';
+$string['override_reason_other'] = 'Other';
