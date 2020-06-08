@@ -902,10 +902,20 @@ class Api {
             foreach ($input->Sessions as $s) {
                 if (!ia_u::is_empty($session = self::parse_session($s, $participant))) {
                     $debug && ia_mu::log($fxn . '::Got a valid session back, so add it to the participant');
+                    if (isset($session->end) && ia_u::is_unixtime_past($session->end)) {
+                        $end = filter_var($session->end, FILTER_SANITIZE_NUMBER_INT);
+                    } else {
+                        $end = time();
+                    }
                     $participant->sessions[] = $session;
                 } else {
                     $debug && ia_mu::log($fxn . '::This session failed to parse');
                 }
+            }
+
+            // If the session is in progress, update the global status to reflect this.
+            if ($highestsessiontimestamp = max(array_keys($participant->sessions)) >= $participant->modified) {
+                $participant->status = $participant->sessions[$highestsessiontimestamp]->status;
             }
         } else {
             $debug && ia_mu::log($fxn . '::No sessions found');
