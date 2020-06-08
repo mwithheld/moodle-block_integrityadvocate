@@ -40,7 +40,7 @@ class Output {
     const CLASS_TABLE_ROW = 'block_integrityadvocate_tablerow';
     const CLASS_TABLE_LABEL = 'block_integrityadvocate_tablelabel';
     const CLASS_TABLE_VALUE = 'block_integrityadvocate_tablevalue';
-    const BLOCK_JS_PATH = '/blocks/integrityadvocate';
+    const BLOCK_JS_PATH = '/blocks/integrityadvocate/js';
 
     /**
      * Add block.js to the current $blockinstance page.
@@ -49,14 +49,13 @@ class Output {
      * @param stdClass $user Current user object.
      * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
      */
-    public static function add_block_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
+    public static function add_block_js(\block_integrityadvocate $blockinstance): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started');
 
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK) ||
-                ia_u::is_empty($user) || !isset($user->id)) {
+        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
@@ -81,6 +80,31 @@ class Output {
 
         $blockinstance->page->requires->jquery_plugin('jquery');
         $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', null, false, $jsmodule);
+        return '';
+    }
+
+    /**
+     * Add overview.js to the current $blockinstance page.
+     *
+     * @param stdClass $blockinstance Instance of block_integrityadvocate.
+     * @param stdClass $user Current user object.
+     * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
+     */
+    public static function add_overview_js(\moodle_page $page): string {
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . '::Started');
+
+        // Organize access to JS.
+        $jsmodule = array(
+            'name' => \INTEGRITYADVOCATE_BLOCK_NAME,
+            'fullpath' => self::BLOCK_JS_PATH . '/overview.js',
+            'requires' => array(),
+            'strings' => array(),
+        );
+
+        $page->requires->jquery_plugin('jquery');
+        $page->requires->js_init_call('M.block_integrityadvocate.overviewinit', null, false, $jsmodule);
         return '';
     }
 
@@ -587,7 +611,7 @@ class Output {
             return '';
         }
 
-        return self::get_participant_basic_output($blockinstance, $participant, $showviewdetailsbutton, $includephoto);
+        return self::get_participant_basic_output($blockinstance, $participant, $includephoto, $showviewdetailsbutton);
     }
 
 }
