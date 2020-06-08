@@ -246,8 +246,6 @@ class block_integrityadvocate extends block_base {
                         '; $USER->username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                            "::Content has already been generated, so do not generate it again: \n" . ia_u::var_dump($this->content, true));
             return;
         }
 
