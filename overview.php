@@ -28,6 +28,7 @@
  * so we are just getting results for all students associated with the API key and displaying them.
  */
 use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
 // Include required files.
@@ -99,6 +100,9 @@ if (!$userid) {
     $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');
 } else {
     $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-user');
+
+    ia_mu::log(__FILE__ . '::About to add the overview.js');
+    ia_output::add_overview_js($PAGE);
 }
 
 // Start page output.
@@ -143,8 +147,7 @@ if ($continue) {
         echo get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . "<br/>\n";
         $continue = false;
     }
-    $debug && ia_mu::log(basename(__FILE__)
-                    . '::Got module count=' . ia_u::count_if_countable($modules));
+    $debug && ia_mu::log(basename(__FILE__) . '::Got module count=' . ia_u::count_if_countable($modules));
 }
 
 if ($continue) {
