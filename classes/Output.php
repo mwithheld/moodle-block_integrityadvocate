@@ -431,8 +431,8 @@ class Output {
      *
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      * @param stdClass $participant Participant object from the IA API
-     * @param bool $showviewdetailsbutton True to show the viewDetails button
      * @param bool $includephoto True to include the user photo
+     * @param bool $showviewdetailsbutton True to show the viewDetails button
      * @return string HTML output showing latest status, flags, and photos
      * @throws InvalidValueException If the participant status field does not match one of our known values
      */
@@ -578,8 +578,8 @@ class Output {
      *
      * @param \block_integrityadvocate $blockinstance Block instance to get participant data for.
      * @param int $userid Userid to get info for.
-     * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
      * @param bool $includephoto True to include the photo from the Participant info.
+     * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
      * @return string HTML output showing latest status, flags, and photos.
      */
     public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showviewdetailsbutton = true, bool $includephoto = true): string {
