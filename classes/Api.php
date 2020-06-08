@@ -477,6 +477,7 @@ class Api {
             $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $courseid, $result->NextToken));
         }
 
+        // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . var_export($participants, true));.
         return $participants;
     }
 
