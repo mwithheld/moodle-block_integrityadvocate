@@ -366,7 +366,7 @@ class block_integrityadvocate extends block_base {
                                     // Hide quiz questions until JS is loaded and the IA modal is open.
                                     $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';
 
-                                    ia_output::add_block_js($this, $USER);
+                                    ia_output::add_block_js($this);
                                     ia_output::add_proctor_js($this, $USER);
                                 } else {
                                     $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
