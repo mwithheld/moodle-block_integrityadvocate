@@ -345,7 +345,7 @@ class Api {
      *
      * @param string $apikey The API Key to get data for.
      * @param string $appid The AppId to get data for.
-     * @param int $courseid Optionally filter for this course.
+     * @param int $courseid Get info for this course.
      * @param int $userid Optionally filter for this user.
      * @return object[] Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
