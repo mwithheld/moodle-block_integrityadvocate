@@ -266,14 +266,14 @@ class block_integrityadvocate extends block_base {
         }
 
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
-        $hasoverviewcapability = \has_capability('block/integrityadvocate:overview', $this->context);
+        $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
                     '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hasoverviewcapability, true));
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
                     '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
-        if ($setuperrors && $hasoverviewcapability) {
+        if ($setuperrors && $hascapability_overview) {
             foreach ($setuperrors as $err) {
                 $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . "<br />\n";
             }
@@ -287,7 +287,7 @@ class block_integrityadvocate extends block_base {
         $modules = ia_mu::filter_for_visible($CFG, $modules, $USER->id, $COURSE->id, $exclusions);
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Modules found=' . ia_u::count_if_countable($modules));
         if (empty($modules)) {
-            if ($hasoverviewcapability) {
+            if ($hascapability_overview) {
                 $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::No modules, so skip it');
@@ -301,7 +301,7 @@ class block_integrityadvocate extends block_base {
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: ' . ia_u::var_dump($configerrors, true));
 
             // Error output is visible only to instructors.
-            if ($hasoverviewcapability) {
+            if ($hascapability_overview) {
                 $this->content->text .= implode("<br />\n", $configerrors);
             }
             return;
@@ -315,7 +315,7 @@ class block_integrityadvocate extends block_base {
             case CONTEXT_COURSE:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
                 switch (true) {
-                    case $hasoverviewcapability:
+                    case $hascapability_overview:
                         if (stripos($this->page->url, '/user/view.php?') > 0) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
@@ -350,18 +350,13 @@ class block_integrityadvocate extends block_base {
             case CONTEXT_MODULE:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_MODULE');
                 switch (true) {
-                    case $hasoverviewcapability:
+                    case $hascapability_overview:
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher should see the overview button');
                         $this->content->text .= ia_output::get_button_course_overview($this);
                         break;
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
-//                            case !$hasselfviewcapability:
-//                                // They are not allowed to view the results
-//                                $this->content = '';
-//                                $this->title = '';
-//                                break;
                             case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
