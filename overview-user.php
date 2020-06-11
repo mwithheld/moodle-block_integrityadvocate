@@ -46,6 +46,7 @@ $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockinstance->context->get_parent_context();
 
+// Note this capability check is on the parent, not the block instance.
 if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     // For teachersm allow access to any enrolled course user, even if not active.
     if (!\is_enrolled($parentcontext, $userid)) {
@@ -69,7 +70,7 @@ $participant = ia_api::get_participant($blockinstance->config->apikey, $blockins
 
 if (ia_u::is_empty($participant)) {
     $msg = 'No participant found';
-    if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
+    if ($hascapability_overview) {
         $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
     }
     echo $msg;
@@ -78,7 +79,7 @@ if (ia_u::is_empty($participant)) {
 
 if ($continue) {
     // Display user basic info.
-    echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, true /** TODO: check priv * */);
+    echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, $hascapability_override);
 
     // Display summary.
     echo ia_output::get_sessions_output($participant);

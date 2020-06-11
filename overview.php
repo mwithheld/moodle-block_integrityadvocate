@@ -95,6 +95,13 @@ $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
 $PAGE->set_pagelayout('report');
 
+// Both overview pages require the blockinstance, so get it here.
+$blockinstance = \block_instance_by_id($blockinstanceid);
+
+// Gather capabilities here for later use
+$hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockinstance->context);
+$hascapability_override = \has_capability('block/integrityadvocate:override', $blockinstance->context);
+
 // We only need JS for the overview-users page, not the single-user view.
 if (!$userid) {
     // This is the overview-course page.
@@ -106,7 +113,10 @@ if (!$userid) {
     // This is the overview-user page.
     $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-user');
 
-    ia_output::add_overview_js($PAGE);
+    // We only need this JS for override functionality at the moment.
+    if ($hascapability_overview) {
+        ia_output::add_overview_js($PAGE);
+    }
 }
 
 // Start page output.
@@ -117,16 +127,13 @@ echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 // If there is an error, stops further processing, but still displays the page footer.
 $continue = true;
 
-// Both overview pages require the blockinstance, so get it here.
-$blockinstance = \block_instance_by_id($blockinstanceid);
-
 // If the block instance is not configured yet, simply return empty result.
 if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
     if (!isset($blockinstance->context)) {
         echo 'No block context found - has the block instance been deleted?';
     } else {
         // No visible IA block found with valid config, so skip any output.
-        if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
+        if ($hascapability_overview) {
             echo implode("<br />\n", $configerrors);
         }
     }
