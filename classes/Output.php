@@ -435,78 +435,78 @@ class Output {
      */
     private static function get_override_html(ia_participant $participant): string {
         global $OUTPUT, $PAGE;
-        $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
         $output = '';
 
         // Add the edit icon.  Adapted from lib/outputcomponents.php::get_primary_actions().
         $label = \get_string('edit');
         $anchorattributes = array(
-            'class' => $prefix . '_override_edit',
+            'class' => $prefix . '_edit',
             'title' => $label,
             'aria-label' => $label,
-            'id' => $prefix . '_override_edit-' . $participant->participantidentifier,
+            'id' => $prefix . '_edit-' . $participant->participantidentifier,
         );
         $pixicon = $OUTPUT->render(new \pix_icon('i/edit', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
         $output .= \html_writer::span(
                         \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_override_edit_span ' . $prefix . '_override_button');
+                        $prefix . '_edit_span ' . $prefix . '_button');
 
         // Create a form for the override UI.
-        $output .= \html_writer::start_tag('form', array('id' => $prefix . '_override_form', 'style' => 'display:none'));
+        $output .= \html_writer::start_tag('form', array('id' => $prefix . '_form', 'style' => 'display:none'));
 
         // Add a label for the form fields.
         $output .= \html_writer::span(
                         \get_string('override_form_label', INTEGRITYADVOCATE_BLOCK_NAME),
-                        $prefix . '_overview_participant_summary_status_label ' . $prefix . '_override_form_label');
+                        $prefix . '_overview_participant_summary_status_label ' . $prefix . '_form_label');
 
         // Add the override status UI hidden to the page so we can just swap it in on click.
         // Add the select and reason box.
         $output .= \html_writer::select(
                         ia_participant_status::get_overriddable(),
-                        ' ' . $prefix . '_override_select ' . $prefix . '_override_status_select',
+                        ' ' . $prefix . '_select ' . $prefix . '_status_select',
                         $participant->status,
                         array('' => 'choosedots'),
                         array(
-                            'id' => $prefix . '_override_status_select',
+                            'id' => $prefix . '_status_select',
                             'required' => true
                         )
         );
 
         // Add the override reason textbox.
         $PAGE->requires->strings_for_js(array('override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
-        $output .= \html_writer::tag('input', '', array('id' => $prefix . '_override_reason', 'maxlength' => 32));
+        $output .= \html_writer::tag('input', '', array('id' => $prefix . '_reason', 'name' => $prefix . '_reason', 'maxlength' => 32));
 
         // Add hidden fields needed for the AJAX call.
         global $USER;
-        $output .= \html_writer::tag('hidden', '', array('id' => $prefix . '_targetuserid', value => $participant->id));
-        $output .= \html_writer::tag('hidden', '', array('id' => $prefix . '_overrideuserid', value => $USER->id));
-        $output .= \html_writer::tag('hidden', '', array('id' => $prefix . '_cmid', value => $USER->id));
+        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_targetuserid', 'name' => $prefix . '_targetuserid', 'value' => $participant->participantidentifier));
+        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_overrideuserid', 'name' => $prefix . '_overrideuserid', 'value' => $USER->id));
+        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_cmid', 'name' => $prefix . '_cmid', 'value' => $USER->id));
 
         // Add the save icon.
         $label = \get_string('save');
         $anchorattributes = array(
-            'class' => $prefix . '_override_save',
+            'class' => $prefix . '_save',
             'title' => $label,
             'aria-label' => $label,
-            'id' => $prefix . '_override_save-' . $participant->participantidentifier,
+            'id' => $prefix . '_save-' . $participant->participantidentifier,
         );
         $pixicon = $OUTPUT->render(new \pix_icon('e/save', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
         $output .= \html_writer::span(
                         \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_override_save_span ' . $prefix . '_override_button');
+                        $prefix . '_save_span ' . $prefix . '_button');
 
         // Add the cancel icon.
         $label = \get_string('cancel');
         $anchorattributes = array(
-            'class' => $prefix . '_override_cancel',
+            'class' => $prefix . '_cancel',
             'title' => $label,
             'aria-label' => $label,
-            'id' => $prefix . '_override_cancel',
+            'id' => $prefix . '_cancel',
         );
         $pixicon = $OUTPUT->render(new \pix_icon('e/cancel', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
         $output .= \html_writer::span(
                         \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_override_cancel_span ' . $prefix . '_override_button');
+                        $prefix . '_cancel_span ' . $prefix . '_button');
 
         $output .= \html_writer::end_tag('form');
 
