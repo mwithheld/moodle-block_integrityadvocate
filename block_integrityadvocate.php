@@ -357,6 +357,11 @@ class block_integrityadvocate extends block_base {
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
+//                            case !$hasselfviewcapability:
+//                                // They are not allowed to view the results
+//                                $this->content = '';
+//                                $this->title = '';
+//                                break;
                             case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
@@ -364,19 +369,20 @@ class block_integrityadvocate extends block_base {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
 
                                     // Hide quiz questions until JS is loaded and the IA modal is open.
-                                    $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';
+                                    // Disabled while I think about whether we should do this: $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';.
 
                                     ia_output::add_block_js($this);
                                     ia_output::add_proctor_js($this, $USER);
-                                } else {
+                                } else if ($hasselfviewcapability) {
                                     $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                 }
                                 break;
-                            case (stripos($this->page->pagetype, 'mod-scorm-') !== false &&
-                            ($this->page->pagetype !== 'mod-scorm-player')):
+                            case (stripos($this->page->pagetype, 'mod-scorm-') !== false && ($this->page->pagetype !== 'mod-scorm-player')):
                                 // If we are in a scorm, only show the JS proctoring UI if on the scorm player page.
                                 // Other pages should show the summary.
-                                $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                if ($hasselfviewcapability) {
+                                    $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                }
                                 break;
                             default:
                                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
