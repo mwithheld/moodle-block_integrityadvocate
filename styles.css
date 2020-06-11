@@ -134,6 +134,9 @@
 .block_integrityadvocate_overview_flag_type {
     background-color: #DCDCDC;
 }
-.block_integrityadvocate_overview_participant_summary_status{
-    font-size:1.5em;
+.block_integrityadvocate_overview_participant_summary_status .icon {
+    font-size: 1.5em;
+}
+.block_integrityadvocate_override_form_label{
+    margin-right: 1.5em;
 }

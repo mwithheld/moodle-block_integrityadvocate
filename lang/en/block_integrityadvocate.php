@@ -15,22 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block English language translation
+ * Integrity Advocate block English language translation
  *
  * @package    block_integrityadvocate
- * @copyright  IntegrityAdvocate.com
+ * @copyright  Integrity Advocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Integrity Advocate';
 $string['button_overview'] = 'Overview';
 $string['cachedef_perrequest'] = 'Remember values during a single request';
-$string['column_iadata'] = 'IntegrityAdvocate data';
-$string['column_iaphoto'] = 'IntegrityAdvocate photo';
+$string['column_iadata'] = 'Integrity Advocate data';
+$string['column_iaphoto'] = 'Integrity Advocate photo';
 $string['completion_not_enabled'] = 'Completion tracking is not enabled on this site.';
 $string['completion_not_enabled_course'] = 'Completion tracking is not enabled in this course.';
 $string['config_apikey'] = 'Api Key';
 $string['config_appid'] = 'Application Id';
-$string['config_default_title'] = 'IntegrityAdvocate';
+$string['config_default_title'] = 'Integrity Advocate';
 $string['created'] = 'First seen';
 $string['disabled_editingmode'] = 'Course editing mode is enabled, so video monitoring is disabled';
 $string['disabled_haseditcap'] = 'Disabled for non-students';
@@ -52,28 +52,29 @@ $string['flags_none'] = 'None';
 
 $string['fullname'] = 'Full course name';
 
-$string['integrityadvocate:addinstance'] = "Add new IntegrityAdvocate block";
-$string['integrityadvocate:addinstance'] = 'Add a new IntegrityAdvocate block';
-$string['integrityadvocate:myaddinstance'] = "Add a new IntegrityAdvocate block to the desired page";
-$string['integrityadvocate:myaddinstance'] = 'Add a IntegrityAdvocate block to My home page';
-$string['integrityadvocate:overview'] = 'View course overview of Integrity Advocate for all students';
-$string['integrityadvocate:selfview'] = 'View own IntegrityAdvocate results';
+$string['integrityadvocate:addinstance'] = "Add new Integrity Advocate block";
+$string['integrityadvocate:addinstance'] = 'Add a new Integrity Advocate block';
+$string['integrityadvocate:myaddinstance'] = "Add a new Integrity Advocate block to the desired page";
+$string['integrityadvocate:myaddinstance'] = 'Add a Integrity Advocate block to My home page';
+$string['integrityadvocate:override'] = 'Override Integrity Advocate results';
+$string['integrityadvocate:overview'] = 'View course overview of Integrity Advocate results';
+$string['integrityadvocate:selfview'] = 'View own Integrity Advocate results';
 
 $string['last_modified'] = 'Last modified';
 $string['lastaccess'] = 'Last in course';
-$string['no_blocks'] = 'No IntegrityAdvocate blocks are set up for your courses.';
+$string['no_blocks'] = 'No Integrity Advocate blocks are set up for your courses.';
 $string['no_course'] = 'No matching course found';
 $string['no_enrollment'] = 'This user is not enrolled in this course';
-$string['no_ia_block'] = "No active IntegrityAdvocate block instance found for this activity";
+$string['no_ia_block'] = "No active Integrity Advocate block instance found for this activity";
 $string['no_local_participants'] = 'No course participants found';
-$string['no_modules_config_message'] = 'There are no modules found with activity completion enabled which have the IntegrityAdvocate block set up.';
+$string['no_modules_config_message'] = 'There are no modules found with activity completion enabled which have the Integrity Advocate block set up.';
 $string['no_modules_message'] = 'No modules found.';
 $string['no_remote_participants'] = 'No IA-side participants found';
 $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
 
-$string['overview'] = 'IntegrityAdvocate Overview';
+$string['overview'] = 'Integrity Advocate Overview';
 $string['overview_flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
@@ -88,17 +89,17 @@ $string['privacy:metadata:block_integrityadvocate:email'] = 'Your email address.
 $string['privacy:metadata:block_integrityadvocate:exit_fullscreen_count'] = 'Number of times the user exited fullscreen mode during the activity.';
 $string['privacy:metadata:block_integrityadvocate:fullname'] = 'Your full name.';
 $string['privacy:metadata:block_integrityadvocate:identification_card'] = 'A picture of your government-issued ID.';
-$string['privacy:metadata:block_integrityadvocate:override_date'] = 'If applicable, the date the IntegrityAdvocate status is overridden by an instructor.';
+$string['privacy:metadata:block_integrityadvocate:override_date'] = 'If applicable, the date the Integrity Advocate status is overridden by an instructor.';
 $string['privacy:metadata:block_integrityadvocate:override_fullname'] = 'If applicable, the full name of the instrucor doing the override.';
 $string['privacy:metadata:block_integrityadvocate:override_reason'] = 'If applicable, the instrucor reason for doing the override.';
-$string['privacy:metadata:block_integrityadvocate:override_status'] = 'If applicable, the IntegrityAdvocate status applied by the override.';
+$string['privacy:metadata:block_integrityadvocate:override_status'] = 'If applicable, the Integrity Advocate status applied by the override.';
 $string['privacy:metadata:block_integrityadvocate:session_end'] = 'The time your proctoring session session ends.';
 $string['privacy:metadata:block_integrityadvocate:session_start'] = 'The time your proctoring session session starts.';
-$string['privacy:metadata:block_integrityadvocate:tableexplanation'] = 'IntegrityAdvocate block information is stored here.';
+$string['privacy:metadata:block_integrityadvocate:tableexplanation'] = 'Integrity Advocate block information is stored here.';
 $string['privacy:metadata:block_integrityadvocate:user_video'] = 'A video (with audio) recording of you completing an activity.';
 $string['privacy:metadata:block_integrityadvocate:userid'] = 'Your database user id number.';
 
-$string['process_integrityadvocate'] = 'IntegrityAdvocate - Process';
+$string['process_integrityadvocate'] = 'Integrity Advocate - Process';
 $string['progress'] = '# proctor sessions';
 $string['resubmit_link'] = 'Resubmit your ID';
 $string['session_start'] = 'Start';
@@ -116,6 +117,7 @@ $string['status_valid'] = 'Valid';
 $string['submitted'] = 'Submitted';
 $string['time_expected'] = 'Expected';
 
-$string['override_reason_identity_successful_later'] = 'A later IntegrityAdvocate session was valid';
-$string['override_reason_identity_manually_verified'] = 'Their session was validated manually by the instructor';
-$string['override_reason_other'] = 'Other';
+$string['override_form_label'] = 'Override the status:';
+$string['override_reason_label'] = 'Reason for override';
+$string['override_reason_invalid'] = 'Must only contain characters in the range: a-zA-Z0-9._-';
+

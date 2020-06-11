@@ -402,53 +402,28 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        $out = '';
+        $output = '';
         if (empty($sessions = array_values($participant->sessions))) {
-            return $out;
+            return $output;
         }
 
         usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
-        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_sessions_div'));
-        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_sessions_title')) .
+        $output .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_sessions_div'));
+        $output .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_sessions_title')) .
                 '<h3>' . \get_string('overview_sessions', INTEGRITYADVOCATE_BLOCK_NAME) . '</h3>' .
                 \html_writer::end_tag('div');
 
         // Output sessions info.
         foreach ($sessions as $s) {
-            $out .= self::get_session_output($s);
+            $output .= self::get_session_output($s);
         }
 
         // Close .block_integrityadvocate_overview_sessions_div.
-        $out .= \html_writer::end_tag('div');
+        $output .= \html_writer::end_tag('div');
 
-        return $out;
-    }
-
-    /**
-     * Gather override_reason_* keyed values from this plugins current language pack.
-     *
-     * @return array of language strings: key=override_reason_* keys; val=current language value for the reason..
-     */
-    private static function get_override_reasons(): array {
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started');
-
-        $strings = \get_string_manager()->load_component_strings(INTEGRITYADVOCATE_BLOCK_NAME, \current_language());
-        $keys = array_keys($strings);
-        $debug && ia_mu::log($fxn . '::Got $keys=' . var_export($keys, true));
-        $overridereasonkeys = preg_grep('#^override_reason_.*#', $keys);
-        $debug && ia_mu::log($fxn . '::Got $overridereasonkeys=' . var_export($overridereasonkeys, true));
-
-        $overridereasons = array();
-        foreach ($overridereasonkeys as $key) {
-            $overridereasons[$key] = $strings[$key];
-        }
-
-        $debug && ia_mu::log($fxn . '::About to return $overridereasons=' . var_export($overridereasons, true));
-        return $overridereasons;
+        return $output;
     }
 
     /**
@@ -459,7 +434,7 @@ class Output {
      * @return string The Override UI HTML.
      */
     private static function get_override_html(ia_participant $participant): string {
-        global $OUTPUT;
+        global $OUTPUT, $PAGE;
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $output = '';
 
@@ -476,34 +451,38 @@ class Output {
                         \html_writer::link('#', $pixicon, $anchorattributes),
                         $prefix . '_override_edit_span ' . $prefix . '_override_button');
 
-        // Add the override selection UI hidden to the page so we can just swap it in on click.
-        // Part 1: Add the select and reason box.
-        $inputelt = \html_writer::select(
-                        array(),
-                        ' ' . INTEGRITYADVOCATE_BLOCK_NAME . '_override_select ' . INTEGRITYADVOCATE_BLOCK_NAME . '_override_status_select',
+        // Create a form for the override UI.
+        $output .= \html_writer::start_tag('form', array('id' => $prefix . '_override_form', 'style' => 'display:none'));
+
+        // Add a label for the form fields.
+        $output .= \html_writer::span(
+                        \get_string('override_form_label', INTEGRITYADVOCATE_BLOCK_NAME),
+                        $prefix . '_overview_participant_summary_status_label ' . $prefix . '_override_form_label');
+
+        // Add the override status UI hidden to the page so we can just swap it in on click.
+        // Add the select and reason box.
+        $output .= \html_writer::select(
+                        ia_participant_status::get_overriddable(),
+                        ' ' . $prefix . '_override_select ' . $prefix . '_override_status_select',
                         $participant->status,
-                        null,
+                        array('' => 'choosedots'),
                         array(
-                            'id' => INTEGRITYADVOCATE_BLOCK_NAME . '_override_status_select',
-                            'style' => 'display:none'
+                            'id' => $prefix . '_override_status_select',
+                            'required' => true
                         )
         );
-        $output .= $inputelt;
 
-        // Part 2: Add the Reason textbox.
-        $inputelt = \html_writer::select(
-                        self::get_override_reasons(),
-                        ' ' . INTEGRITYADVOCATE_BLOCK_NAME . '_override_select ' . INTEGRITYADVOCATE_BLOCK_NAME . '_override_reasons_select',
-                        $participant->status,
-                        null,
-                        array(
-                            'id' => INTEGRITYADVOCATE_BLOCK_NAME . '_override_reasons_select',
-                            'style' => 'display:none'
-                        )
-        );
-        $output .= $inputelt;
+        // Add the override reason textbox.
+        $PAGE->requires->strings_for_js(array('override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
+        $output .= \html_writer::tag('input', '', array('id' => $prefix . '_override_reason', 'maxlength' => 32));
 
-        // Part 3: Add the save icon.
+        // Add hidden fields needed for the AJAX call.
+        global $USER;
+        $output .= \html_writer::tag('hidden', '', array('id' => $prefix . '_targetuserid', value => $participant->id));
+        $output .= \html_writer::tag('hidden', '', array('id' => $prefix . '_overrideuserid', value => $USER->id));
+        $output .= \html_writer::tag('hidden', '', array('id' => $prefix . '_cmid', value => $USER->id));
+
+        // Add the save icon.
         $label = \get_string('save');
         $anchorattributes = array(
             'class' => $prefix . '_override_save',
@@ -514,10 +493,9 @@ class Output {
         $pixicon = $OUTPUT->render(new \pix_icon('e/save', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
         $output .= \html_writer::span(
                         \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_override_save_span ' . $prefix . '_override_button',
-                        array('style' => 'display:none'));
+                        $prefix . '_override_save_span ' . $prefix . '_override_button');
 
-        // Part 4: Add the cancel icon.
+        // Add the cancel icon.
         $label = \get_string('cancel');
         $anchorattributes = array(
             'class' => $prefix . '_override_cancel',
@@ -528,8 +506,9 @@ class Output {
         $pixicon = $OUTPUT->render(new \pix_icon('e/cancel', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
         $output .= \html_writer::span(
                         \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_override_cancel_span ' . $prefix . '_override_button',
-                        array('style' => 'display:none'));
+                        $prefix . '_override_cancel_span ' . $prefix . '_override_button');
+
+        $output .= \html_writer::end_tag('form');
 
         return $output;
     }
