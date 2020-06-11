@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate external functions
+ * IntegrityAdvocate external functions.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
