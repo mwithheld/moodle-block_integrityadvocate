@@ -26,6 +26,8 @@ M.block_integrityadvocate = {
         var fadetime = 300;
         // Provide convenient access to the form components.
         var frm;
+        //Prefix used on most form items.
+        var prefix = 'block_integrityadvocate_override';
 
         var preventdefault = function (e) {
             if (typeof e !== 'undefined') {
@@ -35,48 +37,66 @@ M.block_integrityadvocate = {
         };
 
         var setup = function () {
-            var debug = false;
-            debug && window.console.log('setup::Started');
-
-            var prefix = 'block_integrityadvocate_override';
-
+            // Make easy-to-read refs to the form elements.
             frm = $('#' + prefix + '_form');
             frm.elt_status = $('#' + prefix + '_status_select');
             frm.elt_reason = $('#' + prefix + '_reason');
+            frm.userinputs = [frm.elt_status, frm.elt_reason];
             frm.elt_targetuserid = $('#' + prefix + '_targetuserid');
             frm.elt_overrideuserid = $('#' + prefix + '_overrideuserid');
-            frm.elt_cmid = $('#' + prefix + '_cmid');
-            frm.elt_edit = $('.' + prefix + '_edit');
-            frm.elt_save = $('.' + prefix + '_save');
+//            frm.elt_cmid = $('#' + prefix + '_cmid');
+            frm.elt_edit = $('#' + prefix + '_edit');
+            frm.elt_save = $('#' + prefix + '_save');
+            frm.elt_loading = $('#' + prefix + '_loading');
             frm.elt_cancel = $('#' + prefix + '_cancel');
 
             frm.elt_reason
                     .attr('placeholder', M.str.block_integrityadvocate.override_reason_label)
-                    .attr('pattern', '^[a-zA-Z0-9\ ._-]{0,32}');
+                    .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}');
 
-            frm.elt_edit.click(function () {
+            frm.elt_loading.hide();
+            save_set_status(false);
+            frm[0].reset();
+
+            frm.elt_save.on('click', function (e) {
+                if (validate_all()) {
+                    save_click();
+                }
+                e.preventDefault();
+                return false;
+            });
+            frm.elt_edit.on('click', function (e) {
                 show_overrideui();
+                e.preventDefault();
+                return false;
             });
+            frm.elt_cancel.on('click', function (e) {
+                cancel_click();
+                e.preventDefault();
+                return false;
+            });
+            $(frm.userinputs).each(function (_, userinput) {
+                userinput.on('change keyup blur', function (e) {
+                    save_set_status(validate_all());
+                    e.preventDefault();
+                    return false;
+                });
+            });
+        };
 
-            frm.elt_cancel.click(function () {
-                hide_overrideui();
-            });
-//            $('#'+prefix+'_reason, #'+prefix+'_status_select').on('change submit keyup', function (e) {
-//                if (!validate_all()) {
-//                    preventdefault(e);
-//                    save_set_status(false);
-//                }
-//            });
-            $('.' + prefix + '_save').on('click', save_click);
+        var cancel_click = function () {
+            frm[0].reset();
+            hide_overrideui();
         };
 
         var save_click = function () {
+            disable_ui();
             require(['core/ajax', 'core/notification'], function (ajax, notification) {
                 ajax.call([{
                         methodname: 'block_integrityadvocate_set_override',
-                        args: {status: frm.elt_status.val(), reason: frm.elt_reason.val(), targetuserid: frm.elt_targetuserid.val(), overrideuserid: frm.elt_overrideuserid.val(), cmid: frm.elt_cmid.val()},
+                        args: {status: frm.elt_status.val(), reason: frm.elt_reason.val(), targetuserid: frm.elt_targetuserid.val(), overrideuserid: frm.elt_overrideuserid.val()/*, cmid: frm.elt_cmid.val()*/},
                         done: function (context) {
-                            window.console.log('override save done');
+                            hide_overrideui();
                         },
                         fail: notification.exception
                     }]);
@@ -84,37 +104,31 @@ M.block_integrityadvocate = {
         };
 
         var validate_all = function () {
-            // We explicity want to run through both validators.
+            // We explicity want to run through both validators, so don't just AND them.
             var isvalid_reason = validate_reason();
-            window.console.log('validate_all::isvalid_reason=', isvalid_reason);
             var isvalid_status = validate_status();
-            window.console.log('validate_all::isvalid_status=', isvalid_status);
 
             return isvalid_reason && isvalid_status;
         };
 
         var validate_status = function () {
-            var debug = false;
             var elt = frm.elt_status;
             var val = elt.val();
-            debug && window.console.log('validate_status::Started with val=', val);
 
-            // Only values 0 and 3 are acceptable
+            // Only values 0 and 3 are acceptable ATM.
             return elt[0].checkValidity() || val === 0 || val === 3;
         };
 
         var validate_reason = function () {
-            var debug = true;
             var elt = frm.elt_reason;
             var val = elt.val();
-            debug && window.console.log('validate_reason::Started with val=', val);
+
+            // Clear the custom validity message b/c having it there cause checkValidity() to return false.
+            elt[0].setCustomValidity('');
 
             if (val === '' || elt[0].checkValidity()) {
-                debug && window.console.log('validate_reason::reason is valid');
-                elt[0].setCustomValidity('');
                 return true;
             } else {
-                debug && window.console.log('validate_reason::reason is invalid');
                 elt[0].setCustomValidity(M.str.block_integrityadvocate.override_reason_invalid);
                 return false;
             }
@@ -129,9 +143,6 @@ M.block_integrityadvocate = {
         };
 
         var save_disable = function () {
-            var debug = true;
-            debug && window.console.log('save_disable::Started');
-
             frm.elt_save.css('color', 'grey').on('click.' + prefix + '_disable', preventdefault);
         };
 
@@ -142,14 +153,32 @@ M.block_integrityadvocate = {
         var show_overrideui = function () {
             frm.elt_edit.hide();
             frm.show();
-            // Make the save icon blink for visibility.
-            frm.elt_save.fadeOut(fadetime).fadeIn(fadetime).fadeOut(fadetime).fadeIn(fadetime).fadeOut(fadetime).fadeIn(fadetime);
+            // Make the save icon blink a bit for visibility.
+            frm.elt_save.fadeOut(fadetime).fadeIn(fadetime).fadeOut(fadetime).fadeIn(fadetime);
             validate_all();
         };
 
         var hide_overrideui = function () {
             frm.hide();
             frm.elt_edit.fadeIn(fadetime);
+        };
+
+        var disable_ui = function () {
+            frm.elt_cancel.hide();
+            frm.elt_save.hide();
+            frm.elt_loading.show();
+            $(frm.userinputs).each(function (_, userinput) {
+                userinput.attr('disabled', 'disabled');
+            });
+        };
+
+        var enable_ui = function () {
+            frm.elt_cancel.show();
+            frm.elt_save.show();
+            frm.elt_loading.hide();
+            $(frm.userinputs).each(function (_, userinput) {
+                userinput.removeAttr('disabled');
+            });
         };
 
         setup();
