@@ -207,7 +207,7 @@ class Output {
         $options = array('class' => 'overviewButton');
 
         global $OUTPUT;
-        return $OUTPUT->single_button($url, $label, 'post', $options);
+        return $OUTPUT->single_button($url, $label, 'get', $options);
     }
 
     /**
@@ -237,7 +237,7 @@ class Output {
         $options = array('class' => 'block_integrityadvocate_overview_btn_view_details');
 
         global $OUTPUT;
-        return $OUTPUT->single_button($url, $label, 'post', $options);
+        return $OUTPUT->single_button($url, $label, 'get', $options);
     }
 
     /**
@@ -427,6 +427,31 @@ class Output {
     }
 
     /**
+     * Build the HTML for an icon wrapped in an anchor link.
+     * Adapted from lib/outputcomponents.php::get_primary_actions().
+     *
+     * @param string $pixpath Path under pix to the icon.
+     * @param string $nameprefix Prefix for class, id, and name attributes.
+     * @param string $name Lang string name AND the main part of the class, id, and name attributes.
+     * @param string $uniqueidsuffix If the anchor id attribute should have a unique identifier (like a userid number), put it here.  Default empty string.
+     * @return string The built HTML.
+     */
+    private static function add_icon(string $pixpath, string $nameprefix = '', string $name, string $uniqueidsuffix = ''): string {
+        global $OUTPUT;
+
+        // Add the save icon.
+        $label = \get_string($name);
+        $anchorattributes = array(
+            'class' => "{$nameprefix}_{$name}",
+            'title' => $label,
+            'aria-label' => $label,
+            'id' => "{$nameprefix}_{$name}" . ($uniqueidsuffix ? "-{$uniqueidsuffix}" : ''),
+        );
+        $pixicon = $OUTPUT->render(new \pix_icon($pixpath, '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
+        return \html_writer::span(\html_writer::link('#', $pixicon, $anchorattributes), "{$nameprefix}_{$name}_span {$nameprefix}_button");
+    }
+
+    /**
      * Build and returns the Override UI HTML.
      * Assumes you have a valid participant.
      *
@@ -434,22 +459,12 @@ class Output {
      * @return string The Override UI HTML.
      */
     private static function get_override_html(ia_participant $participant): string {
-        global $OUTPUT, $PAGE;
+        global $PAGE;
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
         $output = '';
 
-        // Add the edit icon.  Adapted from lib/outputcomponents.php::get_primary_actions().
-        $label = \get_string('edit');
-        $anchorattributes = array(
-            'class' => $prefix . '_edit',
-            'title' => $label,
-            'aria-label' => $label,
-            'id' => $prefix . '_edit-' . $participant->participantidentifier,
-        );
-        $pixicon = $OUTPUT->render(new \pix_icon('i/edit', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
-        $output .= \html_writer::span(
-                        \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_edit_span ' . $prefix . '_button');
+        // Add the edit icon.
+        $output .= self::add_icon('i/edit', $prefix, 'edit');
 
         // Create a form for the override UI.
         $output .= \html_writer::start_tag('form', array('id' => $prefix . '_form', 'style' => 'display:none'));
@@ -480,33 +495,11 @@ class Output {
         global $USER;
         $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_targetuserid', 'name' => $prefix . '_targetuserid', 'value' => $participant->participantidentifier));
         $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_overrideuserid', 'name' => $prefix . '_overrideuserid', 'value' => $USER->id));
-        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_cmid', 'name' => $prefix . '_cmid', 'value' => $USER->id));
+//        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_cmid', 'name' => $prefix . '_cmid', 'value' => $cmid));
 
-        // Add the save icon.
-        $label = \get_string('save');
-        $anchorattributes = array(
-            'class' => $prefix . '_save',
-            'title' => $label,
-            'aria-label' => $label,
-            'id' => $prefix . '_save-' . $participant->participantidentifier,
-        );
-        $pixicon = $OUTPUT->render(new \pix_icon('e/save', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
-        $output .= \html_writer::span(
-                        \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_save_span ' . $prefix . '_button');
-
-        // Add the cancel icon.
-        $label = \get_string('cancel');
-        $anchorattributes = array(
-            'class' => $prefix . '_cancel',
-            'title' => $label,
-            'aria-label' => $label,
-            'id' => $prefix . '_cancel',
-        );
-        $pixicon = $OUTPUT->render(new \pix_icon('e/cancel', '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
-        $output .= \html_writer::span(
-                        \html_writer::link('#', $pixicon, $anchorattributes),
-                        $prefix . '_cancel_span ' . $prefix . '_button');
+        $output .= self::add_icon('e/save', $prefix, 'save');
+        $output .= self::add_icon('i/loading', $prefix, 'loading');
+        $output .= self::add_icon('e/cancel', $prefix, 'cancel');
 
         $output .= \html_writer::end_tag('form');
 
@@ -590,6 +583,17 @@ class Output {
         }
 
         if ($showoverridebutton) {
+//            $blockcontext = $blockinstance->context;
+//            $modulecontext = $blockcontext->get_parent_context();
+//            // Disabled on purpose: $debug && ia_mu::log($fxn . "::Got modulecontext=" . var_export($modulecontext, true));.
+//            $debug && ia_mu::log($fxn . "::Got \$modulecontext->id=" . $modulecontext->id . '; $modulecontext->contextlevel=' . $modulecontext->contextlevel);
+//
+//            if ($modulecontext->contextlevel !== \CONTEXT_MODULE) {
+//                $msg = $fxn . "::\$debugvars={$debugvars}: error=get_override_html() requires cmid but I could not find it for this block";
+//                ia_mu::log($msg);
+//                throw new \Exception($msg);
+//            }
+
             $statushtml .= self::get_override_html($participant);
         }
 
