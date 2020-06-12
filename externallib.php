@@ -41,7 +41,7 @@ class block_integrityadvocate_external extends \external_api {
             'reason' => new \external_value(PARAM_RAW, 'Reason for override'),
             'targetuserid' => new \external_value(PARAM_INT, 'Target user id'),
             'overrideuserid' => new \external_value(PARAM_INT, 'Overriding user id'),
-            'cmid' => new \external_value(PARAM_INT, 'Course module id'),
+//            'cmid' => new \external_value(PARAM_INT, 'Course module id'),
                 ]
         );
     }
@@ -52,13 +52,13 @@ class block_integrityadvocate_external extends \external_api {
      * @param int $status The integer status.
      * @param string $reason The reason for override.
      * @param int $targetuserid Target user id.
-     * @param int $overrideuserid Overriding user id
-     * @param int $cmid Course module id
+     * @param int $overrideuserid Overriding user id.
+     * @param int $cmid Course module id.
      */
-    public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid, int $cmid): array {
+    public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid/* , int $cmid */): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$status={$status}; \$reason={$reason}; \$targetuserid=$targetuserid; \$overrideuserid=$overrideuserid; \$cmid=$cmid");
+        $debug && ia_mu::log($fxn . "::Started with \$status={$status}; \$reason={$reason}; \$targetuserid=$targetuserid; \$overrideuserid=$overrideuserid/*; \$cmid=$cmid*/");
 
         self::validate_parameters(self::set_override_parameters(),
                 [
@@ -66,7 +66,7 @@ class block_integrityadvocate_external extends \external_api {
                     'reason' => $reason,
                     'targetuserid' => $targetuserid,
                     'overrideuserid' => $overrideuserid,
-                    'cmid' => $cmid,
+//                    'cmid' => $cmid,
                 ]
         );
 
