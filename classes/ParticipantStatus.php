@@ -127,6 +127,16 @@ class PaticipantStatus {
     }
 
     /**
+     * Get an array of statuses that may be overridden; key=int representing the status; value=language string representing the status.
+     * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
+     *
+     * @return array of overridable statuses
+     */
+    public static function is_overriddable(int $statusint): bool {
+        return in_array($statusint, array_keys(self::get_overriddable()));
+    }
+
+    /**
      * Get an array of statuses that are considered invalid; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
