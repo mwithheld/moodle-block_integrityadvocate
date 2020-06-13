@@ -495,7 +495,6 @@ class Output {
         global $USER;
         $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_targetuserid', 'name' => $prefix . '_targetuserid', 'value' => $participant->participantidentifier));
         $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_overrideuserid', 'name' => $prefix . '_overrideuserid', 'value' => $USER->id));
-//        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_cmid', 'name' => $prefix . '_cmid', 'value' => $cmid));
 
         $output .= self::add_icon('e/save', $prefix, 'save');
         $output .= self::add_icon('i/loading', $prefix, 'loading');
