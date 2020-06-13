@@ -992,7 +992,7 @@ class Api {
         ));
 
         $header = 'Authorization: amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
-        //$curl->setHeader($header);
+        $curl->setHeader($header);
         $debug && ia_mu::log($fxn . '::Set $header=' . $header);
 
         $response = $curl->patch($requesturi, $params);
