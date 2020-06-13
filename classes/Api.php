@@ -104,12 +104,12 @@ class Api {
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
         // That's all the debug info I want from this function for now.
-        $debug = false;
+        $debug = true;
 
         // If the block is not configured yet, simply return empty result.
         if (empty($apikey) || empty($appid)) {
@@ -134,8 +134,7 @@ class Api {
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid .
-                        json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
 
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
@@ -976,10 +975,11 @@ class Api {
         $debug && ia_mu::log($fxn . '::Built $requesturi=' . $requesturi);
 
         $requesttimestamp = time();
+        $requestmethod = 'PATCH';
         $microtime = explode(' ', microtime());
         $nonce = $microtime[1] . substr($microtime[0], 2, 6);
-        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
-        $requestsignature = self::get_request_signature($requestapiurl, 'GET', $requesttimestamp, $nonce, $apikey, $appid);
+        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+        $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
         // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
         $curl = new \curl(array('cache' => false));
@@ -995,7 +995,7 @@ class Api {
         $curl->setHeader($header);
         $debug && ia_mu::log($fxn . '::Set $header=' . $header);
 
-        $response = $curl->patch($requesturi, $params);
+        $response = $curl->patch($requesturi, json_encode($params));
 
         $responseparsed = json_decode($response);
         $responsedetails = $curl->get_info('http_code');
@@ -1005,7 +1005,7 @@ class Api {
                         '; $response=' . var_export($response, true) .
                         '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
 
-        return true;
+        return $responsedetails == 200;
     }
 
     /**
