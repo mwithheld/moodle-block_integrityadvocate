@@ -98,6 +98,10 @@ $PAGE->set_pagelayout('report');
 // Both overview pages require the blockinstance, so get it here.
 $blockinstance = \block_instance_by_id($blockinstanceid);
 
+if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context)) {
+    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . var_export($blockinstance, true) . '; context=' . var_export($blockinstance->context, true));
+}
+
 // Gather capabilities here for later use
 $hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockinstance->context);
 $hascapability_override = \has_capability('block/integrityadvocate:override', $blockinstance->context);
@@ -128,19 +132,14 @@ echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 $continue = true;
 
 // If the block instance is not configured yet, simply return empty result.
-if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
-    if (!isset($blockinstance->context)) {
-        echo 'No block context found - has the block instance been deleted?';
-    } else {
-        // No visible IA block found with valid config, so skip any output.
-        if ($hascapability_overview) {
-            echo implode("<br />\n", $configerrors);
-        }
+if ($configerrors = $blockinstance->get_config_errors()) {
+    // No visible IA block found with valid config, so skip any output.
+    if ($hascapability_overview) {
+        echo implode("<br />\n", $configerrors);
     }
     $continue = false;
 }
-$continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; "
-                . "appid={$blockinstance->config->appid}");
+$continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; " . "appid={$blockinstance->config->appid}");
 
 // Check site and course completion are set up.
 $setuperrors = ia_mu::get_completion_setup_errors($course);
