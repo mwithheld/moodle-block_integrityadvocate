@@ -926,6 +926,89 @@ class Api {
     }
 
     /**
+     * Override the Integrity Advocate ruling for a participant.
+     * Assumes you have validated and cleaned all params.
+     *
+     * @param int $status An integer ParticipantStatus value to override the Integrity Advocate ruling: Accepts: 0 or 3
+     * @param string $reason
+     * @param int $targetuserid
+     * @param int $overrideuserid
+     * @param int $courseid
+     * @return bool
+     */
+    public static function set_override(string $apikey, string $appid, int $status, string $reason, int $targetuserid, \stdClass $overrideuser, int $courseid): bool {
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuser->id}, \$courseid={$courseid}");
+
+        // Sanity check -- not a validity check!
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || ia_u::is_empty($overrideuser) || !isset($overrideuser->id)) {
+            $msg = 'Input params are invalid';
+            ia_mu::log($fxn . '::' . $msg);
+            throw new \InvalidArgumentException($msg);
+        }
+
+        // Do validity checks only if quick and absolutely neccesary.
+        if (!ia_participant_status::is_overriddable($status)) {
+            throw new InvalidArgumentException("Status={$status} not an overridable value");
+        }
+
+        // The only API options are "Valid" or "Invalid" case-sensitive, so translate to a string but invalid_override_int corresponds to just "Invalid".
+        if ($status === ia_participant_status::INVALID_OVERRIDE_INT) {
+            $statusstr = ia_participant_status::VALID;
+        } else {
+            $statusstr = ia_participant_status::get_status_string($status);
+        }
+
+        $params = array(
+            'Override_Date' => time(),
+            'Override_Status' => $statusstr,
+            'Override_Reason' => $reason,
+            'Override_LMSUser_FirstName' => $overrideuser->firstname,
+            'Override_LMSUser_LastName' => $overrideuser->lastname,
+            'Override_LMSUser_Id' => $targetuserid,
+        );
+        $debug && ia_mu::log($fxn . "::Built params=" . var_export($params, true));
+
+        $endpoint = "/participant/{$targetuserid}-{$courseid}";
+        $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
+        $requesturi = $requestapiurl;
+        $debug && ia_mu::log($fxn . '::Built $requesturi=' . $requesturi);
+
+        $requesttimestamp = time();
+        $microtime = explode(' ', microtime());
+        $nonce = $microtime[1] . substr($microtime[0], 2, 6);
+        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+        $requestsignature = self::get_request_signature($requestapiurl, 'GET', $requesttimestamp, $nonce, $apikey, $appid);
+
+        // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
+        $curl = new \curl(array('cache' => false));
+        $curl->setopt(array(
+            'CURLOPT_CERTINFO' => 1,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_MAXREDIRS' => 5,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_SSL_VERIFYPEER' => 1,
+        ));
+
+        $header = 'Authorization: amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
+        //$curl->setHeader($header);
+        $debug && ia_mu::log($fxn . '::Set $header=' . $header);
+
+        $response = $curl->patch($requesturi, $params);
+
+        $responseparsed = json_decode($response);
+        $responsedetails = $curl->get_info('http_code');
+        $debug && ia_mu::log($fxn .
+                        '::Sent url=' . var_export($requesturi, true) . '; err_no=' . $curl->get_errno() .
+                        '; $responsedetails=' . ($responsedetails ? var_export($responsedetails, true) : '') .
+                        '; $response=' . var_export($response, true) .
+                        '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
+
+        return true;
+    }
+
+    /**
      * Make sure the required params are present, there's no extra params, and param types are valid.
      *
      * @param string $endpoint One of the constants self::ENDPOINT*
