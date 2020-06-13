@@ -401,4 +401,16 @@ class block_integrityadvocate extends block_base {
         return $COURSE;
     }
 
+    public function is_visible(): bool {
+        if (property_exists($this, 'visible') && isset($this->visible) && is_bool($this->visible)) {
+            return $this->visible;
+        }
+        if (property_exists($this->instance, 'visible') && isset($this->instance->visible) && is_bool($this->instance->visible)) {
+            return $this->instance->visible;
+        }
+
+        $parentcontext = $this->context->get_parent_context();
+        return $this->visible = ia_mu::get_block_visibility($parentcontext->id, $this->context->id);
+    }
+
 }
