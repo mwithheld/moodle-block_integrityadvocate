@@ -41,7 +41,9 @@ if (empty($blockinstanceid)) {
 if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) {
     throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
 }
+
 $userid = \required_param('userid', PARAM_INT);
+$debug = false;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockinstance->context->get_parent_context();

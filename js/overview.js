@@ -54,7 +54,6 @@ M.block_integrityadvocate = {
                     .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}')
                     .on('keypress.' + prefix + '_disable', function (e) {
                         if (e.which == 13) {
-                            console.log('You hit enter');
                             frm.elt_save.click();
                             e.preventDefault();
                             return false;
@@ -99,18 +98,21 @@ M.block_integrityadvocate = {
         var save_click = function () {
             disable_ui();
 
-            var url_string = window.location.href;
-            var url = new URL(url_string);
+            var url = new URL(window.location.href);
 
             require(['core/ajax', 'core/notification'], function (ajax, notification) {
                 ajax.call([{
                         methodname: 'block_integrityadvocate_set_override',
                         args: {status: frm.elt_status.val(), reason: frm.elt_reason.val(), targetuserid: frm.elt_targetuserid.val(), overrideuserid: frm.elt_overrideuserid.val(), blockinstanceid: url.searchParams.get('instanceid')},
                         done: function (context) {
+                            // Set true to force reload from server not cache.  This is said to be deprecated but since we might have old browsers we'll do it.
+                            window.location.reload(true);
+                        },
+                        fail: notification.exception,
+                        always: function (context) {
                             enable_ui();
                             cancel_click();
-                        },
-                        fail: notification.exception
+                        }
                     }]);
             });
         };
