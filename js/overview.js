@@ -44,7 +44,6 @@ M.block_integrityadvocate = {
             frm.userinputs = [frm.elt_status, frm.elt_reason];
             frm.elt_targetuserid = $('#' + prefix + '_targetuserid');
             frm.elt_overrideuserid = $('#' + prefix + '_overrideuserid');
-//            frm.elt_cmid = $('#' + prefix + '_cmid');
             frm.elt_edit = $('#' + prefix + '_edit');
             frm.elt_save = $('#' + prefix + '_save');
             frm.elt_loading = $('#' + prefix + '_loading');
@@ -52,7 +51,15 @@ M.block_integrityadvocate = {
 
             frm.elt_reason
                     .attr('placeholder', M.str.block_integrityadvocate.override_reason_label)
-                    .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}');
+                    .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}')
+                    .on('keypress.' + prefix + '_disable', function (e) {
+                        if (e.which == 13) {
+                            console.log('You hit enter');
+                            frm.elt_save.click();
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
 
             frm.elt_loading.hide();
             save_set_status(false);
@@ -91,12 +98,17 @@ M.block_integrityadvocate = {
 
         var save_click = function () {
             disable_ui();
+
+            var url_string = window.location.href;
+            var url = new URL(url_string);
+
             require(['core/ajax', 'core/notification'], function (ajax, notification) {
                 ajax.call([{
                         methodname: 'block_integrityadvocate_set_override',
-                        args: {status: frm.elt_status.val(), reason: frm.elt_reason.val(), targetuserid: frm.elt_targetuserid.val(), overrideuserid: frm.elt_overrideuserid.val()/*, cmid: frm.elt_cmid.val()*/},
+                        args: {status: frm.elt_status.val(), reason: frm.elt_reason.val(), targetuserid: frm.elt_targetuserid.val(), overrideuserid: frm.elt_overrideuserid.val(), blockinstanceid: url.searchParams.get('instanceid')},
                         done: function (context) {
-                            hide_overrideui();
+                            enable_ui();
+                            cancel_click();
                         },
                         fail: notification.exception
                     }]);
