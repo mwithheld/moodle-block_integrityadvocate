@@ -79,6 +79,11 @@ if (ia_u::is_empty($participant)) {
 
 if ($continue) {
     // Display user basic info.
+    if ($hascapability_override) {
+        $noncekey = INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$participant->participantidentifier}";
+        $debug && ia_mu::log(__FILE__ . "::About to nonce_set({$noncekey})");
+        ia_mu::nonce_set($noncekey);
+    }
     echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, $hascapability_override);
 
     // Display summary.
