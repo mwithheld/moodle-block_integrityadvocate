@@ -104,12 +104,10 @@ class Api {
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
-        // That's all the debug info I want from this function for now.
-        $debug = true;
 
         // If the block is not configured yet, simply return empty result.
         if (empty($apikey) || empty($appid)) {
