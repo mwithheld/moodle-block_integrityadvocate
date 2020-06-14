@@ -175,7 +175,7 @@ class Output {
             // It makes no sense to download it to the Moodle server each time and then send it to the user.
             //
             // This also causes an error in the JS console on first load, but it doesn't cause any problems.
-            //     Error: Mismatched anonymous define() module...
+            // I.    Error: Mismatched anonymous define() module...
             $blockinstance->page->requires->js($url, true);
         }
 
@@ -582,17 +582,6 @@ class Output {
         }
 
         if ($showoverridebutton) {
-//            $blockcontext = $blockinstance->context;
-//            $modulecontext = $blockcontext->get_parent_context();
-//            // Disabled on purpose: $debug && ia_mu::log($fxn . "::Got modulecontext=" . var_export($modulecontext, true));.
-//            $debug && ia_mu::log($fxn . "::Got \$modulecontext->id=" . $modulecontext->id . '; $modulecontext->contextlevel=' . $modulecontext->contextlevel);
-//
-//            if ($modulecontext->contextlevel !== \CONTEXT_MODULE) {
-//                $msg = $fxn . "::\$debugvars={$debugvars}: error=get_override_html() requires cmid but I could not find it for this block";
-//                ia_mu::log($msg);
-//                throw new \Exception($msg);
-//            }
-
             $statushtml .= self::get_override_html($participant);
         }
 

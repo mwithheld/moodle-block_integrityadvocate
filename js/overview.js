@@ -26,7 +26,7 @@ M.block_integrityadvocate = {
         var fadetime = 300;
         // Provide convenient access to the form components.
         var frm;
-        //Prefix used on most form items.
+        // Prefix used on most form items.
         var prefix = 'block_integrityadvocate_override';
 
         var preventdefault = function (e) {
