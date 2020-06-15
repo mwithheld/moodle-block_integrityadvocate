@@ -12,13 +12,14 @@ buildZip: &buildZip
     script:
       - apt-get update && apt-get -qq install zip rsync git
       - repodir=$(pwd -LP)
+      - pluginver=$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')
       - mkdir -p /tmp/iaparent/integrityadvocate
       - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
       - cd /tmp/iaparent/integrityadvocate
       - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
       - cd /tmp/iaparent/
       #- ls -altrh
-      - zip -r9 ${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
+      - zip -r9 ${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}-$pluginver.zip ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
       - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip"
 
 
