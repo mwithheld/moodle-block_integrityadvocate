@@ -203,6 +203,7 @@ class block_integrityadvocate extends block_base {
         $errors = $this->get_apikey_appid_errors();
 
         $modulecontext = $this->context->get_parent_context();
+
         // Check the context we got is module context and not course context.
         // If this is a course-level block, just return what errors we have so far.
         if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
@@ -212,14 +213,15 @@ class block_integrityadvocate extends block_base {
             return $errors;
         }
 
+        if ($this->context->get_course_context()->instanceid == \SITEID) {
+            throw new \Exception('This block cannot exist on the site context');
+        }
+
         /*
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
+        global $DB, $COURSE;
         if (stripos($modulecontext->get_context_name(), 'quiz') === 0) {
-            global $DB, $COURSE;
-            if ($COURSE->id == \SITEID) {
-                throw new \Exception('This block cannot exist on the site context');
-            }
             $modinfo = \get_fast_modinfo($COURSE, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
