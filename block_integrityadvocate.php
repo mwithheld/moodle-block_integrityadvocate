@@ -213,16 +213,17 @@ class block_integrityadvocate extends block_base {
             return $errors;
         }
 
-        if ($this->context->get_course_context()->instanceid == \SITEID) {
+        $courseid = $this->context->get_course_context()->instanceid;
+        if ($courseid == \SITEID) {
             throw new \Exception('This block cannot exist on the site context');
         }
 
         /*
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
-        global $DB, $COURSE;
+        global $DB;
         if (stripos($modulecontext->get_context_name(), 'quiz') === 0) {
-            $modinfo = \get_fast_modinfo($COURSE, -1);
+            $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
             if ($record->showblocks < 1) {
