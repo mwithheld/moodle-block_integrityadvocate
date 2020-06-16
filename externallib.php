@@ -27,7 +27,7 @@ require_once(__DIR__ . '/lib.php');
 
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
-use block_integrityadvocate\PaticipantStatus as ia_participant_status;
+use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 class block_integrityadvocate_external extends \external_api {
@@ -85,7 +85,7 @@ class block_integrityadvocate_external extends \external_api {
             case(!ia_mu::nonce_validate(INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$targetuserid}")):
                 $result['warnings'][] = array('warningcode' => __LINE__, 'message' => 'Nonce not found');
                 break;
-            case(!ia_participant_status::is_overriddable($status)) :
+            case(!ia_status::is_overriddable($status)) :
                 $result['warnings'][] = array('warningcode' => __LINE__, 'message' => "Status={$status} not an overridable value");
                 break;
             case(ia_u::is_empty($blockinstance = \block_instance_by_id($blockinstanceid))) :

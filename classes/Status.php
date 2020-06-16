@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
-class PaticipantStatus {
+class Status {
 
     /** @var string String the IA API uses for a proctor session that is complete and valid. */
     const VALID = 'Valid';
