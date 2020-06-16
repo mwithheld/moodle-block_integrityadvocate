@@ -69,7 +69,7 @@ class PaticipantStatus {
                 $status = self::INVALID_ID_INT;
                 break;
             case self::INVALID_OVERRIDE:
-                $status = self::IINVALID_OVERRIDE_INT;
+                $status = self::INVALID_OVERRIDE_INT;
                 break;
             case self::INVALID_RULES:
                 $status = self::INVALID_RULES_INT;
@@ -172,7 +172,7 @@ class PaticipantStatus {
                 $status = self::INVALID_ID;
                 break;
             case self::INVALID_OVERRIDE_INT:
-                $status = self::IINVALID_OVERRIDE;
+                $status = self::INVALID_OVERRIDE;
                 break;
             case self::INVALID_RULES_INT:
                 $status = self::INVALID_RULES;
@@ -212,7 +212,7 @@ class PaticipantStatus {
                 $status = \get_string('status_invalid_rules', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             default:
-                $error = 'Invalid participant review status value=' . $statusint;
+                $error = __FUNCTION__ . '::Invalid participant review status value=' . $statusint;
                 ia_mu::log($error);
                 throw new \InvalidValueException($error);
         }
