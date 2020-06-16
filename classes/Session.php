@@ -91,4 +91,15 @@ class Session {
      */
     public $flags = array();
 
+    public $overridedate = -1;
+    public $overridelmsuserfirstname;
+    public $overridelmsuserid;
+    public $overridelmsuserlastname;
+    public $overridereason;
+    public $overridestatus;
+    
+    public function is_overridden(): bool {
+        return isset($this->overridestatus);
+    }
+
 }
