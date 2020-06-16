@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant as ia_participant;
-use block_integrityadvocate\PaticipantStatus as ia_participant_status;
+use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -88,8 +88,7 @@ class Api {
                 '&activityid=' . urlencode($moduleid);
         $response = $curl->get($url);
         $responsecode = $curl->get_info('http_code');
-        $debug && ia_mu::log($fxn . '::Sent url=' . ia_u::var_dump($url, true)
-                        . '; http_code=' . ia_u::var_dump($responsecode, true) . '; response body=' . ia_u::var_dump($response, true));
+        $debug && ia_mu::log($fxn . '::Sent url=' . var_export($url, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
         return intval($responsecode) < 400;
     }
@@ -104,7 +103,7 @@ class Api {
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
@@ -583,6 +582,7 @@ class Api {
 
     /**
      * Get the user's participant status in the module.
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \context $modulecontext The module context to look in.
      * @param int $userid The userid to get IA info for.
@@ -590,7 +590,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function get_status_in_module(\context $modulecontext, int $userid): int {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -603,7 +603,7 @@ class Api {
         }
 
         // Get the int value representing this constant so it's equivalent to what is stored in Session->status.
-        $notfoundval = ia_participant_status::INPROGRESS_INT;
+        $notfoundval = ia_status::INPROGRESS_INT;
 
         $latestsession = self::get_module_session_latest($modulecontext, $userid);
         if (ia_u::is_empty($latestsession)) {
@@ -611,11 +611,13 @@ class Api {
             return $notfoundval;
         }
 
+        $debug && ia_mu::log("About to return \$latestsession->status={$latestsession->status}");
         return $latestsession->status;
     }
 
     /**
-     * Get if the status value for the user in the module represents "In Progress".
+     * Returns true if the status value for the user in the latest session for the module represents "In Progress".
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
@@ -635,11 +637,12 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        return self::get_status_in_module($modulecontext, $userid) === ia_participant_status::INPROGRESS;
+        return self::get_status_in_module($modulecontext, $userid) === ia_status::INPROGRESS;
     }
 
     /**
-     * Get if the status value for the user in the module represents "Invalid".
+     * Returns true if the status value for the user in the latest session for the module represents "Invalid".
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
@@ -659,11 +662,12 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        return in_array(self::get_status_in_module($modulecontext, $userid), ia_participant_status::get_invalids(), true);
+        return in_array(self::get_status_in_module($modulecontext, $userid), ia_status::get_invalids(), true);
     }
 
     /**
-     * Get if the status value for the user in the module represents "Valid".
+     * Returns true if the status value for the user in the latest session for the module represents "Valid".
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
@@ -671,7 +675,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function is_status_valid(\context $modulecontext, int $userid): bool {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -684,8 +688,8 @@ class Api {
         }
 
         $statusinmodule = self::get_status_in_module($modulecontext, $userid);
-        $debug && ia_mu::log($fxn . "::Comparing \$statusinmodule={$statusinmodule} === " . ia_participant_status::VALID);
-        $isstatusvalid = (intval($statusinmodule) === intval(ia_participant_status::VALID));
+        $debug && ia_mu::log($fxn . "::Comparing \$statusinmodule={$statusinmodule} === " . ia_status::VALID);
+        $isstatusvalid = (intval($statusinmodule) === intval(ia_status::VALID));
 
         return $isstatusvalid;
     }
@@ -772,8 +776,11 @@ class Api {
             return array();
         }
         // This function throws an error if the status is invalid.
-        $session->status = ia_participant_status::parse_status_string($input->Status);
+        $session->status = ia_status::parse_status_string($input->Status);
         $debug && ia_mu::log($fxn . '::Got $session->status=' . $session->status);
+        if (isset($input->Override_Status) && !empty($input->Override_Status)) {
+            $session->overridestatus = ia_status::parse_status_string($input->Override_Status);
+        }
 
         // Clean int fields.
         if (true) {
@@ -787,8 +794,17 @@ class Api {
             isset($input->Start) && ($session->start = \clean_param($input->Start, PARAM_INT));
             isset($input->End) && ($session->end = \clean_param($input->End, PARAM_INT));
             isset($input->Exit_Fullscreen_Count) && ($session->exitfullscreencount = \clean_param($input->Exit_Fullscreen_Count, PARAM_INT));
+            isset($input->Override_Date) && ($session->overridedate = \clean_param($input->Override_Date, PARAM_INT));
+            isset($input->Override_LMSUser_Id) && ($session->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
         $debug && ia_mu::log($fxn . '::Done int fields');
+
+        // Clean text fields.
+        if (true) {
+            isset($input->Override_LMSUser_FirstName) && ($session->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
+            isset($input->Override_LMSUser_LastName) && ($session->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
+            isset($input->Override_Reason) && ($session->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
+        }
 
         // This field is a data uri ref https://css-tricks.com/data-uris/.
         $matches = array();
@@ -834,8 +850,7 @@ class Api {
 
         // Clean int fields.
         if (true) {
-            isset($input->ParticipantIdentifier) &&
-                    ($participant->participantidentifier = \clean_param($input->ParticipantIdentifier, PARAM_INT));
+            isset($input->ParticipantIdentifier) && ($participant->participantidentifier = \clean_param($input->ParticipantIdentifier, PARAM_INT));
             isset($input->Course_Id) && ($participant->courseid = \clean_param($input->Course_Id, PARAM_INT));
 
             // Check for minimally-required data.
@@ -846,10 +861,8 @@ class Api {
 
             isset($input->Created) && ($participant->created = \clean_param($input->Created, PARAM_INT));
             isset($input->Modified) && ($participant->modified = \clean_param($input->Modified, PARAM_INT));
-
             isset($input->Override_Date) && ($participant->overridedate = \clean_param($input->Override_Date, PARAM_INT));
-            isset($input->Override_LMSUser_Id) &&
-                    ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
+            isset($input->Override_LMSUser_Id) && ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done int fields');.
         //
@@ -862,28 +875,25 @@ class Api {
                 $participant->email = $val;
             }
 
-            isset($input->Override_LMSUser_FirstName) &&
-                    ($participant->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
-            isset($input->Override_LMSUser_LastName) &&
-                    ($participant->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
+            isset($input->Override_LMSUser_FirstName) && ($participant->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
+            isset($input->Override_LMSUser_LastName) && ($participant->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
             isset($input->Override_Reason) && ($participant->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done text fields');.
         //
         // Clean URL fields.
         if (true) {
-            isset($input->Participant_Photo) &&
-                    ($participant->participantphoto = filter_var($input->Participant_Photo, FILTER_SANITIZE_URL));
+            isset($input->Participant_Photo) && ($participant->participantphoto = filter_var($input->Participant_Photo, FILTER_SANITIZE_URL));
             isset($input->ResubmitUrl) && ($participant->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done url fields');.
         //
         // Clean status vs whitelist.
         if (isset($input->Status)) {
-            $participant->status = ia_participant_status::parse_status_string($input->Status);
+            $participant->status = ia_status::parse_status_string($input->Status);
         }
         if (isset($input->Override_Status) && !empty($input->Override_Status)) {
-            $participant->overridestatus = ia_participant_status::parse_status_string($input->Override_Status);
+            $participant->overridestatus = ia_status::parse_status_string($input->Override_Status);
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done status fields');.
         //
@@ -946,15 +956,15 @@ class Api {
         }
 
         // Do validity checks only if quick and absolutely neccesary.
-        if (!ia_participant_status::is_overriddable($status)) {
+        if (!ia_status::is_overriddable($status)) {
             throw new InvalidArgumentException("Status={$status} not an overridable value");
         }
 
         // The only API options are "Valid" or "Invalid" case-sensitive, so translate to a string but invalid_override_int corresponds to just "Invalid".
-        if ($status === ia_participant_status::INVALID_OVERRIDE_INT) {
-            $statusstr = ia_participant_status::VALID;
+        if ($status === ia_status::INVALID_OVERRIDE_INT) {
+            $statusstr = ia_status::VALID;
         } else {
-            $statusstr = ia_participant_status::get_status_string($status);
+            $statusstr = ia_status::get_status_string($status);
         }
 
         $params = array(
@@ -1041,8 +1051,7 @@ class Api {
         // If there are params missing $requiredparams[] list, throw an exception.
         // Compare the incoming keys in $params vs the list of required params (the values of that array).
         if ($missingparams = array_diff($requiredparams, array_keys($params))) {
-            $msg = 'The ' . $endpoint . ' endpoint requires params=' . implode(', ', $missingparams) .
-                    '; got params=' . implode(', ', array_keys($params));
+            $msg = 'The ' . $endpoint . ' endpoint requires params=' . implode(', ', $missingparams) . '; got params=' . implode(', ', array_keys($params));
             ia_mu::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
         }
@@ -1051,8 +1060,7 @@ class Api {
         // Use array_diff_key: Returns an array containing all the entries from array1 whose keys are...
         // Absent from all of the other arrays.
         if ($extraparams = array_diff_key($params, $validparams)) {
-            $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . implode(', ', $extraparams) .
-                    '; got params=' . implode(', ', array_keys($params));
+            $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . implode(', ', $extraparams) . '; got params=' . implode(', ', array_keys($params));
             ia_mu::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
         }
