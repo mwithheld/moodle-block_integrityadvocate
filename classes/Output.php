@@ -230,8 +230,7 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        $parameters = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid,
-            'userid' => $userid, 'sesskey' => sesskey());
+        $parameters = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'userid' => $userid, 'sesskey' => sesskey());
         $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $parameters);
         $label = \get_string('overview_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
         $options = array('class' => 'block_integrityadvocate_overview_btn_view_details');
@@ -251,49 +250,35 @@ class Output {
             throw new \InvalidArgumentException('Input $session must contain Flags array');
         }
 
-        $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
-        $out = \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_flags_div ' . self::CLASS_TABLE));
-        $out .= \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_flags_title ' . self::CLASS_TABLE_HEADER)) .
-                \get_string('overview_flags', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div');
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview';
+        $out = \html_writer::start_tag('div', array('class' => $prefix . '_flags_div ' . self::CLASS_TABLE));
+        $out .= \html_writer::div(\get_string('overview_flags', INTEGRITYADVOCATE_BLOCK_NAME), array('class' => $prefix . '_flags_title ' . self::CLASS_TABLE_HEADER));
 
         if (empty($session->flags)) {
-            $out .= \html_writer::start_tag('div',
-                            array('class' => $prefix . '_overview_flag_type ' . self::CLASS_TABLE_ROW)) .
-                    \get_string('flags_none', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div');
+            $out .= \html_writer::div(\get_string('flags_none', INTEGRITYADVOCATE_BLOCK_NAME), array('class' => $prefix . '_flag_type ' . self::CLASS_TABLE_ROW));
         }
 
         $flags = array_values($session->flags);
         usort($flags, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_created_desc'));
 
         foreach ($session->flags as $f) {
-            $out .= \html_writer::start_tag('div',
-                            array('class' => $prefix . '_overview_flag_type ' . self::CLASS_TABLE_ROW)) .
-                    \html_writer::start_tag('div',
-                            array('class' => $prefix . '_overview_flag_type_label ' . self::CLASS_TABLE_LABEL)) .
+            $out .= \html_writer::start_tag('div', array('class' => $prefix . '_flag_type ' . self::CLASS_TABLE_ROW)) .
+                    \html_writer::start_tag('div', array('class' => $prefix . '_flag_type_label ' . self::CLASS_TABLE_LABEL)) .
                     \get_string('flag_type', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div') .
-                    \html_writer::start_tag('div',
-                            array('class' => $prefix . '_overview_flag_type_value ' . self::CLASS_TABLE_VALUE)) .
+                    \html_writer::start_tag('div', array('class' => $prefix . '_flag_type_value ' . self::CLASS_TABLE_VALUE)) .
                     htmlentities($f->flagtypename) . \html_writer::end_tag('div') . \html_writer::end_tag('div');
 
-            $out .= \html_writer::start_tag('div',
-                            array('class' => $prefix . '_overview_flag_comment ' . self::CLASS_TABLE_ROW)) .
-                    \html_writer::start_tag('div',
-                            array('class' => $prefix . '_overview_flag_comment_label ' . self::CLASS_TABLE_LABEL)) .
+            $out .= \html_writer::start_tag('div', array('class' => $prefix . '_flag_comment ' . self::CLASS_TABLE_ROW)) .
+                    \html_writer::start_tag('div', array('class' => $prefix . '_flag_comment_label ' . self::CLASS_TABLE_LABEL)) .
                     \get_string('flag_comment', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div') .
-                    \html_writer::start_tag('div',
-                            array('class' => $prefix . '_overview_flag_comment_value ' . self::CLASS_TABLE_VALUE)) .
+                    \html_writer::start_tag('div', array('class' => $prefix . '_flag_comment_value ' . self::CLASS_TABLE_VALUE)) .
                     htmlentities($f->comment) . \html_writer::end_tag('div') . \html_writer::end_tag('div');
 
             if ($f->capturedata) {
-                $out .= \html_writer::start_tag('div',
-                                array('class' => $prefix . '_overview_flag_img ' . self::CLASS_TABLE_ROW)) .
-                        \html_writer::start_tag('div',
-                                array('class' => $prefix . '_overview_flag_img_label ' . self::CLASS_TABLE_LABEL)) .
+                $out .= \html_writer::start_tag('div', array('class' => $prefix . '_flag_img ' . self::CLASS_TABLE_ROW)) .
+                        \html_writer::start_tag('div', array('class' => $prefix . '_flag_img_label ' . self::CLASS_TABLE_LABEL)) .
                         \get_string('flag_capture', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div') .
-                        \html_writer::start_tag('div',
-                                array('class' => $prefix . '_overview_flag_img_value ' . self::CLASS_TABLE_VALUE)) .
+                        \html_writer::start_tag('div', array('class' => $prefix . '_flag_img_value ' . self::CLASS_TABLE_VALUE)) .
                         '<img src="' . $f->capturedata . '"/>' . \html_writer::end_tag('div') . \html_writer::end_tag('div');
             }
         }
@@ -338,39 +323,21 @@ class Output {
         }
         list($unused, $cm) = \get_course_and_cm_from_cmid($session->activityid, null, $courseid, $session->participant->participantidentifier);
 
-        $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_session';
         $out = '';
-        $out .= \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_div ' . self::CLASS_TABLE));
-        $out .= \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_title ' . self::CLASS_TABLE_HEADER)) .
-                \get_string('overview_session', INTEGRITYADVOCATE_BLOCK_NAME, $cm->name) . \html_writer::end_tag('div');
-        $out .= \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_start ' . self::CLASS_TABLE_ROW)) .
-                \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_start_label ' . self::CLASS_TABLE_LABEL)) .
-                \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div') .
-                \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_start_value ' . self::CLASS_TABLE_VALUE)) .
-                ($session->start ? \userdate($session->start) : '') . \html_writer::end_tag('div') .
+        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_div ' . self::CLASS_TABLE));
+        $out .= \html_writer::div(\get_string('overview_session', INTEGRITYADVOCATE_BLOCK_NAME, $cm->name), array('class' => $prefix . '_title ' . self::CLASS_TABLE_HEADER));
+        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_start ' . self::CLASS_TABLE_ROW)) .
+                \html_writer::div(\get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME), array('class' => $prefix . '_start_label ' . self::CLASS_TABLE_LABEL)) .
+                \html_writer::div(($session->start ? \userdate($session->start) : ''), array('class' => $prefix . '_start_value ' . self::CLASS_TABLE_VALUE)) .
                 \html_writer::end_tag('div');
-        $out .= \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_end ' . self::CLASS_TABLE_ROW)) .
-                \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_end_label ' . self::CLASS_TABLE_LABEL)) .
-                \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div') .
-                \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_end_value ' . self::CLASS_TABLE_VALUE)) .
-                ($session->end ? \userdate($session->end) : '') . \html_writer::end_tag('div') .
+        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_end ' . self::CLASS_TABLE_ROW)) .
+                \html_writer::div(\get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME), array('class' => $prefix . '_end_label ' . self::CLASS_TABLE_LABEL)) .
+                \html_writer::div(($session->end ? \userdate($session->end) : ''), array('class' => $prefix . '_end_value ' . self::CLASS_TABLE_VALUE)) .
                 \html_writer::end_tag('div');
-        $out .= \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_status ' . self::CLASS_TABLE_ROW)) .
-                \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_status_label ' . self::CLASS_TABLE_LABEL))
-                . \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('div') .
-                \html_writer::start_tag('div',
-                        array('class' => $prefix . '_overview_session_status_value ' . self::CLASS_TABLE_VALUE)) .
-                ia_participant_status::get_status_lang($session->status) . \html_writer::end_tag('div') .
+        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_status ' . self::CLASS_TABLE_ROW)) .
+                \html_writer::div(\get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME), array('class' => $prefix . '_status_label ' . self::CLASS_TABLE_LABEL)) .
+                \html_writer::div(ia_participant_status::get_status_lang($session->status), array('class' => $prefix . '_status_value ' . self::CLASS_TABLE_VALUE)) .
                 \html_writer::end_tag('div');
 
         // Close .block_integrityadvocate_overview_session_div.
@@ -409,10 +376,10 @@ class Output {
 
         usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
 
-        $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
-        $output .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_sessions_div'));
-        $output .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_sessions_title')) .
-                '<h3>' . \get_string('overview_sessions', INTEGRITYADVOCATE_BLOCK_NAME) . '</h3>' .
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_sessions';
+        $output .= \html_writer::start_tag('div', array('class' => $prefix . '_div'));
+        $output .= \html_writer::start_tag('div', array('class' => $prefix . '_title')) .
+                \html_writer::start_tag('h3') . \get_string('overview_sessions', INTEGRITYADVOCATE_BLOCK_NAME) . \html_writer::end_tag('h3') .
                 \html_writer::end_tag('div');
 
         // Output sessions info.
@@ -481,10 +448,7 @@ class Output {
                         ' ' . $prefix . '_select ' . $prefix . '_status_select',
                         $participant->status,
                         array('' => 'choosedots'),
-                        array(
-                            'id' => $prefix . '_status_select',
-                            'required' => true
-                        )
+                        array('id' => $prefix . '_status_select', 'required' => true)
         );
 
         // Add the override reason textbox.
@@ -538,19 +502,13 @@ class Output {
 
         switch ($participant->status) {
             case ia_participant_status::INPROGRESS_INT:
-                $statushtml = \html_writer::span(
-                                \get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME),
-                                $prefix . '_status_val ' . $prefix . '_status_inprogress');
+                $statushtml = \html_writer::span(\get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_inprogress');
                 break;
             case ia_participant_status::VALID_INT:
-                $statushtml = \html_writer::span(
-                                get_string('status_valid', INTEGRITYADVOCATE_BLOCK_NAME),
-                                $prefix . '_status_val ' . $prefix . '_status_valid');
+                $statushtml = \html_writer::span(get_string('status_valid', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_valid');
                 break;
             case ia_participant_status::INVALID_ID_INT:
-                $statushtml = \html_writer::span(
-                                \get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME),
-                                $prefix . '_status_val ' . $prefix . '_status_invalid_id');
+                $statushtml = \html_writer::span(\get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_invalid_id');
 
                 // The user is allowed to re-submit their identity stuff, so build a link to show later.
                 $resubmiturl = $participant->resubmiturl ? $participant->resubmiturl : '';
@@ -566,14 +524,10 @@ class Output {
                 }
                 break;
             case ia_participant_status::INVALID_OVERRIDE_INT:
-                $statushtml = \html_writer::span(
-                                \get_string('status_invalid_override', INTEGRITYADVOCATE_BLOCK_NAME),
-                                $prefix . '_status_val ' . $prefix . '_status_invalid_override');
+                $statushtml = \html_writer::span(\get_string('status_invalid_override', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_invalid_override');
                 break;
             case ia_participant_status::INVALID_RULES_INT:
-                $statushtml = \html_writer::span(
-                                \get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME),
-                                $prefix . '_status_val ' . $prefix . '_status_invalid_rules');
+                $statushtml = \html_writer::span(\get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_invalid_rules');
                 break;
             default:
                 $error = 'Invalid participant status value=' . serialize($participant->status);
@@ -586,25 +540,20 @@ class Output {
         }
 
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
-                \html_writer::start_tag('span', array('class' => $prefix . '_overview_participant_summary_status_label')) .
-                \get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ' .
-                \html_writer::end_tag('span') .
+                \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', array('class' => $prefix . '_overview_participant_summary_status_label')) .
                 $statushtml .
                 \html_writer::end_tag('div');
         if ($resubmithtml) {
-            $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_resubmit')) .
-                    $resubmithtml . \html_writer::end_tag('div');
+            $out .= \html_writer::div($resubmithtml, array('class' => $prefix . '_overview_participant_summary_resubmit'));
         }
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_start')) .
-                \html_writer::start_tag('span', array('class' => $prefix . '_overview_participant_summary_status_label')) .
-                \get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ' .
-                \html_writer::end_tag('span') . date('Y-m-d H:i', $participant->created) .
+                \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', array('class' => $prefix . '_overview_participant_summary_status_label')) .
+                date('Y-m-d H:i', $participant->created) .
                 \html_writer::end_tag('div');
 
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_end')) .
-                \html_writer::start_tag('span', array('class' => $prefix . '_overview_participant_summary_status_label')) .
-                \get_string('last_modified', INTEGRITYADVOCATE_BLOCK_NAME) . ': ' .
-                \html_writer::end_tag('span') . date('Y-m-d H:i', $participant->modified) .
+                \html_writer::span(\get_string('last_modified', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', array('class' => $prefix . '_overview_participant_summary_status_label')) .
+                date('Y-m-d H:i', $participant->modified) .
                 \html_writer::end_tag('div');
 
         if ($showviewdetailsbutton) {
@@ -649,13 +598,11 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
-        $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_img_div'));
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant';
+        $out = \html_writer::start_tag('div', array('class' => $prefix . '_summary_img_div'));
         if ($participant->participantphoto) {
             $out .= \html_writer::start_tag('span',
-                            array(
-                                'class' => $prefix . '_overview_participant_summary_img '
-                                . $prefix . '_overview_participant_summary_img_' .
+                            array('class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' .
                                 ($participant->status === ia_participant_status::VALID_INT ? '' : 'in') . 'valid')
                     ) .
                     \html_writer::img($participant->participantphoto, $participant->email) .
