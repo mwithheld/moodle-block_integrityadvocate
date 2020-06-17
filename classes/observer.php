@@ -49,16 +49,13 @@ class block_integrityadvocate_observer {
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . var_export($event, true));.
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
         }
 
         // No CLI events correspond to a user finishing an IA session.
         if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                            "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
             return false;
         }
 
@@ -93,7 +90,7 @@ class block_integrityadvocate_observer {
             // None of the event names starting with these strings correspond to finishing a module.
             case preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
             // None of the \mod_forum\*created events correspond to finishing an module...
-            // They probably jost posted to the forum or added a discussion but that's not finishing with forums.
+            // They probably just posted to the forum or added a discussion but that's not finishing with forums.
             case in_array($event->eventname,
                     array(
                         '\\assignsubmission_onlinetext\\event\\submission_updated',
@@ -104,13 +101,11 @@ class block_integrityadvocate_observer {
                         '\\mod_workshop\\event\\submission_reassessed',
             )):
                 // None of these exact string matches on event names correspond to finishing an module.
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                                "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
             default:
                 // Do nothing.
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                                "::This eventname is not blacklisted so continue");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not blacklisted so continue");
         }
 
         /*
@@ -129,41 +124,35 @@ class block_integrityadvocate_observer {
                         // This is blacklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
                         '\\mod_scorm\\event\\scoreraw_submitted',
                         '\\mod_quiz\\event\\attempt_abandoned',
+                        '\\mod_quiz\\event\\attempt_reviewed',
                         '\\mod_quiz\\event\\attempt_submitted',
             )):
-                ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                        "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
+                ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                                "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
                 return false;
         }
 
-        // Make sure...
-        // (a) this is a create or update event; and...
-        // (b) this is a module-level event.
-        $iscreateorupdate = in_array($event->crud, array('c', 'u'), true);
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                        '::Found $is_create_or_update=' . $iscreateorupdate);
-        if (!$iscreateorupdate) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                            '::This is not a create or update event, so skip it');
-            return false;
-        }
-
-        $iscoursemodulechangeevent = (
-                // CONTEXT_MODULE=70.
-                $event->contextlevel === CONTEXT_MODULE && is_numeric($event->courseid) && $event->courseid != SITEID
-                );
-
+        // Make sure this is a create or update event.
         /*
-         * Note \core\event\user_graded events are CONTEXT_MODULE=50...
-         * but there are other events that should close the IA session.
+         * Disabled on purpose:
+         *
+          $iscreateorupdate = in_array($event->crud, array('c', 'u'), true);
+          $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Found $is_create_or_update=' . $iscreateorupdate);
+          if (!$iscreateorupdate) {
+          $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is not a create or update event, so skip it');
+          return false;
+          }
          */
+
+        // CONTEXT_MODULE=70.
+        $iscoursemodulechangeevent = ( $event->contextlevel === CONTEXT_MODULE && is_numeric($event->courseid) && $event->courseid != SITEID);
+
+        // Make sure this is a module-level event.
+        // Note \core\event\user_graded events are contextlevel=50 but there are other events that should close the IA session.
         if (!$iscoursemodulechangeevent) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                            "::This is not a course module create or update so skip it; debuginfo={$debuginfo}");
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This is not a course module create or update so skip it; debuginfo={$debuginfo}");
             return false;
         }
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is a course module create or update so continue');
