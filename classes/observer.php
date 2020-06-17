@@ -177,8 +177,7 @@ class block_integrityadvocate_observer {
         // Gets visible blocks.
         $blockinstances = ia_mu::get_all_blocks(\INTEGRITYADVOCATE_SHORTNAME);
         if (empty($blockinstances)) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::No integrityadvocate block instances found, '
-                            . 'so skip this task.');
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::No integrityadvocate block instances found, so skip this task.');
             return true;
         }
 
@@ -233,12 +232,10 @@ class block_integrityadvocate_observer {
         }
 
         if (!\is_enrolled($modulecontext, $event->userid, null, true)) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::The user has no active enrolment in this course-module "
-                            . "so skip it");
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::The user has no active enrolment in this course-module so skip it");
             return false;
         }
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module '
-                        . 'so carry on');
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
 
         if ($debug) {
             // Remove the block_ prefix and _observer suffix.
