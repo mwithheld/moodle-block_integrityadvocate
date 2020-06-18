@@ -81,7 +81,7 @@ $string['overview'] = 'Integrity Advocate Overview';
 $string['overview_flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
-$string['overview_user_status'] = 'Overall status';
+$string['overview_user_status'] = 'Latest status';
 $string['overview_view_details'] = 'View details';
 
 $string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en">Integrity Advocate Privacy</a> for more information.';
