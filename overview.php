@@ -71,7 +71,8 @@ $coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST);
 \confirm_sesskey();
 
 // Find the role to display, defaulting to students.
-$roleid = \optional_param('role', ia_mu::get_default_course_role($coursecontext), PARAM_INT);
+// To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
+$roleid = \optional_param('role', 0, PARAM_INT);
 
 // Set up page parameters.
 $PAGE->set_course($course);
