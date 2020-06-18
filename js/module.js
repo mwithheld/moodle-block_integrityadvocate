@@ -28,7 +28,7 @@ M.block_integrityadvocate = {
             jQuery('.mod_quiz-next-nav').attr('disabled', 1);
             window.console.log('Disabled quiz submission until IA loads');
             $.when($('integrityadvocate-activityblocker')).then((self) => {
-                jQuery('.mod_quiz-next-nav').attr('disabled', 0).removeAttr('disabled');
+                jQuery('.mod_quiz-next-nav').removeAttr('disabled');
                 jQuery('#block_integrityadvocate_hidequiz').remove();
                 window.console.log('Enabled quiz submission now that IA is loaded');
             });
