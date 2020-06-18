@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 M.block_integrityadvocate = {
-    overviewinit: function () {
+    blockinit: function () {
         // Disabled on purpose: window.console.log('IA moodle js init started');.
         // On quizzes,disable the submit button and hide the questions until the IA modal is loaded.
         if (document.body.id === 'page-mod-quiz-attempt') {
