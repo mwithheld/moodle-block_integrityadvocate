@@ -28,9 +28,12 @@ $string['column_iadata'] = 'Integrity Advocate data';
 $string['column_iaphoto'] = 'Integrity Advocate photo';
 $string['completion_not_enabled'] = 'Completion tracking is not enabled on this site.';
 $string['completion_not_enabled_course'] = 'Completion tracking is not enabled in this course.';
+
 $string['config_apikey'] = 'Api Key';
 $string['config_appid'] = 'Application Id';
+$string['config_blockversion'] = 'Version';
 $string['config_default_title'] = 'Integrity Advocate';
+
 $string['created'] = 'First seen';
 $string['disabled_editingmode'] = 'Course editing mode is enabled, so video monitoring is disabled';
 $string['disabled_haseditcap'] = 'Disabled for non-students';

@@ -395,8 +395,13 @@ class block_integrityadvocate extends block_base {
                 break;
             default:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::In some unknown context, so show nothing');
-                return;
+                break;
         }
+
+        $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
+        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME)->version . '</div>';
+        $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
+        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
     }
 
     public function get_course() {

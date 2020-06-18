@@ -137,6 +137,9 @@
 .block_integrityadvocate_overview_participant_summary_status .icon {
     font-size: 1.5em;
 }
-.block_integrityadvocate_override_form_label{
+.block_integrityadvocate_override_form_label {
     margin-right: 1.5em;
+}
+.block_integrityadvocate_plugininfo {
+    font-size: 0.5em;
 }
