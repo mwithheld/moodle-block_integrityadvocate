@@ -367,7 +367,7 @@ class block_integrityadvocate extends block_base {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
 
                                     // Hide quiz questions until JS is loaded and the IA modal is open.
-                                    // Disabled while I think about whether we should do this: $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';.
+                                    $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';
 
                                     ia_output::add_block_js($this);
                                     ia_output::add_proctor_js($this, $USER);
