@@ -482,6 +482,34 @@ class Output {
         return $output;
     }
 
+    public static function get_latest_status_html(ia_participant $participant, string $prefix): string {
+        $statushtml = '';
+        $cssclassval = $prefix . '_status_val ';
+        switch ($participant->status) {
+            case ia_status::INPROGRESS_INT:
+                $statushtml = \html_writer::span(\get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_inprogress");
+                break;
+            case ia_status::VALID_INT:
+                $statushtml = \html_writer::span(get_string('status_valid', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_valid");
+                break;
+            case ia_status::INVALID_ID_INT:
+                $statushtml = \html_writer::span(\get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_id");
+                break;
+            case ia_status::INVALID_OVERRIDE_INT:
+                $statushtml = \html_writer::span(\get_string('status_invalid_override', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_override");
+                break;
+            case ia_status::INVALID_RULES_INT:
+                $statushtml = \html_writer::span(\get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_rules");
+                break;
+            default:
+                $error = 'Invalid participant status value=' . serialize($participant->status);
+                ia_mu::log($error);
+                throw new \InvalidValueException($error);
+        }
+
+        return $statushtml;
+    }
+
     /**
      * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
      *
@@ -510,41 +538,19 @@ class Output {
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
-        $resubmithtml = '';
 
-        switch ($participant->status) {
-            case ia_status::INPROGRESS_INT:
-                $statushtml = \html_writer::span(\get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_inprogress');
-                break;
-            case ia_status::VALID_INT:
-                $statushtml = \html_writer::span(get_string('status_valid', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_valid');
-                break;
-            case ia_status::INVALID_ID_INT:
-                $statushtml = \html_writer::span(\get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_invalid_id');
+        $out .= self::get_latest_status_html($participant, $prefix);
 
-                // The user is allowed to re-submit their identity stuff, so build a link to show later.
-                $resubmiturl = $participant->resubmiturl ? $participant->resubmiturl : '';
-                $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $resubmiturl);
-                if ($resubmiturl) {
-                    $resubmithtml = \html_writer::span(
-                                    format_text(\html_writer::link(
-                                                    $resubmiturl,
-                                                    \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME),
-                                                    array('target' => '_blank')
-                                            ), FORMAT_HTML),
-                                    $prefix . '_resubmit_link');
-                }
-                break;
-            case ia_status::INVALID_OVERRIDE_INT:
-                $statushtml = \html_writer::span(\get_string('status_invalid_override', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_invalid_override');
-                break;
-            case ia_status::INVALID_RULES_INT:
-                $statushtml = \html_writer::span(\get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME), $prefix . '_status_val ' . $prefix . '_status_invalid_rules');
-                break;
-            default:
-                $error = 'Invalid participant status value=' . serialize($participant->status);
-                ia_mu::log($error);
-                throw new \InvalidValueException($error);
+        if ($participant->status === INVALID_ID_INT) {
+            // The user is allowed to re-submit their identity stuff, so build a link to show later.
+            $resubmiturl = $participant->resubmiturl ? $participant->resubmiturl : '';
+            $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $resubmiturl);
+            if ($resubmiturl) {
+                $out .= \html_writer::span(
+                                format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')
+                                        ), FORMAT_HTML),
+                                $prefix . '_resubmit_link');
+            }
         }
 
         if ($showoverridebutton) {
