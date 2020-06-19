@@ -595,7 +595,7 @@ class Api {
         // Get the int value representing this constant so it's equivalent to what is stored in Session->status.
         $notfoundval = ia_participant_status::INPROGRESS_INT;
 
-        $latestsession = self::get_session_latest($modulecontext, $userid);
+        $latestsession = self::get_module_session_latest($modulecontext, $userid);
         if (ia_u::is_empty($latestsession)) {
             $debug && ia_mu::log($fxn . "::The latest session for userid={$userid} was not found");
             return $notfoundval;

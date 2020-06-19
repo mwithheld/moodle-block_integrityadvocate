@@ -388,7 +388,7 @@ class Output {
                         \get_string('status_invalid_rules', \INTEGRITYADVOCATE_BLOCKNAME) . \html_writer::end_tag('span');
                 break;
             default:
-                $error = 'Invalid participant review status value=' . serialize($reviewstatus);
+                $error = 'Invalid participant status value=' . serialize($participant->status);
                 ia_mu::log($error);
                 throw new InvalidValueException($error);
         }
