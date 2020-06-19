@@ -129,6 +129,7 @@ class Api {
         // For the Participants endpoint, add the remaining part of the URL.
         if ($endpoint === self::ENDPOINT_PARTICIPANTS) {
             $endpoint .= "/{$params['courseid']}/participants";
+            unset($params['courseid']);
         }
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
