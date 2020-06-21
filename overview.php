@@ -44,6 +44,8 @@ const INTEGRITYADVOCATE_OVERVIEW_INTERNAL = true;
 
 $debug = true;
 
+\require_login();
+
 // Gather form data.
 $blockinstanceid = required_param('instanceid', PARAM_INT);
 $courseid = required_param('courseid', PARAM_INT);
