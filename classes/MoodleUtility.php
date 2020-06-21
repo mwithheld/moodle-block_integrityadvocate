@@ -45,9 +45,9 @@ class MoodleUtility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . var_export($params, true));
+        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
         $records = $DB->get_records('block_instances', $params);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found $records=' . (ia_u::is_empty($records) ? '' : var_export($records, true)));
+        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
             $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::No instances of block_{$blockname} found");
             return array();
@@ -56,7 +56,7 @@ class MoodleUtility {
         // Go through each of the block instances and check visibility.
         $blockinstances = array();
         foreach ($records as $r) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $br=' . var_export($r, true));
+            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $br=' . ia_u::var_dump($r, true));
 
             // Check if it is visible and get the IA appid from the block instance config.
             $blockinstancevisible = self::get_block_visibility($r->parentcontextid, $r->id);
@@ -282,7 +282,7 @@ class MoodleUtility {
         $debug = true;
 
         $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $modulecontextid));
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : var_export($record, true)));
+        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
             // There is no block_positions record, and the default is visible.
             return true;
@@ -315,6 +315,46 @@ class MoodleUtility {
         }
 
         return $errors;
+    }
+
+    /**
+     * Given the cmid, get the courseid without throwing an error.
+     *
+     * @param int $cmid The CMID to look up.
+     * @return int The courseid if found, else -1.
+     */
+    public static function get_courseid_from_cmid(int $cmid): int {
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && self::log($fxn . "::Started with $cmid={$cmid}");
+
+        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'perrequest');
+        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . $cmid;
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && self::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
+        global $DB;
+        $course = $DB->get_record_sql("
+                    SELECT c.id
+                      FROM {course_modules} cm
+                      JOIN {course} c ON c.id = cm.course
+                     WHERE cm.id = ?", array($cmid));
+
+        if (ia_u::is_empty($course) || !isset($course->id)) {
+            $debug && self::log($fxn . "::No course found for cmid={$cmid}");
+            $returnthis = -1;
+        } else {
+            $returnthis = $course->id;
+        }
+
+        if (!$cache->set($cachekey, $returnthis)) {
+            throw new \Exception('Failed to set value in perrequest cache');
+        }
+
+        return $returnthis;
     }
 
     /**
@@ -406,12 +446,12 @@ class MoodleUtility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . var_export($params, true));
+        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
         // If there are multiple blocks in this context just return the first one .
         global $DB;
         $record = $DB->get_record('block_instances', $params, '*', IGNORE_MULTIPLE);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found blockinstance record=' . (ia_u::is_empty($record) ? '' : var_export($record, true)));
+        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found blockinstance record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
             $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::No instance of block_{$blockname} is associated with this context");
             return false;
@@ -432,7 +472,7 @@ class MoodleUtility {
         }
 
         $blockinstance = \block_instance_by_id($record->id);
-        // Disabled on purpose: $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::About to return a block instance=" . var_export($blockinstance, true));.
+        // Disabled on purpose: $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::About to return a block instance=" . ia_u::var_dump($blockinstance, true));.
 
         return $blockinstance;
     }
@@ -446,7 +486,7 @@ class MoodleUtility {
      */
     public static function get_user_as_obj($user) {
         $debug = false;
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $user=' . var_export($user, true));
+        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $user=' . ia_u::var_dump($user, true));
 
         if (is_numeric($user)) {
             $userarr = user_get_users_by_id(array(intval($user)));
@@ -471,7 +511,7 @@ class MoodleUtility {
      */
     public static function get_user_last_access(int $userid, int $courseid): int {
         global $DB;
-        // Disabled on purpose: $debug &&self::log('Got $lastaccesses_record=' . var_export($lastaccesses_record, true));.
+        // Disabled on purpose: $debug &&self::log('Got $lastaccesses_record=' . ia_u::var_dump($lastaccesses_record, true));.
         return $DB->get_field('user_lastaccess', 'timeaccess', array('courseid' => $courseid, 'userid' => $userid));
     }
 
@@ -530,7 +570,7 @@ class MoodleUtility {
         $wheres = array();
 
         $enrolledjoin = get_enrolled_join($courserormodulecontext, 'u.id;', true);
-        $debug && self::log($fxn . "::get_enrolled_join() returned=" . var_export($enrolledjoin, true));
+        $debug && self::log($fxn . "::get_enrolled_join() returned=" . ia_u::var_dump($enrolledjoin, true));
 
         // Make the parts easier to use.
         $joins[] = $enrolledjoin->joins;
@@ -551,7 +591,7 @@ class MoodleUtility {
 
         // Build the full join part of the sql.
         $sqljoin = new \core\dml\sql_join($joins, $wheres, $params);
-        $debug && self::log($fxn . '::Built sqljoin=' . var_export($sqljoin, true));
+        $debug && self::log($fxn . '::Built sqljoin=' . ia_u::var_dump($sqljoin, true));
         /*
          * The value of $sqljoin is something like this:
          * JOIN {user_enrolments} ej1_ue ON ej1_ue.userid = u.id;
@@ -582,11 +622,11 @@ class MoodleUtility {
                     WHERE {$sqljoin->wheres}
                     GROUP BY {$prefix}ue.id
                     ";
-        $debug && self::log($fxn . "::Built sql={$sql} with params=" . var_export($params, true));
+        $debug && self::log($fxn . "::Built sql={$sql} with params=" . ia_u::var_dump($params, true));
 
         global $DB;
         $enrolmentinfo = $DB->get_record_sql($sql, $sqljoin->params, IGNORE_MULTIPLE);
-        $debug && self::log($fxn . '::Got $userEnrolmentInfo=' . (ia_u::is_empty($enrolmentinfo) ? '' : var_export($enrolmentinfo, true)));
+        $debug && self::log($fxn . '::Got $userEnrolmentInfo=' . (ia_u::is_empty($enrolmentinfo) ? '' : ia_u::var_dump($enrolmentinfo, true)));
 
         if (ia_u::is_empty($enrolmentinfo)) {
             self::log($fxn .
