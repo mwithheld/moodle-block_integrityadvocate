@@ -39,6 +39,15 @@ class Api {
     const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
     const ENDPOINT_PARTICIPANT = '/participant';
     const ENDPOINT_PARTICIPANTS = '/course';
+    // The API returns 10 results max per call by default, but our UI shows 20 users per page.
+    // Ref https://integrityadvocate.com/developers.
+    // Set the number we want per UI page here.
+    const GET_PARTICIPANTS_PERPAGE = 20;
+    // In case of errors, these params limit the recurson to some reasonable maximum.
+    // Number of recursion levels max to 1000 students.
+    const GET_PARTICIPANTS_RECURSEMAX = 1000 / self::GET_PARTICIPANTS_PERPAGE;
+    // In seconds = 5 minutes.
+    const GET_PARTICIPANTS_TIMEOUT = 5 * 60;
 
     /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
@@ -64,11 +73,6 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        // For Behat tests, assume the session close succeeds.
-        if (ia_mu::is_testingmode()) {
-            return true;
-        }
-
         // Do not cache these requests.
         $curl = new \curl();
         $curl->setopt(array(
@@ -84,8 +88,8 @@ class Api {
                 '&activityid=' . urlencode($moduleid);
         $response = $curl->get($url);
         $responsecode = $curl->get_info('http_code');
-        $debug && ia_mu::log($fxn . '::Sent url=' . var_export($url, true)
-                        . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
+        $debug && ia_mu::log($fxn . '::Sent url=' . ia_u::var_dump($url, true)
+                        . '; http_code=' . ia_u::var_dump($responsecode, true) . '; response body=' . ia_u::var_dump($response, true));
 
         return intval($responsecode) < 400;
     }
@@ -103,7 +107,7 @@ class Api {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn .
-                "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . var_export($params, true);
+                "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
 
         // If the block is not configured yet, simply return empty result.
@@ -120,11 +124,6 @@ class Api {
 
         // Make sure the required params are present, there's no extra params, and param types are valid.
         self::validate_endpoint_params($endpoint, $params);
-
-        // For Behat tests, use mocked data.
-        if (ia_mu::is_testingmode()) {
-            return MockData::get($endpoint, $apikey, $appid, $params);
-        }
 
         // For the Participants endpoint, add the remaining part of the URL.
         if ($endpoint === self::ENDPOINT_PARTICIPANTS) {
@@ -143,17 +142,17 @@ class Api {
 
         // Set up request variables to get IA participant info.
         // Ref API docs at https://integrityadvocate.com/Developers#aEvents.
-        $debug && ia_mu::log($fxn . '::About to build $requesturi with $params=' . ($params ? var_export($params, true) : ''));
+        $debug && ia_mu::log($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params, true) : ''));
         $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
         $requesturi = $requestapiurl . ($params ? '?' . http_build_query($params, null, '&') : '');
         $debug && ia_mu::log($fxn . '::Built $requesturi=' . $requesturi);
 
         $requesttimestamp = time();
+        $requestmethod = 'GET';
         $microtime = explode(' ', microtime());
         $nonce = $microtime[1] . substr($microtime[0], 2, 6);
-        $debug && ia_mu::log($fxn .
-                        "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
-        $requestsignature = self::get_request_signature($requestapiurl, 'GET', $requesttimestamp, $nonce, $apikey, $appid);
+        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+        $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
         // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
         $curl = new \curl(array('cache' => false));
@@ -174,10 +173,10 @@ class Api {
         $responseparsed = json_decode($response);
         $responsedetails = $curl->get_info('http_code');
         $debug && ia_mu::log($fxn .
-                        '::Sent url=' . var_export($requesturi, true) . '; err_no=' . $curl->get_errno() .
-                        '; $responsedetails=' . ($responsedetails ? var_export($responsedetails, true) : '') .
-                        '; $response=' . var_export($response, true) .
-                        '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
+                        '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
+                        '; $responsedetails=' . ($responsedetails ? ia_u::var_dump($responsedetails, true) : '') .
+                        '; $response=' . ia_u::var_dump($response, true) .
+                        '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : ia_u::var_dump($responseparsed, true)));
 
         if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
             $msg = 'Error: json_decode found no results: ' . json_last_error_msg();
@@ -263,7 +262,8 @@ class Api {
     /**
      * Get a single IA proctoring participant data from the remote API.
      * @link https://integrityadvocate.com/Developers#aEndpointMethods
-     * This endpoint does not allow specifying activityid so you'll have to iterate sessions[] to get the relevant records for just one module.
+     * This endpoint does not allow specifying activityid so you'll have to iterate sessions[] to
+     * get the relevant records for just one module.
      *
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
@@ -286,13 +286,13 @@ class Api {
 
         // This gets a json-decoded object of the IA API curl result.
         $participantraw = self::get_participant_data($apikey, $appid, $courseid, $userid);
-        $debug && ia_mu::log($fxn . '::Got $participantraw=' . (ia_u::is_empty($participantraw) ? '' : var_export($participantraw, true)));
+        $debug && ia_mu::log($fxn . '::Got $participantraw=' . (ia_u::is_empty($participantraw) ? '' : ia_u::var_dump($participantraw, true)));
         if (ia_u::is_empty($participantraw)) {
             return null;
         }
 
         $participant = self::parse_participant($participantraw);
-        $debug && ia_mu::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : var_export($participant, true)));
+        $debug && ia_mu::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
 
         return $participant;
     }
@@ -322,7 +322,7 @@ class Api {
 
         // The $result is a json-decoded array.
         $result = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
-        $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
+        $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
 
         if (ia_u::is_empty($result) || !is_object($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
@@ -338,15 +338,16 @@ class Api {
      *
      * @link https://integrityadvocate.com/Developers#aEndpointMethods
      *
-     * @param string $apikey The API Key to get data for
-     * @param string $appid The AppId to get data for
-     * @return object[] Empty array if nothing found; else array of IA participants objects.
+     * @param string $apikey The API Key to get data for.
+     * @param string $appid The AppId to get data for.
+     * @param int $courseid Get info for this course.
+     * @param int $userid Optionally filter for this user.
+     * @return object[] Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
-    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null): array {
+    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null, int $page = 0): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn .
-                "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
+        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}; \$page={$page}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -356,45 +357,18 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        // This gets a json-decoded object of the IA API curl result.
-        $result = self::get_participants_data($apikey, $appid, $courseid);
-        $debug && ia_mu::log($fxn .
-                        '::Got API result=' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
+        // In case of infinite loop, bail out after trying for some time.
+        $oldexecutionlimit = ini_get('max_execution_time');
+        set_time_limit(self::GET_PARTICIPANTS_TIMEOUT);
 
-        if (ia_u::is_empty($result) || !isset($result->Participants) || empty($result->Participants) || !is_array($result->Participants)) {
+        // This gets a json-decoded object of the IA API curl result.
+        $participantsraw = self::get_participants_data($apikey, $appid, $courseid);
+        $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($participantsraw) ? '' : ia_u::var_dump($participantsraw, true)));
+        $debug = false;
+        if (ia_u::is_empty($participantsraw)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
             return array();
         }
-
-        $nexttoken = false;
-        if (isset($result->NextToken) && !empty($result->NextToken)) {
-            $nexttoken = $result->NextToken;
-        }
-
-        // The API returns a max of 20 results per call.  Get them all.
-        $maxrecords = 20;
-        // Collect results in $participants.
-        $participantsraw = $result->Participants;
-
-        while ($nexttoken && (count($result->Participants) == $maxrecords)) {
-            $debug && ia_mu::log($fxn .
-                            "::Getting more records: \$nexttoken=[$nexttoken}; count(\$result->Participants)=" . count($result->Participants));
-            $params = array('courseid' => $courseid, 'nexttoken' => $result->NextToken, 'backwardsearch' => false);
-            $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
-            if (ia_u::is_empty($result) || !isset($result->Participants) || empty($result->Participants) || !is_array($result->Participants)) {
-                break;
-            }
-
-            $debug && ia_mu::log($fxn . '::Got API result = ' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
-            $nexttoken = false;
-            if (isset($result->NextToken) && !empty($result->NextToken)) {
-                $nexttoken = $result->NextToken;
-            }
-            if (!empty($result) && isset($result->Participants) && !empty($result->Participants)) {
-                array_push($participantsraw, $result->Participants);
-            }
-        }
-        $debug && ia_mu::log($fxn . '::Built $participantsraw=' . ($participantsraw ? var_export($participantsraw, true) : ''));
 
         if (ia_u::is_empty($participantsraw)) {
             return array();
@@ -403,18 +377,19 @@ class Api {
         // Process the partcipants returned.
         $parsedparticipants = array();
         foreach ($participantsraw as $pr) {
-            $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : var_export($pr, true)));
+            $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
             if (ia_u::is_empty($pr)) {
+                $debug && ia_mu::log($fxn . '::Skip: This participantraw entry is empty');
                 continue;
             }
 
             // Parse the partcipants returned.
             $participant = self::parse_participant($pr);
-            $debug && ia_mu::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : var_export($participant, true)));
+            $debug && ia_mu::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
 
             // Skip if parsing failed.
             if (ia_u::is_empty(($participant))) {
-                $debug && ia_mu::log($fxn . "::The participant failed to parse");
+                $debug && ia_mu::log($fxn . '::Skip: The participant failed to parse');
                 continue;
             }
 
@@ -428,11 +403,17 @@ class Api {
                 continue;
             }
 
-            $parsedparticipants[] = $participant;
+            // Populate the participant session info, because we will always want to show the latest status from the sessions.
+            //$participantwithsesssions = self::get_participant($apikey, $appid, $courseid, $participant->participantidentifier);
+
+            $debug && ia_mu::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($parsedparticipants) . ' participants');
+            $parsedparticipants[$participant->participantidentifier] = $participant;
         }
 
-        $debug && ia_mu::log($fxn .
-                        '::About to return count($parsedparticipants)=' . (is_countable($parsedparticipants) ? count($parsedparticipants) : 0));
+        // Reset the execution time limit back to what it was.  This will restart the timer from zero but that's OK.
+        set_time_limit($oldexecutionlimit);
+
+        $debug && ia_mu::log($fxn . '::About to return count($parsedparticipants)=' . ia_u::count_if_countable($parsedparticipants));
         return $parsedparticipants;
     }
 
@@ -442,32 +423,60 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @return stdClass Empty object if nothing found; else an object representing the API curl results.  For the structure see tests\fixtures\participants1.json.
+     * @return array Empty Array of stdClass of the API curl results which can be parsed into Participant objects.
+     *          For the structure see tests\fixtures\participants*.json.
      * @throws InvalidArgumentException
      */
-    private static function get_participants_data(string $apikey, string $appid, int $courseid): \stdClass {
-        $debug = true;
+    private static function get_participants_data(string $apikey, string $appid, int $courseid, $nexttoken = null): array {
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
+        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$nexttoken={$nexttoken}";
         $debug && ia_mu::log($debugvars);
 
+        static $recursecount = 0;
+        if ($recursecount++ > self::GET_PARTICIPANTS_RECURSEMAX) {
+            throw new \Exception('Maximum recursion limit reached');
+        }
+
+        // Stop recursion when $result->NextToken = 'null'.
+        // WTF: It's a string with content 'null' when other fields returned are actual NULL.
+        if ($nexttoken == 'null') {
+            return array();
+        }
+
         // Sanity check.
+        // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !is_numeric($courseid)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
+        $params = array('courseid' => $courseid);
+        if ($nexttoken) {
+            $params['nexttoken'] = $nexttoken;
+        }
+
         // The $result is a array from the json-decoded results.
-        $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, array('courseid' => $courseid));
-        $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : var_export($result, true)));
+        $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
+        $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
 
         if (ia_u::is_empty($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
             return new \stdClass();
         }
 
-        return $result;
+        $participants = $result->Participants;
+        $debug && ia_mu::log($fxn . '::$result->NextToken=' . gettype($result->NextToken) . ':' . $result->NextToken);
+
+        if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
+            // Recurse!
+            $debug && ia_mu::log($fxn . '::About to recurse to get more results');
+            $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $courseid, $result->NextToken));
+        }
+
+        // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
+        return $participants;
     }
 
     /**
@@ -696,7 +705,7 @@ class Api {
     private static function parse_flag(\stdClass $input) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with $f=' . (ia_u::is_empty($input) ? '' : var_export($input, true)));
+        $debug && ia_mu::log($fxn . '::Started with $f=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
         if (ia_u::is_empty($input)) {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
@@ -730,7 +739,7 @@ class Api {
             $flag->capturedata = $matches[0];
         }
 
-        $debug && ia_mu::log($fxn . '::About to return $flag=' . var_export($flag, true));
+        $debug && ia_mu::log($fxn . '::About to return $flag=' . ia_u::var_dump($flag, true));
         return $flag;
     }
 
@@ -738,12 +747,13 @@ class Api {
      * Extract a Session object from API Participant data, cleaning all the fields.
      *
      * @param stdClass $input API session data
+     * @param Participant $participant Parent object
      * @return Session Null if failed to parse, otherwise a parsed Session object.
      */
-    private static function parse_session(\stdClass $input) {
+    private static function parse_session(\stdClass $input, Participant $participant) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : var_export($input, true)));
+        $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -773,7 +783,12 @@ class Api {
 
         // Clean int fields.
         if (true) {
-            isset($input->Activity_Id) && ($session->activityid = \clean_param($input->Activity_Id, PARAM_INT));
+            if (isset($input->Activity_Id)) {
+                $session->activityid = \clean_param($input->Activity_Id, PARAM_INT);
+                if (!($courseid = ia_mu::get_courseid_from_cmid($session->activityid)) || $courseid !== $participant->courseid) {
+                    return array();
+                }
+            }
             isset($input->Click_IAmHere_Count) && ($session->clickiamherecount = \clean_param($input->Click_IAmHere_Count, PARAM_INT));
             isset($input->Start) && ($session->start = \clean_param($input->Start, PARAM_INT));
             isset($input->End) && ($session->end = \clean_param($input->End, PARAM_INT));
@@ -797,7 +812,10 @@ class Api {
             }
         }
 
-        $debug && ia_mu::log($fxn . '::About to return $session= ' . var_export($session, true));
+        // Link in the parent Participant object.
+        $session->participant = $participant;
+
+        $debug && ia_mu::log($fxn . '::About to return $session= ' . ia_u::var_dump($session, true));
         return $session;
     }
 
@@ -810,7 +828,7 @@ class Api {
     public static function parse_participant(\stdClass $input) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with $p=' . (ia_u::is_empty($input) ? '' : var_export($input, true)));
+        $debug && ia_mu::log($fxn . '::Started with $p=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -875,7 +893,7 @@ class Api {
         if (isset($input->Sessions) && is_array($input->Sessions)) {
             $debug && ia_mu::log($fxn . '::Found some sessions to look at');
             foreach ($input->Sessions as $s) {
-                if (!ia_u::is_empty($session = self::parse_session($s))) {
+                if (!ia_u::is_empty($session = self::parse_session($s, $participant))) {
                     $debug && ia_mu::log($fxn . '::Got a valid session back, so add it to the participant');
                     $participant->sessions[] = $session;
                 } else {
@@ -886,7 +904,12 @@ class Api {
             $debug && ia_mu::log($fxn . '::No sessions found');
         }
 
-        $debug && ia_mu::log($fxn . '::About to return $participant= ' . var_export($participant, true));
+        // A participant is valid only if they have sessions.
+        if (empty($participant->sessions)) {
+            return null;
+        }
+
+        $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($participant, true));
         return $participant;
     }
 
@@ -901,7 +924,7 @@ class Api {
     public static function validate_endpoint_params(string $endpoint, array $params = array()): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$endpoint={$endpoint}; \$args=" . ($params ? var_export($params, true) : ''));
+        $debug && ia_mu::log($fxn . "::Started with \$endpoint={$endpoint}; \$args=" . ($params ? ia_u::var_dump($params, true) : ''));
 
         if (!in_array($endpoint, array(self::ENDPOINT_PARTICIPANT, self::ENDPOINT_PARTICIPANTS), true)) {
             throw new \InvalidArgumentException("Invalid endpoint={$endpoint}");
@@ -931,7 +954,8 @@ class Api {
         }
 
         // If there are params specified that are not in the $validparams[] list, they are invalid params.
-        // Use array_diff_key: Returns an array containing all the entries from array1 whose keys are absent from all of the other arrays.
+        // Use array_diff_key: Returns an array containing all the entries from array1 whose keys are...
+        // Absent from all of the other arrays.
         if ($extraparams = array_diff_key($params, $validparams)) {
             $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . implode(', ', $extraparams) . '; got params=' . implode(', ', array_keys($params));
             ia_mu::log($fxn . '::' . $msg);
@@ -940,8 +964,14 @@ class Api {
 
         // Check each of the param types matches what is specified in $validparams[] for that param.
         // Throws an exception if there is a mismatch.
-        foreach ($params as $argname => $argval) {
-            \validate_param($argval, $validparams[$argname]);
+        try {
+            foreach ($params as $argname => $argval) {
+                \validate_param($argval, $validparams[$argname]);
+            }
+        } catch (\invalid_parameter_exception $e) {
+            // Log a more useful message than Moodle gives us, then just throw it again.
+            ia_mu::log($fxn . '::The param is valid but the type is wrong for param=' . $argname . '; $argval=' . ia_u::var_dump($argval, true));
+            throw $e;
         }
 
         // Everything is valid.
