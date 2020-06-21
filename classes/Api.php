@@ -272,7 +272,7 @@ class Api {
      * @return Participant Null if nothing found; else the parsed Participant object.
      */
     public static function get_participant(string $apikey, string $appid, int $courseid, int $userid) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -308,7 +308,7 @@ class Api {
      * @throws InvalidArgumentException
      */
     private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): \stdClass {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}, \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
