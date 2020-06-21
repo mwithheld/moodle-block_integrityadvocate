@@ -31,14 +31,64 @@ defined('MOODLE_INTERNAL') || die;
  */
 class Session {
 
+    /**
+     *
+     * @var int
+     */
     public $activityid;
+
+    /**
+     *
+     * @var int
+     */
     public $clickiamherecount;
+
+    /**
+     *
+     * @var int
+     */
     public $end;
+
+    /**
+     *
+     * @var int
+     */
     public $exitfullscreencount;
-    public $flags = array();
+
+    /**
+     *
+     * @var int
+     */
     public $id;
+
+    /**
+     *
+     * @var string Base64-encoded image
+     */
     public $participantphoto;
+
+    /**
+     *
+     * @var int
+     */
     public $start;
+
+    /**
+     *
+     * @var int
+     */
     public $status;
+
+    /**
+     *
+     * @var Participant parent of this session.
+     */
+    public $participant;
+
+    /**
+     *
+     * @var Flag[]
+     */
+    public $flags = array();
 
 }
