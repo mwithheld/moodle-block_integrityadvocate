@@ -78,8 +78,8 @@ class Output {
         $out = '';
 
         $blockparentcontext = $blockcontext->get_parent_context();
-        // Disabled on purpose: $debug && ia_mu::log($fxn . "::Got modulecontext=" . var_export($modulecontext, true));.
-        $debug && ia_mu::log($fxn . "::Got \$blockparentcontext->id=" . var_export($blockparentcontext->id, true));
+        // Disabled on purpose: $debug && ia_mu::log($fxn . "::Got modulecontext=" . ia_u::var_dump($modulecontext, true));.
+        $debug && ia_mu::log($fxn . "::Got \$blockparentcontext->id=" . ia_u::var_dump($blockparentcontext->id, true));
 
         $course = $blockinstance->get_course();
 
@@ -238,7 +238,7 @@ class Output {
     public static function get_session_output(Session $session): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . '::Started with $session=' . var_export($session, true);
+        $debugvars = $fxn . '::Started with $session=' . ia_u::var_dump($session, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -250,13 +250,15 @@ class Output {
 
         $out = '';
 
-        //$out .= "activityid" . "35568658";
-//        "clickiamherecount": 0,
-//        "exitfullscreencount": 0,
-//        "id": "536f6900-564b-44b0-bfba-3fd14e8742dd",
-//        "participantphoto": null,
-
-        list($unused, $cm) = \get_course_and_cm_from_cmid($session->activityid);
+        // Make sure we have an activityid, and it is an existing activity in this course.
+        if (!isset($session->activityid)) {
+            return $out;
+        }
+        $cmid = $session->activityid;
+        if (!($courseid = ia_mu::get_courseid_from_cmid($cmid)) || intval($courseid) !== intval($session->participant->courseid)) {
+            return $out;
+        }
+        list($unused, $cm) = \get_course_and_cm_from_cmid($session->activityid, null, $courseid, $session->participant->participantidentifier);
 
         $out .= \html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCKNAME . '_overview_session_div ' . self::CLASS_TABLE));
         $out .= \html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCKNAME . '_overview_session_title ' . self::CLASS_TABLE_HEADER)) .
@@ -300,7 +302,7 @@ class Output {
     public static function get_sessions_output(ia_participant $participant): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . '::Started with $participant=' . var_export($participant, true);
+        $debugvars = $fxn . '::Started with $participant=' . ia_u::var_dump($participant, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -347,8 +349,7 @@ class Output {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; "
-                . "\$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}; \$participant" .
-                var_export($participant, true);
+                . "\$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}; \$participant" . ia_u::var_dump($participant, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -446,7 +447,7 @@ class Output {
     public static function get_participant_photo_output(ia_participant $participant): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$participant=" . var_export($participant, true);
+        $debugvars = $fxn . "::Started with \$participant=" . ia_u::var_dump($participant, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -504,7 +505,7 @@ class Output {
         }
 
         $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid);
-        $debug && ia_mu::log($fxn . '::Got $participant=' . (ia_u::is_empty($participant) ? '' : var_export($participant, true)));
+        $debug && ia_mu::log($fxn . '::Got $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
 
         if (ia_u::is_empty($participant)) {
             $debug && ia_mu::log($fxn . '::Got empty participant, so return empty result');
