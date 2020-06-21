@@ -184,9 +184,9 @@ class ParticipantsTable extends \core_user\participants_table {
                 'query' => ['participantidentifier' => $u->id, 'courseid' => $courseid],
             ]);
             $promise->then(function ($response) use ($blockinstance) {
-                echo __LINE__ . "::Then started with response=" . print_r($response, true) . "<br />\n";
+                $debug && ia_mu::log($fxn . '::Then started with response=' . ia_u::var_dump($response, true));
                 if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($body = $response->getBody())) {
-                    echo __LINE__ . "::Invalid response<br />\n";
+                    $debug && ia_mu::log($fxn . '::Invalid response so skipping');
                     return;
                 }
                 $responseparsed = json_decode($body);
@@ -196,7 +196,7 @@ class ParticipantsTable extends \core_user\participants_table {
 
                 $participant = ia_api::parse_participant($responseparsed);
                 if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
-                    echo __LINE__ . "::Empty participant<br />\n";
+                    $debug && ia_mu::log($fxn . '::Empty participant');
                     return;
                 }
 
