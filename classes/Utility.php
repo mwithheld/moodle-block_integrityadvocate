@@ -113,4 +113,11 @@ class Utility {
         return ($a->start > $b->start) ? -1 : 1;
     }
 
+    /**
+     * In a "screw you" gesture to Moodle coding standards, just wraps print_r().
+     */
+    public static function var_dump($var, bool $tostring = false): string {
+        return print_r($var, $tostring);
+    }
+
 }
