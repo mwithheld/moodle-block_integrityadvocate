@@ -491,7 +491,7 @@ class Api {
      * @param string $appid App ID fot the block instance.
      * @return string the request signature to be sent in the header of the request.
      */
-    private static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
+    public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn .
