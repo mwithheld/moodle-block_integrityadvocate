@@ -158,19 +158,64 @@ class ParticipantsTable extends \core_user\participants_table {
             return;
         }
 
+        // Use Guzzle for performance via async parallel GET requests.
+        // Ref https://blog.programster.org/php-async-curl-requests.
+        // Ref http://docs.guzzlephp.org/en/stable/quickstart.html.
+        require_once(dirname(__DIR__) . '/vendor/autoload.php');
+        $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . ia_api::ENDPOINT_PARTICIPANT;
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => $requestapiurl, // Base URI is used with relative requests
+            'timeout' => 30.0, // You can set any number of default request options.
+        ]);
+
+        $requesttimestamp = time();
+        $microtime = explode(' ', microtime());
+        $nonce = $microtime[1] . substr($microtime[0], 2, 6);
+        $requestsignature = ia_api::get_request_signature($requestapiurl, 'GET', $requesttimestamp, $nonce, $blockinstance->config->apikey, $appid = $blockinstance->config->appid);
+        $authheader = 'amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
+
+        $promises = array();
+
         foreach ($sliceofusers as $u) {
-            $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $u->id);
-            if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
-                $debug && ia_mu::log($fxn . "::Skippig userid={$u->id} because no matching participant returned");
+            $promise = $client->getAsync($requestapiurl, [
+                'headers' => [
+                    'Authorization' => $authheader,
+                ],
+                'query' => ['participantidentifier' => $u->id, 'courseid' => $courseid],
+            ]);
+            $promise->then(function ($response) use ($blockinstance) {
+                echo __LINE__ . "::Then started with response=" . print_r($response, true) . "<br />\n";
+                if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($body = $response->getBody())) {
+                    echo __LINE__ . "::Invalid response<br />\n";
+                    return;
+                }
+                $responseparsed = json_decode($body);
+                if (ia_u::is_empty($responseparsed) && json_last_error() === JSON_ERROR_NONE) {
+                    throw new Exception('Failed to json_decode');
+                }
+
+                $participant = ia_api::parse_participant($responseparsed);
+                if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
+                    echo __LINE__ . "::Empty participant<br />\n";
+                    return;
+                }
+
+                $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, true, false);
+
+                // Participant photo.
+                $this->rawdata[$participant->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($participant);
+            });
+            $promises[] = $promise;
+        }
+
+        foreach ($promises as $promise) {
+            try {
+                $promise->wait();
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                // Ignore 400-level errors.
+                // Ref https://stackoverflow.com/a/30957410.
                 continue;
             }
-
-            // Participant basic info - skip the photo b/c it is in a different column.
-            $debug && ia_mu::log($fxn . "::About to get_participant_basic_output with \$participant={$participant->participantidentifier}");
-            $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, true, false);
-
-            // Participant photo.
-            $this->rawdata[$participant->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($participant);
         }
 
         // Disabled on purpose: $debug && ia_mu::log($fxn . "::About to return; \$this->rawdata=" . ia_u::var_dump($this->rawdata, true));.
