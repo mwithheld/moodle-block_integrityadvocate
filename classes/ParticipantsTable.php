@@ -132,7 +132,7 @@ class ParticipantsTable extends \core_user\participants_table {
      *
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      */
-    public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
+    public function populate_from_blockinstance(\block_integrityadvocate $blockinstance, int $page) {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
@@ -145,41 +145,35 @@ class ParticipantsTable extends \core_user\participants_table {
             throw new \InvalidArgumentException($msg);
         }
 
-        $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
-        $debug && ia_mu::log($fxn . '::Got count($participants)=' . (is_countable($participants) ? count($participants) : 0));
+        // I am choosing to *not* get all participants from the IA API because...
+        // We only get max 10 results per query in an order that does not match the $this->rawdata list.
+        // And unenrolled users remain in the IA-side participants list, so...
+        // It is slow to get all pages of results.
+        // And I need the session data for each user anyway, which is not included in the GET api/course/{courseid}/participants data.
 
-        if (ia_u::is_empty($participants)) {
+        $perpage = $this->pagesize;
+        $offset = $page * $perpage;
+        $sliceofusers = array_slice($this->rawdata, $offset, $perpage);
+        if (ia_u::is_empty($sliceofusers)) {
             return;
         }
 
-        // This class property $participanttable->rawdata already contains a row for each user in this course, with key=userid.
-        // Iterate over the returned user data and put it into correct user row in the output table.
-        // In addition to the built-in columns (name, email, lastaccess), ...
-        // ATM there are two custom columns: iadata and iaphoto.
-        foreach ($participants as $p) {
-            $debug && ia_mu::log($fxn . "::Looking at participant \$p={$p->participantidentifier}");
-            // Make sure the participant belongs to this course.
-            if ((intval($p->courseid) !== intval($courseid)) || !\is_enrolled($blockinstance->context->get_parent_context(), $p->participantidentifier)) {
-                $debug && ia_mu::log($fxn . "::Skipping user {$p->participantidentifier} is no longer enrolled in this context with courseid={$courseid}");
-                continue;
-            }
-
-            // Make sure there there is a matching user row in the table.
-            if (!isset($this->rawdata[$p->participantidentifier]) && !empty($this->rawdata[$p->participantidentifier]) || !isset($this->rawdata[$p->participantidentifier]->id) || $this->rawdata[$p->participantidentifier]->id !=
-                    $p->participantidentifier) {
-                $debug && ia_mu::log($fxn . "::Skipping user {$p->participantidentifier} bc there is no user row in the table");
+        foreach ($sliceofusers as $u) {
+            $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $u->id);
+            if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
+                $debug && ia_mu::log($fxn . "::Skippig userid={$u->id} because no matching participant returned");
                 continue;
             }
 
             // Participant basic info - skip the photo b/c it is in a different column.
-            $debug && ia_mu::log($fxn . "::About to get_participant_basic_output with \$p={$p->participantidentifier}");
-            $this->rawdata[$p->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $p, true, false);
+            $debug && ia_mu::log($fxn . "::About to get_participant_basic_output with \$participant={$participant->participantidentifier}");
+            $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, true, false);
 
             // Participant photo.
-            $this->rawdata[$p->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($p);
+            $this->rawdata[$participant->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($participant);
         }
 
-        // Disabled on purpose: $debug && ia_mu::log($fxn . "::About to return; \$this->rawdata=" . var_export($this->rawdata, true));.
+        // Disabled on purpose: $debug && ia_mu::log($fxn . "::About to return; \$this->rawdata=" . ia_u::var_dump($this->rawdata, true));.
         $debug && ia_mu::log($fxn . '::About to return');
     }
 
