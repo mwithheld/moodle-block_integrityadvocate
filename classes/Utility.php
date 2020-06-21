@@ -43,11 +43,8 @@ class Utility {
             return empty($obj);
         }
 
-        foreach ($obj as $prop) {
-            return false;
-        }
-
-        return true;
+        $arr = (array) $obj;
+        return empty($arr);
     }
 
     /**
