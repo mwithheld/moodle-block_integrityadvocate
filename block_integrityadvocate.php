@@ -62,7 +62,7 @@ class block_integrityadvocate extends block_base {
     public function instance_create() {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with configdata=' . var_export($this->config, true));
+        $debug && ia_mu::log($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
 
         // Get the first IA block with APIKey and APPId, and use it for this block.
         global $COURSE;
@@ -89,13 +89,13 @@ class block_integrityadvocate extends block_base {
         if (stripos($this->page->pagetype, 'mod-quiz-') !== false) {
             // A. Show blocks during quiz attempt; and...
             $modulecontext = $this->context->get_parent_context();
-            $debug && ia_mu::log($fxn . '::Got $modulecontext=' . var_export($modulecontext, true));
-            $modinfo = \get_fast_modinfo($COURSE);
+            $debug && ia_mu::log($fxn . '::Got $modulecontext=' . ia_u::var_dump($modulecontext, true));
+            $modinfo = \get_fast_modinfo($COURSE, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
-            $debug && ia_mu::log($fxn . '::Got $cm->instance=' . var_export($cm->instance, true));
+            $debug && ia_mu::log($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
             global $DB;
             $record = $DB->get_record('quiz', array('id' => intval($cm->instance)), '*', \MUST_EXIST);
-            $debug && ia_mu::log($fxn . '::Got record=' . var_export($record, true));
+            $debug && ia_mu::log($fxn . '::Got record=' . ia_u::var_dump($record, true));
             if ($record->showblocks < 1) {
                 $record->showblocks = 1;
                 $DB->update_record('quiz', $record);
@@ -211,7 +211,7 @@ class block_integrityadvocate extends block_base {
             if ($COURSE->id == \SITEID) {
                 throw new \Exception('This block cannot exist on the site context');
             }
-            $modinfo = \get_fast_modinfo($COURSE);
+            $modinfo = \get_fast_modinfo($COURSE, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
             if ($record->showblocks < 1) {
@@ -233,7 +233,7 @@ class block_integrityadvocate extends block_base {
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                            "::Content has already been generated, so do not generate it again: \n" . var_export($this->content, true));
+                            "::Content has already been generated, so do not generate it again: \n" . ia_u::var_dump($this->content, true));
             return;
         }
 
@@ -257,9 +257,9 @@ class block_integrityadvocate extends block_base {
         $hasoverviewcapability = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . var_export($hasoverviewcapability, true));
+                    '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hasoverviewcapability, true));
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    '::Got setup errors=' . ($setuperrors ? var_export($setuperrors, true) : ''));
+                    '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
         if ($setuperrors && $hasoverviewcapability) {
             foreach ($setuperrors as $err) {
@@ -292,7 +292,7 @@ class block_integrityadvocate extends block_base {
 
         // Check if there is any errors.
         if ($configerrors = $this->get_config_errors()) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: ' . var_export($configerrors, true));
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: ' . ia_u::var_dump($configerrors, true));
 
             // Error output is visible only to instructors.
             if ($hasoverviewcapability) {

@@ -48,7 +48,7 @@ class block_integrityadvocate_observer {
         $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
-            // Disabled on purpose: ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . var_export($event, true));.
+            // Disabled on purpose: ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
         }

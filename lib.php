@@ -115,7 +115,7 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = array(
     if (!$course) {
         return 'no_course';
     }
-    $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : var_export($filter, true)));
+    $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : ia_u::var_dump($filter, true)));
 
     // Get modules in this course.
     $modules = ia_mu::get_modules_with_completion($course->id);
@@ -146,14 +146,14 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = array(
 function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = array()): array {
     $debug = true;
     $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__
-                    . '::Started with ' . count($modules) . ' modules; $filter=' . ($filter ? var_export($filter, true) : ''));
-    // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $modules=' . var_export($modules, true));.
+                    . '::Started with ' . count($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
+    // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $modules=' . ia_u::var_dump($modules, true));.
 
     foreach ($modules as $key => $m) {
         // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at module with url=' . $a->url);.
         $modulecontext = $m['context'];
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, isset($filter['visible']) && (bool) $filter['visible']);
-        // Disabled on purpose: $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance=' . var_export($blockinstance, true));.
+        // Disabled on purpose: $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance=' . ia_u::var_dump($blockinstance, true));.
         // No block instances found for this module, so remove it.
         if (ia_u::is_empty($blockinstance)) {
             unset($modules[$key]);
@@ -164,7 +164,7 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' .
                         $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
 
-        // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Set from module array: $blockinstance=' . var_export($blockinstance, true));
+        // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Set from module array: $blockinstance=' . ia_u::var_dump($blockinstance, true));
         // I.
         // Init the result to false.
         if (isset($filter['configured']) && $filter['configured'] && $blockinstance->get_config_errors()) {
@@ -207,7 +207,7 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         $modules[$key]['block_integrityadvocate_instance']['instance'] = $blockinstance;
     }
 
-    // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $modules=' . var_export($modules, true));.
+    // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $modules=' . ia_u::var_dump($modules, true));.
     return $modules;
 }
 

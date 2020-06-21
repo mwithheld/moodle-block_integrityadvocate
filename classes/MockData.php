@@ -52,7 +52,7 @@ class MockData {
      */
     public static function get(string $endpoint, string $apikey, string $appid, array $params) {
         $debug = true;
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$endpoint={$endpoint}; \$params=" . ($params ? var_export($params, true) : ''));
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$endpoint={$endpoint}; \$params=" . ($params ? ia_u::var_dump($params, true) : ''));
 
         switch ($endpoint) {
             case ia_api::ENDPOINT_PARTICIPANT:
@@ -82,7 +82,7 @@ class MockData {
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$userid={$userid}; \$overridcourseid={$overridcourseid}; \$overrideuserid={$overrideuserid}");
 
         $participantstdclass = json_decode(self::get_participant_json($userid));
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Got \$participantstdclass=" . var_export($participantstdclass, true));
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Got \$participantstdclass=" . ia_u::var_dump($participantstdclass, true));
 
         // Set the Participant->courseid to the current course so it can show up in the participants table etc.
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::About to set_participant_params('courseid' => {$overridcourseid})");
