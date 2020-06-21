@@ -99,6 +99,49 @@ if (version_compare(phpversion(), '7.3.0', '<')) {
     }
 }
 
+function block_integrityadvocate_set_override(int $status, string $reason): bool {
+    $debug = false;
+    $fxn = __CLASS__ . '::' . __FUNCTION__;
+    $debug && ia_mu::log($fxn . '::Started with $status=' . ia_u::var_dump($status, true), '; $reason=' . ia_u::var_dump($reason, true));
+
+    return false;
+}
+
+/**
+ * Get participants in this block context.
+ * Returns empty array if not a block context, if the block is missing APIKey/AppId, or if no participants found.
+ *
+ * @param \context $blockcontext Block context to get IA Participants data for.
+ * @return array Array of block_integrityadvocate\Participant objects.
+ */
+function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
+    $debug = false;
+    $fxn = __CLASS__ . '::' . __FUNCTION__;
+    $debug && ia_mu::log($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
+
+    // We only have user data where the block_integrityadvocate is added to a module.
+    // In these cases we have existing code to get the user data from the blockinstance.
+    $blockcontext = $userlist->get_context();
+    if ($blockcontext->contextlevel != CONTEXT_BLOCK) {
+        return array();
+    }
+
+    $blockinstance = \block_instance_by_id($blockcontext->instanceid);
+
+    // We cannot get data from the remote API without an APIKey and AppId.
+    if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || $blockinstance->get_apikey_appid_errors()) {
+        return array();
+    }
+
+    $coursecontext = $blockcontext->get_course_context();
+
+    // Get IA participant data from the remote API.
+    $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $coursecontext->instanceid);
+    $debug && ia_mu::log($fxn . '::Got count($participants)=' . (is_countable($participants) ? count($participants) : 0));
+
+    return $participants;
+}
+
 /**
  * Get the modules in this course that have a configured, visible IA block attached,
  * optionally filtered to IA blocks having a matching apikey and appid or visible
@@ -161,10 +204,8 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         }
 
         $blockinstanceid = $blockinstance->instance->id;
-        $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' .
-                        $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
+        $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' . $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
 
-        // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Set from module array: $blockinstance=' . ia_u::var_dump($blockinstance, true));
         // I.
         // Init the result to false.
         if (isset($filter['configured']) && $filter['configured'] && $blockinstance->get_config_errors()) {
