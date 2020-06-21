@@ -238,7 +238,7 @@ class Output {
     public static function get_session_output(Session $session): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . '::Started with $session=' . ia_u::var_dump($session, true);
+        $debugvars = $fxn . '::Started with $session->id=' . ia_u::var_dump($session->id, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -252,10 +252,12 @@ class Output {
 
         // Make sure we have an activityid, and it is an existing activity in this course.
         if (!isset($session->activityid)) {
+            $debugvars = $fxn . '::This session has no activityid so return empty string';
             return $out;
         }
         $cmid = $session->activityid;
         if (!($courseid = ia_mu::get_courseid_from_cmid($cmid)) || intval($courseid) !== intval($session->participant->courseid)) {
+            $debugvars = $fxn . "::This session belongs to courseid={$courseid} not matching participant->courseid={$session->participant->courseid}";
             return $out;
         }
         list($unused, $cm) = \get_course_and_cm_from_cmid($session->activityid, null, $courseid, $session->participant->participantidentifier);
