@@ -541,7 +541,7 @@ class Api {
      * @return Session Null if nothing found; else the most recent session for that user in that activity.
      * @throws \InvalidArgumentException
      */
-    public static function get_session_latest(\context $modulecontext, int $userid) {
+    public static function get_module_session_latest(\context $modulecontext, int $userid) {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
