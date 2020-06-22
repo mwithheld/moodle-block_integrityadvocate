@@ -127,7 +127,7 @@ class Output {
      * @return HTML to view user details
      */
     public static function get_button_course_overview(\block_integrityadvocate $blockinstance): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}";
         $debug && ia_mu::log($debugvars);
@@ -236,7 +236,7 @@ class Output {
      * @throws \InvalidArgumentException
      */
     public static function get_session_output(Session $session): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . '::Started with $session->id=' . ia_u::var_dump($session->id, true);
         $debug && ia_mu::log($debugvars);
@@ -302,7 +302,7 @@ class Output {
      * @throws \InvalidArgumentException
      */
     public static function get_sessions_output(ia_participant $participant): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . '::Started with $participant=' . ia_u::var_dump($participant, true);
         $debug && ia_mu::log($debugvars);
@@ -348,7 +348,7 @@ class Output {
      */
     public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showviewdetailsbutton = true,
             bool $includephoto = true): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; "
                 . "\$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}; \$participant" . ia_u::var_dump($participant, true);
@@ -486,7 +486,7 @@ class Output {
      * @return string HTML output showing latest status, flags, and photos.
      */
     public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showviewdetailsbutton = true, bool $includephoto = true): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn .
                         "::Started with \$userid={$userid}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}");

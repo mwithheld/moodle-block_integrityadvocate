@@ -42,7 +42,7 @@ const DEFAULT_PAGE_SIZE = 20;
 /** @var int Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 const INTEGRITYADVOCATE_OVERVIEW_INTERNAL = true;
 
-$debug = true;
+$debug = false;
 
 \require_login();
 

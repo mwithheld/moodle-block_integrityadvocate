@@ -61,7 +61,7 @@ class Api {
      * @return bool true if the remote API close says it succeeded; else false
      */
     public static function close_remote_session(string $appid, int $courseid, int $moduleid, int $userid): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -106,9 +106,9 @@ class Api {
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn .
-                "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
+        $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
+        $debug = false;
 
         // If the block is not configured yet, simply return empty result.
         if (empty($apikey) || empty($appid)) {
@@ -345,7 +345,7 @@ class Api {
      * @return object[] Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
     public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null, int $page = 0): array {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}; \$page={$page}";
         $debug && ia_mu::log($debugvars);
@@ -539,7 +539,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function get_module_session_latest(\context $modulecontext, int $userid) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -587,7 +587,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function get_status_in_module(\context $modulecontext, int $userid): int {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);

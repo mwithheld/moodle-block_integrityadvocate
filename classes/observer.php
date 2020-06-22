@@ -45,7 +45,7 @@ class block_integrityadvocate_observer {
      * @return true if attempted to close the remote IA session; else false.
      */
     public static function process_event(\core\event\base $event): bool {
-        $debug = true;
+        $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
@@ -170,7 +170,7 @@ class block_integrityadvocate_observer {
      * @return Mixed true if attempted to close all the remote IA sessions; else false.
      */
     protected static function close_all_user_sessions(\core\event\base $event): bool {
-        $debug = true;
+        $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; userid={$event->userid}";
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
@@ -201,7 +201,7 @@ class block_integrityadvocate_observer {
      * @return bool True if attempted to close the remote IA session; else false.
      */
     protected static function close_module_user_session(\core\event\base $event) {
-        $debug = true;
+        $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
@@ -222,7 +222,7 @@ class block_integrityadvocate_observer {
      * @throws InvalidArgumentException if the passed-in event is not from a module context level.
      */
     protected static function check_should_close_user_ia(\core\event\base $event) {
-        $debug = true;
+        $debug = false;
 
         $modulecontext = $event->get_context();
         if ($modulecontext->contextlevel != CONTEXT_MODULE) {
@@ -264,7 +264,7 @@ class block_integrityadvocate_observer {
      * @return Mixed bool true if remote session is closed; else false.
      */
     protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
-        $debug = true;
+        $debug = false;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started");
 
         $appid = isset($blockinstance->config->appid) ? trim($blockinstance->config->appid) : false;

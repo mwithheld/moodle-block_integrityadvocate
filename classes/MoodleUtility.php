@@ -442,7 +442,7 @@ class MoodleUtility {
      * @return bool false if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
-        $debug = true;
+        $debug = false;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
@@ -543,7 +543,7 @@ class MoodleUtility {
      * @throws InvalidArgumentException
      */
     public static function get_ueid(\context $courserormodulecontext, int $userid): int {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && self::log($fxn . "::Started with userid={$userid}");
 

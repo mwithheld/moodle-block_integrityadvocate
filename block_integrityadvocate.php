@@ -227,7 +227,7 @@ class block_integrityadvocate extends block_base {
      */
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
-        $debug = true;
+        $debug = false;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
                         '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
