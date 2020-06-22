@@ -88,7 +88,7 @@ const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
 /** @var string Determines where to send error logs * */
-static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_LOGGLY;
+static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
 
 /*
  * Polyfill functions
@@ -162,7 +162,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * @return string|array Array of modules that match; else string error identifier
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = array()) {
-    $debug = true;
+    $debug = false;
 
     // Massage the course input if needed.
     $course = ia_mu::get_course_as_obj($course);
@@ -198,7 +198,7 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = array(
  * @return array of course modules.
  */
 function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = array()): array {
-    $debug = true;
+    $debug = false;
     $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__
                     . '::Started with ' . count($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
 
