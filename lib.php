@@ -42,8 +42,10 @@ require_once(__DIR__ . '/classes/Api.php');
 require_once(__DIR__ . '/classes/Flag.php');
 require_once(__DIR__ . '/classes/Participant.php');
 require_once(__DIR__ . '/classes/Session.php');
+// Used for Monolog, which is caled in MoodleUtility.php::log().
+require_once(__DIR__ . '/vendor/autoload.php');
 
-/** @var string Short name for this block */
+/** @var string Short name for this plugin. */
 const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
 
 /** @var string Longer name for this block. */
@@ -70,13 +72,21 @@ const INTEGRITYADVOCATE_LOGDEST_MLOG = 'MLOG';
 /** @var string Store logged messaged to STDOUT through htmlentities. */
 const INTEGRITYADVOCATE_LOGDEST_STDOUT = 'STDOUT';
 
+/** @var string Store logged messaged to STDOUT through htmlentities. */
+const INTEGRITYADVOCATE_LOGDEST_LOGGLY = 'LOGGLY';
+
 /** @var int Time out remote IA sessions after this many minutes. */
 const INTEGRITYADVOCATE_SESS_TIMEOUT = 10;
 
 /** @var string Regex to check a string is a Data URI ref ref https://css-tricks.com/data-uris/. */
 const INTEGRITYADVOCATE_REGEX_DATAURI = '#data:image\/[a-zA-z-]*;base64,\s*[^"\s$]*#';
 
+/** @var string Email address for privacy api data cleanup requests */
+const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 
+const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
+
+/** @var string Determines where to send error logs * */
 static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
 
 /*
@@ -190,13 +200,12 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
     $debug = true;
     $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__
                     . '::Started with ' . count($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
-    // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with $modules=' . ia_u::var_dump($modules, true));.
 
     foreach ($modules as $key => $m) {
         // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at module with url=' . $a->url);.
         $modulecontext = $m['context'];
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, isset($filter['visible']) && (bool) $filter['visible']);
-        // Disabled on purpose: $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Got $blockinstance=' . ia_u::var_dump($blockinstance, true));.
+        
         // No block instances found for this module, so remove it.
         if (ia_u::is_empty($blockinstance)) {
             unset($modules[$key]);
@@ -248,7 +257,6 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         $modules[$key]['block_integrityadvocate_instance']['instance'] = $blockinstance;
     }
 
-    // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::About to return $modules=' . ia_u::var_dump($modules, true));.
     return $modules;
 }
 

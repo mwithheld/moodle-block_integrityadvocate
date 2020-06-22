@@ -41,7 +41,7 @@ class MoodleUtility {
      */
     public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
-        $debug = true;
+        $debug = false;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname);
@@ -273,15 +273,15 @@ class MoodleUtility {
     /**
      * Return whether an IA block is visible in the given context
      *
-     * @param int $modulecontextid The module context id
+     * @param int $parentcontextid The module context id
      * @param int $blockinstanceid The block instance id
      * @return bool true if the block is visible in the given context
      */
-    public static function get_block_visibility(int $modulecontextid, int $blockinstanceid): bool {
+    public static function get_block_visibility(int $parentcontextid, int $blockinstanceid): bool {
         global $DB;
-        $debug = true;
+        $debug = false;
 
-        $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $modulecontextid));
+        $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid));
         $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
             // There is no block_positions record, and the default is visible.
@@ -472,7 +472,6 @@ class MoodleUtility {
         }
 
         $blockinstance = \block_instance_by_id($record->id);
-        // Disabled on purpose: $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::About to return a block instance=" . ia_u::var_dump($blockinstance, true));.
 
         return $blockinstance;
     }
@@ -511,7 +510,6 @@ class MoodleUtility {
      */
     public static function get_user_last_access(int $userid, int $courseid): int {
         global $DB;
-        // Disabled on purpose: $debug &&self::log('Got $lastaccesses_record=' . ia_u::var_dump($lastaccesses_record, true));.
         return $DB->get_field('user_lastaccess', 'timeaccess', array('courseid' => $courseid, 'userid' => $userid));
     }
 
@@ -648,17 +646,18 @@ class MoodleUtility {
      * Log $message to HTML output, mlog, stdout, or error log
      *
      * @param string $message Message to log
+     * @param string $tag For loggly, tag the entry with this.
      * @param string $dest One of the INTEGRITYADVOCATE_LOGDEST_* constants.
      * @return bool True on completion
      */
-    public static function log(string $message, string $dest = \INTEGRITYADVOCATE_LOGDEST_ERRORLOG): bool {
+    public static function log(string $message, string $dest = ''): bool {
         global $CFG, $blockintegrityadvocatelogdest;
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $dest=' . $dest . "\n");
 
-        // I did not use the PHP7.4 null coalesce b/c we want compat back to PHP5.6.
-        $dest = $dest ?: $blockintegrityadvocatelogdest;
-        $dest = $dest ?: INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
+        if (ia_u::is_empty($dest)) {
+            $dest = $blockintegrityadvocatelogdest;
+        }
         $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::After cleanup, $dest=' . $dest . "\n");
 
         // If the file path is included, strip it.
@@ -678,6 +677,28 @@ class MoodleUtility {
             case INTEGRITYADVOCATE_LOGDEST_STDOUT:
                 print(htmlentities($cleanedmsg, 0, false)) . "\n";
                 break;
+            case INTEGRITYADVOCATE_LOGDEST_LOGGLY:
+                $classorfile = isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class']) ? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] : '';
+                if (empty($classorfile)) {
+                    $classorfile = basename(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['file']);
+                }
+                $functionorline = isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function']) ? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] : '';
+                if (empty($functionorline)) {
+                    $functionorline = intval(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['line']);
+                } else {
+                    $functionorline .= '-' . intval(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['line']);
+                }
+
+                $siteslug = preg_replace('/^www\./', '', str_replace(array('http://', 'https://'), '', trim($CFG->wwwroot, '/')));
+                // REf https://www-staging.loggly.com/docs/tags/.
+                $tag = self::clean_loggly_tag(str_replace(INTEGRITYADVOCATE_SHORTNAME, '', "{$siteslug}-{$classorfile}-{$functionorline}"));
+
+                // Usage https://github.com/Seldaek/monolog/blob/1.x/doc/01-usage.md.
+                // Usage https://dzone.com/articles/php-monolog-tutorial-a-step-by-step-guide.
+                $log = new \Monolog\Logger("$tag,$siteslug,$classorfile");
+                $log->pushHandler(new \Monolog\Handler\LogglyHandler(INTEGRITYADVOCATE_LOG_TOKEN, \Monolog\Logger::DEBUG));
+                $log->addDebug($cleanedmsg);
+                break;
             case INTEGRITYADVOCATE_LOGDEST_ERRORLOG:
             default:
                 error_log($cleanedmsg);
@@ -696,6 +717,69 @@ class MoodleUtility {
      */
     public static function is_base64(string $str): bool {
         return !empty(clean_param($str, PARAM_BASE64));
+    }
+
+    /**
+     * Remove characters that are not compatible as keys in some caching systems.
+     *
+     * @param string $key The string to clean.
+     * @return string The cleaned string.
+     */
+    public static function clean_cache_key(string $key): string {
+        return str_replace('-', '_', clean_param($key, PARAM_ALPHAEXT));
+    }
+
+    public static function clean_loggly_tag(string $key): string {
+        // Ref https://www-staging.loggly.com/docs/tags/
+        // Allow alpha-numeric characters, dash, period, and underscore.
+        $max_length = 64;
+        return \core_text::substr(trim(preg_replace('/[^0-9a-z_\-.]+/i', '-', clean_param($key, PARAM_TEXT))), 0, $max_length);
+    }
+
+    /**
+     * Create a unix timestamp nonce and store it in the Moodle $SESSION variable.
+     *
+     * @param string $key
+     * @return string
+     */
+    public static function nonce_set(string $key): string {
+        global $SESSION;
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && self::log($fxn . "::Started with \$key={$key}");
+
+        // Make sure $key is a safe cache key.
+        $sessionkey = self::clean_cache_key($key);
+
+        $debug && self::log($fxn . "::About to set \$SESSION key={$key}");
+        return $SESSION->$sessionkey = time();
+    }
+
+    public static function nonce_validate(string $key): bool {
+        global $SESSION;
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && self::log($fxn . "::Started with \$key={$key}");
+
+        // Clean up $contextname so it is a safe cache key.
+        $sessionkey = self::clean_cache_key($key);
+        if (!isset($SESSION->$sessionkey) || empty($SESSION->$sessionkey)) {
+            $debug && self::log($fxn . "::\$SESSION does not contain key={$key}");
+            return false;
+        }
+
+        $nonce = $SESSION->$sessionkey;
+        $debug && self::log($fxn . "::\Found nonce={$nonce}");
+
+        // Yay, now delete it since it should only be used once.
+        unset($SESSION->$sessionkey);
+
+        global $CFG;
+
+        // The nonce is valid if the time is after $CFG->sessiontimeout ago.
+        $valid = $nonce >= (time() - $CFG->sessiontimeout);
+        $debug && self::log($fxn . "::\Found valid={$valid}");
+        return $valid;
     }
 
 }
