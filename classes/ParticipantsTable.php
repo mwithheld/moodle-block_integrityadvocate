@@ -132,8 +132,8 @@ class ParticipantsTable extends \core_user\participants_table {
      *
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      */
-    public function populate_from_blockinstance(\block_integrityadvocate $blockinstance, int $page) {
-        $debug = false;
+    public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
 
@@ -145,19 +145,12 @@ class ParticipantsTable extends \core_user\participants_table {
             throw new \InvalidArgumentException($msg);
         }
 
-        // I am choosing to *not* get all participants from the IA API because...
+        // I am choosing to *not* get participants from the IA API/participants endpoint because...
         // We only get max 10 results per query in an order that does not match the $this->rawdata list.
         // And unenrolled users remain in the IA-side participants list, so...
         // It is slow to get all pages of results.
         // And I need the session data for each user anyway, which is not included in the GET api/course/{courseid}/participants data.
-
-        $perpage = $this->pagesize;
-        $offset = $page * $perpage;
-        $sliceofusers = array_slice($this->rawdata, $offset, $perpage);
-        if (ia_u::is_empty($sliceofusers)) {
-            return;
-        }
-
+        //
         // Use Guzzle for performance via async parallel GET requests.
         // Ref https://blog.programster.org/php-async-curl-requests.
         // Ref http://docs.guzzlephp.org/en/stable/quickstart.html.
@@ -176,7 +169,10 @@ class ParticipantsTable extends \core_user\participants_table {
 
         $promises = array();
 
-        foreach ($sliceofusers as $u) {
+        // The var $this->rawdata contains all the users for *this page* of the participants table.
+        $debug && ia_mu::log($fxn . '::We should get data for ' . count($this->rawdata) . ' users');
+        foreach ($this->rawdata as $u) {
+            $debug && ia_mu::log($fxn . '::About to get data for userid=' . $u->id);
             $promise = $client->getAsync($requestapiurl, [
                 'headers' => [
                     'Authorization' => $authheader,
@@ -215,6 +211,7 @@ class ParticipantsTable extends \core_user\participants_table {
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 // Ignore 400-level errors.
                 // Ref https://stackoverflow.com/a/30957410.
+                $debug && ia_mu::log($fxn . '::Ignoring a 400-level error');
                 continue;
             }
         }
