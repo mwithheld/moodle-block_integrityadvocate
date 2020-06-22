@@ -133,7 +133,7 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      */
     public function populate_from_blockinstance(\block_integrityadvocate $blockinstance, int $page) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
 
@@ -183,7 +183,8 @@ class ParticipantsTable extends \core_user\participants_table {
                 ],
                 'query' => ['participantidentifier' => $u->id, 'courseid' => $courseid],
             ]);
-            $promise->then(function ($response) use ($blockinstance) {
+            $promise->then(function ($response) use ($blockinstance, $debug) {
+                $fxn = __CLASS__ . '::' . __FUNCTION__;
                 $debug && ia_mu::log($fxn . '::Then started with response=' . ia_u::var_dump($response, true));
                 if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($body = $response->getBody())) {
                     $debug && ia_mu::log($fxn . '::Invalid response so skipping');
