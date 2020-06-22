@@ -34,6 +34,9 @@ $blockintegrityadvocatewwwroot = dirname(__FILE__, 3);
 require_once($blockintegrityadvocatewwwroot . '/user/lib.php');
 require_once($blockintegrityadvocatewwwroot . '/lib/filelib.php');
 require_once($blockintegrityadvocatewwwroot . '/lib/completionlib.php');
+// Used for Monolog, which is caled in MoodleUtility.php::log().
+require_once(__DIR__ . '/vendor/autoload.php');
+
 require_once(__DIR__ . '/classes/Utility.php');
 require_once(__DIR__ . '/classes/MoodleUtility.php');
 require_once(__DIR__ . '/classes/Output.php');
@@ -42,8 +45,6 @@ require_once(__DIR__ . '/classes/Api.php');
 require_once(__DIR__ . '/classes/Flag.php');
 require_once(__DIR__ . '/classes/Participant.php');
 require_once(__DIR__ . '/classes/Session.php');
-// Used for Monolog, which is caled in MoodleUtility.php::log().
-require_once(__DIR__ . '/vendor/autoload.php');
 
 /** @var string Short name for this plugin. */
 const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
@@ -87,7 +88,7 @@ const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
 /** @var string Determines where to send error logs * */
-static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
+static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_LOGGLY;
 
 /*
  * Polyfill functions
@@ -205,7 +206,7 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at module with url=' . $a->url);.
         $modulecontext = $m['context'];
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, isset($filter['visible']) && (bool) $filter['visible']);
-        
+
         // No block instances found for this module, so remove it.
         if (ia_u::is_empty($blockinstance)) {
             unset($modules[$key]);
