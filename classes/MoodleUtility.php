@@ -678,15 +678,21 @@ class MoodleUtility {
                 print(htmlentities($cleanedmsg, 0, false)) . "\n";
                 break;
             case INTEGRITYADVOCATE_LOGDEST_LOGGLY:
-                $classorfile = isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class']) ? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] : '';
+                if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1])) {
+                    $debugbacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
+                } elseif (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
+                    $debugbacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0];
+                }
+                $classorfile = isset($debugbacktrace['class']) ? $debugbacktrace['class'] : '';
                 if (empty($classorfile)) {
                     $classorfile = basename(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['file']);
                 }
-                $functionorline = isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function']) ? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] : '';
+
+                $functionorline = isset($debugbacktrace['function']) ? $debugbacktrace['function'] : '';
                 if (empty($functionorline)) {
-                    $functionorline = intval(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['line']);
+                    $functionorline = intval($debugbacktrace['line']);
                 } else {
-                    $functionorline .= '-' . intval(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['line']);
+                    $functionorline .= '-' . intval($debugbacktrace['line']);
                 }
 
                 $siteslug = preg_replace('/^www\./', '', str_replace(array('http://', 'https://'), '', trim($CFG->wwwroot, '/')));
@@ -697,7 +703,7 @@ class MoodleUtility {
                 // Usage https://dzone.com/articles/php-monolog-tutorial-a-step-by-step-guide.
                 $log = new \Monolog\Logger("$tag,$siteslug,$classorfile");
                 $log->pushHandler(new \Monolog\Handler\LogglyHandler(INTEGRITYADVOCATE_LOG_TOKEN, \Monolog\Logger::DEBUG));
-                $log->addDebug($cleanedmsg);
+                $log->debug($cleanedmsg);
                 break;
             case INTEGRITYADVOCATE_LOGDEST_ERRORLOG:
             default:
