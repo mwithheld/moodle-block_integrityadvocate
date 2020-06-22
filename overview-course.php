@@ -76,7 +76,7 @@ $participanttable->setup_and_populate($perpage);
 
 // Populate the ParticipantsTable instance user rows with blockinstance-specific IA participant info.
 // No return value.
-$participanttable->populate_from_blockinstance($blockinstance, optional_param('page', 0, PARAM_INT));
+$participanttable->populate_from_blockinstance($blockinstance);
 
 // Output the table.
 $participanttable->out_end();
