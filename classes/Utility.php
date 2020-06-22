@@ -59,6 +59,20 @@ class Utility {
     }
 
     /**
+     * Check if the value is an integer UNIX timestamp before the time now.
+     *
+     * @param type $unixtime
+     * @return type
+     */
+    public static function is_unixtime_past($unixtime) {
+        if (is_numeric($unixtime)) {
+            $unixtime = intval($unixtime);
+        }
+
+        return is_int($unixtime) && ($unixtime >= 0) && ($unixtime <= time());
+    }
+
+    /**
      * Same as stripos but with an array of needles
      *
      * @link https://stackoverflow.com/a/9220624
@@ -115,6 +129,16 @@ class Utility {
      */
     public static function var_dump($var, bool $tostring = false): string {
         return print_r($var, $tostring);
+    }
+
+    /**
+     * Returns the count (including if zero), or -1 if not countable.
+     *
+     * @param mixed $var Variable to get the count for
+     * @return int The count; -1 if not countable.
+     */
+    public static function count_if_countable($var): int {
+        return is_countable($var) ? count($var) : -1;
     }
 
 }
