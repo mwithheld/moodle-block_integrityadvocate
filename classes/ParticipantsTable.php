@@ -159,6 +159,7 @@ class ParticipantsTable extends \core_user\participants_table {
         $client = new \GuzzleHttp\Client([
             'base_uri' => $requestapiurl, // Base URI is used with relative requests
             'timeout' => 30.0, // You can set any number of default request options.
+            'verify' => false, // Disable certificate verification (this is insecure!).
         ]);
 
         $requesttimestamp = time();
