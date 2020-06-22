@@ -125,7 +125,7 @@ class Utility {
     }
 
     /**
-     * In a "screw you" gesture to Moodle coding standards, just wraps print_r().
+     * Just wraps print_r().
      */
     public static function var_dump($var, bool $tostring = false): string {
         return print_r($var, $tostring);
