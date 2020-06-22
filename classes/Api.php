@@ -403,9 +403,6 @@ class Api {
                 continue;
             }
 
-            // Populate the participant session info, because we will always want to show the latest status from the sessions.
-            //$participantwithsesssions = self::get_participant($apikey, $appid, $courseid, $participant->participantidentifier);
-
             $debug && ia_mu::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($parsedparticipants) . ' participants');
             $parsedparticipants[$participant->participantidentifier] = $participant;
         }
