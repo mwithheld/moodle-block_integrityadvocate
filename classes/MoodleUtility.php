@@ -732,8 +732,8 @@ class MoodleUtility {
     public static function clean_loggly_tag(string $key): string {
         // Ref https://www-staging.loggly.com/docs/tags/
         // Allow alpha-numeric characters, dash, period, and underscore.
-        $max_length = 64;
-        return \core_text::substr(trim(preg_replace('/[^0-9a-z_\-.]+/i', '-', clean_param($key, PARAM_TEXT))), 0, $max_length);
+        $maxlength = 64;
+        return \core_text::substr(trim(preg_replace('/[^0-9a-z_\-.]+/i', '-', clean_param($key, PARAM_TEXT))), 0, $maxlength);
     }
 
     /**
