@@ -741,7 +741,7 @@ class Api {
      * @return Session Null if failed to parse, otherwise a parsed Session object.
      */
     private static function parse_session(\stdClass $input, Participant $participant) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
@@ -779,6 +779,7 @@ class Api {
             if (isset($input->Activity_Id)) {
                 $session->activityid = \clean_param($input->Activity_Id, PARAM_INT);
                 if (!($courseid = ia_mu::get_courseid_from_cmid($session->activityid)) || $courseid !== $participant->courseid) {
+                    $debug && ia_mu::log($fxn . "::This session activity_id={$session->activityid} belongs to courseid={$courseid} vs participant->courseid={$participant->courseid}, so return empty");
                     return array();
                 }
             }
@@ -828,7 +829,7 @@ class Api {
      * @return ia_participant Null if failed to parse, otherwise the parsed Participant object.
      */
     public static function parse_participant(\stdClass $input) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $p=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
@@ -909,7 +910,7 @@ class Api {
             }
 
             // If the session is in progress, update the global status to reflect this.
-            if ($highestsessiontimestamp = max(array_keys($participant->sessions)) >= $participant->modified) {
+            if (ia_u::count_if_countable($participant->sessions) && ($highestsessiontimestamp = max(array_keys($participant->sessions)) >= $participant->modified)) {
                 $participant->status = $participant->sessions[$highestsessiontimestamp]->status;
             }
         } else {
@@ -918,6 +919,7 @@ class Api {
 
         // A participant is valid only if they have sessions.
         if (empty($participant->sessions)) {
+            $debug && ia_mu::log($fxn . '::No sessions found, so return null');
             return null;
         }
 
