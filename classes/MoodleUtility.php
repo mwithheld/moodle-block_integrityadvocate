@@ -363,7 +363,7 @@ class MoodleUtility {
      * @return int The courseid if found, else -1.
      */
     public static function get_courseid_from_cmid(int $cmid): int {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && self::log($fxn . "::Started with $cmid={$cmid}");
 
