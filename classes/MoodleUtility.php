@@ -181,9 +181,13 @@ class MoodleUtility {
      * @return array of roles key=roleid; val=role name.
      */
     public static function get_roles_for_select(\context $context): array {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && self::log($fxn . "::Started with \$context->id={$context->id}");
+
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'persession');
-        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . $context->id;
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = self::clean_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -364,8 +368,8 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with $cmid={$cmid}");
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'perrequest');
-        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . $cmid;
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = self::clean_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
