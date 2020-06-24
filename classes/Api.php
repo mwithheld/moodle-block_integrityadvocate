@@ -236,13 +236,11 @@ class Api {
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
 
         // If the block is not configured yet, simply return empty result.
-        if (!isset($blockinstance->config->apikey) || empty($blockinstance->config->apikey) ||
-                !isset($blockinstance->config->appid) || empty($blockinstance->config->appid)) {
+        if (!isset($blockinstance->config->apikey) || empty($blockinstance->config->apikey) || !isset($blockinstance->config->appid) || empty($blockinstance->config->appid)) {
             return array();
         }
 
-        $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid,
-                        $modulecontext->get_course_context()->instanceid, $userid);
+        $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $userid);
 
         if (!isset($participantcoursedata->sessions) || empty($participantcoursedata->sessions)) {
             return array();
@@ -304,8 +302,7 @@ class Api {
      * @param string $appid The app id.
      * @param type $courseid The course id to get info for.
      * @param type $userid The user id to get info for.
-     * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a
-     *          single Participant object.
+     * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
      * @throws InvalidArgumentException
      */
     private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): \stdClass {
@@ -404,11 +401,8 @@ class Api {
                 continue;
             }
 
-            // Populate the participant session info, because we will always want to show the latest status from the sessions.
-            $participantwithsesssions = self::get_participant($apikey, $appid, $courseid, $participant->participantidentifier);
-
             $debug && ia_mu::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($parsedparticipants) . ' participants');
-            $parsedparticipants[$participant->participantidentifier] = $participantwithsesssions;
+            $parsedparticipants[$participant->participantidentifier] = $participant;
         }
 
         // Reset the execution time limit back to what it was.  This will restart the timer from zero but that's OK.
@@ -476,7 +470,7 @@ class Api {
             $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $courseid, $result->NextToken));
         }
 
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . var_export($participants, true));.
+        // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
         return $participants;
     }
 
@@ -495,14 +489,11 @@ class Api {
     public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn .
-                "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; "
-                . "\$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
+        $debugvars = $fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
-        if (!filter_var($requesturi, FILTER_VALIDATE_URL) || strlen($requestmethod) < 3 ||
-                !is_numeric($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !is_string($nonce) ||
+        if (!filter_var($requesturi, FILTER_VALIDATE_URL) || strlen($requestmethod) < 3 || !is_numeric($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !is_string($nonce) ||
                 !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
@@ -511,9 +502,7 @@ class Api {
 
         if (parse_url($requesturi, PHP_URL_QUERY)) {
             $msg = 'The requesturi should not contain a querystring';
-            ia_mu::log($fxn .
-                    "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; "
-                    . "\$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+            ia_mu::log($fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod};  \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
             ia_mu::log($fxn . '::' . $msg);
             throw new InvalidArgumentException();
         }
@@ -593,7 +582,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function get_status_in_module(\context $modulecontext, int $userid): int {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -678,7 +667,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function is_status_valid(\context $modulecontext, int $userid): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -864,6 +853,7 @@ class Api {
 
             isset($input->Created) && ($participant->created = \clean_param($input->Created, PARAM_INT));
             isset($input->Modified) && ($participant->modified = \clean_param($input->Modified, PARAM_INT));
+
             isset($input->Override_Date) && ($participant->overridedate = \clean_param($input->Override_Date, PARAM_INT));
             isset($input->Override_LMSUser_Id) && ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }

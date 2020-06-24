@@ -244,9 +244,7 @@ class block_integrityadvocate extends block_base {
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
         $debug = false;
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                        '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id .
-                        '; $USER->username=' . $USER->username);
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
             return;
@@ -320,10 +318,7 @@ class block_integrityadvocate extends block_base {
                         if (stripos($this->page->url, '/user/view.php?') > 0) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
-                            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                                            '::This is the course-user page, so in the block show the IA proctor summary for ' .
-                                            'this course-user combo: courseid=' . $courseid .
-                                            '; $targetuserid=' . $targetuserid);
+                            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
 
                             // Check the user is enrolled in this course, even if inactive.
                             if (!\is_enrolled($parentcontext, $targetuserid)) {

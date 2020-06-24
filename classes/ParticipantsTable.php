@@ -49,10 +49,8 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param bool $bulkoperations Is the user allowed to perform bulk operations?
      * @param bool $selectall Has the user selected all users on the page?
      */
-    public function __construct(int $courseid, $currentgroup, int $accesssince, int $roleid, int $enrolid, int $status, $search,
-            bool $bulkoperations, bool $selectall) {
-        parent::__construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search,
-                $bulkoperations, $selectall);
+    public function __construct(int $courseid, $currentgroup, int $accesssince, int $roleid, int $enrolid, int $status, $search, bool $bulkoperations, bool $selectall) {
+        parent::__construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search, $bulkoperations, $selectall);
 
         $this->attributes['class'] .= ' datatable';
 
@@ -70,6 +68,7 @@ class ParticipantsTable extends \core_user\participants_table {
 
         // Do not strip tags from these colums (i.e. do not pass through the s() function).
         $this->column_nostrip[] = 'iadata';
+
         // Do not allow sorting by these columns.
         $this->column_nosort[] = 'iadata';
         $this->column_nosort[] = 'iaphoto';

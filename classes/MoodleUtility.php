@@ -67,9 +67,7 @@ class MoodleUtility {
             }
 
             if (isset($blockinstances[$r->id])) {
-                $debug && self::log(__CLASS__ . '::' . __FUNCTION__ .
-                                "::Multiple visible block_{$blockname} instances found in the same parentcontextid - "
-                                . "just return the first one");
+                $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
                 continue;
             }
 

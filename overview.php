@@ -21,6 +21,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 /**
  * This code is adapted from block_completion_progress::lib.php::block_completion_progress_bar
  * ATM with IA APIv2 we cannot label and get back proctoring results per module,
@@ -140,7 +141,7 @@ if ($configerrors = $blockinstance->get_config_errors()) {
     }
     $continue = false;
 }
-$continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; " . "appid={$blockinstance->config->appid}");
+$continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
 // Check site and course completion are set up.
 $setuperrors = ia_mu::get_completion_setup_errors($course);

@@ -33,7 +33,6 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') or die();
 
-
 // Sanity checks.
 if (empty($blockinstanceid)) {
     throw new \InvalidArgumentException('$blockinstanceid is required');
@@ -71,7 +70,7 @@ $bulkoperations = \has_capability('moodle/course:bulkmessaging', $coursecontext)
 
 // Setup the ParticipantsTable instance.
 require_once(__DIR__ . '/classes/ParticipantsTable.php');
-$participanttable = new \block_integrityadvocate\ParticipantsTable(
+$participanttable = new ParticipantsTable(
         $courseid, $groupid, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1, $searchkeywords = array(), $bulkoperations,
         $selectall = \optional_param('selectall', false, \PARAM_BOOL)
 );
