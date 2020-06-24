@@ -85,6 +85,7 @@ const INTEGRITYADVOCATE_REGEX_DATAURI = '#data:image\/[a-zA-z-]*;base64,\s*[^"\s
 /** @var string Email address for privacy api data cleanup requests */
 const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 
+/** @var string Optionally used for remote debugging */
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
 /** @var string Determines where to send error logs * */

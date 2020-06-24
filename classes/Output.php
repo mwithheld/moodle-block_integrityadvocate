@@ -138,7 +138,6 @@ class Output {
 
         $blockcontext = $blockinstance->context;
         $blockparentcontext = $blockcontext->get_parent_context();
-        // Disabled on purpose: $debug && ia_mu::log($fxn . "::Got modulecontext=" . ia_u::var_dump($modulecontext, true));.
         $debug && ia_mu::log($fxn . "::Got \$blockparentcontext->id=" . ia_u::var_dump($blockparentcontext->id, true));
 
         $course = $blockinstance->get_course();
@@ -520,12 +519,10 @@ class Output {
      * @return string HTML output showing latest status, flags, and photos
      * @throws InvalidValueException If the participant status field does not match one of our known values
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showviewdetailsbutton = true,
-            bool $includephoto = true): string {
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showviewdetailsbutton = true, bool $includephoto = true): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; "
-                . "\$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}; \$participant" . ia_u::var_dump($participant, true);
+        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}; \$participant" . ia_u::var_dump($participant, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -644,8 +641,7 @@ class Output {
     public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showviewdetailsbutton = true, bool $includephoto = true): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn .
-                        "::Started with \$userid={$userid}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}");
+        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}");
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
             $msg = 'Input params are invalid';

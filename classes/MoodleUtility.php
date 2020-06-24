@@ -541,7 +541,6 @@ class MoodleUtility {
      * Log $message to HTML output, mlog, stdout, or error log
      *
      * @param string $message Message to log
-     * @param string $tag For loggly, tag the entry with this.
      * @param string $dest One of the INTEGRITYADVOCATE_LOGDEST_* constants.
      * @return bool True on completion
      */

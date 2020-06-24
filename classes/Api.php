@@ -365,7 +365,7 @@ class Api {
         // This gets a json-decoded object of the IA API curl result.
         $participantsraw = self::get_participants_data($apikey, $appid, $courseid);
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($participantsraw) ? '' : ia_u::var_dump($participantsraw, true)));
-        $debug = false;
+
         if (ia_u::is_empty($participantsraw)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
             return array();

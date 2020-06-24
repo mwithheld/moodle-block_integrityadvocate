@@ -271,10 +271,8 @@ class block_integrityadvocate extends block_base {
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
         $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hasoverviewcapability, true));
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hasoverviewcapability, true));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
         if ($setuperrors && $hascapability_overview) {
             foreach ($setuperrors as $err) {
