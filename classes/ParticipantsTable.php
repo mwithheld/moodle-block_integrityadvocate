@@ -137,7 +137,7 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      */
     public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
 
@@ -179,9 +179,7 @@ class ParticipantsTable extends \core_user\participants_table {
         foreach ($this->rawdata as $u) {
             $debug && ia_mu::log($fxn . '::About to get data for userid=' . $u->id);
             $promise = $client->getAsync($requestapiurl, [
-                'headers' => [
-                    'Authorization' => $authheader,
-                ],
+                'headers' => ['Authorization' => $authheader],
                 'query' => ['participantidentifier' => $u->id, 'courseid' => $courseid],
             ]);
             $promise->then(function ($response) use ($blockinstance, $debug) {
