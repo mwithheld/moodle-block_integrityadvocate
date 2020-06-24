@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant as ia_participant;
-use block_integrityadvocate\PaticipantStatus as ia_participant_status;
+use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -88,8 +88,7 @@ class Api {
                 '&activityid=' . urlencode($moduleid);
         $response = $curl->get($url);
         $responsecode = $curl->get_info('http_code');
-        $debug && ia_mu::log($fxn . '::Sent url=' . ia_u::var_dump($url, true)
-                        . '; http_code=' . ia_u::var_dump($responsecode, true) . '; response body=' . ia_u::var_dump($response, true));
+        $debug && ia_mu::log($fxn . '::Sent url=' . ia_u::var_dump($url, true) . '; http_code=' . ia_u::var_dump($responsecode, true) . '; response body=' . ia_u::var_dump($response, true));
 
         return intval($responsecode) < 400;
     }
@@ -104,11 +103,10 @@ class Api {
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
-        $debug = false;
 
         // If the block is not configured yet, simply return empty result.
         if (empty($apikey) || empty($appid)) {
@@ -151,7 +149,7 @@ class Api {
         $requestmethod = 'GET';
         $microtime = explode(' ', microtime());
         $nonce = $microtime[1] . substr($microtime[0], 2, 6);
-        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
         $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
         // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
@@ -325,7 +323,7 @@ class Api {
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
 
         if (ia_u::is_empty($result) || !is_object($result)) {
-            $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
+            $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return new \stdClass();
         }
 
@@ -344,7 +342,7 @@ class Api {
      * @param int $userid Optionally filter for this user.
      * @return object[] Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
-    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null, int $page = 0): array {
+    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}; \$page={$page}";
@@ -364,9 +362,9 @@ class Api {
         // This gets a json-decoded object of the IA API curl result.
         $participantsraw = self::get_participants_data($apikey, $appid, $courseid);
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($participantsraw) ? '' : ia_u::var_dump($participantsraw, true)));
-        $debug = false;
+
         if (ia_u::is_empty($participantsraw)) {
-            $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
+            $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return array();
         }
 
@@ -459,7 +457,7 @@ class Api {
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
 
         if (ia_u::is_empty($result)) {
-            $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCKNAME));
+            $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return new \stdClass();
         }
 
@@ -491,9 +489,7 @@ class Api {
     public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn .
-                "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; "
-                . "\$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
+        $debugvars = $fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -506,9 +502,7 @@ class Api {
 
         if (parse_url($requesturi, PHP_URL_QUERY)) {
             $msg = 'The requesturi should not contain a querystring';
-            ia_mu::log($fxn .
-                    "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; "
-                    . "\$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+            ia_mu::log($fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod};  \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
             ia_mu::log($fxn . '::' . $msg);
             throw new InvalidArgumentException();
         }
@@ -580,6 +574,7 @@ class Api {
 
     /**
      * Get the user's participant status in the module.
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \context $modulecontext The module context to look in.
      * @param int $userid The userid to get IA info for.
@@ -600,7 +595,7 @@ class Api {
         }
 
         // Get the int value representing this constant so it's equivalent to what is stored in Session->status.
-        $notfoundval = ia_participant_status::INPROGRESS_INT;
+        $notfoundval = ia_status::INPROGRESS_INT;
 
         $latestsession = self::get_module_session_latest($modulecontext, $userid);
         if (ia_u::is_empty($latestsession)) {
@@ -612,7 +607,8 @@ class Api {
     }
 
     /**
-     * Get if the status value for the user in the module represents "In Progress".
+     * Returns true if the status value for the user in the latest session for the module represents "In Progress".
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
@@ -636,7 +632,8 @@ class Api {
     }
 
     /**
-     * Get if the status value for the user in the module represents "Invalid".
+     * Returns true if the status value for the user in the latest session for the module represents "Invalid".
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
@@ -656,17 +653,12 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        return in_array(
-                self::get_status_in_module($modulecontext, $userid),
-                array(
-                    ia_participant_status::INVALID_ID_INT,
-                    ia_participant_status::INVALID_RULES_INT,
-                ), true
-        );
+        return in_array(self::get_status_in_module($modulecontext, $userid), ia_status::get_invalids(), true);
     }
 
     /**
-     * Get if the status value for the user in the module represents "Valid".
+     * Returns true if the status value for the user in the latest session for the module represents "Valid".
+     * This may differ from the Participant-level (overall) status.
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
@@ -687,10 +679,10 @@ class Api {
         }
 
         $statusinmodule = self::get_status_in_module($modulecontext, $userid);
-        $debug && ia_mu::log($fxn . "::Comparing \$statusinmodule={$statusinmodule} === " . ia_participant_status::VALID);
-        $statusisvalid = (intval($statusinmodule) === intval(ia_participant_status::VALID));
+        $debug && ia_mu::log($fxn . "::Comparing \$statusinmodule={$statusinmodule} === " . ia_status::VALID);
+        $isstatusvalid = (intval($statusinmodule) === intval(ia_status::VALID));
 
-        return $statusisvalid;
+        return $isstatusvalid;
     }
 
     /**
@@ -775,8 +767,11 @@ class Api {
             return array();
         }
         // This function throws an error if the status is invalid.
-        $session->status = ia_participant_status::parse_status_string($input->Status);
+        $session->status = ia_status::parse_status_string($input->Status);
         $debug && ia_mu::log($fxn . '::Got $session->status=' . $session->status);
+        if (isset($input->Override_Status) && !empty($input->Override_Status)) {
+            $session->overridestatus = ia_status::parse_status_string($input->Override_Status);
+        }
 
         // Clean int fields.
         if (true) {
@@ -790,8 +785,17 @@ class Api {
             isset($input->Start) && ($session->start = \clean_param($input->Start, PARAM_INT));
             isset($input->End) && ($session->end = \clean_param($input->End, PARAM_INT));
             isset($input->Exit_Fullscreen_Count) && ($session->exitfullscreencount = \clean_param($input->Exit_Fullscreen_Count, PARAM_INT));
+            isset($input->Override_Date) && ($session->overridedate = \clean_param($input->Override_Date, PARAM_INT));
+            isset($input->Override_LMSUser_Id) && ($session->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
         $debug && ia_mu::log($fxn . '::Done int fields');
+
+        // Clean text fields.
+        if (true) {
+            isset($input->Override_LMSUser_FirstName) && ($session->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
+            isset($input->Override_LMSUser_LastName) && ($session->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
+            isset($input->Override_Reason) && ($session->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
+        }
 
         // This field is a data uri ref https://css-tricks.com/data-uris/.
         $matches = array();
@@ -878,10 +882,10 @@ class Api {
         //
         // Clean status vs whitelist.
         if (isset($input->Status)) {
-            $participant->status = ia_participant_status::parse_status_string($input->Status);
+            $participant->status = ia_status::parse_status_string($input->Status);
         }
         if (isset($input->Override_Status) && !empty($input->Override_Status)) {
-            $participant->overridestatus = ia_participant_status::parse_status_string($input->Override_Status);
+            $participant->overridestatus = ia_status::parse_status_string($input->Override_Status);
         }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done status fields');.
         //
@@ -892,10 +896,20 @@ class Api {
             foreach ($input->Sessions as $s) {
                 if (!ia_u::is_empty($session = self::parse_session($s, $participant))) {
                     $debug && ia_mu::log($fxn . '::Got a valid session back, so add it to the participant');
+                    if (isset($session->end) && ia_u::is_unixtime_past($session->end)) {
+                        $end = filter_var($session->end, FILTER_SANITIZE_NUMBER_INT);
+                    } else {
+                        $end = time();
+                    }
                     $participant->sessions[] = $session;
                 } else {
                     $debug && ia_mu::log($fxn . '::This session failed to parse');
                 }
+            }
+
+            // If the session is in progress, update the global status to reflect this.
+            if (ia_u::count_if_countable($participant->sessions) && ($highestsessiontimestamp = max(array_keys($participant->sessions)) >= $participant->modified)) {
+                $participant->status = $participant->sessions[$highestsessiontimestamp]->status;
             }
         } else {
             $debug && ia_mu::log($fxn . '::No sessions found');
@@ -908,6 +922,90 @@ class Api {
 
         $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($participant, true));
         return $participant;
+    }
+
+    /**
+     * Override the Integrity Advocate ruling for a participant.
+     * Assumes you have validated and cleaned all params.
+     *
+     * @param int $status An integer ParticipantStatus value to override the Integrity Advocate ruling: Accepts: 0 or 3
+     * @param string $reason
+     * @param int $targetuserid
+     * @param int $overrideuserid
+     * @param int $courseid
+     * @return bool
+     */
+    public static function set_override(string $apikey, string $appid, int $status, string $reason, int $targetuserid, \stdClass $overrideuser, int $courseid): bool {
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuser->id}, \$courseid={$courseid}");
+
+        // Sanity check -- not a validity check!
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || ia_u::is_empty($overrideuser) || !isset($overrideuser->id)) {
+            $msg = 'Input params are invalid';
+            ia_mu::log($fxn . '::' . $msg);
+            throw new \InvalidArgumentException($msg);
+        }
+
+        // Do validity checks only if quick and absolutely neccesary.
+        if (!ia_status::is_overriddable($status)) {
+            throw new InvalidArgumentException("Status={$status} not an overridable value");
+        }
+
+        // The only API options are "Valid" or "Invalid" case-sensitive, so translate to a string but invalid_override_int corresponds to just "Invalid".
+        if ($status === ia_status::INVALID_OVERRIDE_INT) {
+            $statusstr = ia_status::VALID;
+        } else {
+            $statusstr = ia_status::get_status_string($status);
+        }
+
+        $params = array(
+            'Override_Date' => time(),
+            'Override_Status' => $statusstr,
+            'Override_Reason' => $reason,
+            'Override_LMSUser_FirstName' => $overrideuser->firstname,
+            'Override_LMSUser_LastName' => $overrideuser->lastname,
+            'Override_LMSUser_Id' => $targetuserid,
+        );
+        $debug && ia_mu::log($fxn . "::Built params=" . var_export($params, true));
+
+        $endpoint = "/participant/{$targetuserid}-{$courseid}";
+        $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
+        $requesturi = $requestapiurl;
+        $debug && ia_mu::log($fxn . '::Built $requesturi=' . $requesturi);
+
+        $requesttimestamp = time();
+        $requestmethod = 'PATCH';
+        $microtime = explode(' ', microtime());
+        $nonce = $microtime[1] . substr($microtime[0], 2, 6);
+        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+        $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
+
+        // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
+        $curl = new \curl(array('cache' => false));
+        $curl->setopt(array(
+            'CURLOPT_CERTINFO' => 1,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_MAXREDIRS' => 5,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_SSL_VERIFYPEER' => 1,
+        ));
+
+        $header = 'Authorization: amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
+        $curl->setHeader($header);
+        $debug && ia_mu::log($fxn . '::Set $header=' . $header);
+
+        $response = $curl->patch($requesturi, json_encode($params));
+
+        $responseparsed = json_decode($response);
+        $responsedetails = $curl->get_info('http_code');
+        $debug && ia_mu::log($fxn .
+                        '::Sent url=' . var_export($requesturi, true) . '; err_no=' . $curl->get_errno() .
+                        '; $responsedetails=' . ($responsedetails ? var_export($responsedetails, true) : '') .
+                        '; $response=' . var_export($response, true) .
+                        '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
+
+        return $responsedetails == 200;
     }
 
     /**
