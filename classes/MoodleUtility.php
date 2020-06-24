@@ -187,7 +187,7 @@ class MoodleUtility {
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = self::clean_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
+        $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -363,13 +363,14 @@ class MoodleUtility {
      * @return int The courseid if found, else -1.
      */
     public static function get_courseid_from_cmid(int $cmid): int {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && self::log($fxn . "::Started with $cmid={$cmid}");
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = self::clean_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
+        $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
+        $debug && self::log($fxn . "::Built cachekey={$cachekey}");
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -381,6 +382,8 @@ class MoodleUtility {
                       FROM {course_modules} cm
                       JOIN {course} c ON c.id = cm.course
                      WHERE cm.id = ?", array($cmid));
+
+        $debug && self::log($fxn . '::Got course=' . ia_u::var_dump($course, true));
 
         if (ia_u::is_empty($course) || !isset($course->id)) {
             $debug && self::log($fxn . "::No course found for cmid={$cmid}");
@@ -656,13 +659,13 @@ class MoodleUtility {
     }
 
     /**
-     * Remove characters that are not compatible as keys in some caching systems.
+     * Build a unique reproducible cache key from the given string.
      *
-     * @param string $key The string to clean.
-     * @return string The cleaned string.
+     * @param string $key The string to use for the key.
+     * @return string The cache key.
      */
-    public static function clean_cache_key(string $key): string {
-        return str_replace('-', '_', clean_param($key, PARAM_ALPHAEXT));
+    public static function get_cache_key(string $key): string {
+        return md5($key);
     }
 
     public static function clean_loggly_tag(string $key): string {
@@ -685,7 +688,7 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with \$key={$key}");
 
         // Make sure $key is a safe cache key.
-        $sessionkey = self::clean_cache_key($key);
+        $sessionkey = self::get_cache_key($key);
 
         $debug && self::log($fxn . "::About to set \$SESSION key={$key}");
         return $SESSION->$sessionkey = time();
@@ -698,7 +701,7 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with \$key={$key}");
 
         // Clean up $contextname so it is a safe cache key.
-        $sessionkey = self::clean_cache_key($key);
+        $sessionkey = self::get_cache_key($key);
         if (!isset($SESSION->$sessionkey) || empty($SESSION->$sessionkey)) {
             $debug && self::log($fxn . "::\$SESSION does not contain key={$key}");
             return false;

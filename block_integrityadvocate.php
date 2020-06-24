@@ -194,7 +194,7 @@ class block_integrityadvocate extends block_base {
      */
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::clean_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
         if ($cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
