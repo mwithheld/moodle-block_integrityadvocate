@@ -41,7 +41,7 @@ if (empty($courseid) || ia_u::is_empty($course)) {
     throw new \InvalidArgumentException('$courseid and $course are required');
 }
 
-$debug = false;
+$debug = true;
 $debug && ia_mu::log(basename(__FILE__) . '::Started');
 
 \require_capability('block/integrityadvocate:overview', $coursecontext);
@@ -49,18 +49,8 @@ $debug && ia_mu::log(basename(__FILE__) . '::Started');
 // Output roles selector.
 echo $OUTPUT->container_start('progressoverviewmenus');
 
-$sql = 'SELECT  DISTINCT r.id, r.name, r.shortname
-            FROM    {role} r, {role_assignments} a
-           WHERE    a.contextid = :contextid
-             AND    r.id = a.roleid';
-$params = array('contextid' => $coursecontext->id);
-$roles = \role_fix_names($DB->get_records_sql($sql, $params), $coursecontext);
-$rolestodisplay = array(0 => \get_string('allparticipants'));
-foreach ($roles as $role) {
-    $rolestodisplay[$role->id] = $role->localname;
-}
 echo '&nbsp;' . \get_string('role') . '&nbsp;';
-echo $OUTPUT->single_select($PAGE->url, 'role', $rolestodisplay, $roleid);
+echo $OUTPUT->single_select($PAGE->url, 'role', ia_mu::get_roles_for_select($coursecontext), $roleid);
 echo $OUTPUT->container_end();
 $debug && ia_mu::log(basename(__FILE__) . '::Done outputting roles');
 

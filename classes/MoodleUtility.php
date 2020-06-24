@@ -175,6 +175,40 @@ class MoodleUtility {
     }
 
     /**
+     * Given a context, get array of roles usable in a roles select box.
+     *
+     * @param \context $coursecontext
+     * @return array of roles key=roleid; val=role name.
+     */
+    public static function get_roles_for_select(\context $context): array {
+        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'persession');
+        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . $context->id;
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && self::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
+        $sql = 'SELECT  DISTINCT r.id, r.name, r.shortname
+                    FROM    {role} r, {role_assignments} ra
+                   WHERE    ra.contextid = :contextid
+                     AND    r.id = ra.roleid';
+        $params = array('contextid' => $context->id);
+        global $DB;
+        $roles = \role_fix_names($DB->get_records_sql($sql, $params), $context);
+        $rolestodisplay = array(0 => \get_string('allparticipants'));
+        foreach ($roles as $role) {
+            $rolestodisplay[$role->id] = $role->localname;
+        }
+
+        if (!$cache->set($cachekey, $rolestodisplay)) {
+            throw new \Exception('Failed to set value in perrequest cache');
+        }
+
+        return $rolestodisplay;
+    }
+
+    /**
      * Returns the modules with completion set in current course
      *
      * @param int courseid The id of the course
