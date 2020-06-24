@@ -184,15 +184,17 @@ class ParticipantsTable extends \core_user\participants_table {
             ]);
             $promise->then(function ($response) use ($blockinstance, $debug) {
                 $fxn = __CLASS__ . '::' . __FUNCTION__;
-                $debug && ia_mu::log($fxn . '::Then started with response=' . ia_u::var_dump($response, true));
-                if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($body = $response->getBody())) {
+                $debug && ia_mu::log($fxn . '::Promise->then started with response=' . ia_u::var_dump($response, true));
+                if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($response->getBody())) {
                     $debug && ia_mu::log($fxn . '::Invalid response so skipping');
                     return;
                 }
-                $responseparsed = json_decode($body);
+
+                $responseparsed = json_decode($response->getBody());
                 if (ia_u::is_empty($responseparsed) && json_last_error() === JSON_ERROR_NONE) {
                     throw new Exception('Failed to json_decode');
                 }
+                $debug && ia_mu::log($fxn . '::After json_decode, got $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
                 $participant = ia_api::parse_participant($responseparsed);
                 if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
