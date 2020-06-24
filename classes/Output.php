@@ -538,7 +538,7 @@ class Output {
 
         $out .= self::get_latest_status_html($participant, $prefix);
 
-        if ($participant->status === INVALID_ID_INT) {
+        if ($participant->status === ia_status::INVALID_ID_INT) {
             // The user is allowed to re-submit their identity stuff, so build a link to show later.
             $resubmiturl = $participant->resubmiturl ? $participant->resubmiturl : '';
             $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $resubmiturl);
