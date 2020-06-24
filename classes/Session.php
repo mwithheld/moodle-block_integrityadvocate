@@ -127,6 +127,11 @@ class Session {
      */
     public $overridestatus;
 
+    /**
+     * Return true if the session is overridden.
+     *
+     * @return bool true if the session is overridden.
+     */
     public function is_overridden(): bool {
         return isset($this->overridestatus);
     }
