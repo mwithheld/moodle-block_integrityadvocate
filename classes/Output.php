@@ -519,7 +519,7 @@ class Output {
      * @return string HTML output showing latest status, flags, and photos
      * @throws InvalidValueException If the participant status field does not match one of our known values
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showviewdetailsbutton = true, bool $includephoto = true): string {
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $includephoto = true, bool $showviewdetailsbutton = true, bool $showoverridebutton = false): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}; \$participant" . ia_u::var_dump($participant, true);
@@ -535,8 +535,8 @@ class Output {
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
-
-        $out .= self::get_latest_status_html($participant, $prefix);
+        $resubmithtml = '';
+        $statushtml = self::get_latest_status_html($participant, $prefix);
 
         if ($participant->status === ia_status::INVALID_ID_INT) {
             // The user is allowed to re-submit their identity stuff, so build a link to show later.
@@ -544,13 +544,12 @@ class Output {
             $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $resubmiturl);
             if ($resubmiturl) {
                 $out .= \html_writer::span(
-                                format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')
-                                        ), FORMAT_HTML),
+                                format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')), FORMAT_HTML),
                                 $prefix . '_resubmit_link');
             }
         }
 
-        if ($showoverridebutton) {
+        if (false && $showoverridebutton) {
             $statushtml .= self::get_override_html($participant);
         }
 
@@ -580,9 +579,7 @@ class Output {
 
         $debug && ia_mu::log($fxn . '::About to check if should include photo; $include_photo=' . $includephoto);
         if ($includephoto) {
-            $photohtml = self::get_participant_photo_output($participant);
-            // Disabled on purpose: $debug && ia_mu::log($fxn . '::Built photo html=' . $photohtml);.
-            $out .= $photohtml;
+            $out .= self::get_participant_photo_output($participant);
         }
 
         // Close .block_integrityadvocate_overview_participant_summary_div.
@@ -638,7 +635,7 @@ class Output {
      * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
      * @return string HTML output showing latest status, flags, and photos.
      */
-    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showviewdetailsbutton = true, bool $includephoto = true): string {
+    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $includephoto = true, bool $showviewdetailsbutton = true, $showoverridebutton = false): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}");
@@ -666,7 +663,7 @@ class Output {
             return '';
         }
 
-        return self::get_participant_basic_output($blockinstance, $participant, $includephoto, $showviewdetailsbutton);
+        return self::get_participant_basic_output($blockinstance, $participant, $includephoto, $showviewdetailsbutton, $showoverridebutton);
     }
 
 }

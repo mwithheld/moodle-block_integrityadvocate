@@ -202,7 +202,7 @@ class ParticipantsTable extends \core_user\participants_table {
                     return;
                 }
 
-                $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, true, false);
+                $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, false, true, false);
 
                 // Participant photo.
                 $this->rawdata[$participant->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($participant);
