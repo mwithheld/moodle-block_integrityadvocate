@@ -26,12 +26,15 @@ M.block_integrityadvocate = {
         // On quizzes,disable the submit button and hide the questions until the IA modal is loaded.
         if (document.body.id === 'page-mod-quiz-attempt') {
             jQuery('.mod_quiz-next-nav').attr('disabled', 1);
-            window.console.log('Disabled quiz submission until IA loads');
-            $.when($('integrityadvocate-activityblocker')).then((self) => {
-                jQuery('.mod_quiz-next-nav').removeAttr('disabled');
-                jQuery('#block_integrityadvocate_hidequiz').remove();
-                window.console.log('Enabled quiz submission now that IA is loaded');
-            });
+            var interval = setInterval(function () {
+                if ($('#integrityadvocate_container').is(':visible')) {
+                    jQuery('.mod_quiz-next-nav').removeAttr('disabled');
+                } else {
+                    jQuery('#block_integrityadvocate_hidequiz').remove();
+                    // Stop checking.
+                    clearInterval(interval);
+                }
+            }, 100 /* 0.1 second wait time between checks. */);
         }
     }
 };
