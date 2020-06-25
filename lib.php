@@ -88,6 +88,8 @@ const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 /** @var string Optionally used for remote debugging */
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
+const INTEGRITYADVOCATE_FEATURE_OVERRIDE = true;
+
 /** @var string Determines where to send error logs * */
 static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
 

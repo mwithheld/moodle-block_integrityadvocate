@@ -62,32 +62,52 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     throw new \Exception('No capabilities to view this course user');
 }
 
-// Show basic user info at the top.  Adapted from user/view.php.
-echo \html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
 $user = $DB->get_record('user', array('id' => $userid), '*', \MUST_EXIST);
-echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
-echo \html_writer::end_tag('div');
-
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
 
-if (ia_u::is_empty($participant)) {
-    $msg = 'No participant found';
-    if ($hascapability_overview) {
-        $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
-    }
-    echo $msg;
-    $continue = false;
-}
+if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
+    // Show basic user info at the top.  Adapted from user/view.php.
+    echo \html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
+    echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
+    echo \html_writer::end_tag('div');
 
-if ($continue) {
-    // Display user basic info.
-    if ($hascapability_override) {
-        $noncekey = INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$participant->participantidentifier}";
-        $debug && ia_mu::log(__FILE__ . "::About to nonce_set({$noncekey})");
-        ia_mu::nonce_set($noncekey);
+    if (ia_u::is_empty($participant)) {
+        $msg = 'No participant found';
+        if ($hascapability_overview) {
+            $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
+        }
+        echo $msg;
+        $continue = false;
     }
-    echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, $hascapability_override);
 
-    // Display summary.
-    echo ia_output::get_sessions_output($participant);
+    if ($continue) {
+        // Display user basic info.
+        if ($hascapability_override) {
+            $noncekey = INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$participant->participantidentifier}";
+            $debug && ia_mu::log(__FILE__ . "::About to nonce_set({$noncekey})");
+            ia_mu::nonce_set($noncekey);
+        }
+        echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, $hascapability_override);
+
+        // Display summary.
+        echo ia_output::get_sessions_output($participant);
+    }
+} else {
+    echo "Show new user session listing here;<br />\n<div id=\"overview_participant_container\"> <table id=\"overview_participant_table\" style=\"width:100%\">
+  <tr>
+    <th>Firstname</th>
+    <th>Lastname</th>
+    <th>Age</th>
+  </tr>
+  <tr>
+    <td>Jill</td>
+    <td>Smith</td>
+    <td>50</td>
+  </tr>
+  <tr>
+    <td>Eve</td>
+    <td>Jackson</td>
+    <td>94</td>
+  </tr>
+</table> </div>";
 }

@@ -549,7 +549,7 @@ class Output {
             }
         }
 
-        if (false && $showoverridebutton) {
+        if (INTEGRITYADVOCATE_FEATURE_OVERRIDE && $showoverridebutton) {
             $statushtml .= self::get_override_html($participant);
         }
 
