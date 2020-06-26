@@ -129,7 +129,7 @@ class Output {
 
         // If the block is not configured yet, simply return empty result.
         if ($configerrors = $blockinstance->get_config_errors()) {
-            // No visible IA block found with valid config, so skip any output.
+            // No visible IA block found with valid config, so skip any output, but show teachers the error.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
                 echo implode("<br />\n", $configerrors);
             }
@@ -162,8 +162,7 @@ class Output {
         // Set to true to disable the IA proctor JS.
         $debugnoiaproctoroutput = false;
         if ($debugnoiaproctoroutput) {
-            $blockinstance->page->requires->js_init_call('alert("IntegrityAdvocate block JS output '
-                    . 'would occur here with url=' . $url . ' if not suppressed")');
+            $blockinstance->page->requires->js_init_call('alert("IntegrityAdvocate block JS output would occur here with url=' . $url . ' if not suppressed")');
         } else {
             // Pass the URL w/o urlencoding.
             $debug && ia_mu::log($fxn . '::About to require->js(' . $url->out(false) . ')');
