@@ -194,7 +194,8 @@ M.block_integrityadvocate = {
                 userinput.removeAttr('disabled');
             });
         };
-
-        setup();
+        // End overviewinit();
     }
+    // End M.block_integrityadvocate.
 };
+//);
