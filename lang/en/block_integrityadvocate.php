@@ -51,7 +51,7 @@ $string['error_notenrolled'] = "You are not enrolled in this course";
 $string['error_quiz_showblocks'] = "This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...";
 
 $string['flag_comment'] = 'Details';
-$string['flag_capture'] = 'Captured photo';
+$string['photo'] = 'Captured photo';
 $string['flag_errorcode'] = 'Error code';
 $string['flag_type'] = 'Flag';
 $string['flags_none'] = 'None';
@@ -82,7 +82,7 @@ $string['now_indicator'] = 'NOW';
 
 $string['overview_course'] = 'Integrity Advocate Course Overview';
 $string['overview_user'] = 'Integrity Advocate User Sessions';
-$string['overview_flags'] = 'Flags';
+$string['flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
@@ -112,11 +112,12 @@ $string['progress'] = '# proctor sessions';
 $string['resubmit_link'] = 'Resubmit your ID';
 $string['session_start'] = 'Start';
 $string['session_end'] = 'End';
+$string['session_status'] = 'Status';
+$string['session_flags'] = 'Flags';
 $string['session_overridedate'] = 'Override time';
 $string['session_overridename'] = 'Overrider';
 $string['session_overridereason'] = 'Override reason';
 $string['session_overridestatus'] = 'Override status';
-$string['session_status'] = 'Status';
 $string['shortname'] = 'Short course name';
 $string['showallinfo'] = 'Show all info';
 
