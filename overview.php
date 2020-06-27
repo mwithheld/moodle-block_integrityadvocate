@@ -21,7 +21,6 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 /**
  * This code is adapted from block_completion_progress::lib.php::block_completion_progress_bar
  * ATM with IA APIv2 we cannot label and get back proctoring results per module,
@@ -77,7 +76,8 @@ $roleid = \optional_param('role', 0, PARAM_INT);
 
 // Set up page parameters.
 $PAGE->set_course($course);
-$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/styles.css');
+$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
+
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php',
         array(
     'instanceid' => $blockinstanceid,
@@ -91,7 +91,7 @@ $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview
         ));
 $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
-$title = \get_string('overview', INTEGRITYADVOCATE_BLOCK_NAME);
+$title = \get_string(($userid ? 'overview_user' : 'overview_course'), INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
@@ -108,22 +108,20 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
 $hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockinstance->context);
 $hascapability_override = \has_capability('block/integrityadvocate:override', $blockinstance->context);
 
-// We only need JS for the overview-users page, not the single-user view.
-if (!$userid) {
-    // This is the overview-course page.
-    $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-course');
+$PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . ($userid ? 'overview-user' : 'overview-course'));
+$PAGE->requires->string_for_js('filter', 'moodle');
 
-    $PAGE->requires->string_for_js('filter', 'moodle');
-    $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');
-} else {
-    // This is the overview-user page.
-    $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-overview-user');
+if ($userid) {
+    // This is the overview-user.php page.
+    $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
+    $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
 
     // We only need this JS for override functionality at the moment.
-    if ($hascapability_overview) {
-        ia_output::add_overview_js($PAGE);
-    }
+//    if ($hascapability_overview) {
+//        ia_output::add_overview_js($PAGE);
+//    }
 }
+
 
 // Start page output.
 echo $OUTPUT->header();
@@ -144,8 +142,7 @@ if ($configerrors = $blockinstance->get_config_errors()) {
 $continue && $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
 // Check site and course completion are set up.
-$setuperrors = ia_mu::get_completion_setup_errors($course);
-if ($setuperrors) {
+if ($setuperrors = ia_mu::get_completion_setup_errors($course)) {
     foreach ($setuperrors as $err) {
         echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME) . "<br/>\n";
     }
@@ -163,17 +160,10 @@ if ($continue) {
 }
 
 if ($continue) {
-    if ($userid) {
-        $debug && ia_mu::log(basename(__FILE__) . "::Got a \$userid={$userid} so show the single user IA results");
-        require_once('overview-user.php');
-    } else {
-        $debug && ia_mu::log(basename(__FILE__) . '::Got no userid so show the course IA results');
-        require_once('overview-course.php');
-    }
+    // Both course and user pages use this JS to kick off interactive features.
+    $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');
+    require_once(($userid ? 'overview-user' : 'overview-course') . '.php');
 }
-
-// Clean up vars no longer needed instead of polluting the global namespace.
-unset($title, $debug);
 
 echo $OUTPUT->container_end();
 echo $OUTPUT->footer();
