@@ -114,8 +114,7 @@ $PAGE->requires->string_for_js('filter', 'moodle');
 if ($userid) {
     // This is the overview-user.php page.
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
-    $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
-
+    //$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
     // We only need this JS for override functionality at the moment.
 //    if ($hascapability_overview) {
 //        ia_output::add_overview_js($PAGE);
