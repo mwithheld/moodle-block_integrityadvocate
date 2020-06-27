@@ -31,17 +31,21 @@ define(['jquery', 'block_integrityadvocate/jquery.dataTables', 'core/log'],
                         // DataTable options ref https://datatables.net/reference/option/.
                         var options = {
                             'autoWidth': true,
+                            buttons: [
+                                'colvis'
+                            ],
                             // Language options ref https://datatables.net/reference/option/language.
                             'language': {'search': M.str.moodle.filter + '&nbsp;'},
                             'ordering': true,
                             'order': [[2, 'desc'], [3, 'desc'], [4, 'desc']],
                             'paging': false,
                             'searching': true,
-                            "columnDefs": [
+                            'scrollX': true,
+                            'columnDefs': [
                                 {
-                                    "targets": [0],
-                                    "visible": false,
-                                    "searchable": false
+                                    'targets': [0],
+                                    'visible': false,
+                                    'searchable': false
                                 }
                             ]
                         };
