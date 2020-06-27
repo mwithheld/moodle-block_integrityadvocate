@@ -106,6 +106,7 @@ $string['privacy:metadata:block_integrityadvocate:tableexplanation'] = 'Integrit
 $string['privacy:metadata:block_integrityadvocate:user_video'] = 'A video (with audio) recording of you completing an activity.';
 $string['privacy:metadata:block_integrityadvocate:userid'] = 'Your database user id number.';
 
+$string['overridden'] = 'Overridden {$a}';
 $string['process_integrityadvocate'] = 'Integrity Advocate - Process';
 $string['progress'] = '# proctor sessions';
 $string['resubmit_link'] = 'Resubmit your ID';

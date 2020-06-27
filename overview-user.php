@@ -27,6 +27,7 @@ namespace block_integrityadvocate;
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
+use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -93,43 +94,89 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
         echo ia_output::get_sessions_output($participant);
     }
 } else {
-    echo "Show new user session listing here;<br />\n<div id=\"overview_participant_container\">
-        <table id=\"participant\" class=\"stripe order-column hover\">
-  <thead><tr>
-    <th>Firstname</th>
-    <th>Lastname</th>
-    <th>Age</th>
-  </tr></thead>
-  <tbody>
-  <tr>
-    <td>Jill</td>
-    <td>Smith</td>
-    <td>50</td>
-  </tr>
-  <tr>
-    <td>Eve</td>
-    <td>Jackson</td>
-    <td>94</td>
-  </tr>
-  <tr>
-    <td>Jill1</td>
-    <td>Smith1</td>
-    <td>501</td>
-  </tr>
-  <tr>
-    <td>Eve1</td>
-    <td>Jackson1</td>
-    <td>941</td>
-  </tr>
-  <tr>
-    <td>Jill2</td>
-    <td>Smith2</td>
-    <td>250</td>
-  </tr>
-  <tr>
-    <td>Eve2</td>
-    <td>Jackson2</td>
-    <td>294</td>
-  </tr>
-</tbody></table> </div>";
+    echo '<div id=\"overview_participant_container\">';
+    $continue = !empty($sessions = array_values($participant->sessions));
+
+    if ($continue) {
+        usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
+
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
+
+        // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
+        echo '<table id="' . $prefix . '_table" class="stripe order-column hover">';
+        $tr = '<tr>';
+        $tr_end = '</tr>';
+        echo "<thead>{$tr}";
+        // I don't care to translate this one b/c it is a hidden column.
+        echo \html_writer::tag('td', 'sessionid');
+        echo \html_writer::tag('td', \get_string('activitymodule'));
+        echo \html_writer::tag('td', \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME));
+        echo \html_writer::tag('td', \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME));
+        echo \html_writer::tag('td', \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME));
+        if ($hascapability_override) {
+            echo \html_writer::tag('td', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME));
+            echo \html_writer::tag('td', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME));
+            echo \html_writer::tag('td', \get_string('session_overridename', INTEGRITYADVOCATE_BLOCK_NAME));
+            echo \html_writer::tag('td', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME));
+        }
+        echo "{$tr_end}</thead><tbody>";
+        echo $tr;
+
+        foreach ($sessions as $session) {
+            switch (true) {
+                case(ia_u::is_empty($session) || !isset($session->flags)):
+                    $debug && ia_mu::log(__FILE__ . '::This session is empty or has no flags, so skip it');
+                    continue;
+                case(!isset($session->activityid) || !($cmid = $session->activityid)):
+                    $debug && ia_mu::log(__FILE__ . 'This session has no activityid so skip it');
+                    continue;
+                case(!($courseid = ia_mu::get_courseid_from_cmid($cmid)) || intval($courseid) !== intval($session->participant->courseid)):
+                    $debug && ia_mu::log(__FILE__ . "::This session belongs to courseid={$courseid} not matching participant->courseid={$session->participant->courseid}");
+                    continue;
+            }
+
+
+            // Column=sessionid.
+            echo \html_writer::tag('td', $session->id, array('class' => "{$prefix}_sessionid"));
+
+            // Column=activitymodule.
+            // We need the coursemodule so we can get info like the name from it.
+            // This throws a moodle_exception if the item doesn't exist or is of wrong module name.
+            // We do *not* use this block name for parameter 2 since it's the activity the block is attached to that matters.
+            list($unused, $cm) = \get_course_and_cm_from_cmid($session->activityid, null, $courseid, $session->participant->participantidentifier);
+            echo \html_writer::tag('td', $cm->name, array('class' => "{$prefix}_activitymodule"));
+
+            // Column=session_start.
+            echo \html_writer::tag('td', ($session->start ? \userdate($session->start) : ''), array('class' => "{$prefix}_session_start"));
+            // Column=session_end.
+            echo \html_writer::tag('td', ($session->end ? \userdate($session->end) : ''), array('class' => "{$prefix}_session_end"));
+
+            $isoverridden = $session->is_overridden();
+            if (!$hascapability_override) {
+                // Students: If overridden, bold and has hover-title with date.
+                // Column=session_status.
+                if (!$isoverridden) {
+                    echo \html_writer::tag('td', ia_status::get_status_lang($session->status), array('class' => "{$prefix}_session_status"));
+                } else {
+                    echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus), array('class' => "{$prefix}_session_status overridden", 'tite' => \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME, ($session->overridedate ? \userdate($session->overridedate) : ''))));
+                }
+            } else {
+                // Instructor: If overridden, show the original status, then override info.
+                // Column=session_status.
+                echo \html_writer::tag('td', ia_status::get_status_lang($session->status), array('class' => "{$prefix}_session_status"));
+                // Column=session_overridedate.
+                echo \html_writer::tag('td', ($isoverridden ? (ia_u::is_unixtime_past($session->overridedate) ? \userdate($session->overridedate) : '') : ''), array('class' => "{$prefix}_session_overridedate"));
+                // Column=session_overridestatus.
+                echo \html_writer::tag('td', ($isoverridden ? ia_status::get_status_lang($session->overridestatus) : ''), array('class' => "{$prefix}_session_status"));
+                // Column=session_overridename.
+                echo \html_writer::tag('td', ($isoverridden ? \fullname(ia_mu::get_user_as_obj($session->overridelmsuserid)) : ''), array('class' => "{$prefix}_session_overridename"));
+                // Column=session_overridereason.
+                echo \html_writer::tag('td', ($isoverridden ? htmlspecialchars($session->overridereason) : ''), array('class' => "{$prefix}_session_overridereason"));
+            }
+            echo $tr_end;
+        }
+
+        echo '</tbody></table>';
+        echo '</div>';
+    }
 }
