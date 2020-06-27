@@ -146,3 +146,8 @@
 #block_integrityadvocate_participant_table .overridden {
     font-weight: bold;
 }
+.dataTables_filter {
+    float: left !important;
+    text-align: left;
+    margin-top: 35px;
+}
