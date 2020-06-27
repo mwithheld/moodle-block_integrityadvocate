@@ -81,7 +81,7 @@ $string['not_all_expected_set'] = 'Not all activities with completion have an "{
 $string['now_indicator'] = 'NOW';
 
 $string['overview_course'] = 'Integrity Advocate Course Overview';
-$string['overview_users'] = 'Integrity Advocate User Sessions';
+$string['overview_user'] = 'Integrity Advocate User Sessions';
 $string['overview_flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
