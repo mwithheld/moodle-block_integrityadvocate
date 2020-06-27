@@ -268,7 +268,6 @@ class MoodleUtility {
 
         // Keep only modules that are visible.
         foreach ($modules as $m) {
-
             $coursemodule = $modinfo->cms[$m['id']];
 
             // Check visibility in course.
