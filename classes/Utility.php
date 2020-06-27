@@ -64,7 +64,7 @@ class Utility {
      * @param type $unixtime
      * @return type
      */
-    public static function is_unixtime_past($unixtime) {
+    public static function is_unixtime_past($unixtime): bool {
         if (is_numeric($unixtime)) {
             $unixtime = intval($unixtime);
         }
