@@ -65,21 +65,21 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
 $user = $DB->get_record('user', array('id' => $userid), '*', \MUST_EXIST);
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
 
-if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
-    // Show basic user info at the top.  Adapted from user/view.php.
-    echo \html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
-    echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
-    echo \html_writer::end_tag('div');
+// Show basic user info at the top.  Adapted from user/view.php.
+echo \html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
+echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
+echo \html_writer::end_tag('div');
 
-    if (ia_u::is_empty($participant)) {
-        $msg = 'No participant found';
-        if ($hascapability_overview) {
-            $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
-        }
-        echo $msg;
-        $continue = false;
+if (ia_u::is_empty($participant)) {
+    $msg = 'No participant found';
+    if ($hascapability_overview) {
+        $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
     }
+    echo $msg;
+    $continue = false;
+}
 
+if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
     if ($continue) {
         // Display user basic info.
         if ($hascapability_override) {
@@ -93,12 +93,14 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
         echo ia_output::get_sessions_output($participant);
     }
 } else {
-    echo "Show new user session listing here;<br />\n<div id=\"overview_participant_container\"> <table id=\"overview_participant_table\" style=\"width:100%\">
-  <tr>
+    echo "Show new user session listing here;<br />\n<div id=\"overview_participant_container\">
+        <table id=\"participant\" class=\"stripe order-column hover\">
+  <thead><tr>
     <th>Firstname</th>
     <th>Lastname</th>
     <th>Age</th>
-  </tr>
+  </tr></thead>
+  <tbody>
   <tr>
     <td>Jill</td>
     <td>Smith</td>
@@ -109,5 +111,25 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
     <td>Jackson</td>
     <td>94</td>
   </tr>
-</table> </div>";
+  <tr>
+    <td>Jill1</td>
+    <td>Smith1</td>
+    <td>501</td>
+  </tr>
+  <tr>
+    <td>Eve1</td>
+    <td>Jackson1</td>
+    <td>941</td>
+  </tr>
+  <tr>
+    <td>Jill2</td>
+    <td>Smith2</td>
+    <td>250</td>
+  </tr>
+  <tr>
+    <td>Eve2</td>
+    <td>Jackson2</td>
+    <td>294</td>
+  </tr>
+</tbody></table> </div>";
 }
