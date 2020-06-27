@@ -172,7 +172,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             }
 
             // Column=session_photo.
-            echo \html_writer::tag('td', ($session->participantphoto ? \html_writer::img($session->participantphoto, fullname(ia_mu::get_user_as_obj($participant->participantidentifier))) : ''), ['class' => "{$prefix}_session_photo"]);
+            echo \html_writer::tag('td', ($session->participantphoto ? \html_writer::img($session->participantphoto, fullname(ia_mu::get_user_as_obj($participant->participantidentifier)), ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]) : ''), ['class' => "{$prefix}_session_photo"]);
 
             // Column=session_flags.
             if (empty($session->flags)) {
@@ -202,5 +202,6 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
 
         echo '</tbody></table>';
         echo '</div>';
+        echo '<div id="dialog"></div>';
     }
 }

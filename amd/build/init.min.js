@@ -1,5 +1,5 @@
-define(['jquery', 'block_integrityadvocate/jquery.dataTables', 'core/log'],
-        function ($, datatables) {
+define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
+        function ($, jqui, datatables) {
             return {
                 init: function () {
                     if ($('body').hasClass('block_integrityadvocate-overview-course')) {
@@ -47,8 +47,21 @@ define(['jquery', 'block_integrityadvocate/jquery.dataTables', 'core/log'],
                             ]
                         };
                         $('#block_integrityadvocate_participant_table').DataTable(options);
+                        $('.block_integrityadvocate_participant_session_jquimodal').click(function () {
+                            $('#dialog').html('<div id="dialog" title="image"><img src="' + $(this).attr('src') + '" width="500" /></div>');
+                            $('#dialog').dialog({
+                                modal: true,
+                                width: 'auto',
+                                open: function (event, ui) {
+                                    $('.ui-widget-overlay').bind('click', function () {
+                                        $("#dialog").dialog('close');
+                                    });
+                                }
+                            });
+                        });
                     }
                 }
-            };
+            }
+            ;
         }
 );
