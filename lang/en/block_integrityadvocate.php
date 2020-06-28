@@ -117,7 +117,7 @@ $string['session_flags'] = 'Flags';
 $string['session_overridedate'] = 'Override time';
 $string['session_overridename'] = 'Overrider';
 $string['session_overridereason'] = 'Override reason';
-$string['session_overridestatus'] = 'Override status';
+$string['session_overridestatus'] = 'Overrides original status';
 $string['shortname'] = 'Short course name';
 $string['showallinfo'] = 'Show all info';
 
