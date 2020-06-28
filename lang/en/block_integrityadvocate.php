@@ -134,3 +134,4 @@ $string['override_form_label'] = 'Override the status:';
 $string['override_reason_label'] = 'Reason for override';
 $string['override_reason_invalid'] = 'Must only contain characters in the range: a-zA-Z0-9._-';
 
+$string['view_details'] = 'View details';
