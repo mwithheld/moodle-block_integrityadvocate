@@ -143,13 +143,10 @@
 .block_integrityadvocate_plugininfo {
     font-size: 0.5em;
 }
-#block_integrityadvocate_participant_table .overridden {
-    font-weight: bold;
-}
 .dataTables_filter {
     float: left !important;
     text-align: left;
-    margin-top: 35px;
+    clear: both;
 }
 td.details-control {
     background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;

@@ -69,15 +69,16 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 });
                             }
                         };
-                        $('#block_integrityadvocate_participant_table').DataTable(options);
-                        function format(d) {
-                            // `d` is the original data object for the row
-                            return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-                                    '<tr><td>Override time:</td><td>' + d.overridetime + '</td></tr>' +
-                                    '<tr><td>Override original status:</td><td>' + d.overridestatus + '</td></tr>' +
-                                    '<tr><td>Overrider:</td><td>' + d.overrider + '</td></tr>' +
-                                    '<tr><td>Override reason:</td><td>' + d.overridereason + '</td></tr>' +
+                        function format(dataobject) {
+                            var childrow = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+                                    '<tr><td>Override time:</td><td>' + dataobject.overridetime + '</td></tr>' +
+                                    '<tr><td>Override original status:</td><td>' + dataobject.overridestatus + '</td></tr>' +
+                                    '<tr><td>Overrider:</td><td>' + dataobject.overrider + '</td></tr>' +
+                                    '<tr><td>Override reason:</td><td>' + dataobject.overridereason + '</td></tr>' +
                                     '</table>';
+
+                            debug && window.console.log('Build childrow=', childrow);
+                            return childrow;
                         }
                         var dt = $('#block_integrityadvocate_participant_table').dataTable();
                         dt.api().columns([7, 8, 9, 10]).visible(false);
@@ -87,11 +88,11 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             var row = dt.api().row(tr);
 
                             if (row.child.isShown()) {
-                                // This row is already open - close it
+                                debug && window.console.log('This row is already open - close it');
                                 row.child.hide();
                                 tr.removeClass('shown');
                             } else {
-                                // Open this row
+                                debug && window.console.log('Open this row');
                                 var d = {
                                     overridetime: row.data()[7],
                                     overridestatus: row.data()[8],
