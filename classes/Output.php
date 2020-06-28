@@ -345,7 +345,7 @@ class Output {
         $out .= self::row_nameval($prefix, 'session_start', ($session->start ? \userdate($session->start) : ''));
         $out .= self::row_nameval($prefix, 'session_end', ($session->end ? \userdate($session->end) : ''));
         $out .= self::row_nameval($prefix, 'session_status', ia_status::get_status_lang($session->status));
-        if ($session->is_overridden()) {
+        if ($session->has_override()) {
             $out .= self::row_nameval($prefix, 'session_overridedate', ($session->overridedate ? \userdate($session->overridedate) : ''));
             $out .= self::row_nameval($prefix, 'session_overridestatus', ia_status::get_status_lang($session->overridestatus));
             $out .= self::row_nameval($prefix, 'session_overridereason', htmlspecialchars($session->overridereason));
