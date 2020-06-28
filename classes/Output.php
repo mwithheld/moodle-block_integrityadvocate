@@ -41,6 +41,7 @@ class Output {
     const CLASS_TABLE_LABEL = 'block_integrityadvocate_tablelabel';
     const CLASS_TABLE_VALUE = 'block_integrityadvocate_tablevalue';
     const BLOCK_JS_PATH = '/blocks/integrityadvocate/js';
+    const BRNL = "<br />\n";
 
     /**
      * Add block.js to the current $blockinstance page.
