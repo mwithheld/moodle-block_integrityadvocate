@@ -104,19 +104,20 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
 
         // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
-        echo '<table id="' . $prefix . '_table" class="stripe order-column hover">';
+        echo '<table id="' . $prefix . '_table" class="stripe order-column hover display">';
         $tr = '<tr>';
         $tr_end = '</tr>';
         echo '<thead>';
         $tr_header = $tr;
-        $tr_header .= \html_writer::tag('td', \get_string('view_details', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_viewdetails"]);
         $tr_header .= \html_writer::tag('td', \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_start"]);
         $tr_header .= \html_writer::tag('td', \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_end"]);
+
         $tr_header .= \html_writer::tag('td', \get_string('activitymodule'), ['class' => "{$prefix}_session_activitymodule"]);
         $tr_header .= \html_writer::tag('td', \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status"]);
         $tr_header .= \html_writer::tag('td', \get_string('photo', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_photo"]);
         $tr_header .= \html_writer::tag('td', \get_string('flags', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_flags"]);
         if ($hascapability_override) {
+            $tr_header .= \html_writer::tag('td', \get_string('override_view', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_viewdetails"]);
             $tr_header .= \html_writer::tag('td', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridedate"]);
             $tr_header .= \html_writer::tag('td', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridestatus"]);
             $tr_header .= \html_writer::tag('td', \get_string('session_overridename', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridename"]);
@@ -139,13 +140,11 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
                     continue;
             }
 
-            // Column=sessionid.
-            echo \html_writer::tag('td', '', ['data-sort' => $session->id, 'class' => "{$prefix}_session_id details-control"]);
-
             // Column=session_start.
             echo \html_writer::tag('td', ($session->start ? \userdate($session->start) : ''), ['data-sort' => $session->start, 'class' => "{$prefix}_session_start"]);
             // Column=session_end.
-            echo \html_writer::tag('td', ($session->end ? \userdate($session->end) : ''), ['data-sort' => $session->end, 'class' => "{$prefix}_session_end"]);
+            $sessionend = ia_u::is_unixtime_past($session->end) ? \userdate($session->end) : '';
+            echo \html_writer::tag('td', \userdate($sessionend), ['data-sort' => $sessionend, 'class' => "{$prefix}_session_end"]);
 
             // Column=activitymodule.
             // We need the coursemodule so we can get info like the name from it.
@@ -162,17 +161,17 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             $statushtml = '';
             // If overridden the overridden status but in bold and has hover-title with "Overridden <date>".
             if ($isoverridden) {
-                echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus), ['data-sort' => $session->overridestatus, 'class' => "{$prefix}_session_status overridden", 'tite' => \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME, $overridedate)]);
+                echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus) . ia_output::BRNL . '(' . \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME) . ')', ['data-sort' => $session->overridestatus, 'class' => "{$prefix}_session_status overridden", 'tite' => \get_string('overridden_date', INTEGRITYADVOCATE_BLOCK_NAME, $overridedate)]);
             } else {
                 echo \html_writer::tag('td', ia_status::get_status_lang($session->status), ['data-sort' => $session->status, 'class' => "{$prefix}_session_status"]);
             }
-//            }
+
             // Column=session_photo.
             echo \html_writer::tag('td', ($session->participantphoto ? \html_writer::img($session->participantphoto, fullname(ia_mu::get_user_as_obj($participant->participantidentifier)), ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]) : ''), ['class' => "{$prefix}_session_photo"]);
 
             // Column=session_flags.
             if (empty($session->flags)) {
-                echo \html_writer::tag('td', '', ['data-sort' => $session->end, 'class' => "{$prefix}_session_flags"]);
+                echo \html_writer::tag('td', '', ['data-sort' => $sessionend, 'class' => "{$prefix}_session_flags"]);
             } else {
                 $flags = array_values($session->flags);
                 usort($flags, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_created_desc'));
@@ -185,18 +184,20 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
                         $flagoutput .= \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
                     }
                 }
-                echo \html_writer::tag('td', $flagoutput, ['data-sort' => $session->end, 'class' => "{$prefix}_session_flags"]);
+                echo \html_writer::tag('td', $flagoutput, ['data-sort' => $sessionend, 'class' => "{$prefix}_session_flags"]);
             }
 
             if ($hascapability_override) {
-                // Instructor: If overridden, show the original status, then override info.
+                // Instructor: If overridden, show the override info.
                 // Column=session_overridedate.
                 $isoverridden = true;
                 $overridedate = time();
                 $session->overridelmsuserid = 4;
                 $session->overridereason = ' Blah cuz I wanted to test this';
+                // Column=sessionid.
+                echo \html_writer::tag('td', '', ['data-sort' => $session->id, 'class' => "{$prefix}_session_overrideview details-control"]);
                 echo \html_writer::tag('td', ($isoverridden ? \userdate($overridedate) : ''), ['class' => "{$prefix}_session_overridedate"]);
-                // Column=session_overridestatus.
+                // Column=session_overridestatus - show the *original* status.
                 echo \html_writer::tag('td', ($isoverridden ? ia_status::get_status_lang($session->status) : ''), ['class' => "{$prefix}_session_overridestatus"]);
                 // Column=session_overridename.
                 echo \html_writer::tag('td', ($isoverridden ? \fullname(ia_mu::get_user_as_obj($session->overridelmsuserid)) : ''), ['class' => "{$prefix}_session_overridename"]);

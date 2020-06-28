@@ -106,7 +106,6 @@ $string['privacy:metadata:block_integrityadvocate:tableexplanation'] = 'Integrit
 $string['privacy:metadata:block_integrityadvocate:user_video'] = 'A video (with audio) recording of you completing an activity.';
 $string['privacy:metadata:block_integrityadvocate:userid'] = 'Your database user id number.';
 
-$string['overridden'] = 'Overridden {$a}';
 $string['process_integrityadvocate'] = 'Integrity Advocate - Process';
 $string['progress'] = '# proctor sessions';
 $string['resubmit_link'] = 'Resubmit your ID';
@@ -133,5 +132,6 @@ $string['time_expected'] = 'Expected';
 $string['override_form_label'] = 'Override the status:';
 $string['override_reason_label'] = 'Reason for override';
 $string['override_reason_invalid'] = 'Must only contain characters in the range: a-zA-Z0-9._-';
-
-$string['view_details'] = 'View details';
+$string['override_view'] = 'View overrides';
+$string['overridden_date'] = 'Overridden {$a}';
+$string['overridden'] = 'Overridden';
