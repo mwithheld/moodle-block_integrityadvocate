@@ -36,7 +36,13 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             'row-border': true,
                             'searching': true,
                             'scrollX': true,
-                            'columnDefs': [{
+                            'columnDefs': [
+                                {
+                                    'targets': [4],
+                                    'orderable': false,
+                                    'searchable': false
+                                },
+                                {
                                     // This is the override open/close column.
                                     'targets': [6],
                                     'visible': true,
