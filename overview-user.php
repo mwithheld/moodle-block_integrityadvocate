@@ -143,7 +143,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             // Column=session_start.
             echo \html_writer::tag('td', ($session->start ? \userdate($session->start) : ''), ['data-sort' => $session->start, 'class' => "{$prefix}_session_start"]);
             // Column=session_end.
-            $sessionend = ia_u::is_unixtime_past($session->end) ? \userdate($session->end) : '';
+            $sessionend = ia_u::is_unixtime_past($session->end) ? $session->end : '';
             echo \html_writer::tag('td', \userdate($sessionend), ['data-sort' => $sessionend, 'class' => "{$prefix}_session_end"]);
 
             // Column=activitymodule.
