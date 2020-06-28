@@ -50,4 +50,18 @@ class Participant {
     public $sessions = array();
     public $status;
 
+    public function has_session_override() {
+        if (is_array($this->sessions) || empty($this->sessions)) {
+            return false;
+        }
+
+        foreach ($this->sessions as $s) {
+            if ($s->has_override()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
