@@ -191,7 +191,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
                         $flagoutput .= \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
                     }
                 }
-                echo \html_writer::tag('td', $flagoutput, ['data-sort' => $sessionend, 'class' => "{$prefix}_session_flags"]);
+                echo \html_writer::tag('td', $flagoutput, ['class' => "{$prefix}_session_flags"]);
             }
 
             // Instructor: If overridden, show the override info.
@@ -209,7 +209,8 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
                 // Column=session_overridestatus - show the *original* status.
                 echo \html_writer::tag('td', ($hasoverride ? ia_status::get_status_lang($session->status) : ''), ['class' => "{$prefix}_session_overridestatus"]);
                 // Column=session_overridename.
-                echo \html_writer::tag('td', ($hasoverride ? \fullname(ia_mu::get_user_as_obj($session->overridelmsuserid)) : ''), ['class' => "{$prefix}_session_overridename"]);
+                $overrideusername = isset($session->overridelmsuserid) ? $OUTPUT->user_picture(ia_mu::get_user_as_obj($session->overridelmsuserid), ['size' => 35, 'courseid' => $courseid, 'includefullname' => true]) : '';
+                echo \html_writer::tag('td', ($hasoverride ? $overrideusername : ''), ['class' => "{$prefix}_session_overridename"]);
                 // Column=session_overridereason.
                 echo \html_writer::tag('td', ($hasoverride ? htmlspecialchars($session->overridereason) : ''), ['class' => "{$prefix}_session_overridereason"]);
             }
