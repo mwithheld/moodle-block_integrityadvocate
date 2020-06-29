@@ -24,6 +24,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
 
                     if ($('body').hasClass('block_integrityadvocate-overview-user')) {
                         debug && window.console.log('init.mins.js: Found overview_participant_table');
+                        var dt_elt = $('#block_integrityadvocate_participant_table');
 
                         function format(dataobject) {
                             var childrow = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
@@ -67,9 +68,12 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             'initComplete': function (settings, json) {
                                 debug && window.console.log('DataTables.initComplete fired');
 
-                                $('#block_integrityadvocate_participant_table').dataTable().api().columns([7, 8, 9, 10]).visible(false);
+                                var dt = dt_elt.dataTable();
+                                dt.api().columns([7, 8, 9, 10]).visible(false);
 
-                                $('.block_integrityadvocate_participant_session_jquimodal').on('click.modalpic', function () {
+                                //<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+
+                                dt_elt.find('.block_integrityadvocate_participant_session_jquimodal').on('click.modalpic', function () {
                                     debug && window.console.log('jquimodal.click.modalpic fired');
                                     $('#dialog')
                                             .html('<div id="dialog" title="image"><img src="' + $(this).attr('src') + '" width="500" /></div>')
@@ -77,14 +81,14 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                                 modal: true,
                                                 width: 'auto',
                                                 open: function (event, ui) {
-                                                    $('.ui-widget-overlay').bind('click', function () {
+                                                    dt_elt.find('.ui-widget-overlay').bind('click', function () {
                                                         $("#dialog").dialog('close');
                                                     });
                                                 }
                                             });
                                 });
 
-                                $('#block_integrityadvocate_participant_table tbody').on('click.override', 'td.details-control', function () {
+                                dt_elt.find('tbody').on('click.override', 'td.details-control', function () {
                                     debug && window.console.log('click.override fired');
                                     var tr = $(this).parents('tr');
                                     var row = dt.api().row(tr);
@@ -107,7 +111,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 });
                             }
                         };
-                        var dt = $('#block_integrityadvocate_participant_table').dataTable(options);
+                        dt_elt.dataTable(options);
                     }
                 }
             };
