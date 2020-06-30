@@ -256,7 +256,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
 
                                 // If overridden, show more info in child row.
                                 dt_elt.find('.block_integrityadvocate_participant_session_overridden').each(function () {
-                                    $(this).append('<i class="fa fa-info-circle" aria-hidden="true" title="' + M.str.block_integrityadvocate.overridden + '"></i>')
+                                    $(this).append('<i class="fa fa-info-circle" aria-hidden="true" title="' + M.str.block_integrityadvocate.viewhide_overrides + '"></i>')
                                             .find('i').click(function () {
                                         debug && window.console.log('click.override fired');
                                         var tr = $(this).parents('tr');

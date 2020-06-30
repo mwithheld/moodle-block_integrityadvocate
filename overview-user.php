@@ -100,7 +100,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
     if ($continue) {
         usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
         $modinfo = \get_fast_modinfo($courseid, -1);
-        $PAGE->requires->strings_for_js(array('overridden'), INTEGRITYADVOCATE_BLOCK_NAME);
+        $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
 
         // Build the override UI hidden to the page so we can just swap it in on click
@@ -187,7 +187,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
 
             $hasoverride = $session->has_override();
             // Temporary test data.
-            if (false && $hasoverride = (bool) random_int(0, 1)) {
+            if (true && $hasoverride = (bool) random_int(0, 1)) {
                 $session->overridedate = random_int($session->end, time());
                 $overrideints = array_keys(ia_status::get_overriddable());
                 sort($overrideints);
@@ -202,7 +202,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             // If overridden the overridden status.
             if ($hasoverride) {
                 // If overridden as Valid, add text "(Overridden)".
-                echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus) . ($session->overridestatus === ia_status::VALID_INT ? '(' . \get_sring('overridden', INTEGRITYADVOCATE_BLOCK_NAME) . ')' : ''), ['class' => "{$prefix}_session_status {$prefix}_session_overridden" . $overrideclass]);
+                echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus) . ($session->overridestatus === ia_status::VALID_INT ? ' (' . \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME) . ')' : ''), ['class' => "{$prefix}_session_status {$prefix}_session_overridden" . $overrideclass]);
             } else {
                 echo \html_writer::tag('td', ia_status::get_status_lang($session->status), ['class' => "{$prefix}_session_status" . $overrideclass]);
             }
@@ -231,7 +231,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             // Instructor: If overridden, show the override info.
             if ($hascapability_override) {
                 // Temporary test data.
-                if (false && $hasoverride) {
+                if (true && $hasoverride) {
                     $session->overridelmsuserid = 4;
                     $session->overridereason = ' Blah cuz I wanted to test this';
                 }
