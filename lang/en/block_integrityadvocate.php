@@ -135,3 +135,5 @@ $string['override_reason_invalid'] = 'Must only contain characters in the range:
 $string['override_view'] = 'View overrides';
 $string['overridden_date'] = 'Overridden {$a}';
 $string['overridden'] = 'Overridden';
+$string['viewhide_overrides'] = 'View/Hide overrides';
+
