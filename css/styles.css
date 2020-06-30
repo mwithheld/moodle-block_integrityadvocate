@@ -155,9 +155,6 @@ td.details-control {
 tr.shown td.details-control {
     background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
 }
-.block_integrityadvocate_participant_session_overrideui i{
+.block_integrityadvocate_participant_session_overrideui i, .block_integrityadvocate_participant_session_overridden i{
     padding-left:0.5em;
-}
-.block_integrityadvocate_participant_session_overrideui {
-
 }
