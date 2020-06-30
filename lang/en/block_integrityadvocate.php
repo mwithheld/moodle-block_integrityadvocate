@@ -129,7 +129,7 @@ $string['status_valid'] = 'Valid';
 $string['submitted'] = 'Submitted';
 $string['time_expected'] = 'Expected';
 
-$string['override_form_label'] = 'Override the status:';
+$string['override_form_label'] = 'Override the status';
 $string['override_reason_label'] = 'Reason for override';
 $string['override_reason_invalid'] = 'Must only contain characters in the range: a-zA-Z0-9._-';
 $string['override_view'] = 'View overrides';

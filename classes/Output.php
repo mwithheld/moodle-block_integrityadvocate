@@ -415,7 +415,7 @@ class Output {
      * @param string $uniqueidsuffix If the anchor id attribute should have a unique identifier (like a userid number), put it here.  Default empty string.
      * @return string The built HTML.
      */
-    private static function add_icon(string $pixpath, string $nameprefix = '', string $name, string $uniqueidsuffix = ''): string {
+    public static function add_icon(string $pixpath, string $nameprefix = '', string $name, string $uniqueidsuffix = ''): string {
         global $OUTPUT;
 
         // Add the save icon.
@@ -423,63 +423,65 @@ class Output {
         $anchorattributes = array(
             'class' => "{$nameprefix}_{$name}",
             'title' => $label,
-            'aria-label' => $label,
-            'id' => "{$nameprefix}_{$name}" . ($uniqueidsuffix ? "-{$uniqueidsuffix}" : ''),
+            'aria-label' => $label
         );
+        if ($uniqueidsuffix) {
+            $anchorattributes['id'] = "{$nameprefix}_{$name}" . ($uniqueidsuffix ? "-{$uniqueidsuffix}" : '');
+        }
         $pixicon = $OUTPUT->render(new \pix_icon($pixpath, '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
         return \html_writer::span(\html_writer::link('#', $pixicon, $anchorattributes), "{$nameprefix}_{$name}_span {$nameprefix}_button");
     }
 
-    /**
-     * Build and returns the Override UI HTML.
-     * Assumes you have a valid participant.
-     *
-     * @param ia_participant $participant A valid IA participant.
-     * @return string The Override UI HTML.
-     */
-    private static function get_override_html(ia_participant $participant): string {
-        global $PAGE;
-        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
-        $output = '';
-
-        // Add the edit icon.
-        $output .= self::add_icon('i/edit', $prefix, 'edit');
-
-        // Create a form for the override UI.
-        $output .= \html_writer::start_tag('form', array('id' => $prefix . '_form', 'style' => 'display:none'));
-
-        // Add a label for the form fields.
-        $output .= \html_writer::span(
-                        \get_string('override_form_label', INTEGRITYADVOCATE_BLOCK_NAME),
-                        $prefix . '_overview_participant_summary_status_label ' . $prefix . '_form_label');
-
-        // Add the override status UI hidden to the page so we can just swap it in on click.
-        // Add the select and reason box.
-        $output .= \html_writer::select(
-                        ia_status::get_overriddable(),
-                        ' ' . $prefix . '_select ' . $prefix . '_status_select',
-                        $participant->status,
-                        array('' => 'choosedots'),
-                        array('id' => $prefix . '_status_select', 'required' => true)
-        );
-
-        // Add the override reason textbox.
-        $PAGE->requires->strings_for_js(array('override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
-        $output .= \html_writer::tag('input', '', array('id' => $prefix . '_reason', 'name' => $prefix . '_reason', 'maxlength' => 32));
-
-        // Add hidden fields needed for the AJAX call.
-        global $USER;
-        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_targetuserid', 'name' => $prefix . '_targetuserid', 'value' => $participant->participantidentifier));
-        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_overrideuserid', 'name' => $prefix . '_overrideuserid', 'value' => $USER->id));
-
-        $output .= self::add_icon('e/save', $prefix, 'save');
-        $output .= self::add_icon('i/loading', $prefix, 'loading');
-        $output .= self::add_icon('e/cancel', $prefix, 'cancel');
-
-        $output .= \html_writer::end_tag('form');
-
-        return $output;
-    }
+//    /**
+//     * Build and returns the Override UI HTML.
+//     * Assumes you have a valid participant.
+//     *
+//     * @param ia_participant $participant A valid IA participant.
+//     * @return string The Override UI HTML.
+//     */
+//    private static function get_override_html(ia_participant $participant): string {
+//        global $PAGE;
+//        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
+//        $output = '';
+//
+//        // Add the edit icon.
+//        $output .= self::add_icon('i/edit', $prefix, 'edit');
+//
+//        // Create a form for the override UI.
+//        $output .= \html_writer::start_tag('form', array('id' => $prefix . '_form', 'style' => 'display:none'));
+//
+//        // Add a label for the form fields.
+//        $output .= \html_writer::span(
+//                        \get_string('override_form_label', INTEGRITYADVOCATE_BLOCK_NAME),
+//                        $prefix . '_overview_participant_summary_status_label ' . $prefix . '_form_label');
+//
+//        // Add the override status UI hidden to the page so we can just swap it in on click.
+//        // Add the select and reason box.
+//        $output .= \html_writer::select(
+//                        ia_status::get_overriddable(),
+//                        ' ' . $prefix . '_select ' . $prefix . '_status_select',
+//                        $participant->status,
+//                        array('' => 'choosedots'),
+//                        array('id' => $prefix . '_status_select', 'required' => true)
+//        );
+//
+//        // Add the override reason textbox.
+//        $PAGE->requires->strings_for_js(array('override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
+//        $output .= \html_writer::tag('input', '', array('id' => $prefix . '_reason', 'name' => $prefix . '_reason', 'maxlength' => 32));
+//
+//        // Add hidden fields needed for the AJAX call.
+//        global $USER;
+//        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_targetuserid', 'name' => $prefix . '_targetuserid', 'value' => $participant->participantidentifier));
+//        $output .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix . '_overrideuserid', 'name' => $prefix . '_overrideuserid', 'value' => $USER->id));
+//
+//        $output .= self::add_icon('e/save', $prefix, 'save');
+//        $output .= self::add_icon('i/loading', $prefix, 'loading');
+//        $output .= self::add_icon('e/cancel', $prefix, 'cancel');
+//
+//        $output .= \html_writer::end_tag('form');
+//
+//        return $output;
+//    }
 
     public static function get_latest_status_html(ia_participant $participant, string $prefix): string {
         $statushtml = '';
@@ -547,10 +549,6 @@ class Output {
                                 format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')), FORMAT_HTML),
                                 $prefix . '_resubmit_link');
             }
-        }
-
-        if (INTEGRITYADVOCATE_FEATURE_OVERRIDE && $showoverridebutton) {
-            $statushtml .= self::get_override_html($participant);
         }
 
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
