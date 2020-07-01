@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant as ia_participant;
-use block_integrityadvocate\Status as ia_status;
+use block_integrityadvocate\PaticipantStatus as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -130,8 +130,8 @@ class Api {
         }
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'perrequest');
-        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR)));
 
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
@@ -149,7 +149,7 @@ class Api {
         $requestmethod = 'GET';
         $microtime = explode(' ', microtime());
         $nonce = $microtime[1] . substr($microtime[0], 2, 6);
-        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+        $debug && ia_mu::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
         $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
         // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
@@ -603,6 +603,7 @@ class Api {
             return $notfoundval;
         }
 
+        $debug && ia_mu::log("About to return \$latestsession->status={$latestsession->status}");
         return $latestsession->status;
     }
 
@@ -778,6 +779,7 @@ class Api {
             if (isset($input->Activity_Id)) {
                 $session->activityid = \clean_param($input->Activity_Id, PARAM_INT);
                 if (!($courseid = ia_mu::get_courseid_from_cmid($session->activityid)) || $courseid !== $participant->courseid) {
+                    $debug && ia_mu::log($fxn . "::This session activity_id={$session->activityid} belongs to courseid={$courseid} vs participant->courseid={$participant->courseid}, so return empty");
                     return array();
                 }
             }
@@ -827,9 +829,9 @@ class Api {
      * @return ia_participant Null if failed to parse, otherwise the parsed Participant object.
      */
     public static function parse_participant(\stdClass $input) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with $p=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
+        $debug && ia_mu::log($fxn . '::Started with $input=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -856,8 +858,8 @@ class Api {
             isset($input->Override_Date) && ($participant->overridedate = \clean_param($input->Override_Date, PARAM_INT));
             isset($input->Override_LMSUser_Id) && ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done int fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done int fields');
+
         // Clean text fields.
         if (true) {
             isset($input->FirstName) && ($participant->firstname = \clean_param($input->FirstName, PARAM_TEXT));
@@ -871,15 +873,15 @@ class Api {
             isset($input->Override_LMSUser_LastName) && ($participant->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
             isset($input->Override_Reason) && ($participant->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done text fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done text fields');
+
         // Clean URL fields.
         if (true) {
             isset($input->Participant_Photo) && ($participant->participantphoto = filter_var($input->Participant_Photo, FILTER_SANITIZE_URL));
             isset($input->ResubmitUrl) && ($participant->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done url fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done url fields');
+
         // Clean status vs whitelist.
         if (isset($input->Status)) {
             $participant->status = ia_status::parse_status_string($input->Status);
@@ -887,8 +889,8 @@ class Api {
         if (isset($input->Override_Status) && !empty($input->Override_Status)) {
             $participant->overridestatus = ia_status::parse_status_string($input->Override_Status);
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done status fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done status fields');
+
         // Handle sessions data.
         $participant->sessions = array();
         if (isset($input->Sessions) && is_array($input->Sessions)) {
@@ -914,9 +916,11 @@ class Api {
         } else {
             $debug && ia_mu::log($fxn . '::No sessions found');
         }
+        $debug && ia_mu::log($fxn . '::Done sessions fields');
 
         // A participant is valid only if they have sessions.
         if (empty($participant->sessions)) {
+            $debug && ia_mu::log($fxn . '::No sessions found, so return null');
             return null;
         }
 

@@ -43,7 +43,7 @@ class block_integrityadvocate extends block_base {
      * @return void
      */
     public function init() {
-        $this->title = \get_string('config_default_title', \INTEGRITYADVOCATE_BLOCKNAME);
+        $this->title = \get_string('config_default_title', \INTEGRITYADVOCATE_BLOCK_NAME);
     }
 
     /**
@@ -71,7 +71,7 @@ class block_integrityadvocate extends block_base {
         foreach ($blocks as $key => $b) {
             $debug && ia_mu::log($fxn . "::Looking at block_instance.id={$key}");
 
-            // Only look in other blocks, and skip those with apikey/appid errors
+            // Only look in other blocks, and skip those with apikey/appid errors.
             if ($b->get_apikey_appid_errors()) {
                 continue;
             }
@@ -175,11 +175,11 @@ class block_integrityadvocate extends block_base {
         }
 
         if (!isset($this->config->apikey) || !ia_mu::is_base64($this->config->apikey)) {
-            $errors['config_apikey'] = \get_string('error_noapikey', \INTEGRITYADVOCATE_BLOCKNAME);
+            $errors['config_apikey'] = \get_string('error_noapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::' . $errors['config_apikey']);
         }
         if (!isset($this->config->appid) || !ia_u::is_guid($this->config->appid)) {
-            $errors['config_appid'] = \get_string('error_noappid', \INTEGRITYADVOCATE_BLOCKNAME);
+            $errors['config_appid'] = \get_string('error_noappid', \INTEGRITYADVOCATE_BLOCK_NAME);
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::' . $errors['config_appid']);
         }
 
@@ -193,30 +193,46 @@ class block_integrityadvocate extends block_base {
      * @return array(field=>error message)
      */
     public function get_config_errors(): array {
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
+        if ($cachedvalue = $cache->get($cachekey)) {
+            return $cachedvalue;
+        }
+
         // Check for errors that don't matter what context we are in.
         $errors = $this->get_apikey_appid_errors();
 
         $modulecontext = $this->context->get_parent_context();
+
         // Check the context we got is module context and not course context.
         // If this is a course-level block, just return what errors we have so far.
         if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
+            if (!$cache->set($cachekey, $errors)) {
+                throw new \Exception('Failed to set value in perrequest cache');
+            }
             return $errors;
+        }
+
+        $courseid = $this->context->get_course_context()->instanceid;
+        if ($courseid == \SITEID) {
+            throw new \Exception('This block cannot exist on the site context');
         }
 
         /*
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
+        global $DB;
         if (stripos($modulecontext->get_context_name(), 'quiz') === 0) {
-            global $DB, $COURSE;
-            if ($COURSE->id == \SITEID) {
-                throw new \Exception('This block cannot exist on the site context');
-            }
-            $modinfo = \get_fast_modinfo($COURSE, -1);
+            $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
             if ($record->showblocks < 1) {
-                $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCKNAME);
+                $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
+        }
+
+        if (!$cache->set($cachekey, $errors)) {
+            throw new \Exception('Failed to set value in perrequest cache');
         }
 
         return $errors;
@@ -228,12 +244,9 @@ class block_integrityadvocate extends block_base {
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
         $debug = false;
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                        '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                            "::Content has already been generated, so do not generate it again: \n" . ia_u::var_dump($this->content, true));
             return;
         }
 
@@ -254,16 +267,14 @@ class block_integrityadvocate extends block_base {
         }
 
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
-        $hasoverviewcapability = \has_capability('block/integrityadvocate:overview', $this->context);
+        $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hasoverviewcapability, true));
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                    '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hasoverviewcapability, true));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
-        if ($setuperrors && $hasoverviewcapability) {
+        if ($setuperrors && $hascapability_overview) {
             foreach ($setuperrors as $err) {
-                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCKNAME) . "<br />\n";
+                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . "<br />\n";
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Setup errors, so skip it');
             return;
@@ -273,20 +284,14 @@ class block_integrityadvocate extends block_base {
         $exclusions = ia_mu::get_gradebook_exclusions($DB, $COURSE->id);
         $modules = ia_mu::get_modules_with_completion($COURSE->id);
         $modules = ia_mu::filter_for_visible($CFG, $modules, $USER->id, $COURSE->id, $exclusions);
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__
-                        . '::Modules found=' . (is_countable($modules) ? count($modules) : 0));
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Modules found=' . ia_u::count_if_countable($modules));
         if (empty($modules)) {
-            if ($hasoverviewcapability) {
-                $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCKNAME);
+            if ($hascapability_overview) {
+                $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::No modules, so skip it');
             return;
         }
-
-        $blockinstancesonpage = array($this->instance->id);
-
-        // ATM we have no module-specific JS file, so this stays false.
-        $needmodulejs = false;
 
         $hasselfviewcapability = \has_capability('block/integrityadvocate:selfview', $this->context);
 
@@ -295,7 +300,7 @@ class block_integrityadvocate extends block_base {
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: ' . ia_u::var_dump($configerrors, true));
 
             // Error output is visible only to instructors.
-            if ($hasoverviewcapability) {
+            if ($hascapability_overview) {
                 $this->content->text .= implode("<br />\n", $configerrors);
             }
             return;
@@ -309,14 +314,11 @@ class block_integrityadvocate extends block_base {
             case CONTEXT_COURSE:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
                 switch (true) {
-                    case $hasoverviewcapability:
+                    case $hascapability_overview:
                         if (stripos($this->page->url, '/user/view.php?') > 0) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
-                            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ .
-                                            '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' .
-                                            $courseid .
-                                            '; $targetuserid=' . $targetuserid);
+                            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
 
                             // Check the user is enrolled in this course, even if inactive.
                             if (!\is_enrolled($parentcontext, $targetuserid)) {
@@ -344,22 +346,34 @@ class block_integrityadvocate extends block_base {
             case CONTEXT_MODULE:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_MODULE');
                 switch (true) {
-                    case $hasoverviewcapability:
+                    case $hascapability_overview:
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher should see the overview button');
                         $this->content->text .= ia_output::get_button_course_overview($this);
                         break;
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
-                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false && ($this->page->pagetype !== 'mod-quiz-attempt')):
+                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
-                                $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                if ($this->page->pagetype == 'mod-quiz-attempt') {
+                                    $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
+
+                                    // Hide quiz questions until JS is loaded and the IA modal is open.
+                                    $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';
+
+                                    ia_output::add_block_js($this);
+                                    ia_output::add_proctor_js($this, $USER);
+                                } else if ($hasselfviewcapability) {
+                                    $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                }
                                 break;
                             case (stripos($this->page->pagetype, 'mod-scorm-') !== false && ($this->page->pagetype !== 'mod-scorm-player')):
                                 // If we are in a scorm, only show the JS proctoring UI if on the scorm player page.
                                 // Other pages should show the summary.
-                                $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                if ($hasselfviewcapability) {
+                                    $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                }
                                 break;
                             default:
                                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
@@ -374,27 +388,30 @@ class block_integrityadvocate extends block_base {
                 break;
             default:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::In some unknown context, so show nothing');
-                return;
+                break;
         }
 
-        if ($needmodulejs) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::About to add module JS');
-
-            // Organize access to JS.
-            $jsmodule = array(
-                'name' => \INTEGRITYADVOCATE_BLOCKNAME,
-                'fullpath' => '/blocks/integrityadvocate/module.js',
-                'requires' => array(),
-                'strings' => array(),
-            );
-            $arguments = array($blockinstancesonpage, array($USER->id));
-            $this->page->requires->js_init_call('M.block_integrityadvocate.init', $arguments, false, $jsmodule);
-        }
+        $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
+        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME)->version . '</div>';
+        $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
+        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
     }
 
     public function get_course() {
         global $COURSE;
         return $COURSE;
+    }
+
+    public function is_visible(): bool {
+        if (property_exists($this, 'visible') && isset($this->visible) && is_bool($this->visible)) {
+            return $this->visible;
+        }
+        if (property_exists($this->instance, 'visible') && isset($this->instance->visible) && is_bool($this->instance->visible)) {
+            return $this->instance->visible;
+        }
+
+        $parentcontext = $this->context->get_parent_context();
+        return $this->visible = ia_mu::get_block_visibility($parentcontext->id, $this->context->id);
     }
 
 }

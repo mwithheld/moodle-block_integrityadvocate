@@ -49,8 +49,8 @@ require_once(__DIR__ . '/classes/Session.php');
 /** @var string Short name for this plugin. */
 const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
 
-/** @var string Longer name for this block. */
-const INTEGRITYADVOCATE_BLOCKNAME = 'block_integrityadvocate';
+/** @var string Longer name for this plugin. */
+const INTEGRITYADVOCATE_BLOCK_NAME = 'block_integrityadvocate';
 
 /** @var string Scheduled cron task name. */
 const INTEGRITYADVOCATE_TASKNAME = 'block_integrityadvocate\task\process_integrityadvocate';
@@ -85,7 +85,10 @@ const INTEGRITYADVOCATE_REGEX_DATAURI = '#data:image\/[a-zA-z-]*;base64,\s*[^"\s
 /** @var string Email address for privacy api data cleanup requests */
 const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 
+/** @var string Optionally used for remote debugging */
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
+
+const INTEGRITYADVOCATE_FEATURE_OVERRIDE = false;
 
 /** @var string Determines where to send error logs * */
 static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
@@ -238,8 +241,7 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
             $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Looking to filter for apikey and appid');
 
             if ($requireapikey && $blockinstance->config->apikey !== $requireapikey) {
-                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey .
-                                ' does not match requested apikey=' . $apikey);
+                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $apikey);
                 unset($modules[$key]);
                 continue;
             }

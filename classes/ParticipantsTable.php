@@ -63,11 +63,15 @@ class ParticipantsTable extends \core_user\participants_table {
         // Why does this not need flipping back, Moodle?  Dunno, but it borks otherwise.
         $this->columns = $columnsflipped;
 
-        // Do not strip tags from these colums (i.e. do not pass through the s() function).
-        $this->column_nostrip = array('iadata');
+        $this->headers[] = \get_string('column_iadata', \INTEGRITYADVOCATE_BLOCK_NAME);
+        $this->headers[] = \get_string('column_iaphoto', \INTEGRITYADVOCATE_BLOCK_NAME);
 
-        $this->headers[] = \get_string('column_iadata', \INTEGRITYADVOCATE_BLOCKNAME);
-        $this->headers[] = \get_string('column_iaphoto', \INTEGRITYADVOCATE_BLOCKNAME);
+        // Do not strip tags from these colums (i.e. do not pass through the s() function).
+        $this->column_nostrip[] = 'iadata';
+
+        // Do not allow sorting by these columns.
+        $this->column_nosort[] = 'iadata';
+        $this->column_nosort[] = 'iaphoto';
 
         $this->prefs['collapse']['status'] = true;
         $this->define_columns($this->columns);
@@ -175,30 +179,33 @@ class ParticipantsTable extends \core_user\participants_table {
         foreach ($this->rawdata as $u) {
             $debug && ia_mu::log($fxn . '::About to get data for userid=' . $u->id);
             $promise = $client->getAsync($requestapiurl, [
-                'headers' => [
-                    'Authorization' => $authheader,
-                ],
+                'headers' => ['Authorization' => $authheader],
                 'query' => ['participantidentifier' => $u->id, 'courseid' => $courseid],
             ]);
             $promise->then(function ($response) use ($blockinstance, $debug) {
                 $fxn = __CLASS__ . '::' . __FUNCTION__;
-                $debug && ia_mu::log($fxn . '::Then started with response=' . ia_u::var_dump($response, true));
-                if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($body = $response->getBody())) {
+                $debug && ia_mu::log($fxn . '::Promise->then started with response=' . ia_u::var_dump($response, true));
+                if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($response->getBody())) {
                     $debug && ia_mu::log($fxn . '::Invalid response so skipping');
                     return;
                 }
-                $responseparsed = json_decode($body);
+
+                $responseparsed = json_decode($response->getBody());
                 if (ia_u::is_empty($responseparsed) && json_last_error() === JSON_ERROR_NONE) {
                     throw new Exception('Failed to json_decode');
                 }
-
+                $debug && ia_mu::log($fxn . '::After json_decode, got $responseparsed=' . ia_u::var_dump($responseparsed, true));
+                $debug && ia_mu::log($fxn . '::About to parse_participant');
                 $participant = ia_api::parse_participant($responseparsed);
+                $debug && ia_mu::log($fxn . '::Done parse_participant');
+                $debug && ia_mu::log($fxn . '::After parse_participant, $participant=' . ia_u::var_dump($responseparsed, true));
                 if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
                     $debug && ia_mu::log($fxn . '::Empty participant');
                     return;
                 }
 
                 $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, true, false);
+                $debug && ia_mu::log($fxn . '::Got iadata=' . ia_u::var_dump($this->rawdata[$participant->participantidentifier]->iadata), true);
 
                 // Participant photo.
                 $this->rawdata[$participant->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($participant);
@@ -212,13 +219,28 @@ class ParticipantsTable extends \core_user\participants_table {
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 // Ignore 400-level errors.
                 // Ref https://stackoverflow.com/a/30957410.
-                $debug && ia_mu::log($fxn . '::Ignoring a 400-level error');
+                $debug && ia_mu::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
                 continue;
             }
         }
 
         // Disabled on purpose: $debug && ia_mu::log($fxn . "::About to return; \$this->rawdata=" . ia_u::var_dump($this->rawdata, true));.
         $debug && ia_mu::log($fxn . '::About to return');
+    }
+
+    /**
+     * Get the columns to sort by, in the form required by {@link construct_order_by()}.
+     * Remove the non-DB IA columns otherwise they throw an error.
+     * Do this b/c just adding iadata and iaphoto to $this->column_nosort[] in the contructor didn't work.
+     *
+     * @return array column name => SORT_... constant.
+     */
+    public function get_sort_columns() {
+        $sortcolumns = parent::get_sort_columns();
+        foreach ($this->column_nosort as $key) {
+            unset($sortcolumns[$key]);
+        }
+        return $sortcolumns;
     }
 
 }

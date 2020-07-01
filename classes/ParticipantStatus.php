@@ -127,16 +127,16 @@ class PaticipantStatus {
     public static function get_status_lang(int $statusint): string {
         switch ($statusint) {
             case self::INPROGRESS_INT:
-                $status = \get_string('status_in_progress', \INTEGRITYADVOCATE_BLOCKNAME);
+                $status = \get_string('status_in_progress', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::VALID_INT:
-                $status = \get_string('status_valid', \INTEGRITYADVOCATE_BLOCKNAME);
+                $status = \get_string('status_valid', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INVALID_ID_INT:
-                $status = \get_string('status_invalid_id', \INTEGRITYADVOCATE_BLOCKNAME);
+                $status = \get_string('status_invalid_id', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INVALID_RULES_INT:
-                $status = \get_string('status_invalid_rules', \INTEGRITYADVOCATE_BLOCKNAME);
+                $status = \get_string('status_invalid_rules', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             default:
                 $error = 'Invalid participant review status value=' . $statusint;

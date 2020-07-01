@@ -24,6 +24,7 @@
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
+use block_integrityadvocate\PaticipantStatus as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -38,11 +39,14 @@ if (empty($blockinstanceid)) {
 if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) {
     throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
 }
+
 $userid = \required_param('userid', PARAM_INT);
+$debug = false;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockinstance->context->get_parent_context();
 
+// Note this capability check is on the parent, not the block instance.
 if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     // For teachersm allow access to any enrolled course user, even if not active.
     if (!\is_enrolled($parentcontext, $userid)) {
@@ -57,7 +61,7 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
 }
 
 // Show basic user info at the top.  Adapted from user/view.php.
-echo html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCKNAME . '_overview_user_userinfo'));
+echo html_writer::start_tag('div', array('class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo'));
 $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
 echo $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid, 'includefullname' => true));
 echo html_writer::end_tag('div');

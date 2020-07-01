@@ -64,7 +64,7 @@ class Utility {
      * @param type $unixtime
      * @return type
      */
-    public static function is_unixtime_past($unixtime) {
+    public static function is_unixtime_past($unixtime): bool {
         if (is_numeric($unixtime)) {
             $unixtime = intval($unixtime);
         }
@@ -125,9 +125,9 @@ class Utility {
     }
 
     /**
-     * Just wraps print_r().
+     * Just wraps print_r(), but defaults to returning as a string.
      */
-    public static function var_dump($var, bool $tostring = false): string {
+    public static function var_dump($var, bool $tostring = true): string {
         return print_r($var, $tostring);
     }
 

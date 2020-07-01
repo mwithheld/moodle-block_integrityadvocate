@@ -67,8 +67,7 @@ class MoodleUtility {
             }
 
             if (isset($blockinstances[$r->id])) {
-                $debug && self::log(__CLASS__ . '::' . __FUNCTION__ .
-                                "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
+                $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
                 continue;
             }
 
@@ -175,6 +174,44 @@ class MoodleUtility {
     }
 
     /**
+     * Given a context, get array of roles usable in a roles select box.
+     *
+     * @param \context $coursecontext
+     * @return array of roles key=roleid; val=role name.
+     */
+    public static function get_roles_for_select(\context $context): array {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && self::log($fxn . "::Started with \$context->id={$context->id}");
+
+        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && self::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
+        $sql = 'SELECT  DISTINCT r.id, r.name, r.shortname
+                    FROM    {role} r, {role_assignments} ra
+                   WHERE    ra.contextid = :contextid
+                     AND    r.id = ra.roleid';
+        $params = array('contextid' => $context->id);
+        global $DB;
+        $roles = \role_fix_names($DB->get_records_sql($sql, $params), $context);
+        $rolestodisplay = array(0 => \get_string('allparticipants'));
+        foreach ($roles as $role) {
+            $rolestodisplay[$role->id] = $role->localname;
+        }
+
+        if (!$cache->set($cachekey, $rolestodisplay)) {
+            throw new \Exception('Failed to set value in perrequest cache');
+        }
+
+        return $rolestodisplay;
+    }
+
+    /**
      * Returns the modules with completion set in current course
      *
      * @param int courseid The id of the course
@@ -230,7 +267,6 @@ class MoodleUtility {
 
         // Keep only modules that are visible.
         foreach ($modules as $m) {
-
             $coursemodule = $modinfo->cms[$m['id']];
 
             // Check visibility in course.
@@ -294,7 +330,8 @@ class MoodleUtility {
     /**
      * Check if site and optionally also course completion is enabled.
      *
-     * @param int|object $course Optional courseid or course object to check.  If not specified, only site-level completion is checked.
+     * @param int|object $course Optional courseid or course object to check.
+     * If not specified, only site-level completion is checked.
      * @return array of error identifier strings
      */
     public static function get_completion_setup_errors($course = null): array {
@@ -329,8 +366,9 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with $cmid={$cmid}");
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'perrequest');
-        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . $cmid;
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
+        $debug && self::log($fxn . "::Built cachekey={$cachekey}");
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -342,6 +380,8 @@ class MoodleUtility {
                       FROM {course_modules} cm
                       JOIN {course} c ON c.id = cm.course
                      WHERE cm.id = ?", array($cmid));
+
+        $debug && self::log($fxn . '::Got course=' . ia_u::var_dump($course, true));
 
         if (ia_u::is_empty($course) || !isset($course->id)) {
             $debug && self::log($fxn . "::No course found for cmid={$cmid}");
@@ -555,7 +595,7 @@ class MoodleUtility {
         }
 
         // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCKNAME, 'perrequest');
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($courserormodulecontext->id . '_' . $userid);
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
@@ -726,13 +766,13 @@ class MoodleUtility {
     }
 
     /**
-     * Remove characters that are not compatible as keys in some caching systems.
+     * Build a unique reproducible cache key from the given string.
      *
-     * @param string $key The string to clean.
-     * @return string The cleaned string.
+     * @param string $key The string to use for the key.
+     * @return string The cache key.
      */
-    public static function clean_cache_key(string $key): string {
-        return str_replace('-', '_', clean_param($key, PARAM_ALPHAEXT));
+    public static function get_cache_key(string $key): string {
+        return md5($key);
     }
 
     public static function clean_loggly_tag(string $key): string {
@@ -755,7 +795,7 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with \$key={$key}");
 
         // Make sure $key is a safe cache key.
-        $sessionkey = self::clean_cache_key($key);
+        $sessionkey = self::get_cache_key($key);
 
         $debug && self::log($fxn . "::About to set \$SESSION key={$key}");
         return $SESSION->$sessionkey = time();
@@ -768,7 +808,7 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with \$key={$key}");
 
         // Clean up $contextname so it is a safe cache key.
-        $sessionkey = self::clean_cache_key($key);
+        $sessionkey = self::get_cache_key($key);
         if (!isset($SESSION->$sessionkey) || empty($SESSION->$sessionkey)) {
             $debug && self::log($fxn . "::\$SESSION does not contain key={$key}");
             return false;

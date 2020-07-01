@@ -54,11 +54,13 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * @param MoodleQuickForm $mform the form being built.
      */
     protected function specific_definition_ia(MoodleQuickForm $mform) {
-        $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCKNAME), array('size' => 39));
+        $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 39));
         $mform->setType('config_appid', PARAM_ALPHANUMEXT);
 
-        $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCKNAME), array('size' => 52));
+        $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 52));
         $mform->setType('config_apikey', PARAM_BASE64);
+
+        $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME)->version);
     }
 
     /**
@@ -78,7 +80,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
 
         if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {
             $data['config_appid'] = rtrim(ltrim(trim($data['config_appid']), '{'), '}');
-            $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCKNAME);
+            $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
         return $errors;
     }

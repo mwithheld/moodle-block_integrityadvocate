@@ -38,7 +38,8 @@ if (empty($courseid) || ia_u::is_empty($course)) {
     throw new \InvalidArgumentException('$courseid and $course are required');
 }
 
-$debug = false;
+$debug = true;
+$debug && ia_mu::log(basename(__FILE__) . '::Started');
 
 require_capability('block/integrityadvocate:overview', $coursecontext);
 
@@ -58,6 +59,7 @@ foreach ($roles as $role) {
 echo '&nbsp;' . get_string('role') . '&nbsp;';
 echo $OUTPUT->single_select($PAGE->url, 'role', $rolestodisplay, $roleid);
 echo $OUTPUT->container_end();
+$debug && ia_mu::log(basename(__FILE__) . '::Done outputting roles');
 
 $notesallowed = !empty($CFG->enablenotes) && has_capability('moodle/notes:manage', $coursecontext);
 $messagingallowed = !empty($CFG->messaging) && has_capability('moodle/site:sendmessage', $coursecontext);
