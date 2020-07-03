@@ -21,9 +21,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 M.block_integrityadvocate = {
-    blockinit: function () {
-        window.console.log('M.block_integrityadvocate.blockinit::Started');
-        // On quizzes,disable the submit button and hide the questions until the IA modal is loaded.
+    blockinit: function (Y, proctorjsurl) {
+        window.console.log('M.block_integrityadvocate.blockinit::Started with proctorjsurl=', proctorjsurl);
+        // On quizzes, disable the submit button and hide the questions until the IA modal is loaded.
         if (document.body.id === 'page-mod-quiz-attempt') {
             window.console.log('M.block_integrityadvocate.blockinit::This is a quiz attempt');
             jQuery('.mod_quiz-next-nav').attr('disabled', 1);
@@ -31,6 +31,15 @@ M.block_integrityadvocate = {
                 window.console.log('M.block_integrityadvocate.blockinit::IA_Ready event fired');
                 jQuery('.mod_quiz-next-nav').removeAttr('disabled');
                 jQuery('#block_integrityadvocate_hidequiz').remove();
+            });
+            $.ajax({
+                url: proctorjsurl,
+                dataType: 'script',
+                cache: true,
+                success: function () {
+                    window.console.log('M.block_integrityadvocate.blockinit::Proctoring JS loaded');
+                    jQuery('#user-notifications').css({'background-image': 'none'}).height('auto');
+                }
             });
         }
     }

@@ -50,7 +50,7 @@ class Output {
      * @param stdClass $user Current user object.
      * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
      */
-    public static function add_block_js(\block_integrityadvocate $blockinstance): string {
+    public static function add_block_js(\block_integrityadvocate $blockinstance, string $proctorjsurl): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started');
@@ -80,7 +80,7 @@ class Output {
         );
 
         $blockinstance->page->requires->jquery_plugin('jquery');
-        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', null, false, $jsmodule);
+        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl], true, $jsmodule);
         return '';
     }
 
@@ -92,11 +92,9 @@ class Output {
      * @param stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML if error; Also adds the student proctoring JS to the page.
      */
-    public static function add_proctor_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
+    public static function get_proctor_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        // Set to true to disable the IA proctor JS.
-        $debugnoiaproctoroutput = false;
         $debug && ia_mu::log($fxn . '::Started');
 
         // Sanity check.
@@ -138,25 +136,7 @@ class Output {
         $url = ia_api::get_js_url($blockinstance->config->appid, $course->id, $blockparentcontext->instanceid, $user);
         $debug && ia_mu::log($fxn . "::Built url={$url}");
 
-        // Set to true to disable the IA proctor JS.
-        $debugnoiaproctoroutput = false;
-        if ($debugnoiaproctoroutput) {
-            $blockinstance->page->requires->js_init_call('alert("IntegrityAdvocate block JS output would occur here with url=' . $url . ' if not suppressed")');
-        } else {
-            // Pass the URL w/o urlencoding.
-            $debug && ia_mu::log($fxn . '::About to require->js(' . $url->out(false) . ')');
-
-            // We are violating a rather silly Moodle standard here in using an external URL.
-            // This is needed b/c the URL is user-specific and contents change.
-            // And IntegrityAdvocate does not support offline use.
-            // It makes no sense to download it to the Moodle server each time and then send it to the user.
-            //
-            // This also causes an error in the JS console on first load, but it doesn't cause any problems.
-            // I.    Error: Mismatched anonymous define() module...
-            $blockinstance->page->requires->js($url, true);
-        }
-
-        return '';
+        return $url;
     }
 
     /**
