@@ -373,9 +373,9 @@ class provider implements \core_privacy\local\metadata\provider,
         unset($info['resubmiturl']);
 
         // Translate data into user-readable strings.
-        $info->status = PaticipantStatus::get_status_lang($participant->status);
+        $info->status = \block_integrityadvocate\Status::get_status_lang($participant->status);
         foreach ($participant->sessions as $s) {
-            $s->status = PaticipantStatus::get_status_lang($s->status);
+            $s->status = \block_integrityadvocate\Status::get_status_lang($s->status);
         }
 
         return (object) (array) $info;
@@ -404,7 +404,7 @@ class provider implements \core_privacy\local\metadata\provider,
         $info = array();
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
-                $val = PaticipantStatus::get_status_lang($participant->$property);
+                $val = \block_integrityadvocate\Status::get_status_lang($participant->$property);
             } else {
                 $val = $participant->$property;
             }
@@ -441,7 +441,7 @@ class provider implements \core_privacy\local\metadata\provider,
         $info = array();
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
-                $val = PaticipantStatus::get_status_lang($participant->$property);
+                $val = \block_integrityadvocate\Status::get_status_lang($participant->$property);
             } else {
                 $val = $participant->$property;
             }
