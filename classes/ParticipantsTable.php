@@ -216,7 +216,7 @@ class ParticipantsTable extends \core_user\participants_table {
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 // Ignore 400-level errors.
                 // Ref https://stackoverflow.com/a/30957410.
-                $debug && ia_mu::log($fxn . '::Ignoring a 400-level error');
+                $debug && ia_mu::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
                 continue;
             }
         }

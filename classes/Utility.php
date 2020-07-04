@@ -125,9 +125,9 @@ class Utility {
     }
 
     /**
-     * Just wraps print_r().
+     * Just wraps print_r(), but defaults to returning as a string.
      */
-    public static function var_dump($var, bool $tostring = false): string {
+    public static function var_dump($var, bool $tostring = true): string {
         return print_r($var, $tostring);
     }
 

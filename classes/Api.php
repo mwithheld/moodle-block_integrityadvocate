@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant as ia_participant;
-use block_integrityadvocate\Status as ia_status;
+use block_integrityadvocate\PaticipantStatus as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -831,7 +831,7 @@ class Api {
     public static function parse_participant(\stdClass $input) {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with $p=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
+        $debug && ia_mu::log($fxn . '::Started with $input=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -858,8 +858,8 @@ class Api {
             isset($input->Override_Date) && ($participant->overridedate = \clean_param($input->Override_Date, PARAM_INT));
             isset($input->Override_LMSUser_Id) && ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done int fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done int fields');
+
         // Clean text fields.
         if (true) {
             isset($input->FirstName) && ($participant->firstname = \clean_param($input->FirstName, PARAM_TEXT));
@@ -873,15 +873,15 @@ class Api {
             isset($input->Override_LMSUser_LastName) && ($participant->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
             isset($input->Override_Reason) && ($participant->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done text fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done text fields');
+
         // Clean URL fields.
         if (true) {
             isset($input->Participant_Photo) && ($participant->participantphoto = filter_var($input->Participant_Photo, FILTER_SANITIZE_URL));
             isset($input->ResubmitUrl) && ($participant->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done url fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done url fields');
+
         // Clean status vs whitelist.
         if (isset($input->Status)) {
             $participant->status = ia_status::parse_status_string($input->Status);
@@ -889,8 +889,8 @@ class Api {
         if (isset($input->Override_Status) && !empty($input->Override_Status)) {
             $participant->overridestatus = ia_status::parse_status_string($input->Override_Status);
         }
-        // Disabled on purpose: $debug && ia_mu::log($fxn . '::Done status fields');.
-        //
+        $debug && ia_mu::log($fxn . '::Done status fields');
+
         // Handle sessions data.
         $participant->sessions = array();
         if (isset($input->Sessions) && is_array($input->Sessions)) {
@@ -916,6 +916,7 @@ class Api {
         } else {
             $debug && ia_mu::log($fxn . '::No sessions found');
         }
+        $debug && ia_mu::log($fxn . '::Done sessions fields');
 
         // A participant is valid only if they have sessions.
         if (empty($participant->sessions)) {
