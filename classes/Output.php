@@ -80,7 +80,7 @@ class Output {
         );
 
         $blockinstance->page->requires->jquery_plugin('jquery');
-        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl], true, $jsmodule);
+        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl], false, $jsmodule);
         return '';
     }
 
