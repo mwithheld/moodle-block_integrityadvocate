@@ -45,7 +45,7 @@ class block_integrityadvocate_observer {
      * @return true if attempted to close the remote IA session; else false.
      */
     public static function process_event(\core\event\base $event): bool {
-        $debug = false;
+        $debug = true;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
