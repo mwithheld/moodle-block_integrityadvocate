@@ -21,20 +21,38 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 M.block_integrityadvocate = {
-    blockinit: function () {
-        // Disabled on purpose: window.console.log('IA moodle js init started');.
-        // On quizzes,disable the submit button and hide the questions until the IA modal is loaded.
-        if (document.body.id === 'page-mod-quiz-attempt') {
-            jQuery('.mod_quiz-next-nav').attr('disabled', 1);
-            var interval = setInterval(function () {
-                if ($('#integrityadvocate_container').is(':visible')) {
-                    jQuery('.mod_quiz-next-nav').removeAttr('disabled');
-                } else {
-                    jQuery('#block_integrityadvocate_hidequiz').remove();
-                    // Stop checking.
-                    clearInterval(interval);
-                }
-            }, 100 /* 0.1 second wait time between checks. */);
+    blockinit: function (Y, proctorjsurl) {
+        window.console.log('M.block_integrityadvocate.blockinit::Started with proctorjsurl=', proctorjsurl);
+        // On quizzes, disable the submit button and hide the questions until the IA modal is loaded.
+        var is_quiz_attempt = (document.body.id === 'page-mod-quiz-attempt');
+        //@url https://stackoverflow.com/a/31350391
+        function decodeEntities(encodedString) {
+            var textArea = document.createElement('textarea');
+            textArea.innerHTML = encodedString;
+            return textArea.value;
         }
+
+        is_quiz_attempt && jQuery('.mod_quiz-next-nav').attr('disabled', 1);
+        // The proctorjsurl is per-user and time-encoded unique, so there is no point in tryng to cache it.
+        jQuery.getScript(decodeEntities(proctorjsurl))
+                .done(function (script, textStatus) {
+                    window.console.log('M.block_integrityadvocate.blockinit::Proctoring JS loaded');
+                    jQuery(document).bind('IA_Ready', function (e) {
+                        window.console.log('M.block_integrityadvocate.blockinit::IA_Ready event fired');
+                        jQuery('#user-notifications').css({'background-image': 'none'}).height('auto');
+                        is_quiz_attempt && jQuery('.mod_quiz-next-nav').removeAttr('disabled');
+                        is_quiz_attempt && jQuery('#block_integrityadvocate_hidequiz').remove();
+                    });
+                })
+                .fail(function (jqxhr, settings, exception) {
+                    jQuery('#user-notifications').css({'background-image': 'none'}).height('auto');
+                    var msg = M.str.block_integrityadvocate.proctorjs_load_failed;
+                    if (exception.toString() !== 'error') {
+                        msg += "Error details:\n" + exception.toString();
+                    }
+                    window.console.log(arguments);
+                    window.console.log(msg);
+                    jQuery('#user-notifications').html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
+                });
     }
 };

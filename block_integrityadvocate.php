@@ -362,10 +362,13 @@ class block_integrityadvocate extends block_base {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
 
                                     // Hide quiz questions until JS is loaded and the IA modal is open.
-                                    $this->content->text .= '<style id="block_integrityadvocate_hidequiz">#region-main #responseform{display:none}</style>';
-
-                                    ia_output::add_block_js($this);
-                                    ia_output::add_proctor_js($this, $USER);
+                                    global $OUTPUT;
+                                    $this->content->text .= '<style id="block_integrityadvocate_hidequiz">'
+                                            . "#region-main #responseform{display:none}\n"
+                                            . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
+                                            . '</style>';
+                                    $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
+                                    ia_output::add_block_js($this, ia_output::get_proctor_js($this, $USER));
                                 } else if ($hasselfviewcapability) {
                                     $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                 }
@@ -379,7 +382,8 @@ class block_integrityadvocate extends block_base {
                                 break;
                             default:
                                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see proctoring JS');
-                                $this->content->text .= ia_output::add_proctor_js($this, $USER);
+                                $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
+                                ia_output::add_block_js($this, ia_output::get_proctor_js($this, $USER));
                                 break;
                         }
                         break;

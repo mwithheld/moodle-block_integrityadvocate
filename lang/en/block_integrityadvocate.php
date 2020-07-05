@@ -23,6 +23,7 @@
  */
 $string['pluginname'] = 'Integrity Advocate';
 $string['button_overview'] = 'Overview';
+$string['proctorjs_load_failed'] = "The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.";
 
 $string['cachedef_perrequest'] = 'Remember values during a single request';
 $string['cachedef_persession'] = 'Remember values during the user session';
