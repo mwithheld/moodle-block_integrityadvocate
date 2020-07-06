@@ -238,6 +238,27 @@ class block_integrityadvocate extends block_base {
         return $errors;
     }
 
+    private function add_proctor_js($user) {
+        $debug = true;
+        global $OUTPUT;
+        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Add the proctoring JS');
+
+        $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
+        $this->page->requires->string_for_js('exitactivity', 'scorm');
+
+        // Hide module content until JS is loaded and the IA modal is open.
+        // These styles are removed in the js by simply removing this element.
+        $this->content->text .= '<style id="block_integrityadvocate_hidemodulecontent">'
+                . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
+                . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
+                . '</style>';
+
+        // This must hold some content, otherwise this function runs twice.
+        $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+
+        ia_output::add_block_js($this, ia_output::get_proctor_js($this, $user));
+    }
+
     /**
      * Creates the blocks main content
      */
@@ -358,11 +379,7 @@ class block_integrityadvocate extends block_base {
                                 if ($this->page->pagetype === 'mod-scorm-player') {
                                     // Show the protoring JS.
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
-                                    $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
-                                    $this->page->requires->string_for_js('exitactivity', 'scorm');
-                                    ia_output::add_block_js($this, ia_output::get_proctor_js($this, $USER));
-                                    // This must hold some content, otherwise this function runs twice.
-                                    $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                                    $this->add_proctor_js($USER);
                                 } else {
                                     // If it is NOT a scorm player page, do not show the JS proctoring UI - just show the summary.
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see summary info');
@@ -376,29 +393,15 @@ class block_integrityadvocate extends block_base {
                                 // Other pages should show the summary.
                                 if ($this->page->pagetype == 'mod-quiz-attempt') {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see proctoring JS');
-
-                                    // Hide quiz questions until JS is loaded and the IA modal is open.
-                                    global $OUTPUT;
-                                    $this->content->text .= '<style id="block_integrityadvocate_hidequiz">'
-                                            . "#region-main #responseform{display:none}\n"
-                                            . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
-                                            . '</style>';
-                                    $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
-                                    ia_output::add_block_js($this, ia_output::get_proctor_js($this, $USER));
-                                    // This must hold some content, otherwise this function runs twice.
-                                    $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                                    $this->add_proctor_js($USER);
                                 } else if ($hasselfviewcapability) {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see summary info');
                                     $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                 }
                                 break;
                             default:
-                                // Show the protoring JS.
                                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::default:Student should see proctoring JS');
-                                $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
-                                ia_output::add_block_js($this, ia_output::get_proctor_js($this, $USER));
-                                // This must hold some content, otherwise this function runs twice.
-                                $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                                $this->add_proctor_js($USER);
                                 break;
                         }
                         break;
