@@ -255,3 +255,4 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
         echo '<div id="dialog"></div>';
     }
     echo '</div>';
+}
