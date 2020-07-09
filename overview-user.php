@@ -121,8 +121,8 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             $overrideform .= \html_writer::tag('input', '', array('class' => $prefix_overrideform . '_reason', 'name' => $prefix_overrideform . '_reason', 'maxlength' => 32));
             // Add hidden fields needed for the AJAX call.
             global $USER;
-            $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));
-            $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'id' => $prefix_overrideform . '_overrideuserid', 'name' => $prefix_overrideform . '_overrideuserid', 'value' => $USER->id));
+            $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));
+            $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_overrideuserid', 'name' => $prefix_overrideform . '_overrideuserid', 'value' => $USER->id));
             // Add icons.
             $overrideform .= Output::add_icon('e/save', $prefix_overrideform, 'save');
             $overrideform .= Output::add_icon('i/loading', $prefix_overrideform, 'loading');
@@ -172,10 +172,11 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             }
 
             // Column=session_start.
-            echo \html_writer::tag('td', ($session->start ? \userdate($session->start) : ''), ['data-sort' => $session->start, 'class' => "{$prefix}_session_start"]);
+            $sessionstart = ia_u::is_unixtime_past($session->start) ? $session->start : '';
+            echo \html_writer::tag('td', ($sessionstart ? \userdate($session->start) : ''), ['data-sort' => $session->start, 'class' => "{$prefix}_session_start"]);
             // Column=session_end.
             $sessionend = ia_u::is_unixtime_past($session->end) ? $session->end : '';
-            echo \html_writer::tag('td', \userdate($sessionend), ['data-sort' => $sessionend, 'class' => "{$prefix}_session_end"]);
+            echo \html_writer::tag('td', ($sessionend ? \userdate($sessionend) : ''), ['data-sort' => $sessionend, 'class' => "{$prefix}_session_end"]);
 
             // Column=activitymodule.
             // We need the coursemodule so we can get info like the name from it.
@@ -183,11 +184,11 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             // This throws a moodle_exception if the item doesn't exist or is of wrong module name.
             // We do *not* use this block name for parameter 2 since it's the activity the block is attached to that matters.
             list($unused, $cm) = \get_course_and_cm_from_cmid($cmid, null, $courseid, $session->participant->participantidentifier);
-            echo \html_writer::tag('td', \html_writer::tag('a', $cm->name, ['href' => $cm->url]), ['class' => "{$prefix}_activitymodule"]);
+            echo \html_writer::tag('td', \html_writer::tag('a', $cm->name, ['href' => $cm->url]), ['data-cmid' => $cmid, 'class' => "{$prefix}_activitymodule"]);
 
             $hasoverride = $session->has_override();
             // Temporary test data.
-            if (true && $hasoverride = (bool) random_int(0, 1)) {
+            if (false && $hasoverride = (bool) random_int(0, 1)) {
                 $session->overridedate = random_int($session->end, time());
                 $overrideints = array_keys(ia_status::get_overriddable());
                 sort($overrideints);
@@ -231,7 +232,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             // Instructor: If overridden, show the override info.
             if ($hascapability_override) {
                 // Temporary test data.
-                if (true && $hasoverride) {
+                if (false && $hasoverride) {
                     $session->overridelmsuserid = 4;
                     $session->overridereason = ' Blah cuz I wanted to test this';
                 }

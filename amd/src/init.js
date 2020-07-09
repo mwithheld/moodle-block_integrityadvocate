@@ -78,7 +78,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                         .attr('placeholder', M.str.block_integrityadvocate.override_reason_label)
                                         .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}')
                                         .on('keypress.' + this.prefix + '_disable', function (e) {
-                                            if (e.which == 13) {
+                                            if (e.which === 13) {
                                                 this.frm.elt_save.click();
                                                 e.preventDefault();
                                                 return false;
@@ -92,14 +92,16 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 this.frm.trigger('reset');
 
                                 this.frm.elt_save.on('click', function (e) {
-                                    if (this.validate_all()) {
-                                        this.save_click();
+                                    debug && window.console.log('overrideui::setup_override_form::elt_save.on.click()::Started');
+                                    if (self.validate_all()) {
+                                        self.save_click();
                                     }
+
                                     e.preventDefault();
                                     return false;
                                 });
                                 this.frm.elt_edit.on('click', function (e) {
-                                    this.show_overrideui();
+                                    self.show_overrideui();
                                     e.preventDefault();
                                     return false;
                                 });
@@ -110,7 +112,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 });
                                 $(this.frm.userinputs).each(function (_, userinput) {
                                     userinput.on('change keyup blur', function (e) {
-                                        this.save_set_status(this.validate_all());
+                                        self.save_set_status(self.validate_all());
                                         e.preventDefault();
                                         return false;
                                     });
@@ -122,29 +124,42 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             cancel_click = function () {
                                 this.frm.trigger('reset');
                                 this.hide_overrideui();
-                                $('.oldstatusinfo').show();
+                                this.frm.closest('td').find('.oldstatusinfo, .block_integrityadvocate_override_edit, .block_integrityadvocate_overriden_icon').show();
                             }
 
                             save_click = function () {
+                                var self = this;
                                 this.disable_ui();
+                                debug && window.console.log('overrideui::save_click::Started with frm=', this.frm);
 
                                 var url = new URL(window.location.href);
 
                                 require(['core/ajax', 'core/notification'], function (ajax, notification) {
                                     ajax.call([{
                                             methodname: 'block_integrityadvocate_set_override',
-                                            args: {status: this.frm.elt_status.val(), reason: this.frm.elt_reason.val(), targetuserid: this.frm.elt_targetuserid.val(), overrideuserid: this.frm.elt_overrideuserid.val(), blockinstanceid: url.searchParams.get('instanceid')},
+                                            args: {
+                                                status: self.frm.elt_status.val(),
+                                                reason: self.frm.elt_reason.val(),
+                                                targetuserid: self.frm.elt_targetuserid.val(),
+                                                overrideuserid: self.frm.elt_overrideuserid.val(),
+                                                blockinstanceid: url.searchParams.get('instanceid'),
+                                                moduleid: self.frm.parents('tr').find('.block_integrityadvocate_participant_activitymodule').attr('data-cmid')
+                                            },
                                             done: function (context) {
+                                                debug && window.console.log('overrideui::save_click::ajax.done');
                                                 // Set true to force reload from server not cache.  This is said to be deprecated but since we might have old browsers we'll do it.
                                                 window.location.reload(true);
                                             },
                                             fail: notification.exception,
                                             always: function (context) {
-                                                this.enable_ui();
-                                                cancel_click();
+                                                debug && window.console.log('overrideui::save_click::ajax.always');
+                                                self.enable_ui();
+                                                self.cancel_click();
                                             }
                                         }]);
                                 });
+
+                                debug && window.console.log('overrideui::save_click::Done');
                             }
 
                             validate_all = function () {
@@ -189,18 +204,20 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             }
 
                             save_disable = function () {
-                                this.frm.elt_save.css('color', 'grey').on('click.' + this.prefix + '_disable', this.preventdefault);
+                                var self = this;
+                                this.frm.elt_save.css('color', 'grey').on('click.' + self.prefix + '_disable', this.preventdefault);
                             }
 
                             save_enable = function () {
-                                this.frm.elt_save.css('color', '').off('click.' + this.prefix + '_disable');
+                                var self = this;
+                                this.frm.elt_save.css('color', '').off('click.' + self.prefix + '_disable');
                             }
 
                             show_overrideui = function () {
                                 this.frm.elt_edit.hide();
                                 this.frm.show();
                                 // Make the save icon blink a bit for visibility.
-                                this.frm.elt_save.fadeOut(this.fadetime).fadeIn(this.fadetime).fadeOut(this.fadetime).fadeIn(this.fadetime);
+                                this.frm.elt_save.fadeOut(this.fadetime).fadeIn(this.fadetime);
                                 this.validate_all();
                             }
 
@@ -256,8 +273,8 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
 
                                 // If overridden, show more info in child row.
                                 dt_elt.find('.block_integrityadvocate_participant_session_overridden').each(function () {
-                                    $(this).append('<i class="fa fa-info-circle" aria-hidden="true" title="' + M.str.block_integrityadvocate.viewhide_overrides + '"></i>')
-                                            .find('i').click(function () {
+                                    $(this).append('<i class="fa fa-chevron-circle-down block_integrityadvocate_overriden_icon" aria-hidden="true" title="' + M.str.block_integrityadvocate.viewhide_overrides + '"></i>');
+                                    $(this).find('i.block_integrityadvocate_overriden_icon').click(function () {
                                         debug && window.console.log('click.override fired');
                                         var tr = $(this).parents('tr');
                                         var row = dt.api().row(tr);
@@ -266,6 +283,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                             debug && window.console.log('This row is already open - close it');
                                             row.child.hide();
                                             tr.removeClass('shown');
+                                            $(this).removeClass('fa-chevron-circle-up').addClass('fa-chevron-circle-down');
                                         } else {
                                             debug && window.console.log('Open this row');
                                             var d = {
@@ -276,6 +294,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                             };
                                             row.child(build_child_row(d)).show();
                                             tr.addClass('shown');
+                                            $(this).removeClass('fa-chevron-circle-down').addClass('fa-chevron-circle-up');
                                         }
                                     });
                                 });
@@ -283,31 +302,36 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 // If can override, show the edit icon and add click event.
                                 dt_elt.find('.block_integrityadvocate_participant_session_overrideui').each(function () {
                                     var elt = $(this);
-                                    elt.append('<i class="fa fa-pencil-square-o" aria-hidden="true" title="' + M.str.block_integrityadvocate.override_form_label + '"></i>');
-                                    var o = new OverrideUi();
-//                                    o.add_override_click(elt);
-                                    elt.find('i').click(function () {
-                                        debug && window.console.log('overrideui::add_override_click::Override button clicked');
-                                        var overrideui_elt;
-                                        var elt_selector = '.block_integrityadvocate_override_form';
-                                        if (elt.find(elt_selector).length < 1) {
-                                            debug && window.console.log('overrideui::add_override_click::No existing form found');
-                                            // Wrap the current content in a div so we can hide it and re-show it later.
-                                            elt.html('<div class="oldstatusinfo" style="display:none">' + elt.html() + '</div>');
-                                            debug && window.console.log('overrideui::add_override_click::form', elt.find(elt_selector));
-                                            // Add the editing form and init it.
-                                            elt.append($(elt_selector));
-                                            debug && window.console.log('overrideui::add_override_click::after append elt.html=', elt.html());
+                                    // Wrap existing value (text in root element only) in a div so we can hide/show it later.
+                                    var oldvalue = elt.contents().filter((_, el) => el.nodeType === 3);
+                                    elt.prepend('<div class="oldstatusinfo">' + oldvalue.text() + '</div>');
+                                    oldvalue.remove();
 
-                                            elt.find(elt_selector).show();
-                                            overrideui_elt = o.setup_override_form(elt);
+                                    elt.append('<i class="fa fa-pencil-square-o block_integrityadvocate_override_edit" aria-hidden="true" title="' + M.str.block_integrityadvocate.override_form_label + '"></i>');
+                                    var o = new OverrideUi();
+                                    elt.find('i.block_integrityadvocate_override_edit').click(function () {
+                                        debug && window.console.log('overrideui::add_override_click::Override button clicked');
+                                        var elt_overrideui;
+                                        var selector_overrideform = '.block_integrityadvocate_override_form';
+                                        debug && window.console.log('overrideui::add_override_click::No existing form found');
+                                        elt.find('.oldstatusinfo').hide();
+                                        //debug && window.console.log('overrideui::add_override_click::form', elt.find(selector_overrideform));
+
+                                        // Add the editing form and init it.
+                                        if (elt.find(selector_overrideform).length < 1) {
+                                            debug && window.console.log('overrideui::add_override_click::Add the editing form and init it');
+
+                                            // Copies the form into elt.
+                                            elt.append($(selector_overrideform).first().clone());
+                                            //debug && window.console.log('overrideui::add_override_click::after append elt.html=', elt.html());
+
+                                            elt.find(selector_overrideform).show();
+                                            elt_overrideui = o.setup_override_form(elt);
                                         } else {
-                                            debug && window.console.log('overrideui::add_override_click::Existing form found');
-                                            // Hide the old status info.
-                                            elt.find('.oldstatusinfo').hide();
-                                            // Show the existing form.
-                                            elt.find(elt_selector).show();
+                                            debug && window.console.log('overrideui::add_override_click::Existing form found - show it');
+                                            elt.find(selector_overrideform).show();
                                         }
+                                        elt.find('.block_integrityadvocate_override_edit, .block_integrityadvocate_overriden_icon').hide();
                                         o.show_overrideui();
                                     });
                                 });

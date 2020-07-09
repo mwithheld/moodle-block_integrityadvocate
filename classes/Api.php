@@ -929,20 +929,21 @@ class Api {
     }
 
     /**
-     * Override the Integrity Advocate ruling for a participant.
+     * Override the Integrity Advocate ruling for a participant session.
      * Assumes you have validated and cleaned all params.
      *
      * @param int $status An integer ParticipantStatus value to override the Integrity Advocate ruling: Accepts: 0 or 3
-     * @param string $reason
-     * @param int $targetuserid
-     * @param int $overrideuserid
-     * @param int $courseid
-     * @return bool
+     * @param string $reason User-provided reason for this override.
+     * @param int $targetuserid The user to update.
+     * @param int $overrideuserid The user doing the overriding.
+     * @param int $courseid The course id.
+     * @param int $moduleid The cmid.
+     * @return bool True on success (HTTP 200 result).
      */
-    public static function set_override(string $apikey, string $appid, int $status, string $reason, int $targetuserid, \stdClass $overrideuser, int $courseid): bool {
+    public static function set_override_session(string $apikey, string $appid, int $status, string $reason, int $targetuserid, \stdClass $overrideuser, int $courseid, int $moduleid): bool {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuser->id}, \$courseid={$courseid}");
+        $debug && ia_mu::log($fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuser->id}, \$courseid={$courseid}, \$moduleid={$moduleid}");
 
         // Sanity check -- not a validity check!
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || ia_u::is_empty($overrideuser) || !isset($overrideuser->id)) {
@@ -956,26 +957,23 @@ class Api {
             throw new InvalidArgumentException("Status={$status} not an overridable value");
         }
 
-        // The only API options are "Valid" or "Invalid" case-sensitive, so translate to a string but invalid_override_int corresponds to just "Invalid".
+        // The only API options are "Valid" or "Invalid" case-sensitive, so translate the given int to a string.
+        // Special: invalid_override_int should be sent as just "Invalid".
         if ($status === ia_status::INVALID_OVERRIDE_INT) {
-            $statusstr = ia_status::VALID;
+            $statusstr = ia_status::INVALID;
         } else {
             $statusstr = ia_status::get_status_string($status);
         }
 
-        $params = array(
-            'Override_Date' => time(),
-            'Override_Status' => $statusstr,
-            'Override_Reason' => $reason,
-            'Override_LMSUser_FirstName' => $overrideuser->firstname,
-            'Override_LMSUser_LastName' => $overrideuser->lastname,
-            'Override_LMSUser_Id' => $targetuserid,
+        $params_url = array(
+            'courseid' => $courseid,
+            'activityid' => $moduleid,
+            'participantidentifier' => $targetuserid,
         );
-        $debug && ia_mu::log($fxn . "::Built params=" . var_export($params, true));
 
-        $endpoint = "/participant/{$targetuserid}-{$courseid}";
+        $endpoint = '/participantsessions';
         $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
-        $requesturi = $requestapiurl;
+        $requesturi = $requestapiurl . ($params_url ? '?' . http_build_query($params_url, null, '&') : '');
         $debug && ia_mu::log($fxn . '::Built $requesturi=' . $requesturi);
 
         $requesttimestamp = time();
@@ -999,7 +997,17 @@ class Api {
         $curl->setHeader($header);
         $debug && ia_mu::log($fxn . '::Set $header=' . $header);
 
-        $response = $curl->patch($requesturi, json_encode($params));
+        $params_body = array(
+            'Override_Date' => time(),
+            'Override_Status' => $statusstr,
+            'Override_Reason' => $reason,
+            'Override_LMSUser_FirstName' => $overrideuser->firstname,
+            'Override_LMSUser_LastName' => $overrideuser->lastname,
+            'Override_LMSUser_Id' => $targetuserid,
+        );
+        $debug && ia_mu::log($fxn . "::Built params=" . var_export($params_body, true));
+
+        $response = $curl->patch($requesturi, json_encode($params_body));
 
         $responseparsed = json_decode($response);
         $responsedetails = $curl->get_info('http_code');
