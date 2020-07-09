@@ -578,7 +578,7 @@ class Api {
      *
      * @param \context $modulecontext The module context to look in.
      * @param int $userid The userid to get IA info for.
-     * @return int A ParticipantStatus status constant _INT value.
+     * @return int A Status status constant _INT value.
      * @throws \InvalidArgumentException
      */
     public static function get_status_in_module(\context $modulecontext, int $userid): int {
@@ -932,7 +932,7 @@ class Api {
      * Override the Integrity Advocate ruling for a participant.
      * Assumes you have validated and cleaned all params.
      *
-     * @param int $status An integer ParticipantStatus value to override the Integrity Advocate ruling: Accepts: 0 or 3
+     * @param int $status An integer Status value to override the Integrity Advocate ruling: Accepts: 0 or 3
      * @param string $reason
      * @param int $targetuserid
      * @param int $overrideuserid
