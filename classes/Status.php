@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
-class PaticipantStatus {
+class Status {
 
     /** @var string String the IA API uses for a proctor session that is complete and valid. */
     const VALID = 'Valid';
@@ -40,7 +40,12 @@ class PaticipantStatus {
     const INVALID_ID = 'Invalid (ID)';
     const INVALID_ID_INT = 1;
 
-    /** @var string String the IA API uses for a proctor session that is complete but in participating the user broke 1+ rules.  See IA flags for details. */
+    /** @var string String the IA API uses for an overridden session status. */
+    const INVALID_OVERRIDE = 'Invalid (Override)';
+    const INVALID_OVERRIDE_INT = 3;
+
+    /** @var string String the IA API uses for a proctor session that is complete but in participating the user broke 1+ rules.
+     * See IA flags for details. */
     const INVALID_RULES = 'Invalid (Rules)';
     const INVALID_RULES_INT = 2;
 
@@ -63,13 +68,16 @@ class PaticipantStatus {
             case self::INVALID_ID:
                 $status = self::INVALID_ID_INT;
                 break;
+            case self::INVALID_OVERRIDE:
+                $status = self::INVALID_OVERRIDE_INT;
+                break;
             case self::INVALID_RULES:
                 $status = self::INVALID_RULES_INT;
                 break;
             default:
                 $error = 'Invalid participant review status value=' . serialize($statusstring);
                 ia_mu::log($error);
-                throw new InvalidValueException($error);
+                throw new \InvalidValueException($error);
         }
 
         return $status;
@@ -82,7 +90,66 @@ class PaticipantStatus {
      * @return true if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
      */
     public static function is_status_int(int $statusint): bool {
-        return in_array($statusint, array(self::INPROGRESS_INT, self::VALID_INT, self::INVALID_ID_INT, self::INVALID_RULES_INT), true);
+        return in_array(
+                $statusint,
+                array_keys(self::get_statuses()),
+                true
+        );
+    }
+
+    /**
+     * Get an array of all statuses; key=int representing the status; value=language string representing the status.
+     * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
+     *
+     * @return array of all statuses
+     */
+    public static function get_statuses(): array {
+        return array(
+            self::INPROGRESS_INT => self::get_status_lang(self::INPROGRESS_INT),
+            self::VALID_INT => self::get_status_lang(self::VALID_INT),
+            self::INVALID_ID_INT => self::get_status_lang(self::INVALID_ID_INT),
+            self::INVALID_RULES_INT => self::get_status_lang(self::INVALID_RULES_INT),
+            self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
+        );
+    }
+
+    /**
+     * Get an array of statuses that may be overridden; key=int representing the status; value=language string representing the status.
+     * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
+     *
+     * @return array of overridable statuses
+     */
+    public static function get_overriddable(): array {
+        return array(
+            self::VALID_INT => self::get_status_lang(self::VALID_INT),
+            self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
+        );
+    }
+
+    /**
+     * Get an array of statuses that may be overridden; key=int representing the status; value=language string representing the status.
+     * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
+     *
+     * @return array of overridable statuses
+     */
+    public static function is_overriddable(int $statusint): bool {
+        return in_array($statusint, array_keys(self::get_overriddable()));
+    }
+
+    /**
+     * Get an array of statuses that are considered invalid; key=int representing the status; value=language string representing the status.
+     * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
+     *
+     * @return array of overridable statuses
+     */
+    public static function get_invalids(): array {
+        $invalids = array();
+        foreach (self::get_statuses() as $key => $val) {
+            if (stripos($key, 'INVALID_') !== false) {
+                $invalids[$key] = $val;
+            }
+        }
+        return $invalids;
     }
 
     /**
@@ -103,6 +170,9 @@ class PaticipantStatus {
                 break;
             case self::INVALID_ID_INT:
                 $status = self::INVALID_ID;
+                break;
+            case self::INVALID_OVERRIDE_INT:
+                $status = self::INVALID_OVERRIDE;
                 break;
             case self::INVALID_RULES_INT:
                 $status = self::INVALID_RULES;
@@ -135,11 +205,14 @@ class PaticipantStatus {
             case self::INVALID_ID_INT:
                 $status = \get_string('status_invalid_id', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
+            case self::INVALID_OVERRIDE_INT:
+                $status = \get_string('status_invalid_override', \INTEGRITYADVOCATE_BLOCK_NAME);
+                break;
             case self::INVALID_RULES_INT:
                 $status = \get_string('status_invalid_rules', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             default:
-                $error = 'Invalid participant review status value=' . $statusint;
+                $error = __FUNCTION__ . '::Invalid participant review status value=' . $statusint;
                 ia_mu::log($error);
                 throw new \InvalidValueException($error);
         }
