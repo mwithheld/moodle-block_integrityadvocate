@@ -578,7 +578,7 @@ class Api {
      *
      * @param \context $modulecontext The module context to look in.
      * @param int $userid The userid to get IA info for.
-     * @return int A ParticipantStatus status constant _INT value.
+     * @return int A Status status constant _INT value.
      * @throws \InvalidArgumentException
      */
     public static function get_status_in_module(\context $modulecontext, int $userid): int {
