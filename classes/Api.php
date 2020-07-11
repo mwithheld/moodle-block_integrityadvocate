@@ -989,18 +989,6 @@ class Api {
             throw new InvalidArgumentException("Status={$status} not an overridable value");
         }
 
-        // Our form params and return values are "Valid (Override)" and "Invalid (Override)", but this API method only accepts "Invalid" and "Valid".  So translate them accordingly.
-        switch ($status) {
-            case ($status === ia_status::VALID_OVERRIDE_INT):
-                $statusstr = 'Valid';
-                break;
-            case ($status === ia_status::INVALID_OVERRIDE_INT):
-                $statusstr = 'Invalid';
-                break;
-            default:
-                throw new InvalidArgumentException('The given status could not be translated to a value the API understands');
-        }
-
         $params_url = array(
             'courseid' => $courseid,
             'activityid' => $moduleid,
@@ -1032,6 +1020,18 @@ class Api {
         $header = 'Authorization: amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
         $curl->setHeader($header);
         $debug && ia_mu::log($fxn . '::Set $header=' . $header);
+
+        // Our form params and return values are "Valid (Override)" and "Invalid (Override)", but this API method only accepts "Invalid" and "Valid".  So translate them accordingly.
+        switch ($status) {
+            case ($status === ia_status::VALID_OVERRIDE_INT):
+                $statusstr = 'Valid';
+                break;
+            case ($status === ia_status::INVALID_OVERRIDE_INT):
+                $statusstr = 'Invalid';
+                break;
+            default:
+                throw new InvalidArgumentException('The given status could not be translated to a value the API understands');
+        }
 
         $params_body = array(
             'Override_Date' => time(),
