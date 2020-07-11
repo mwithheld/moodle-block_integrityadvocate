@@ -52,8 +52,10 @@ buildJS: &buildJS
 pipelines:
   custom: # Pipelines that are triggered manually
     build_js:
+       - <<: *buildJS
     build_zip:
       - <<: *buildJS
+      - <<: *buildZip
   tags:
     '*':
       - <<: *buildJS
