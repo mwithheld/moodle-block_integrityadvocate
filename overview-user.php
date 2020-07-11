@@ -83,11 +83,6 @@ if (ia_u::is_empty($participant)) {
 if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
     if ($continue) {
         // Display user basic info.
-        if ($hascapability_override) {
-            $noncekey = INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$participant->participantidentifier}";
-            $debug && ia_mu::log(__FILE__ . "::About to nonce_set({$noncekey})");
-            ia_mu::nonce_set($noncekey);
-        }
         echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, $hascapability_override);
 
         // Display summary.
@@ -95,9 +90,18 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
     }
 } else {
     echo '<div id="overview_participant_container">';
-    $continue = !empty($sessions = array_values($participant->sessions));
+    $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
 
     if ($continue) {
+        // Set a nonce into the server-side user session.
+        // This means you can only do one override per user at a time.
+        // Ref https://codex.wordpress.org/WordPress_Nonces for why it is a good idea to use nonces here.
+        if ($hascapability_override) {
+            $noncekey = INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$participant->participantidentifier}";
+            $debug && ia_mu::log(__FILE__ . "::About to nonce_set({$noncekey})");
+            ia_mu::nonce_set($noncekey);
+        }
+
         usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
         $modinfo = \get_fast_modinfo($courseid, -1);
         $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
@@ -110,7 +114,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             $overrideform = \html_writer::start_tag('form', array('class' => $prefix_overrideform . '_form', 'style' => 'display:none'));
             // Add the override status dropdown.
             $overrideform .= \html_writer::select(
-                            ia_status::get_overriddable(),
+                            ia_status::get_overrides(),
                             ' ' . $prefix_overrideform . '_select ' . $prefix_overrideform . '_status_select',
                             $participant->status,
                             array('' => 'choosedots'),
@@ -190,7 +194,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             // Temporary test data.
             if (false && $hasoverride = (bool) random_int(0, 1)) {
                 $session->overridedate = random_int($session->end, time());
-                $overrideints = array_keys(ia_status::get_overriddable());
+                $overrideints = array_keys(ia_status::get_overrides());
                 sort($overrideints);
                 $session->overridestatus = random_int(min($overrideints), max($overrideints));
             }

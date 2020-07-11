@@ -60,7 +60,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 52));
         $mform->setType('config_apikey', PARAM_BASE64);
 
-        $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME)->version);
+        $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
     }
 
     /**

@@ -137,7 +137,7 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param stdClass $blockinstance Instance of block_integrityadvocate.
      */
     public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
 
@@ -200,6 +200,8 @@ class ParticipantsTable extends \core_user\participants_table {
                 if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
                     $debug && ia_mu::log($fxn . '::Empty participant');
                     return;
+                } else {
+                    $debug && ia_mu::log($fxn . '::Got a participant with id=' . $participant->participantidentifier);
                 }
 
                 $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, false, true, false);

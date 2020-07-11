@@ -185,7 +185,7 @@ class MoodleUtility {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && self::log($fxn . "::Started with \$context->id={$context->id}");
 
-        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
         if ($cachedvalue = $cache->get($cachekey)) {
@@ -366,7 +366,7 @@ class MoodleUtility {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && self::log($fxn . "::Started with $cmid={$cmid}");
 
-        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
         $debug && self::log($fxn . "::Built cachekey={$cachekey}");

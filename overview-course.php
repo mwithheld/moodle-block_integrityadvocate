@@ -69,6 +69,7 @@ $participanttable->define_baseurl($baseurl);
 // Populate the ParticipantsTable instance with user rows from Moodle core info.
 $participanttable->setup_and_populate($perpage);
 
+$debug && ia_mu::log(basename(__FILE__) . '::About to populate_from_blockinstance()');
 // Populate the ParticipantsTable instance user rows with blockinstance-specific IA participant info.
 // No return value.
 $participanttable->populate_from_blockinstance($blockinstance);

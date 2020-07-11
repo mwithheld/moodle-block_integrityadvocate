@@ -143,6 +143,9 @@
 .block_integrityadvocate_plugininfo {
     font-size: 0.5em;
 }
+table.dataTable{
+    margin: 0 !important;
+}
 .dataTables_filter {
     float: left !important;
     text-align: left;

@@ -50,7 +50,7 @@ $functions = array(
         // Defaults to the service's externalib.php.
         'classpath' => 'blocks/integrityadvocate/externallib.php',
         // Human-readable description of the web service function.
-        'description' => 'Override IntegrityAdvocate status',
+        'description' => 'Override IntegrityAdvocate session status',
         // Database rights of the web service function (read, write).
         'type' => 'write',
         // Is the service available to 'internal' ajax calls.

@@ -127,6 +127,7 @@ $string['status_invalid_id'] = 'Invalid (ID)';
 $string['status_invalid_override'] = 'Invalid (Override)';
 $string['status_invalid_rules'] = 'Invalid (Rules)';
 $string['status_valid'] = 'Valid';
+$string['status_valid_override'] = 'Valid (Override)';
 
 $string['submitted'] = 'Submitted';
 $string['time_expected'] = 'Expected';

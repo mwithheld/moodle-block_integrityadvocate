@@ -440,7 +440,7 @@ class Output {
 //        // Add the override status UI hidden to the page so we can just swap it in on click.
 //        // Add the select and reason box.
 //        $output .= \html_writer::select(
-//                        ia_status::get_overriddable(),
+//                        ia_status::get_overrides(),
 //                        ' ' . $prefix . '_select ' . $prefix . '_status_select',
 //                        $participant->status,
 //                        array('' => 'choosedots'),

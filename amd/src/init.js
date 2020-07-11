@@ -77,9 +77,12 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 this.frm.elt_reason
                                         .attr('placeholder', M.str.block_integrityadvocate.override_reason_label)
                                         .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}')
-                                        .on('keypress.' + this.prefix + '_disable', function (e) {
-                                            if (e.which === 13) {
-                                                this.frm.elt_save.click();
+                                        .on('keyup keypress', function (e) {
+                                            var keyCode = e.keyCode || e.which;
+                                            debug && window.console.log('overrideui::setup_override_form::Enter pressed');
+                                            if (keyCode === 13) {
+                                                self.frm.elt_save.click();
+
                                                 e.preventDefault();
                                                 return false;
                                             }
@@ -124,7 +127,9 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             cancel_click = function () {
                                 this.frm.trigger('reset');
                                 this.hide_overrideui();
-                                this.frm.closest('td').find('.oldstatusinfo, .block_integrityadvocate_override_edit, .block_integrityadvocate_overriden_icon').show();
+                                this.frm.closest('td').find('.oldstatusinfo, .block_integrityadvocate_overriden_icon').show();
+                                // Show all the override edit icons on the page.
+                                $('.block_integrityadvocate_override_edit').show();
                             }
 
                             save_click = function () {
@@ -216,7 +221,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             show_overrideui = function () {
                                 this.frm.elt_edit.hide();
                                 this.frm.show();
-                                // Make the save icon blink a bit for visibility.
+                                // Make the save icon blink for visibility.
                                 this.frm.elt_save.fadeOut(this.fadetime).fadeIn(this.fadetime);
                                 this.validate_all();
                             }
@@ -331,7 +336,10 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                             debug && window.console.log('overrideui::add_override_click::Existing form found - show it');
                                             elt.find(selector_overrideform).show();
                                         }
-                                        elt.find('.block_integrityadvocate_override_edit, .block_integrityadvocate_overriden_icon').hide();
+
+                                        // Hide all the override edit icons on the page.
+                                        $('.block_integrityadvocate_override_edit').hide();
+                                        elt.find('.block_integrityadvocate_overriden_icon').hide();
                                         o.show_overrideui();
                                     });
                                 });

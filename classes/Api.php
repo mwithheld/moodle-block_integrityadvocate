@@ -129,7 +129,7 @@ class Api {
             unset($params['courseid']);
         }
 
-        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR)));
 
@@ -487,7 +487,7 @@ class Api {
      * @return string the request signature to be sent in the header of the request.
      */
     public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
         $debug && ia_mu::log($debugvars);
@@ -741,7 +741,7 @@ class Api {
      * @return Session Null if failed to parse, otherwise a parsed Session object.
      */
     private static function parse_session(\stdClass $input, Participant $participant) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
@@ -749,6 +749,14 @@ class Api {
         if (ia_u::is_empty($input)) {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
             return array();
+        }
+
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
         }
 
         $debug && ia_mu::log($fxn . '::About to create \block_integrityadvocate\Session()');
@@ -818,7 +826,11 @@ class Api {
         // Link in the parent Participant object.
         $session->participant = $participant;
 
-        $debug && ia_mu::log($fxn . '::About to return $session= ' . ia_u::var_dump($session, true));
+        if (!$cache->set($cachekey, $session)) {
+            throw new \Exception('Failed to set value in perrequest cache');
+        }
+
+        $debug && ia_mu::log($fxn . '::About to return $session=' . ia_u::var_dump($session, true));
         return $session;
     }
 
@@ -829,7 +841,7 @@ class Api {
      * @return ia_participant Null if failed to parse, otherwise the parsed Participant object.
      */
     public static function parse_participant(\stdClass $input) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $input=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
@@ -838,6 +850,22 @@ class Api {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
             return null;
         }
+
+        // Check for minimally-required data.
+        if (!isset($input->ParticipantIdentifier) || !isset($input->Course_Id)) {
+            $debug && ia_mu::log($fxn . '::Minimally-required fields not found');
+            return null;
+        }
+        $debug && ia_mu::log($fxn . '::Minimally-required fields found');
+
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+        $debug && ia_mu::log($fxn . '::Not a cached value; build an ia_participant');
 
         $participant = new ia_participant();
 
@@ -925,6 +953,10 @@ class Api {
         }
 
         $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($participant, true));
+
+        if (!$cache->set($cachekey, $participant)) {
+            throw new \Exception('Failed to set value in perrequest cache');
+        }
         return $participant;
     }
 
@@ -949,20 +981,24 @@ class Api {
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || ia_u::is_empty($overrideuser) || !isset($overrideuser->id)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg);
-            throw new \InvalidArgumentException($msg);
+            throw new InvalidArgumentException($msg);
         }
 
         // Do validity checks only if quick and absolutely neccesary.
-        if (!ia_status::is_overriddable($status)) {
+        if (!ia_status::is_override_status($status)) {
             throw new InvalidArgumentException("Status={$status} not an overridable value");
         }
 
-        // The only API options are "Valid" or "Invalid" case-sensitive, so translate the given int to a string.
-        // Special: invalid_override_int should be sent as just "Invalid".
-        if ($status === ia_status::INVALID_OVERRIDE_INT) {
-            $statusstr = ia_status::INVALID;
-        } else {
-            $statusstr = ia_status::get_status_string($status);
+        // Our form params and return values are "Valid (Override)" and "Invalid (Override)", but this API method only accepts "Invalid" and "Valid".  So translate them accordingly.
+        switch ($status) {
+            case ($status === ia_status::VALID_OVERRIDE_INT):
+                $statusstr = 'Valid';
+                break;
+            case ($status === ia_status::INVALID_OVERRIDE_INT):
+                $statusstr = 'Invalid';
+                break;
+            default:
+                throw new InvalidArgumentException('The given status could not be translated to a value the API understands');
         }
 
         $params_url = array(
