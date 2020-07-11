@@ -42,13 +42,14 @@ buildJS: &buildJS
       - npm install -g grunt-cli
       - grunt --verbose shifter
 
-      - ls -Rhl
-      - rsync -av /tmp/iaparent/integrityadvocate/amd/build $repodir/amd/build
-      - ls -Rhl
+      - ls -Rhl $repodir
+      - rsync -av /tmp/iaparent/integrityadvocate/amd/build/* $repodir/amd/build/*
       - cd $repodir
-      - haschanges=$(git status --porcelain --short 2>&1)
-      - if [ -n "$haschanges" ]; then git add ./amd/build && git commit -m 'Built JS [SKIP CI]' && git push origin master; fi
       - ls -Rhl
+      - haschanges=$(git status --porcelain --short 2>&1)
+      - if [ -n "$haschanges" ]; then git add ./amd/build && git commit -m 'Built JS [SKIP CI]' && git status;git show-ref && git push origin master; fi
+      #- ls -Rhl
+
 pipelines:
   custom: # Pipelines that are triggered manually
     build_js:
