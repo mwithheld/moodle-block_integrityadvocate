@@ -43,7 +43,7 @@ buildJS: &buildJS
       - grunt --verbose shifter
 
       - ls -Rhl $repodir
-      - rsync -av /tmp/iaparent/integrityadvocate/amd/build/* $repodir/amd/build/*
+      - rsync -av /tmp/iaparent/integrityadvocate/amd/build/ $repodir/amd/build/
       - cd $repodir
       - ls -Rhl
       - haschanges=$(git status --porcelain --short 2>&1)
