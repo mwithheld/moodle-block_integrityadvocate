@@ -14,7 +14,7 @@ buildZip: &buildZip
       - repodir=$(pwd -LP)
       - pluginver=$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')
       - mkdir -p /tmp/iaparent/integrityadvocate
-      - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
+      - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/ --exclude vendor/bin/
       - cd /tmp/iaparent/integrityadvocate
       - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
       - cd /tmp/iaparent/
