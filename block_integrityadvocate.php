@@ -60,7 +60,7 @@ class block_integrityadvocate extends block_base {
      * @return boolean
      */
     public function instance_create() {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
 
@@ -264,7 +264,7 @@ class block_integrityadvocate extends block_base {
      */
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG, $PAGE;
-        $debug = false;
+        $debug = true;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
@@ -283,7 +283,8 @@ class block_integrityadvocate extends block_base {
         }
 
         // The block is hidden so don't show anything.
-        if (!$this->instance->visible) {
+        if (!$this->is_visible()) {
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This block is not visible, so skip it');
             return;
         }
 
@@ -292,7 +293,7 @@ class block_integrityadvocate extends block_base {
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
         $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hasoverviewcapability, true));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hascapability_overview, true));
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
         if ($setuperrors && $hascapability_overview) {
@@ -425,6 +426,10 @@ class block_integrityadvocate extends block_base {
     public function get_course() {
         global $COURSE;
         return $COURSE;
+    }
+
+    public function get_instance() {
+        return $this->instance;
     }
 
     public function is_visible(): bool {
