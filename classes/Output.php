@@ -50,7 +50,7 @@ class Output {
      * @param stdClass $user Current user object.
      * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
      */
-    public static function add_block_js(\block_integrityadvocate $blockinstance): string {
+    public static function add_block_js(\block_integrityadvocate $blockinstance, string $proctorjsurl): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started');
