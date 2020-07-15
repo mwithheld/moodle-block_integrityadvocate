@@ -127,7 +127,7 @@ class block_integrityadvocate_observer {
                         '\\mod_quiz\\event\\attempt_reviewed',
                         '\\mod_quiz\\event\\attempt_submitted',
             )):
-                ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
