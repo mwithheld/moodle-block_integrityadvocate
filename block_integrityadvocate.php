@@ -72,7 +72,7 @@ class block_integrityadvocate extends block_base {
             $debug && ia_mu::log($fxn . "::Looking at block_instance.id={$key}");
 
             // Only look in other blocks, and skip those with apikey/appid errors.
-            if ($b->get_apikey_appid_errors()) {
+            if (($this->instance->id === $b->instance->id) && $b->get_apikey_appid_errors()) {
                 continue;
             }
 
@@ -238,7 +238,7 @@ class block_integrityadvocate extends block_base {
         return $errors;
     }
 
-    private function add_proctor_js($user) {
+    private function add_proctor_js($user, bool $hidemodulecontent = true) {
         $debug = true;
         global $OUTPUT;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Add the proctoring JS');
@@ -248,10 +248,12 @@ class block_integrityadvocate extends block_base {
 
         // Hide module content until JS is loaded and the IA modal is open.
         // These styles are removed in the js by simply removing this element.
-        $this->content->text .= '<style id="block_integrityadvocate_hidemodulecontent">'
-                . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
-                . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
-                . '</style>';
+        if ($hidemodulecontent) {
+            $this->content->text .= '<style id="block_integrityadvocate_hidemodulecontent">'
+                    . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
+                    . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
+                    . '</style>';
+        }
 
         // This must hold some content, otherwise this function runs twice.
         $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
@@ -293,7 +295,7 @@ class block_integrityadvocate extends block_base {
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
         $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hascapability_overview, true));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapability_overview);
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
         if ($setuperrors && $hascapability_overview) {
@@ -378,17 +380,10 @@ class block_integrityadvocate extends block_base {
                         // This is someone in a student role.
                         switch (true) {
                             case (stripos($this->page->pagetype, 'mod-scorm-') !== false):
-                                if ($this->page->pagetype === 'mod-scorm-player') {
-                                    // Show the protoring JS.
-                                    $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
-                                    $this->add_proctor_js($USER);
-                                } else {
-                                    // If it is NOT a scorm player page, do not show the JS proctoring UI - just show the summary.
-                                    $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see summary info');
-                                    if ($hasselfviewcapability) {
-                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
-                                    }
-                                }
+                                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
+                                // Show the protoring JS for all SCORM page, but...
+                                // Do not hide the content for the SCORM entry (welcome) page.
+                                $this->add_proctor_js($USER, ($this->page->pagetype !== 'mod-scorm-view'));
                                 break;
                             case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
