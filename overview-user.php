@@ -80,7 +80,7 @@ if (ia_u::is_empty($participant)) {
     $continue = false;
 }
 
-if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
+if (false) {
     if ($continue) {
         // Display user basic info.
         echo ia_output::get_participant_basic_output($blockinstance, $participant, true, false, $hascapability_override);
@@ -91,12 +91,13 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
 } else {
     echo '<div id="overview_participant_container">';
     $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
+    $showoverride = isset($blockinstance->config->enableoverride) && $blockinstance->config->enableoverride && $hascapability_override;
 
     if ($continue) {
         // Set a nonce into the server-side user session.
         // This means you can only do one override per user at a time.
         // Ref https://codex.wordpress.org/WordPress_Nonces for why it is a good idea to use nonces here.
-        if ($hascapability_override) {
+        if ($showoverride) {
             $noncekey = INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$participant->participantidentifier}";
             $debug && ia_mu::log(__FILE__ . "::About to nonce_set({$noncekey})");
             ia_mu::nonce_set($noncekey);
@@ -108,7 +109,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
 
         // Build the override UI hidden to the page so we can just swap it in on click
-        if ($hascapability_override) {
+        if ($showoverride) {
             $prefix_overrideform = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
             // Create a form for the override UI.
             $overrideform = \html_writer::start_tag('form', array('class' => $prefix_overrideform . '_form', 'style' => 'display:none'));
@@ -151,7 +152,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
         $tr_header .= \html_writer::tag('th', \get_string('photo', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_photo"]);
         $tr_header .= \html_writer::tag('th', \get_string('flags', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_flags"]);
 
-        if ($hascapability_override) {
+        if ($showoverride) {
             $tr_header .= \html_writer::tag('th', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridedate"]);
             $tr_header .= \html_writer::tag('th', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridestatus"]);
 
@@ -202,7 +203,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
 
             // Column=session_status.
             $latestmodulesession = $participant->get_latest_module_session($cmid);
-            $canoverride = $hascapability_override && $latestmodulesession && ($session->id == $latestmodulesession->id);
+            $canoverride = $showoverride && $latestmodulesession && ($session->id == $latestmodulesession->id);
             $overrideclass = $canoverride ? " {$prefix}_session_overrideui" : '';
             // If overridden the overridden status.
             if ($hasoverride) {
@@ -234,7 +235,7 @@ if (!INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
             }
 
             // Instructor: If overridden, show the override info.
-            if ($hascapability_override) {
+            if ($showoverride) {
                 // Temporary test data.
                 if (false && $hasoverride) {
                     $session->overridelmsuserid = 4;

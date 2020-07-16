@@ -21,6 +21,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -60,6 +61,9 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 52));
         $mform->setType('config_apikey', PARAM_BASE64);
 
+        $mform->addElement('advcheckbox', 'config_enableoverride', get_string('config_enableoverride', INTEGRITYADVOCATE_BLOCK_NAME));
+        $mform->setType('config_enableoverride', PARAM_BOOL);
+
         $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
     }
 
@@ -76,6 +80,10 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $unused): array {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
+
         $errors = array();
 
         if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {

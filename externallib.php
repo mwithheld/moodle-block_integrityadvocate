@@ -105,6 +105,9 @@ class block_integrityadvocate_external extends \external_api {
             case(!$blockinstance_requesting->is_visible()) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Blockinstanceid={$blockinstance_requesting_id} is hidden");
                 break;
+            case(!isset($blockinstance_requesting->config->enableoverride) || !$blockinstance_requesting->config->enableoverride) :
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Blockinstanceid={$blockinstance_requesting_id} has enableoverride=false");
+                break;
             case(!($coursecontext = $blockinstance_requesting->context->get_course_context())) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course context not found for blockinstanceid={$blockinstance_requesting_id}");
                 break;
