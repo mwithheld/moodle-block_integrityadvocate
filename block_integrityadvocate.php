@@ -319,7 +319,7 @@ class block_integrityadvocate extends block_base {
             return;
         }
 
-        $hasselfviewcapability = \has_capability('block/integrityadvocate:selfview', $this->context);
+        $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $this->context);
 
         // Check if there is any errors.
         if ($configerrors = $this->get_config_errors()) {
@@ -357,7 +357,7 @@ class block_integrityadvocate extends block_base {
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
                         $this->content->text .= ia_output::get_button_course_overview($this);
                         break;
-                    case $hasselfviewcapability:
+                    case $hascapability_selfview:
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
                         // Check the user is enrolled in this course, but they must be active.
                         if (!\is_enrolled($parentcontext, $USER, null, true)) {
@@ -391,7 +391,7 @@ class block_integrityadvocate extends block_base {
                                 if ($this->page->pagetype == 'mod-quiz-attempt') {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see proctoring JS');
                                     $this->add_proctor_js($USER);
-                                } else if ($hasselfviewcapability) {
+                                } else if ($hascapability_selfview) {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see summary info');
                                     $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                 }
