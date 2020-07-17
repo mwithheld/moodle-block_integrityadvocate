@@ -72,7 +72,7 @@ class block_integrityadvocate extends block_base {
             $debug && ia_mu::log($fxn . "::Looking at block_instance.id={$key}");
 
             // Only look in other blocks, and skip those with apikey/appid errors.
-            if (($this->instance->id === $b->instance->id) && $b->get_apikey_appid_errors()) {
+            if (($this->instance->id === $b->instance->id) || $b->get_apikey_appid_errors()) {
                 continue;
             }
 
