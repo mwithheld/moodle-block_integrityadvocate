@@ -258,7 +258,7 @@ class block_integrityadvocate extends block_base {
         // This must hold some content, otherwise this function runs twice.
         $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
 
-        ia_output::add_block_js($this, ia_output::get_proctor_js($this, $user));
+        ia_output::add_block_js($this, ia_output::get_proctor_js_url($this, $user));
     }
 
     /**
@@ -381,9 +381,29 @@ class block_integrityadvocate extends block_base {
                         switch (true) {
                             case (stripos($this->page->pagetype, 'mod-scorm-') !== false):
                                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
-                                // Show the protoring JS for all SCORM page, but...
-                                // Do not hide the content for the SCORM entry (welcome) page.
-                                $this->add_proctor_js($USER, ($this->page->pagetype !== 'mod-scorm-view'));
+                                global $scorm;
+                                if (!isset($scorm)) {
+                                    throw new moodle_exception('Failed to find the global $scorm variable');
+                                }
+                                // If this is the entry page for a SCORM "new window" instance, we launch the IA proctoring on the SCORM entry page.
+                                if ($scorm->popup) {
+                                    if ($this->page->pagetype === 'mod-scorm-view') {
+                                        $this->add_proctor_js($USER, false);
+                                    } else {
+                                        // The SCORM popup window (mod-scorm-view) does not load any blocks or JS, so we ignore that possibility.
+                                        // Other pages should show the overview.
+                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                    }
+                                } else {
+                                    // Else it is a SCORM "same window" instance.
+                                    // The player page should show the IA procotoring UI.
+                                    // Other pages like the entry page should show the overview.
+                                    if ($this->page->pagetype === 'mod-scorm-player') {
+                                        $this->add_proctor_js($USER, true);
+                                    } else {
+                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                    }
+                                }
                                 break;
                             case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
