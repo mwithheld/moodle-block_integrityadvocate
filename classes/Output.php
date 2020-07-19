@@ -56,7 +56,7 @@ class Output {
         $debug && ia_mu::log($fxn . '::Started');
 
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
+        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK) || !filter_var($proctorjsurl, FILTER_VALIDATE_URL)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
@@ -110,13 +110,13 @@ class Output {
     }
 
     /**
-     * Build proctoring.js to the page..
+     * Build proctoring.js.
      *
-     * @param stdClass $blockinstance Instance of block_integrityadvocate.
+     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML if error; Also adds the student proctoring JS to the page.
      */
-    public static function get_proctor_js(\block_integrityadvocate $blockinstance, \stdClass $user): string {
+    public static function get_proctor_js_url(\block_integrityadvocate $blockinstance, \stdClass $user): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started');
