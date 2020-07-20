@@ -910,7 +910,7 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Done url fields');
 
-        // Clean status vs whitelist.
+        // Clean status vs allowlist.
         if (isset($input->Status)) {
             $participant->status = ia_status::parse_status_string($input->Status);
         }

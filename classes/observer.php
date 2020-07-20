@@ -83,7 +83,7 @@ class block_integrityadvocate_observer {
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is a module-level event, so continue');
 
         /*
-         * Blacklist events to *not* act on.
+         * blocklist events to *not* act on.
          * Ref event list /report/eventlist/index.php
          *   - Education level=Participating
          *   - Database query type=create or update
@@ -111,15 +111,15 @@ class block_integrityadvocate_observer {
                         '\\mod_workshop\\event\\submission_reassessed',
             )):
                 // None of these exact string matches on event names correspond to finishing an module.
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blacklisted, so skip it; debuginfo={$debuginfo}");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
             default:
                 // Do nothing.
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not blacklisted so continue");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not blocklisted so continue");
         }
 
         /*
-         * Whitelist events to act on.
+         * allowlist events to act on.
          * Ref event list /report/eventlist/index.php
          *   - Education level=Participating
          *   - Database query type=create or update
@@ -130,16 +130,16 @@ class block_integrityadvocate_observer {
                         '\\mod_assign\\event\\assessable_submitted',
                         '\\mod_choice\\event\\answer_created',
                         '\\mod_feedback\\event\\response_submitted',
-                        // This is blacklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
+                        // This is blocklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
                         '\\mod_scorm\\event\\scoreraw_submitted',
                         '\\mod_quiz\\event\\attempt_abandoned',
                         '\\mod_quiz\\event\\attempt_reviewed',
                         '\\mod_quiz\\event\\attempt_submitted',
             )):
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is whitelisted so act on it; debuginfo={$debuginfo}");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the whitelist to be acted on, so skip it; debuginfo={$debuginfo}");
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the allowlist to be acted on, so skip it; debuginfo={$debuginfo}");
                 return false;
         }
 

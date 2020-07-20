@@ -44,7 +44,7 @@ if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext
 }
 
 $userid = \required_param('userid', PARAM_INT);
-$debug = false;
+$debug = true;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockinstance->context->get_parent_context();

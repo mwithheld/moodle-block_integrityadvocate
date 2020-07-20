@@ -59,7 +59,7 @@ class Status {
     const INVALID_OVERRIDE_INT = 6;
 
     /**
-     * Parse the IA participants status code against a whitelist of IntegrityAdvocate_Participant_Status::* constants.
+     * Parse the IA participants status code against a allowlist of IntegrityAdvocate_Participant_Status::* constants.
      *
      * @param string $statusstring The status string from the API e.g. Valid, In Progress, etc.
      * @return int An integer representing the status matching one of the IntegrityAdvocate_Paticipant_Status::* constants.
