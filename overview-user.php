@@ -167,13 +167,13 @@ if (false) {
             switch (true) {
                 case(ia_u::is_empty($session) || !isset($session->flags)):
                     $debug && ia_mu::log(__FILE__ . '::This session is empty or has no flags, so skip it');
-                    continue;
+                    continue 2;
                 case(!isset($session->activityid) || !($cmid = $session->activityid)):
                     $debug && ia_mu::log(__FILE__ . 'This session has no activityid so skip it');
-                    continue;
+                    continue 2;
                 case(!($courseid = ia_mu::get_courseid_from_cmid($cmid)) || intval($courseid) !== intval($session->participant->courseid)):
                     $debug && ia_mu::log(__FILE__ . "::This session belongs to courseid={$courseid} not matching participant->courseid={$session->participant->courseid}");
-                    continue;
+                    continue 2;
             }
 
             // Column=session_start.
