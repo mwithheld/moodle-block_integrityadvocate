@@ -91,7 +91,8 @@ if (false) {
 } else {
     echo '<div id="overview_participant_container">';
     $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
-    $showoverride = isset($blockinstance->config->enableoverride) && $blockinstance->config->enableoverride && $hascapability_override;
+    $showoverride = INTEGRITYADVOCATE_FEATURE_OVERRIDE && isset($blockinstance->config->enableoverride) && $blockinstance->config->enableoverride && $hascapability_override;
+    $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
 
     if ($continue) {
         // Set a nonce into the server-side user session.
@@ -191,9 +192,13 @@ if (false) {
             list($unused, $cm) = \get_course_and_cm_from_cmid($cmid, null, $courseid, $session->participant->participantidentifier);
             echo \html_writer::tag('td', \html_writer::tag('a', $cm->name, ['href' => $cm->url]), ['data-cmid' => $cmid, 'class' => "{$prefix}_activitymodule"]);
 
+            $debuginfo = "name={$cm->name}; cmid={$cmid}";
             $hasoverride = $session->has_override();
+            $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$hasoverride={$hasoverride}");
+
             // Temporary test data.
-            if (false && $hasoverride = (bool) random_int(0, 1)) {
+            if (false && ($hasoverride = (bool) random_int(0, 1))) {
+                $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Temporary test data> Set \$hasoverride={$hasoverride}");
                 $session->overridedate = random_int($session->end, time());
                 $overrideints = array_keys(ia_status::get_overrides());
                 sort($overrideints);
@@ -204,6 +209,8 @@ if (false) {
             // Column=session_status.
             $latestmodulesession = $participant->get_latest_module_session($cmid);
             $canoverride = $showoverride && $latestmodulesession && ($session->id == $latestmodulesession->id);
+            $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$canoverride={$canoverride}");
+
             $overrideclass = $canoverride ? " {$prefix}_session_overrideui" : '';
             // If overridden the overridden status.
             if ($hasoverride) {

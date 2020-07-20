@@ -61,7 +61,11 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 52));
         $mform->setType('config_apikey', PARAM_BASE64);
 
-        $mform->addElement('advcheckbox', 'config_enableoverride', get_string('config_enableoverride', INTEGRITYADVOCATE_BLOCK_NAME));
+        if (INTEGRITYADVOCATE_FEATURE_OVERRIDE) {
+            $mform->addElement('advcheckbox', 'config_enableoverride', get_string('config_enableoverride', INTEGRITYADVOCATE_BLOCK_NAME));
+        } else {
+            $mform->addElement('hidden', 'config_enableoverride', 0);
+        }
         $mform->setType('config_enableoverride', PARAM_BOOL);
 
         $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
