@@ -1,4 +1,4 @@
-------
+------/
 Description of DataTables third-party code included in this plugin.
 ------
 
@@ -26,6 +26,15 @@ Why is there no DataTables css?
 We are only using the Datatables search functionality, and I didn't like or need
 the styles it came with (version 1.10.21). E.g. by default the search box is
 pushed to the far right of the page.
+
+
+------
+Build the JS
+------
+Ref https://developerck.com/javascript-in-moodle/
+But it's a real PITA to set up.  
+Just minify amd/src/init.js with https://jscompress.com/ and paste it into amd/build/init.min.js
+
 
 
 ------

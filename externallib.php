@@ -152,8 +152,12 @@ class block_integrityadvocate_external extends \external_api {
 
         // Do the call to the IA API.
         $result['success'] = ia_api::set_override_session($blockinstance_requesting->config->apikey, $blockinstance_requesting->config->appid, $status, $reasoncleaned, $targetuserid, $overrideuser, $courseid, $moduleid);
+        if (!$result['success']) {
+            $result['warnings'] = 'Failed to save the override status';
+        }
         $result['submitted'] = true;
 
+        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result));
         return $result;
     }
 

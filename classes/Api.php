@@ -1022,13 +1022,18 @@ class Api {
         $debug && ia_mu::log($fxn . '::Set $header=' . $header);
 
         // Our form params are "Valid" and "Invalid", but this API method only accepts "Invalid" and "Valid".  So translate them accordingly.
+        $statusstr = '';
         switch ($status) {
             case ($status === ia_status::VALID_INT):
             case ($status === ia_status::INVALID_OVERRIDE_INT):
-                ia_status::get_status_string($status);
+                $statusstr = ia_status::get_status_string($status);
                 break;
             default:
-                throw new InvalidArgumentException('The given status could not be translated to a value the API understands');
+                throw new \InvalidArgumentException('The given status could not be translated to a value the API understands');
+        }
+        $debug && ia_mu::log($fxn . "::Got \$statusstr=" . var_export($statusstr, true));
+        if (empty($statusstr)) {
+            throw new \InvalidArgumentException('The given status could not be translated to a value the API understands');
         }
 
         $params_body = array(
@@ -1051,7 +1056,7 @@ class Api {
                         '; $response=' . var_export($response, true) .
                         '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
 
-        return $responsedetails == 200;
+        return isset($responsedetails['http_code']) && ($responsedetails['http_code'] == 200);
     }
 
     /**

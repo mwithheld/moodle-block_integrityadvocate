@@ -49,14 +49,14 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 this.prefix = 'block_integrityadvocate_override';
                             }
 
-                            preventdefault = function (e) {
+                            preventdefault(e) {
                                 if (typeof e !== 'undefined') {
                                     e.preventDefault();
                                 }
                                 return false;
                             }
 
-                            setup_override_form = function (elt) {
+                            setup_override_form(elt) {
                                 debug && window.console.log('overrideui::setup_override_form::Started');
                                 var self = this;
 
@@ -124,7 +124,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 return this;
                             }
 
-                            cancel_click = function () {
+                            cancel_click() {
                                 this.frm.trigger('reset');
                                 this.hide_overrideui();
                                 this.frm.closest('td').find('.oldstatusinfo, .block_integrityadvocate_overriden_icon').show();
@@ -132,7 +132,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 $('.block_integrityadvocate_override_edit').show();
                             }
 
-                            save_click = function () {
+                            save_click() {
                                 var self = this;
                                 this.disable_ui();
                                 debug && window.console.log('overrideui::save_click::Started with frm=', this.frm);
@@ -155,7 +155,13 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                                 // Set true to force reload from server not cache.  This is said to be deprecated but since we might have old browsers we'll do it.
                                                 window.location.reload(true);
                                             },
-                                            fail: notification.exception,
+                                            fail: function (xhr, textStatus, errorThrown) {
+                                                console.log('textStatus', textStatus);
+                                                console.log('errorThrown', errorThrown);
+                                                alert(M.str.moodle.unknownerror);
+                                                // Set true to force reload from server not cache.  This is said to be deprecated but since we might have old browsers we'll do it.
+                                                window.location.reload(true);
+                                            },
                                             always: function (context) {
                                                 debug && window.console.log('overrideui::save_click::ajax.always');
                                                 self.enable_ui();
@@ -167,7 +173,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 debug && window.console.log('overrideui::save_click::Done');
                             }
 
-                            validate_all = function () {
+                            validate_all() {
                                 // We explicity want to run through both validators, so don't just AND them.
                                 var isvalid_reason = this.validate_reason();
                                 var isvalid_status = this.validate_status();
@@ -175,7 +181,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 return isvalid_reason && isvalid_status;
                             }
 
-                            validate_status = function () {
+                            validate_status() {
                                 var elt = this.frm.elt_status;
                                 var val = elt.val();
 
@@ -183,7 +189,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 return elt[0].checkValidity() || val === 0 || val === 3;
                             }
 
-                            validate_reason = function () {
+                            validate_reason() {
                                 var elt = this.frm.elt_reason;
                                 var val = elt.val();
                                 debug && window.console.log('overrideui::validate_reason::Started with frm=', this.frm);
@@ -200,7 +206,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 }
                             }
 
-                            save_set_status = function (enabled) {
+                            save_set_status(enabled) {
                                 if (enabled) {
                                     this.save_enable();
                                 } else {
@@ -208,17 +214,17 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 }
                             }
 
-                            save_disable = function () {
+                            save_disable() {
                                 var self = this;
                                 this.frm.elt_save.css('color', 'grey').on('click.' + self.prefix + '_disable', this.preventdefault);
                             }
 
-                            save_enable = function () {
+                            save_enable() {
                                 var self = this;
                                 this.frm.elt_save.css('color', '').off('click.' + self.prefix + '_disable');
                             }
 
-                            show_overrideui = function () {
+                            show_overrideui() {
                                 this.frm.elt_edit.hide();
                                 this.frm.show();
                                 // Make the save icon blink for visibility.
@@ -226,12 +232,12 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 this.validate_all();
                             }
 
-                            hide_overrideui = function () {
+                            hide_overrideui() {
                                 this.frm.hide();
                                 this.frm.elt_edit.fadeIn(this.fadetime);
                             }
 
-                            disable_ui = function () {
+                            disable_ui() {
                                 this.frm.elt_cancel.hide();
                                 this.frm.elt_save.hide();
                                 this.frm.elt_loading.show();
@@ -240,7 +246,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 });
                             }
 
-                            enable_ui = function () {
+                            enable_ui() {
                                 this.frm.elt_cancel.show();
                                 this.frm.elt_save.show();
                                 this.frm.elt_loading.hide();
