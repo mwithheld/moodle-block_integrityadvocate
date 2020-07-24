@@ -603,8 +603,9 @@ class Api {
             return $notfoundval;
         }
 
-        $debug && ia_mu::log("About to return \$latestsession->status={$latestsession->status}");
-        return $latestsession->status;
+        $status = $latestsession->get_status();
+        $debug && ia_mu::log("About to return \$latestsession->status={$status}");
+        return $status;
     }
 
     /**
