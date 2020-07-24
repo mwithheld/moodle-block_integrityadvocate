@@ -239,6 +239,26 @@ class Status {
     }
 
     /**
+     * Check if the status is a member of the array of statuses that are considered valid.
+     *
+     * @param int $statusint The int to check.
+     * @return true if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
+     */
+    public static function is_valid_status(int $statusint): bool {
+        return in_array($statusint, array_keys(self::get_valids()));
+    }
+
+    /**
+     * Check if the status is a member of the array of statuses that are considered valid.
+     *
+     * @param int $statusint The int to check.
+     * @return true if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
+     */
+    public static function is_invalid_status(int $statusint): bool {
+        return in_array($statusint, array_keys(self::get_invalids()));
+    }
+
+    /**
      * Return if the status integer value is a valid one.
      *
      * @param int $statusint The integer value to check.
