@@ -36,7 +36,6 @@ $string['completion_not_enabled_course'] = 'Completion tracking is not enabled i
 
 $string['config_apikey'] = 'Api Key';
 $string['config_appid'] = 'Application Id';
-$string['config_enableoverride'] = 'Enable the (very experimental) ability to override the Integrity Advocate session status';
 $string['config_blockversion'] = 'Version';
 $string['config_default_title'] = 'Integrity Advocate';
 

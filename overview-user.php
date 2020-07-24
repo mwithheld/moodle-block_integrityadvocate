@@ -91,7 +91,7 @@ if (false) {
 } else {
     echo '<div id="overview_participant_container">';
     $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
-    $showoverride = INTEGRITYADVOCATE_FEATURE_OVERRIDE && isset($blockinstance->config->enableoverride) && $blockinstance->config->enableoverride && $hascapability_override;
+    $showoverride = INTEGRITYADVOCATE_FEATURE_OVERRIDE && $hascapability_override;
     $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
 
     if ($continue) {
