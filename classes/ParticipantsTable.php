@@ -195,17 +195,16 @@ class ParticipantsTable extends \core_user\participants_table {
                     throw new Exception('Failed to json_decode');
                 }
                 $debug && ia_mu::log($fxn . '::After json_decode, got $responseparsed=' . ia_u::var_dump($responseparsed, true));
-                $debug && ia_mu::log($fxn . '::About to parse_participant');
+
                 $participant = ia_api::parse_participant($responseparsed);
-                $debug && ia_mu::log($fxn . '::Done parse_participant');
-                $debug && ia_mu::log($fxn . '::After parse_participant, $participant=' . ia_u::var_dump($responseparsed, true));
                 if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
                     $debug && ia_mu::log($fxn . '::Empty participant');
                     return;
+                } else {
+                    $debug && ia_mu::log($fxn . '::Got a participant with id=' . $participant->participantidentifier);
                 }
 
-                $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, true, false);
-                $debug && ia_mu::log($fxn . '::Got iadata=' . ia_u::var_dump($this->rawdata[$participant->participantidentifier]->iadata), true);
+                $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, false, true, false);
 
                 // Participant photo.
                 $this->rawdata[$participant->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($participant);

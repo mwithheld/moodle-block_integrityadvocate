@@ -61,7 +61,7 @@ class Api {
      * @return bool true if the remote API close says it succeeded; else false
      */
     public static function close_remote_session(string $appid, int $courseid, int $moduleid, int $userid): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -88,7 +88,7 @@ class Api {
                 '&activityid=' . urlencode($moduleid);
         $response = $curl->get($url);
         $responsecode = $curl->get_info('http_code');
-        $debug && ia_mu::log($fxn . '::Sent url=' . ia_u::var_dump($url, true) . '; http_code=' . ia_u::var_dump($responsecode, true) . '; response body=' . ia_u::var_dump($response, true));
+        $debug && ia_mu::log($fxn . '::Sent url=' . var_export($url, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
         return intval($responsecode) < 400;
     }
@@ -103,7 +103,7 @@ class Api {
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
@@ -129,7 +129,7 @@ class Api {
             unset($params['courseid']);
         }
 
-        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR)));
 
@@ -487,7 +487,7 @@ class Api {
      * @return string the request signature to be sent in the header of the request.
      */
     public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
         $debug && ia_mu::log($debugvars);
@@ -629,7 +629,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        return self::get_status_in_module($modulecontext, $userid) === ia_participant_status::INPROGRESS;
+        return self::get_status_in_module($modulecontext, $userid) === ia_status::INPROGRESS;
     }
 
     /**
@@ -751,6 +751,14 @@ class Api {
             return array();
         }
 
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
         $debug && ia_mu::log($fxn . '::About to create \block_integrityadvocate\Session()');
         $session = new \block_integrityadvocate\Session();
 
@@ -818,7 +826,11 @@ class Api {
         // Link in the parent Participant object.
         $session->participant = $participant;
 
-        $debug && ia_mu::log($fxn . '::About to return $session= ' . ia_u::var_dump($session, true));
+        if (!$cache->set($cachekey, $session)) {
+            throw new \Exception('Failed to set value in perrequest cache');
+        }
+
+        $debug && ia_mu::log($fxn . '::About to return $session=' . ia_u::var_dump($session, true));
         return $session;
     }
 
@@ -829,7 +841,7 @@ class Api {
      * @return ia_participant Null if failed to parse, otherwise the parsed Participant object.
      */
     public static function parse_participant(\stdClass $input) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $input=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
@@ -838,6 +850,22 @@ class Api {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
             return null;
         }
+
+        // Check for minimally-required data.
+        if (!isset($input->ParticipantIdentifier) || !isset($input->Course_Id)) {
+            $debug && ia_mu::log($fxn . '::Minimally-required fields not found');
+            return null;
+        }
+        $debug && ia_mu::log($fxn . '::Minimally-required fields found');
+
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+        $debug && ia_mu::log($fxn . '::Not a cached value; build an ia_participant');
 
         $participant = new ia_participant();
 
@@ -882,7 +910,7 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Done url fields');
 
-        // Clean status vs whitelist.
+        // Clean status vs allowlist.
         if (isset($input->Status)) {
             $participant->status = ia_status::parse_status_string($input->Status);
         }
@@ -925,57 +953,51 @@ class Api {
         }
 
         $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($participant, true));
+
+        if (!$cache->set($cachekey, $participant)) {
+            throw new \Exception('Failed to set value in perrequest cache');
+        }
         return $participant;
     }
 
     /**
-     * Override the Integrity Advocate ruling for a participant.
+     * Override the Integrity Advocate ruling for a participant session.
      * Assumes you have validated and cleaned all params.
      *
-     * @param int $status An integer Status value to override the Integrity Advocate ruling: Accepts: 0 or 3
-     * @param string $reason
-     * @param int $targetuserid
-     * @param int $overrideuserid
-     * @param int $courseid
-     * @return bool
+     * @param int $status An integer ParticipantStatus value to override the Integrity Advocate ruling: Accepts: 0 or 3
+     * @param string $reason User-provided reason for this override.
+     * @param int $targetuserid The user to update.
+     * @param int $overrideuserid The user doing the overriding.
+     * @param int $courseid The course id.
+     * @param int $moduleid The cmid.
+     * @return bool True on success (HTTP 200 result).
      */
-    public static function set_override(string $apikey, string $appid, int $status, string $reason, int $targetuserid, \stdClass $overrideuser, int $courseid): bool {
+    public static function set_override_session(string $apikey, string $appid, int $status, string $reason, int $targetuserid, \stdClass $overrideuser, int $courseid, int $moduleid): bool {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuser->id}, \$courseid={$courseid}");
+        $debug && ia_mu::log($fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuser->id}, \$courseid={$courseid}, \$moduleid={$moduleid}");
 
         // Sanity check -- not a validity check!
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || ia_u::is_empty($overrideuser) || !isset($overrideuser->id)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg);
-            throw new \InvalidArgumentException($msg);
+            throw new InvalidArgumentException($msg);
         }
 
         // Do validity checks only if quick and absolutely neccesary.
-        if (!ia_status::is_overriddable($status)) {
+        if (!ia_status::is_override_status($status)) {
             throw new InvalidArgumentException("Status={$status} not an overridable value");
         }
 
-        // The only API options are "Valid" or "Invalid" case-sensitive, so translate to a string but invalid_override_int corresponds to just "Invalid".
-        if ($status === ia_status::INVALID_OVERRIDE_INT) {
-            $statusstr = ia_status::VALID;
-        } else {
-            $statusstr = ia_status::get_status_string($status);
-        }
-
-        $params = array(
-            'Override_Date' => time(),
-            'Override_Status' => $statusstr,
-            'Override_Reason' => $reason,
-            'Override_LMSUser_FirstName' => $overrideuser->firstname,
-            'Override_LMSUser_LastName' => $overrideuser->lastname,
-            'Override_LMSUser_Id' => $targetuserid,
+        $params_url = array(
+            'courseid' => $courseid,
+            'activityid' => $moduleid,
+            'participantidentifier' => $targetuserid,
         );
-        $debug && ia_mu::log($fxn . "::Built params=" . var_export($params, true));
 
-        $endpoint = "/participant/{$targetuserid}-{$courseid}";
+        $endpoint = '/participantsessions';
         $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
-        $requesturi = $requestapiurl;
+        $requesturi = $requestapiurl . ($params_url ? '?' . http_build_query($params_url, null, '&') : '');
         $debug && ia_mu::log($fxn . '::Built $requesturi=' . $requesturi);
 
         $requesttimestamp = time();
@@ -999,7 +1021,32 @@ class Api {
         $curl->setHeader($header);
         $debug && ia_mu::log($fxn . '::Set $header=' . $header);
 
-        $response = $curl->patch($requesturi, json_encode($params));
+        // Our form params are "Valid" and "Invalid", but this API method only accepts "Invalid" and "Valid".  So translate them accordingly.
+        $statusstr = '';
+        switch ($status) {
+            case ($status === ia_status::VALID_INT):
+            case ($status === ia_status::INVALID_OVERRIDE_INT):
+                $statusstr = ia_status::get_status_string($status);
+                break;
+            default:
+                throw new \InvalidArgumentException('The given status could not be translated to a value the API understands');
+        }
+        $debug && ia_mu::log($fxn . "::Got \$statusstr=" . var_export($statusstr, true));
+        if (empty($statusstr)) {
+            throw new \InvalidArgumentException('The given status could not be translated to a value the API understands');
+        }
+
+        $params_body = array(
+            'Override_Date' => time(),
+            'Override_Status' => $statusstr,
+            'Override_Reason' => $reason,
+            'Override_LMSUser_FirstName' => $overrideuser->firstname,
+            'Override_LMSUser_LastName' => $overrideuser->lastname,
+            'Override_LMSUser_Id' => $targetuserid,
+        );
+        $debug && ia_mu::log($fxn . "::Built params=" . var_export($params_body, true));
+
+        $response = $curl->patch($requesturi, json_encode($params_body));
 
         $responseparsed = json_decode($response);
         $responsedetails = $curl->get_info('http_code');
@@ -1009,7 +1056,7 @@ class Api {
                         '; $response=' . var_export($response, true) .
                         '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
 
-        return $responsedetails == 200;
+        return isset($responsedetails['http_code']) && ($responsedetails['http_code'] == 200);
     }
 
     /**

@@ -29,7 +29,13 @@ $definitions = array(
         'simplekeys' => true,
         'simpledata' => true,
         'staticacceleration' => true,
-        'staticaccelerationsize' => 5,
+        'canuselocalstore' => true,
+    ),
+    'persession' => array(
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => true,
         'canuselocalstore' => true,
     ),
 );

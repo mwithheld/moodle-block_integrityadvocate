@@ -116,7 +116,8 @@ class MoodleUtility {
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
+            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking at \$c->id={$c->id}; "
+                            . "\$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
             if (intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
                 continue;
             }
@@ -184,7 +185,7 @@ class MoodleUtility {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && self::log($fxn . "::Started with \$context->id={$context->id}");
 
-        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
         if ($cachedvalue = $cache->get($cachekey)) {
@@ -365,7 +366,7 @@ class MoodleUtility {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && self::log($fxn . "::Started with $cmid={$cmid}");
 
-        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
+        // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
         $debug && self::log($fxn . "::Built cachekey={$cachekey}");
@@ -567,126 +568,17 @@ class MoodleUtility {
         }
 
         global $DB;
-        $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?', array($courseidcleaned), IGNORE_MISSING);
+        $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
+                array($courseidcleaned), IGNORE_MISSING);
 
         // Convert false to int 0.
         return intval($lastaccess);
     }
 
     /**
-     * Get the user_enrolment.id (UEID) for the given course-user combo
-     * Ignores deleted and suspended users
-     *
-     * @param context $courserormodulecontext The context of the module the IA block is attached to.
-     * @param int $userid The user id to get the ueid for
-     * @return int The ueid.
-     * @throws InvalidArgumentException
-     */
-    public static function get_ueid(\context $courserormodulecontext, int $userid): int {
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && self::log($fxn . "::Started with userid={$userid}");
-
-        // Sanity check.
-        if (!in_array($courserormodulecontext->contextlevel, array(\CONTEXT_COURSE, \CONTEXT_MODULE), true)) {
-            $msg = 'Input params are invalid';
-            self::log($fxn . '::' . $msg);
-            throw new \InvalidArgumentException($msg);
-        }
-
-        // Cache responses in a per-request cache so multiple calls in one request don't repeat the same work .
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = __CLASS__ . '_' . __FUNCTION__ . '_' . sha1($courserormodulecontext->id . '_' . $userid);
-        if ($cachedvalue = $cache->get($cachekey)) {
-            $debug && self::log($fxn . '::Found a cached value, so return that');
-            return $cachedvalue;
-        }
-
-        // This section adapted from enrollib.php::get_enrolled_with_capabilities_join().
-        // Initialize empty arrays to be filled later.
-        $joins = array();
-        $wheres = array();
-
-        $enrolledjoin = get_enrolled_join($courserormodulecontext, 'u.id;', true);
-        $debug && self::log($fxn . "::get_enrolled_join() returned=" . ia_u::var_dump($enrolledjoin, true));
-
-        // Make the parts easier to use.
-        $joins[] = $enrolledjoin->joins;
-        $wheres[] = $enrolledjoin->wheres;
-        $params = $enrolledjoin->params;
-
-        // Clean up Moodle-provided joins.
-        $joins = implode("\n", str_replace(';', ' ', $joins));
-        // Add our critariae.
-        $wheres[] = "u.suspended=0 AND u.deleted=0 AND u.id=" . intval($userid);
-        $wheres = implode(' AND ', $wheres);
-
-        // Figure out what prefix was used.
-        $matches = array();
-        preg_match('/ej[0-9]+_/', $joins, $matches);
-        $prefix = $matches[0];
-        $debug && self::log($fxn . "::Got prefix=$prefix");
-
-        // Build the full join part of the sql.
-        $sqljoin = new \core\dml\sql_join($joins, $wheres, $params);
-        $debug && self::log($fxn . '::Built sqljoin=' . ia_u::var_dump($sqljoin, true));
-        /*
-         * The value of $sqljoin is something like this:
-         * JOIN {user_enrolments} ej1_ue ON ej1_ue.userid = u.id;
-         * JOIN {enrol} ej1_e ON (ej1_e.id = ej1_ue.enrolid AND ej1_e.courseid = :ej1_courseid)
-         * [wheres] => 1 = 1
-         *   AND ej1_ue.status = :ej1_active
-         *   AND ej1_e.status = :ej1_enabled
-         *   AND ej1_ue.timestart < :ej1_now1
-         *   AND (ej1_ue.timeend = 0 OR ej1_ue.timeend > :ej1_now2)
-         *
-         * [params] => Array
-         *       (
-         *           [ej1_courseid] => 2
-         *           [ej1_enabled] => 0
-         *           [ej1_active] => 0
-         *           [ej1_now1] => 1577401300
-         *           [ej1_now2] => 1577401300
-         *       )
-         */
-        //
-        // This section adapted from enrollib.php::get_enrolled_join()
-        // Build the query including our select clause.
-        // Use MAX and GROUP BY in case there are multiple user-enrolments.
-        $sql = "
-                    SELECT  {$prefix}ue.id, max({$prefix}ue.timestart)
-                    FROM    {user} u
-                    {$sqljoin->joins}
-                    WHERE {$sqljoin->wheres}
-                    GROUP BY {$prefix}ue.id
-                    ";
-        $debug && self::log($fxn . "::Built sql={$sql} with params=" . ia_u::var_dump($params, true));
-
-        global $DB;
-        $enrolmentinfo = $DB->get_record_sql($sql, $sqljoin->params, IGNORE_MULTIPLE);
-        $debug && self::log($fxn . '::Got $userEnrolmentInfo=' . (ia_u::is_empty($enrolmentinfo) ? '' : ia_u::var_dump($enrolmentinfo, true)));
-
-        if (ia_u::is_empty($enrolmentinfo)) {
-            self::log($fxn .
-                    "::Failed to find an active user_enrolment.id for \$userid={$userid} and \$modulecontext->id={$courserormodulecontext->id} with \$sql={$sql}");
-            // Return a guaranteed-invalid userid.
-            $responseparsed = -1;
-        } else {
-            $responseparsed = $enrolmentinfo->id;
-        }
-
-        if (!$cache->set($cachekey, $responseparsed)) {
-            throw new \Exception('Failed to set value in perrequest cache');
-        }
-
-        return $responseparsed;
-    }
-
-    /**
      * Log $message to HTML output, mlog, stdout, or error log
      *
      * @param string $message Message to log
-     * @param string $tag For loggly, tag the entry with this.
      * @param string $dest One of the INTEGRITYADVOCATE_LOGDEST_* constants.
      * @return bool True on completion
      */

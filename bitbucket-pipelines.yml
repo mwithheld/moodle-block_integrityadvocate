@@ -1,24 +1,63 @@
-image: php:7.4.2
+image: node:8.17.0
 
 definitions:
   caches:
     apt: /var/cache/apt
 
+buildZip: &buildZip
+ - step:
+    name: "Build the install zip"
+    caches:
+      - apt
+    script:
+      - apt-get update && apt-get -qq install zip rsync git
+      - repodir=$(pwd -LP)
+      - pluginver=$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')
+      - mkdir -p /tmp/iaparent/integrityadvocate
+      - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/ --exclude vendor/bin/
+      - cd /tmp/iaparent/integrityadvocate
+      - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
+      - cd /tmp/iaparent/
+      #- ls -altrh
+      - zipfilepath="${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}-$pluginver.zip"
+      - zip -r9 $zipfilepath ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
+      - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@$zipfilepath"
+
+
+buildJS: &buildJS
+ - step:
+    name: "Build the JS module"
+    caches:
+      - apt
+      - node
+    script:
+      - apt-get update && apt-get -qq install zip rsync git
+      - repodir=$(pwd -LP)
+      - mkdir -p /tmp/iaparent/integrityadvocate
+      - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
+      - cd /tmp/iaparent/integrityadvocate
+
+      - npm install
+      - npm install -g grunt
+      - npm install -g grunt-cli
+      - grunt --verbose shifter
+
+      - ls -Rhl $repodir
+      - rsync -av /tmp/iaparent/integrityadvocate/amd/build/ $repodir/amd/build/
+      - cd $repodir
+      - ls -Rhl
+      - haschanges=$(git status --porcelain --short 2>&1)
+      - if [ -n "$haschanges" ]; then git add ./amd/build && git commit -m 'Built JS [SKIP CI]' && git status;git show-ref && git push origin master; fi
+      #- ls -Rhl
+
 pipelines:
+  custom: # Pipelines that are triggered manually
+    build_js:
+       - <<: *buildJS
+    build_zip:
+      #- <<: *buildJS
+      - <<: *buildZip
   tags:
     '*':
-  #custom: # Pipelines that are triggered manually
-    #build_zip:
-      - step:
-          name: "Build the zip for installation"
-          caches:
-            - apt
-          script:
-            - apt-get update && apt-get -qq install zip rsync
-            #- homedir=$(pwd -LP)
-            - mkdir -p /tmp/iaparent/integrityadvocate
-            - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
-            - cd /tmp/iaparent/
-            - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
-            - zip -r9 ${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
-            - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip"
+      - <<: *buildJS
+      - <<: *buildZip

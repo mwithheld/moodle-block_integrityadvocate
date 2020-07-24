@@ -60,7 +60,7 @@ class block_integrityadvocate extends block_base {
      * @return boolean
      */
     public function instance_create() {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
 
@@ -72,7 +72,7 @@ class block_integrityadvocate extends block_base {
             $debug && ia_mu::log($fxn . "::Looking at block_instance.id={$key}");
 
             // Only look in other blocks, and skip those with apikey/appid errors.
-            if ($b->get_apikey_appid_errors()) {
+            if (($this->instance->id === $b->instance->id) || $b->get_apikey_appid_errors()) {
                 continue;
             }
 
@@ -238,7 +238,7 @@ class block_integrityadvocate extends block_base {
         return $errors;
     }
 
-    private function add_proctor_js($user) {
+    private function add_proctor_js($user, bool $hidemodulecontent = true) {
         $debug = true;
         global $OUTPUT;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Add the proctoring JS');
@@ -248,26 +248,27 @@ class block_integrityadvocate extends block_base {
 
         // Hide module content until JS is loaded and the IA modal is open.
         // These styles are removed in the js by simply removing this element.
-        $this->content->text .= '<style id="block_integrityadvocate_hidemodulecontent">'
-                . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
-                . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
-                . '</style>';
+        if ($hidemodulecontent) {
+            $this->content->text .= '<style id="block_integrityadvocate_hidemodulecontent">'
+                    . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
+                    . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
+                    . '</style>';
+        }
 
         // This must hold some content, otherwise this function runs twice.
         $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
 
-        ia_output::add_block_js($this, ia_output::get_proctor_js($this, $user));
+        ia_output::add_block_js($this, ia_output::get_proctor_js_url($this, $user));
     }
 
     /**
      * Creates the blocks main content
      */
     public function get_content() {
-        global $USER, $COURSE, $DB, $CFG;
+        global $USER, $COURSE, $DB, $CFG, $PAGE;
         $debug = true;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
-        // If we already have content, do not generate the content again.
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
             return;
         }
@@ -284,14 +285,17 @@ class block_integrityadvocate extends block_base {
         }
 
         // The block is hidden so don't show anything.
-        if (!$this->instance->visible) {
+        if (!$this->is_visible()) {
+            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This block is not visible, so skip it');
             return;
         }
+
+        $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
 
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
         $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
         if ($debug) {
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . ia_u::var_dump($hascapability_overview, true));
+            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapability_overview);
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
         if ($setuperrors && $hascapability_overview) {
@@ -315,7 +319,7 @@ class block_integrityadvocate extends block_base {
             return;
         }
 
-        $hasselfviewcapability = \has_capability('block/integrityadvocate:selfview', $this->context);
+        $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $this->context);
 
         // Check if there is any errors.
         if ($configerrors = $this->get_config_errors()) {
@@ -353,7 +357,7 @@ class block_integrityadvocate extends block_base {
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
                         $this->content->text .= ia_output::get_button_course_overview($this);
                         break;
-                    case $hasselfviewcapability:
+                    case $hascapability_selfview:
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
                         // Check the user is enrolled in this course, but they must be active.
                         if (!\is_enrolled($parentcontext, $USER, null, true)) {
@@ -376,14 +380,27 @@ class block_integrityadvocate extends block_base {
                         // This is someone in a student role.
                         switch (true) {
                             case (stripos($this->page->pagetype, 'mod-scorm-') !== false):
-                                if ($this->page->pagetype === 'mod-scorm-player') {
-                                    // Show the protoring JS.
-                                    $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
-                                    $this->add_proctor_js($USER);
+                                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
+                                global $scorm;
+                                if (!isset($scorm)) {
+                                    throw new moodle_exception('Failed to find the global $scorm variable');
+                                }
+                                // If this is the entry page for a SCORM "new window" instance, we launch the IA proctoring on the SCORM entry page.
+                                if ($scorm->popup) {
+                                    if ($this->page->pagetype === 'mod-scorm-view') {
+                                        $this->add_proctor_js($USER, false);
+                                    } else {
+                                        // The SCORM popup window (mod-scorm-view) does not load any blocks or JS, so we ignore that possibility.
+                                        // Other pages should show the overview.
+                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                    }
                                 } else {
-                                    // If it is NOT a scorm player page, do not show the JS proctoring UI - just show the summary.
-                                    $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see summary info');
-                                    if ($hasselfviewcapability) {
+                                    // Else it is a SCORM "same window" instance.
+                                    // The player page should show the IA procotoring UI.
+                                    // Other pages like the entry page should show the overview.
+                                    if ($this->page->pagetype === 'mod-scorm-player') {
+                                        $this->add_proctor_js($USER, true);
+                                    } else {
                                         $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                     }
                                 }
@@ -394,7 +411,7 @@ class block_integrityadvocate extends block_base {
                                 if ($this->page->pagetype == 'mod-quiz-attempt') {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see proctoring JS');
                                     $this->add_proctor_js($USER);
-                                } else if ($hasselfviewcapability) {
+                                } else if ($hascapability_selfview) {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see summary info');
                                     $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                                 }
@@ -416,7 +433,7 @@ class block_integrityadvocate extends block_base {
         }
 
         $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
-        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME)->version . '</div>';
+        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . '</div>';
         $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
         $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
     }
@@ -424,6 +441,10 @@ class block_integrityadvocate extends block_base {
     public function get_course() {
         global $COURSE;
         return $COURSE;
+    }
+
+    public function get_instance() {
+        return $this->instance;
     }
 
     public function is_visible(): bool {

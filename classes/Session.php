@@ -63,7 +63,7 @@ class Session {
 
     /**
      *
-     * @var string Base64-encoded image
+     * @var string Base64-encoded image.
      */
     public $participantphoto;
 
@@ -90,5 +90,50 @@ class Session {
      * @var Flag[]
      */
     public $flags = array();
+
+    /**
+     *
+     * @var int
+     */
+    public $overridedate = -1;
+
+    /**
+     *
+     * @var string User first name.
+     */
+    public $overridelmsuserfirstname;
+
+    /**
+     *
+     * @var int
+     */
+    public $overridelmsuserid;
+
+    /**
+     *
+     * @var string User last name.
+     */
+    public $overridelmsuserlastname;
+
+    /**
+     *
+     * @var string Reason for override.
+     */
+    public $overridereason;
+
+    /**
+     *
+     * @var int
+     */
+    public $overridestatus;
+
+    /**
+     * Return true if the session is overridden.
+     *
+     * @return bool true if the session is overridden.
+     */
+    public function has_override(): bool {
+        return isset($this->overridestatus);
+    }
 
 }

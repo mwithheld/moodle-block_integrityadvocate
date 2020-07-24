@@ -88,10 +88,31 @@ const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 /** @var string Optionally used for remote debugging */
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
-const INTEGRITYADVOCATE_FEATURE_OVERRIDE = false;
+const INTEGRITYADVOCATE_FEATURE_OVERRIDE = true;
 
 /** @var string Determines where to send error logs * */
 static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
+
+//function shutdown() {
+//    global $PAGE;
+//    ia_mu::log(__FILE__ . '::content=' . print_r(ob_get_contents(), true));
+//    ia_mu::log(__FILE__ . '::Pagetype=' . print_r($PAGE->pagetype, true));
+////    mod-scorm-datamodel, then mod-scorm-loadSCO
+////    ia_mu::log(__FILE__ . '::Blocks=' . print_r($PAGE, true));
+////    ia_mu::log(__FILE__ . '::is_block_present=' . print_r($PAGE->blocks->is_block_present('integrityadvocate'), true));
+////    if (($blockinstance = ia_mu::get_first_block($PAGE->context, INTEGRITYADVOCATE_SHORTNAME, true))) {
+//////        ia_mu::log(__FILE__ . '::Found a blockinstance=' . print_r($blockinstance, true));
+////        $blockinstance->visible = true;
+////        ia_mu::log(__FILE__ . '::Found a blockinstance=' . print_r($blockinstance->get_content(), true));
+////        $PAGE->footer = $blockinstance->get_content();
+////        echo '<div>bloo blaa</div>';
+////        die();
+//    $PAGE->requires->js('/blocks/integrityadvocate/js/module.js', true);
+////    }
+//}
+//
+////ia_mu::log(__FILE__ . '::Blocks=' . print_r($OUTPUT->blocks->is_block_present('integrityadvocate'), true));
+//register_shutdown_function('shutdown');
 
 /*
  * Polyfill functions

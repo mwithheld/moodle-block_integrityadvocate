@@ -21,7 +21,6 @@
  * @copyright  Integrity Advocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// Put these strings first for re-use below.
 $string['pluginname'] = 'Integrity Advocate';
 $string['button_overview'] = 'Overview';
 $string['proctorjs_load_failed'] = "The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.";
@@ -37,6 +36,7 @@ $string['completion_not_enabled_course'] = 'Completion tracking is not enabled i
 
 $string['config_apikey'] = 'Api Key';
 $string['config_appid'] = 'Application Id';
+$string['config_enableoverride'] = 'Enable the (very experimental) ability to override the Integrity Advocate session status';
 $string['config_blockversion'] = 'Version';
 $string['config_default_title'] = 'Integrity Advocate';
 
@@ -52,8 +52,9 @@ $string['error_noapikey'] = "No Api key is set";
 $string['error_noappid'] = "No Application Id is set";
 $string['error_notenrolled'] = "You are not enrolled in this course";
 $string['error_quiz_showblocks'] = "This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...";
+
 $string['flag_comment'] = 'Details';
-$string['flag_capture'] = 'Captured photo';
+$string['photo'] = 'Captured photo';
 $string['flag_errorcode'] = 'Error code';
 $string['flag_type'] = 'Flag';
 $string['flags_none'] = 'None';
@@ -82,8 +83,9 @@ $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
 
-$string['overview'] = $string['pluginname'] . ' Overview';
-$string['overview_flags'] = 'Flags';
+$string['overview_course'] = 'Integrity Advocate Course Overview';
+$string['overview_user'] = 'Integrity Advocate User Sessions';
+$string['flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
@@ -123,7 +125,7 @@ $string['showallinfo'] = 'Show all info';
 
 $string['status_in_progress'] = 'In progress';
 $string['status_invalid_id'] = 'Invalid (ID)';
-$string['status_invalid_override'] = 'Invalid (Override)';
+$string['status_invalid_override'] = 'Invalid';
 $string['status_invalid_rules'] = 'Invalid (Rules)';
 $string['status_valid'] = 'Valid';
 
@@ -135,6 +137,6 @@ $string['override_reason_label'] = 'Reason for override';
 $string['override_reason_invalid'] = 'Must only contain characters in the range: a-zA-Z0-9._-';
 $string['override_view'] = 'View overrides';
 $string['overridden_date'] = 'Overridden {$a}';
-$string['overridden'] = 'Overridden';
+$string['overridden'] = '(Overridden)';
 $string['viewhide_overrides'] = 'View/Hide overrides';
 

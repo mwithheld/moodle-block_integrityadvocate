@@ -24,6 +24,8 @@
 
 namespace block_integrityadvocate;
 
+use block_integrityadvocate\Utility as ia_u;
+
 defined('MOODLE_INTERNAL') || die;
 
 /**
@@ -49,5 +51,61 @@ class Participant {
     public $resubmiturl;
     public $sessions = array();
     public $status;
+
+    /**
+     * Return true if this participant has a session override.
+     *
+     * @return bool True if this participant has a session override.
+     */
+    public function has_session_override(): bool {
+        if (!is_array($this->sessions) || empty($this->sessions)) {
+            return false;
+        }
+
+        foreach ($this->sessions as $s) {
+            if ($s->has_override()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the most recent of sessions for the specified activityid (cmid).
+     * The most recent is defined in order of [end || start time].
+     *
+     * @param int $activityid The activityid to search for.
+     * @return mixed bool false if not found; else The newest session matching the activity.
+     */
+    public function get_latest_module_session(int $activityid) {
+        if (!is_array($this->sessions) || empty($this->sessions) || $activityid < 0) {
+            return false;
+        }
+
+        // Setup an empty object for comparing the start and end times.
+        $latestsession = new Session();
+        $latestsession->end = -1;
+        $latestsession->start = -1;
+
+        // Iterate over the sessions and compare only those matching the activityid.
+        // Choose the one with the newest in order of [end || start time].
+        foreach ($this->sessions as $s) {
+            // Only match the module's activityid (cmid).
+            if (intval($activityid) !== intval($s->activityid)) {
+                continue;
+            }
+            if (($s->end > $latestsession->end) || ($s->start > $latestsession->start)) {
+                $latestsession = $s;
+            }
+        }
+
+        // If $latestsession is empty or is just the comparison object, we didn't find anything.
+        if (ia_u::is_empty($latestsession) || !isset($latestsession->id)) {
+            return false;
+        }
+
+        return $latestsession;
+    }
 
 }
