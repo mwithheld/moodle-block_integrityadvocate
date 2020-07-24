@@ -654,7 +654,11 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        return in_array(self::get_status_in_module($modulecontext, $userid), ia_status::get_invalids(), true);
+        $statusinmodule = self::get_status_in_module($modulecontext, $userid);
+        $debug && ia_mu::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
+        $isstatusvalid = ia_status::is_invalid_status(intval($statusinmodule));
+
+        return $isstatusvalid;
     }
 
     /**
@@ -680,8 +684,8 @@ class Api {
         }
 
         $statusinmodule = self::get_status_in_module($modulecontext, $userid);
-        $debug && ia_mu::log($fxn . "::Comparing \$statusinmodule={$statusinmodule} === " . ia_status::VALID);
-        $isstatusvalid = (intval($statusinmodule) === intval(ia_status::VALID));
+        $debug && ia_mu::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
+        $isstatusvalid = ia_status::is_valid_status(intval($statusinmodule));
 
         return $isstatusvalid;
     }
