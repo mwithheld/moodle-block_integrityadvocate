@@ -487,7 +487,7 @@ class Output {
             default:
                 $error = 'Invalid participant status value=' . serialize($participant->status);
                 ia_mu::log($error);
-                throw new \InvalidValueException($error);
+                throw new \InvalidArgumentException($error);
         }
 
         return $statushtml;
@@ -501,7 +501,6 @@ class Output {
      * @param bool $includephoto True to include the user photo
      * @param bool $showviewdetailsbutton True to show the viewDetails button
      * @return string HTML output showing latest status, flags, and photos
-     * @throws InvalidValueException If the participant status field does not match one of our known values
      */
     public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $includephoto = true, bool $showviewdetailsbutton = true, bool $showoverridebutton = false): string {
         $debug = false;

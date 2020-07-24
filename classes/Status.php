@@ -35,35 +35,30 @@ class Status {
 
     /** @var string String the IA API uses for a proctor session that is started but not yet complete. */
     const INPROGRESS = 'In Progress';
-    const INPROGRESS_INT = 1;
+    const INPROGRESS_INT = -1;
 
-    /** @var string String the IA API uses for a proctor session that is complete and valid. */
+    /** @var string String the IA API uses for a proctor session that is complete and valid, or overridden as Valid. */
     const VALID = 'Valid';
-    const VALID_INT = 2;
+    const VALID_INT = 0;
 
-    /** @var string String the IA API uses for a proctor session that is overridden to "Valid". */
-    const VALID_OVERRIDE = 'Valid (Override)';
-    const VALID_OVERRIDE_INT = 3;
+    /** @var string String the IA API uses for an overridden session status. */
+    const INVALID_OVERRIDE = 'Invalid';
+    const INVALID_OVERRIDE_INT = 1;
 
     /** @var string String the IA API uses for a proctor session that is complete but the presented ID card is invalid. */
     const INVALID_ID = 'Invalid (ID)';
-    const INVALID_ID_INT = 4;
+    const INVALID_ID_INT = 2;
 
     /** @var string String the IA API uses for a proctor session that is complete but in participating the user broke 1+ rules.
      * See IA flags for details. */
     const INVALID_RULES = 'Invalid (Rules)';
-    const INVALID_RULES_INT = 5;
-
-    /** @var string String the IA API uses for an overridden session status. */
-    const INVALID_OVERRIDE = 'Invalid (Override)';
-    const INVALID_OVERRIDE_INT = 6;
+    const INVALID_RULES_INT = 3;
 
     /**
      * Parse the IA participants status code against a allowlist of IntegrityAdvocate_Participant_Status::* constants.
      *
      * @param string $statusstring The status string from the API e.g. Valid, In Progress, etc.
      * @return int An integer representing the status matching one of the IntegrityAdvocate_Paticipant_Status::* constants.
-     * @throws InvalidValueException
      */
     public static function parse_status_string(string $statusstring): int {
         $statusstringcleaned = \clean_param($statusstring, PARAM_TEXT);
@@ -74,14 +69,11 @@ class Status {
             case self::VALID:
                 $status = self::VALID_INT;
                 break;
-            case self::VALID_OVERRIDE:
-                $status = self::VALID_OVERRIDE_INT;
+            case self::INVALID_OVERRIDE:
+                $status = self::INVALID_OVERRIDE_INT;
                 break;
             case self::INVALID_ID:
                 $status = self::INVALID_ID_INT;
-                break;
-            case self::INVALID_OVERRIDE:
-                $status = self::INVALID_OVERRIDE_INT;
                 break;
             case self::INVALID_RULES:
                 $status = self::INVALID_RULES_INT;
@@ -89,7 +81,7 @@ class Status {
             default:
                 $error = 'Invalid participant review status value=' . serialize($statusstring);
                 ia_mu::log($error);
-                throw new \InvalidValueException($error);
+                throw new \InvalidArgumentException($error);
         }
 
         return $status;
@@ -138,21 +130,22 @@ class Status {
      */
     public static function get_invalids(): array {
         return array(
+            self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
             self::INVALID_ID_INT => self::get_status_lang(self::INVALID_ID_INT),
             self::INVALID_RULES_INT => self::get_status_lang(self::INVALID_RULES_INT),
-            self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
         );
     }
 
     /**
-     * Get an array of "override" statuses; key=int representing the status; value=language string representing the status.
+     * Get an array of statuses that may be set to override the IA API result the student got: Invalid or Valid.
+     * This should NOT be used as a sole determinant if a status from the API represents an overriden value since the Valid value is the same either way.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
      * @return array of overridable statuses
      */
     public static function get_overrides(): array {
         return array(
-            self::VALID_OVERRIDE_INT => self::get_status_lang(self::VALID_OVERRIDE_INT),
+            self::VALID_INT => self::get_status_lang(self::VALID_INT),
             self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
         );
     }
@@ -166,7 +159,6 @@ class Status {
     public static function get_valids(): array {
         return array(
             self::VALID_INT => self::get_status_lang(self::VALID_INT),
-            self::VALID_OVERRIDE_INT => self::get_status_lang(self::VALID_OVERRIDE_INT),
         );
     }
 
@@ -175,8 +167,6 @@ class Status {
      *
      * @param int $statusint The integer value to get the string for.
      * @return string The IA status constant representing the integer status
-     * @throws \InvalidArgumentException
-     * @throws \InvalidValueException
      */
     public static function get_status_string(int $statusint): string {
         switch ($statusint) {
@@ -186,14 +176,11 @@ class Status {
             case self::VALID_INT:
                 $status = self::VALID;
                 break;
-            case self::VALID_OVERRIDE_INT:
-                $status = self::VALID_OVERRIDE;
+            case self::INVALID_OVERRIDE_INT:
+                $status = self::INVALID_OVERRIDE;
                 break;
             case self::INVALID_ID_INT:
                 $status = self::INVALID_ID;
-                break;
-            case self::INVALID_OVERRIDE_INT:
-                $status = self::INVALID_OVERRIDE;
                 break;
             case self::INVALID_RULES_INT:
                 $status = self::INVALID_RULES;
@@ -201,7 +188,7 @@ class Status {
             default:
                 $error = 'Invalid participant review status value=' . $statusint;
                 ia_mu::log($error);
-                throw new \InvalidValueException($error);
+                throw new \InvalidArgumentException($error);
         }
 
         return $status;
@@ -212,8 +199,6 @@ class Status {
      *
      * @param int $statusint The integer value to get the string for.
      * @return string The lang string representing the integer status.
-     * @throws \InvalidArgumentException
-     * @throws \InvalidValueException
      */
     public static function get_status_lang(int $statusint): string {
         switch ($statusint) {
@@ -223,14 +208,11 @@ class Status {
             case self::VALID_INT:
                 $status = \get_string('status_valid', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
-            case self::VALID_OVERRIDE_INT:
-                $status = \get_string('status_valid_override', \INTEGRITYADVOCATE_BLOCK_NAME);
+            case self::INVALID_OVERRIDE_INT:
+                $status = \get_string('status_invalid_override', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INVALID_ID_INT:
                 $status = \get_string('status_invalid_id', \INTEGRITYADVOCATE_BLOCK_NAME);
-                break;
-            case self::INVALID_OVERRIDE_INT:
-                $status = \get_string('status_invalid_override', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INVALID_RULES_INT:
                 $status = \get_string('status_invalid_rules', \INTEGRITYADVOCATE_BLOCK_NAME);
@@ -238,17 +220,19 @@ class Status {
             default:
                 $error = __FUNCTION__ . '::Invalid participant review status value=' . $statusint;
                 ia_mu::log($error);
-                throw new \InvalidValueException($error);
+                throw new \InvalidArgumentException($error);
         }
 
         return $status;
     }
 
     /**
-     * Get an array of "override" statuses ; key=int representing the status; value=language string representing the status.
+     * Check if the status is a member of the array of statuses that may be set to override the IA API result the student got: Invalid or Valid.
+     * This should NOT be used as a sole determinant if a status from the API represents an overriden value since the Valid value is the same either way.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
-     *
-     * @return array of "override" statuses, e.g. Valid (Override), Invalid (Override).
+
+     * @param int $statusint The int to check.
+     * @return true if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_override_status(int $statusint): bool {
         return in_array($statusint, array_keys(self::get_overrides()));

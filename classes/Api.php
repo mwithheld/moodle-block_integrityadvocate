@@ -1021,13 +1021,11 @@ class Api {
         $curl->setHeader($header);
         $debug && ia_mu::log($fxn . '::Set $header=' . $header);
 
-        // Our form params and return values are "Valid (Override)" and "Invalid (Override)", but this API method only accepts "Invalid" and "Valid".  So translate them accordingly.
+        // Our form params are "Valid" and "Invalid", but this API method only accepts "Invalid" and "Valid".  So translate them accordingly.
         switch ($status) {
-            case ($status === ia_status::VALID_OVERRIDE_INT):
-                $statusstr = 'Valid';
-                break;
+            case ($status === ia_status::VALID_INT):
             case ($status === ia_status::INVALID_OVERRIDE_INT):
-                $statusstr = 'Invalid';
+                ia_status::get_status_string($status);
                 break;
             default:
                 throw new InvalidArgumentException('The given status could not be translated to a value the API understands');

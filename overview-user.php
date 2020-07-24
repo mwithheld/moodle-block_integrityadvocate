@@ -215,7 +215,7 @@ if (false) {
             // If overridden the overridden status.
             if ($hasoverride) {
                 // If overridden as Valid, add text "(Overridden)".
-                echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus) . ($session->overridestatus === ia_status::VALID_INT ? ' (' . \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME) . ')' : ''), ['class' => "{$prefix}_session_status {$prefix}_session_overridden" . $overrideclass]);
+                echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus) . ' ' . \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status {$prefix}_session_overridden" . $overrideclass]);
             } else {
                 echo \html_writer::tag('td', ia_status::get_status_lang($session->status), ['class' => "{$prefix}_session_status" . $overrideclass]);
             }

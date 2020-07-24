@@ -125,10 +125,9 @@ $string['showallinfo'] = 'Show all info';
 
 $string['status_in_progress'] = 'In progress';
 $string['status_invalid_id'] = 'Invalid (ID)';
-$string['status_invalid_override'] = 'Invalid (Override)';
+$string['status_invalid_override'] = 'Invalid';
 $string['status_invalid_rules'] = 'Invalid (Rules)';
 $string['status_valid'] = 'Valid';
-$string['status_valid_override'] = 'Valid (Override)';
 
 $string['submitted'] = 'Submitted';
 $string['time_expected'] = 'Expected';
@@ -138,6 +137,6 @@ $string['override_reason_label'] = 'Reason for override';
 $string['override_reason_invalid'] = 'Must only contain characters in the range: a-zA-Z0-9._-';
 $string['override_view'] = 'View overrides';
 $string['overridden_date'] = 'Overridden {$a}';
-$string['overridden'] = 'Overridden';
+$string['overridden'] = '(Overridden)';
 $string['viewhide_overrides'] = 'View/Hide overrides';
 

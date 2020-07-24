@@ -91,7 +91,7 @@ class block_integrityadvocate_external extends \external_api {
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'Nonce not found');
                 break;
             case(!ia_status::is_override_status($status)) :
-                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Status={$status} not an overridable value");
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Status={$status} not an value that can be set as an override");
                 break;
             case(ia_u::is_empty($blockinstance_requesting = \block_instance_by_id($blockinstance_requesting_id))) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Blockinstance not found for blockinstanceid={$blockinstance_requesting_id}");
