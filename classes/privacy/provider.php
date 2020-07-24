@@ -176,7 +176,7 @@ class provider implements \core_privacy\local\metadata\provider,
     /**
      * Delete all user data for the specified user, in the specified contexts.
      *
-     * @param   approved_contextlist    $contextlist    The approved contexts and user information to delete information for.
+     * @param   approved_contextlist $contextlist    The approved contexts and user information to delete information for.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         $debug = false;
@@ -374,9 +374,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Translate data into user-readable strings.
         $info->status = \block_integrityadvocate\Status::get_status_lang($participant->status);
-        foreach ($participant->sessions as $s) {
-            $s->status = \block_integrityadvocate\Status::get_status_lang($s->status);
-        }
+        $info->overridestatus = \block_integrityadvocate\Status::get_status_lang($participant->overridestatus);
 
         return (object) (array) $info;
     }
