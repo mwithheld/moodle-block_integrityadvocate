@@ -108,7 +108,7 @@ class Status {
      * Get an array of all statuses; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array of all statuses
+     * @return array of all statuses; [(key=int; val=string)].
      */
     public static function get_statuses(): array {
         // Cache so multiple calls don't repeat the same work.
@@ -282,11 +282,7 @@ class Status {
      * @return true if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
      */
     public static function is_status_int(int $statusint): bool {
-        return in_array(
-                $statusint,
-                array_keys(self::get_statuses()),
-                true
-        );
+        return in_array($statusint, array_keys(self::get_statuses()), true);
     }
 
 }
