@@ -25,6 +25,7 @@
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -118,7 +119,7 @@ class Status {
             return $cachedvalue;
         }
 
-        $statuses = array_merge(self::get_inprogress(), self::get_valids(), self::get_invalids());
+        $statuses = array_replace(self::get_inprogress(), self::get_valids(), self::get_invalids());
 
         if (!$cache->set($cachekey, $statuses)) {
             throw new \Exception('Failed to set value in perrequest cache');
@@ -282,7 +283,13 @@ class Status {
      * @return true if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
      */
     public static function is_status_int(int $statusint): bool {
-        return in_array($statusint, array_keys(self::get_statuses()), true);
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && ia_mu::log($fxn . "::Started with \$statusint={$statusint}");
+        $statusints = self::get_statuses();
+        $debug && ia_mu::log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints));
+
+        return in_array($statusint, $statusints, true);
     }
 
 }
