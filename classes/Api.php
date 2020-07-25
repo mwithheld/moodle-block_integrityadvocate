@@ -174,6 +174,7 @@ class Api {
 
         $responseparsed = json_decode($response);
         $responsedetails = $curl->get_info('http_code');
+        unset($responsedetails['certinfo']);
         $debug && ia_mu::log($fxn .
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
                         '; $responsedetails=' . ($responsedetails ? ia_u::var_dump($responsedetails, true) : '') .
@@ -1060,6 +1061,7 @@ class Api {
 
         $responseparsed = json_decode($response);
         $responsedetails = $curl->get_info('http_code');
+        unset($responsedetails['certinfo']);
         $debug && ia_mu::log($fxn .
                         '::Sent url=' . var_export($requesturi, true) . '; err_no=' . $curl->get_errno() .
                         '; $responsedetails=' . ($responsedetails ? var_export($responsedetails, true) : '') .
