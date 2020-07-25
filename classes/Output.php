@@ -274,7 +274,9 @@ class Output {
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ia_u::is_empty($participant) || !ia_status::is_status_int($participant->status)) {
-            $msg = $fxn . '::Input params are invalid; ' . ia_u::var_dump((func_get_args()));
+            $msg = $fxn . '::Input params are invalid; \$debugvars=' . $debugvars;
+            ia_mu::log($fxn . '::' . $msg);
+            ia_mu::log($fxn . '::ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) . '; ia_u::is_empty($participant)=' . ia_u::is_empty($participant) . '; ia_status::is_status_int($participant->status)=' . ia_status::is_status_int($participant->status));
             throw new \InvalidArgumentException($msg);
         }
 
