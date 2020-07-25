@@ -673,7 +673,8 @@ class MoodleUtility {
      * @return string The cache key.
      */
     public static function get_cache_key(string $key): string {
-        return md5($key);
+        $blockversion = get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
+        return sha1($blockversion . $key);
     }
 
     /**
