@@ -127,9 +127,6 @@ class block_integrityadvocate_external extends \external_api {
             case(!($overrideuser = ia_mu::get_user_as_obj($overrideuserid))) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Overriding user not found for overrideuserid={$overrideuserid}");
                 break;
-            case(!\is_enrolled($coursecontext, $overrideuser, $overridepermission = 'block/integrityadvocate:override', true)) :
-                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course id={$courseid} does not have overrideuserid={$overrideuserid} active with the permission {$overridepermission}");
-                break;
             case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
                 break;
@@ -137,8 +134,11 @@ class block_integrityadvocate_external extends \external_api {
                 // The above line also throws an error if $overrideuserid cannot access the module.
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The target module must have an instance of ' . INTEGRITYADVOCATE_SHORTNAME . ' attached');
                 break;
-            case(!\is_enrolled($cm->context, $targetuser /* Include inactive enrolments. */)) :
+            case(!\is_enrolled(($blockcontext = $cm->context), $targetuser /* Include inactive enrolments. */)) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "The targetuserid={$targetuserid} is not enrolled in the target module cmid={$moduleid}");
+                break;
+            case(!($hascapability_override = \has_capability(($overridepermission = 'block/integrityadvocate:override'), $blockcontext, $overrideuser))):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course id={$courseid} does not have overrideuserid={$overrideuserid} active with the permission {$overridepermission}");
                 break;
         }
         $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
