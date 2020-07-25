@@ -285,9 +285,9 @@ class Output {
      * @return string HTML output showing latest status, flags, and photos
      */
     public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $includephoto = true, bool $showviewdetailsbutton = true, bool $showoverridebutton = false): string {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}; \$participant" . ia_u::var_dump($participant, true);
+        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto} \$participant->participantidentifier" . ia_u::var_dump($participant->participantidentifier, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -361,7 +361,7 @@ class Output {
     public static function get_participant_photo_output(ia_participant $participant): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$participant=" . ia_u::var_dump($participant, true);
+        $debugvars = $fxn . "::Started with \$participant->participantidentifier=" . ia_u::var_dump($participant->participantidentifier, true);
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -400,6 +400,7 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}");
+
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
             $msg = 'Input params are invalid';
@@ -417,7 +418,6 @@ class Output {
         }
 
         $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid);
-        $debug && ia_mu::log($fxn . '::Got $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
 
         if (ia_u::is_empty($participant)) {
             $debug && ia_mu::log($fxn . '::Got empty participant, so return empty result');
