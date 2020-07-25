@@ -44,32 +44,33 @@ class MoodleUtility {
     public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
         $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
+        $debug && self::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
         $records = $DB->get_records('block_instances', $params);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
+        $debug && self::log($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::No instances of block_{$blockname} found");
+            $debug && self::log($fxn . "::No instances of block_{$blockname} found");
             return array();
         }
 
         // Go through each of the block instances and check visibility.
         $blockinstances = array();
         foreach ($records as $r) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $br=' . ia_u::var_dump($r, true));
+            $debug && self::log($fxn . '::Looking at $br=' . ia_u::var_dump($r, true));
 
             // Check if it is visible and get the IA appid from the block instance config.
             $blockinstancevisible = self::get_block_visibility($r->parentcontextid, $r->id);
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Found \$blockinstancevisible={$blockinstancevisible}");
+            $debug && self::log($fxn . "::Found \$blockinstancevisible={$blockinstancevisible}");
 
             if ($visibleonly && !$blockinstancevisible) {
                 continue;
             }
 
             if (isset($blockinstances[$r->id])) {
-                $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
+                $debug && self::log($fxn . "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
                 continue;
             }
 
@@ -108,24 +109,25 @@ class MoodleUtility {
      */
     public static function get_all_course_blocks(int $courseid, string $blockname): array {
         $debug = false;
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && self::log($fxn . '::Started');
 
         $coursecontext = \context_course::instance($courseid, MUST_EXIST);
 
         // Get course-level instances.
         $blockinstances = self::get_blocks_in_context($coursecontext->id, $blockname);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found course level block count=' . count($blockinstances));
+        $debug && self::log($fxn . '::Found course level block count=' . count($blockinstances));
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking at \$c->id={$c->id}; "
+            $debug && self::log($fxn . "::Looking at \$c->id={$c->id}; "
                             . "\$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
             if (intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
                 continue;
             }
 
             $blocksinmodule = self::get_blocks_in_context($c->id, $blockname);
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found module level block count=' . count($blocksinmodule));
+            $debug && self::log($fxn . '::Found module level block count=' . count($blocksinmodule));
             $blockinstances += $blocksinmodule;
         }
 
@@ -450,11 +452,15 @@ class MoodleUtility {
      * @return int the role id that is for student archetype in this course
      */
     public static function get_default_course_role(\context $coursecontext): int {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && self::log($fxn . "::Started with $cmid={$cmid}");
+
         // Sanity check.
         if (ia_u::is_empty($coursecontext) || ($coursecontext->contextlevel !== \CONTEXT_COURSE)) {
             $msg = 'Input params are invalid';
-            self::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$coursecontext->instanceid={$coursecontext->instanceid}");
-            self::log(__CLASS__ . '::' . __FUNCTION__ . '::' . $msg);
+            self::log($fxn . "::Started with \$coursecontext->instanceid={$coursecontext->instanceid}");
+            self::log($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -486,27 +492,28 @@ class MoodleUtility {
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
         $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
+        $debug && self::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
         // If there are multiple blocks in this context just return the first one .
         global $DB;
         $record = $DB->get_record('block_instances', $params, '*', IGNORE_MULTIPLE);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Found blockinstance record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
+        $debug && self::log($fxn . '::Found blockinstance record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::No instance of block_{$blockname} is associated with this context");
+            $debug && self::log($fxn . "::No instance of block_{$blockname} is associated with this context");
             return false;
         }
 
         // Check if it is visible and get the IA appid from the block instance config.
         $record->visible = self::get_block_visibility($modulecontext->id, $record->id);
-        $debug && self::log(__CLASS__ . '::' . __FUNCTION__ .
+        $debug && self::log($fxn .
                         "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$record->id} found \$record->visible={$record->visible}");
 
         if ($visibleonly && !$record->visible) {
-            $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . "::\$visibleonly=true and this instance is not visible so return false");
+            $debug && self::log($fxn . "::\$visibleonly=true and this instance is not visible so return false");
             return false;
         }
 
@@ -586,12 +593,13 @@ class MoodleUtility {
     public static function log(string $message, string $dest = ''): bool {
         global $CFG, $blockintegrityadvocatelogdest;
         $debug = /* Do not make this true except in unusual circumstances */ false;
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $dest=' . $dest . "\n");
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && error_log($fxn . '::Started with $dest=' . $dest . "\n");
 
         if (ia_u::is_empty($dest)) {
             $dest = $blockintegrityadvocatelogdest;
         }
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::After cleanup, $dest=' . $dest . "\n");
+        $debug && error_log($fxn . '::After cleanup, $dest=' . $dest . "\n");
 
         // If the file path is included, strip it.
         $cleanedmsg = str_replace(realpath($CFG->dirroot), '', $message);
