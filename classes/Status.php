@@ -26,6 +26,11 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
+defined('MOODLE_INTERNAL') || die;
+
+/**
+ * Class representing a status value along with helper functions.
+ */
 class Status {
     /*
      * The string constants are the exact strings returned from the remote IA API.
@@ -35,23 +40,35 @@ class Status {
 
     /** @var string String the IA API uses for a proctor session that is started but not yet complete. */
     const INPROGRESS = 'In Progress';
+
+    /** @var int The int value representing this status */
     const INPROGRESS_INT = -1;
 
     /** @var string String the IA API uses for a proctor session that is complete and valid, or overridden as Valid. */
     const VALID = 'Valid';
+
+    /** @var int The int value representing this status */
     const VALID_INT = 0;
 
     /** @var string String the IA API uses for an overridden session status. */
     const INVALID_OVERRIDE = 'Invalid';
+
+    /** @var int The int value representing this status */
     const INVALID_OVERRIDE_INT = 1;
 
     /** @var string String the IA API uses for a proctor session that is complete but the presented ID card is invalid. */
     const INVALID_ID = 'Invalid (ID)';
+
+    /** @var int The int value representing this status */
     const INVALID_ID_INT = 2;
 
-    /** @var string String the IA API uses for a proctor session that is complete but in participating the user broke 1+ rules.
-     * See IA flags for details. */
+    /**
+     * @var string String the IA API uses for a proctor session that is complete but in participating the user broke 1+ rules.
+     * See IA flags for details.
+     */
     const INVALID_RULES = 'Invalid (Rules)';
+
+    /** @var int The int value representing this status */
     const INVALID_RULES_INT = 3;
 
     /**

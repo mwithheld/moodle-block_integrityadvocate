@@ -118,10 +118,10 @@
 .block_integrityadvocate_overview_flags_div {
     border-top: 1px dashed lightgrey;
 }
-.block_integrityadvocate_tableheader{
-    font-weight:bold;
+.block_integrityadvocate_tableheader {
+    font-weight: bold;
 }
-.block_integrityadvocate_tablerow{
+.block_integrityadvocate_tablerow {
     display: table-row;
 }
 .block_integrityadvocate_tablelabel {
@@ -136,7 +136,7 @@
     content: ":";
 }
 .block_integrityadvocate_overview_flag_type {
-    background-color: #DCDCDC;
+    background-color: #dcdcdc;
 }
 .block_integrityadvocate_overview_participant_summary_status .icon {
     font-size: 1.5em;
@@ -147,7 +147,7 @@
 .block_integrityadvocate_plugininfo {
     font-size: 0.5em;
 }
-table.dataTable{
+table.dataTable {
     margin: 0 !important;
 }
 .dataTables_filter {
@@ -162,7 +162,8 @@ td.details-control {
 tr.shown td.details-control {
     background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
 }
-i.block_integrityadvocate_override_edit , i.block_integrityadvocate_overriden_icon {
+i.block_integrityadvocate_override_edit,
+i.block_integrityadvocate_overriden_icon {
     padding-left: 0.5em;
-    cursor:pointer;
+    cursor: pointer;
 }

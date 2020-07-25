@@ -29,9 +29,10 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
- * Use a modified Course Participants table to show IntegrityAdvocate summary data
- * b/c we want all the functionality but slightly different columns.
+ * Use a modified Course Participants table to show IntegrityAdvocate summary data b/c we want all the functionality but slightly different columns.
  */
 class ParticipantsTable extends \core_user\participants_table {
 
@@ -134,7 +135,7 @@ class ParticipantsTable extends \core_user\participants_table {
     /**
      * Populate the user basic output and photo for all users in the course.
      *
-     * @param stdClass $blockinstance Instance of block_integrityadvocate.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      */
     public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
         $debug = true;
@@ -228,7 +229,7 @@ class ParticipantsTable extends \core_user\participants_table {
     }
 
     /**
-     * Get the columns to sort by, in the form required by {@link construct_order_by()}.
+     * Get the columns to sort by, in the form required by.
      * Remove the non-DB IA columns otherwise they throw an error.
      * Do this b/c just adding iadata and iaphoto to $this->column_nosort[] in the contructor didn't work.
      *

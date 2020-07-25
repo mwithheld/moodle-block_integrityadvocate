@@ -26,6 +26,8 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Utility as ia_u;
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Utility functions not specific to this module that interact with Moodle core.
  */
@@ -177,8 +179,8 @@ class MoodleUtility {
     /**
      * Given a context, get array of roles usable in a roles select box.
      *
-     * @param \context $coursecontext
-     * @return array of roles key=roleid; val=role name.
+     * @param \context $coursecontext The course context.
+     * @return [roleid=>role name].
      */
     public static function get_roles_for_select(\context $context): array {
         $debug = false;
@@ -213,10 +215,10 @@ class MoodleUtility {
     }
 
     /**
-     * Returns the modules with completion set in current course
+     * Returns the modules with completion set in current course.
      *
-     * @param int courseid The id of the course
-     * @return array[modules] Modules with completion settings in the course
+     * @param int courseid The id of the course.
+     * @return [module[name=>value]] Modules with completion settings in the course.
      */
     public static function get_modules_with_completion(int $courseid): array {
         $modinfo = \get_fast_modinfo($courseid, -1);
@@ -252,14 +254,14 @@ class MoodleUtility {
     }
 
     /**
-     * Filters modules that a user cannot see due to grouping constraints
+     * Filters modules that a user cannot see due to grouping constraints.
      *
      * @param stdClass $cfg Pass in the Moodle $CFG object.
-     * @param Array $modules The possible modules that can occur for modules
-     * @param int $userid The user's id
-     * @param string $courseid the course for filtering visibility
-     * @param int[] $exclusions Assignment exemptions for students in the course
-     * @return object[] The array without the restricted modules
+     * @param [object] $modules The possible modules that can occur for modules.
+     * @param int $userid The user's id.
+     * @param int $courseid the course for filtering visibility.
+     * @param int[] $exclusions Assignment exemptions for students in the course.
+     * @return [object] The array without the restricted modules.
      */
     public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, $exclusions): array {
         $filteredmodules = array();
@@ -474,13 +476,13 @@ class MoodleUtility {
     }
 
     /**
-     * Get the first block instance matching the shortname in the given context
+     * Get the first block instance matching the shortname in the given context.
      *
      * @param context $modulecontext Context to find the IA block in.
-     * @param context $blockname Block shortname e.g. for block_html it would be html.
+     * @param string $blockname Block shortname e.g. for block_html it would be html.
      * @param bool $visibleonly Return only visible instances.
      * @param bool $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
-     * @return bool false if none found or if no visible instances found; else an instance of block_integrityadvocate.
+     * @return bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
         $debug = false;
@@ -557,9 +559,8 @@ class MoodleUtility {
     /**
      * Get the UNIX timestamp for the last user access to the course.
      *
-     * @param type $courseid The courseid to look in.
+     * @param int $courseid The courseid to look in.
      * @return int User last access unix time.
-     * @throws InvalidArgumentException
      */
     public static function get_course_lastaccess(int $courseid): int {
         $courseidcleaned = filter_var($courseid, FILTER_VALIDATE_INT);
@@ -612,7 +613,7 @@ class MoodleUtility {
             case INTEGRITYADVOCATE_LOGDEST_LOGGLY:
                 if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1])) {
                     $debugbacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
-                } elseif (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
+                } else if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
                     $debugbacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0];
                 }
                 $classorfile = isset($debugbacktrace['class']) ? $debugbacktrace['class'] : '';
@@ -667,6 +668,12 @@ class MoodleUtility {
         return md5($key);
     }
 
+    /**
+     * Clean a tag for use with the Loggly API.
+     *
+     * @param string $key The tag to clean.
+     * @return string The cleaned tag.
+     */
     public static function clean_loggly_tag(string $key): string {
         // Ref https://www-staging.loggly.com/docs/tags/
         // Allow alpha-numeric characters, dash, period, and underscore.
@@ -693,6 +700,12 @@ class MoodleUtility {
         return $SESSION->$sessionkey = time();
     }
 
+    /**
+     * Check the nonce key exists in $SESSION and is not timed out.  Deletes the nonce key.
+     *
+     * @param string $key The Nonce key to check.  This gets cleaned automatically.
+     * @return bool True if the nonce key exists and is not timed out
+     */
     public static function nonce_validate(string $key): bool {
         global $SESSION;
         $debug = false;

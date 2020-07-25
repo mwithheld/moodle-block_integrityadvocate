@@ -88,6 +88,7 @@ const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 /** @var string Optionally used for remote debugging */
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
+/** @var bool Feature control to enable/disable override functionality */
 const INTEGRITYADVOCATE_FEATURE_OVERRIDE = true;
 
 /** @var string Determines where to send error logs * */
@@ -111,14 +112,6 @@ if (version_compare(phpversion(), '7.3.0', '<')) {
         }
 
     }
-}
-
-function block_integrityadvocate_set_override(int $status, string $reason): bool {
-    $debug = false;
-    $fxn = __CLASS__ . '::' . __FUNCTION__;
-    $debug && ia_mu::log($fxn . '::Started with $status=' . ia_u::var_dump($status, true), '; $reason=' . ia_u::var_dump($reason, true));
-
-    return false;
 }
 
 /**

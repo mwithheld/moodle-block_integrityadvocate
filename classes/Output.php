@@ -30,24 +30,24 @@ use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Functions for generating user-visible output.
  */
 class Output {
 
-    const CLASS_TABLE = 'block_integrityadvocate_table';
-    const CLASS_TABLE_HEADER = 'block_integrityadvocate_tableheader';
-    const CLASS_TABLE_ROW = 'block_integrityadvocate_tablerow';
-    const CLASS_TABLE_LABEL = 'block_integrityadvocate_tablelabel';
-    const CLASS_TABLE_VALUE = 'block_integrityadvocate_tablevalue';
+    /** @var string Path to this block JS relative to the moodle root - Requires leading slash but no trailing slash. */
     const BLOCK_JS_PATH = '/blocks/integrityadvocate/js';
+
+    /** @var string HTML linebreak */
     const BRNL = "<br />\n";
 
     /**
-     * Add block.js to the current $blockinstance page.
+     * Add the block's module.js to the current $blockinstance page.
      *
-     * @param stdClass $blockinstance Instance of block_integrityadvocate.
-     * @param stdClass $user Current user object.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param string $proctorjsurl The proctor JS URL.
      * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
      */
     public static function add_block_js(\block_integrityadvocate $blockinstance, string $proctorjsurl): string {
@@ -85,34 +85,9 @@ class Output {
     }
 
     /**
-     * Add overview.js to the current $blockinstance page.
+     * Build proctoring Javascript URL based on user and timestamp.
      *
-     * @param stdClass $blockinstance Instance of block_integrityadvocate.
-     * @param stdClass $user Current user object.
-     * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
-     */
-    public static function add_overview_js(\moodle_page $page): string {
-        $debug = true;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started');
-
-        // Organize access to JS.
-        $jsmodule = array(
-            'name' => INTEGRITYADVOCATE_BLOCK_NAME,
-            'fullpath' => self::BLOCK_JS_PATH . '/overview.js',
-            'requires' => array(),
-            'strings' => array(),
-        );
-
-        $page->requires->jquery_plugin('jquery');
-        $page->requires->js_init_call('M.block_integrityadvocate.overviewinit', null, false, $jsmodule);
-        return '';
-    }
-
-    /**
-     * Build proctoring.js.
-     *
-     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML if error; Also adds the student proctoring JS to the page.
      */
@@ -166,8 +141,8 @@ class Output {
     /**
      * Generate the HTML for a button to view details for all course users.
      *
-     * @param stdClass $blockinstance Instance of block_integrityadvocate.
-     * @return HTML to view user details
+     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @return string HTML button to view user details.
      */
     public static function get_button_course_overview(\block_integrityadvocate $blockinstance): string {
         $debug = false;
@@ -194,9 +169,9 @@ class Output {
     /**
      * Generate the HTML to view details for this user.
      *
-     * @param stdClass $blockinstance Instance of block_integrityadvocate.
-     * @param int $userid The user id
-     * @return HTML to view user details
+     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param int $userid The user id.
+     * @return string HTML button to view user details.
      */
     public static function get_button_userdetails(\block_integrityadvocate $blockinstance, int $userid): string {
         $debug = false;
@@ -247,6 +222,13 @@ class Output {
         return \html_writer::span(\html_writer::link('#', $pixicon, $anchorattributes), "{$nameprefix}_{$name}_span {$nameprefix}_button");
     }
 
+    /**
+     * Get the HTML showing the latest IA status overall.
+     *
+     * @param ia_participant $participant The participant to get the info for.
+     * @param string $prefix CSS prefix to add to the HTML.
+     * @return string HTML showing the latest IA status overall.
+     */
     public static function get_latest_status_html(ia_participant $participant, string $prefix): string {
         $statushtml = '';
         $cssclassval = $prefix . '_status_val ';
@@ -257,11 +239,11 @@ class Output {
             case ia_status::VALID_INT:
                 $statushtml = \html_writer::span(get_string('status_valid', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_valid");
                 break;
-            case ia_status::INVALID_ID_INT:
-                $statushtml = \html_writer::span(\get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_id");
-                break;
             case ia_status::INVALID_OVERRIDE_INT:
                 $statushtml = \html_writer::span(\get_string('status_invalid_override', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_override");
+                break;
+            case ia_status::INVALID_ID_INT:
+                $statushtml = \html_writer::span(\get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_id");
                 break;
             case ia_status::INVALID_RULES_INT:
                 $statushtml = \html_writer::span(\get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_rules");
@@ -278,13 +260,13 @@ class Output {
     /**
      * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
      *
-     * @param stdClass $blockinstance Instance of block_integrityadvocate.
-     * @param stdClass $participant Participant object from the IA API
-     * @param bool $includephoto True to include the user photo
-     * @param bool $showviewdetailsbutton True to show the viewDetails button
-     * @return string HTML output showing latest status, flags, and photos
+     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param ia_participant $participant Participant object from the IA API.
+     * @param bool $includephoto True to include the user photo.
+     * @param bool $showviewdetailsbutton True to show the viewDetails button.
+     * @return string HTML output showing latest participant-level status and photo.
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $includephoto = true, bool $showviewdetailsbutton = true, bool $showoverridebutton = false): string {
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $includephoto = true, bool $showviewdetailsbutton = true): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto} \$participant->participantidentifier" . ia_u::var_dump($participant->participantidentifier, true);
@@ -391,12 +373,12 @@ class Output {
      * Get the user $participant info and return HTML output showing latest status, flags, and photos.
      *
      * @param \block_integrityadvocate $blockinstance Block instance to get participant data for.
-     * @param int $userid Userid to get info for.
+     * @param int $userid User id to get info for.
      * @param bool $includephoto True to include the photo from the Participant info.
      * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
      * @return string HTML output showing latest status, flags, and photos.
      */
-    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $includephoto = true, bool $showviewdetailsbutton = true, $showoverridebutton = false): string {
+    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $includephoto = true, bool $showviewdetailsbutton = true): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}");
@@ -424,7 +406,7 @@ class Output {
             return '';
         }
 
-        return self::get_participant_basic_output($blockinstance, $participant, $includephoto, $showviewdetailsbutton, $showoverridebutton);
+        return self::get_participant_basic_output($blockinstance, $participant, $includephoto, $showviewdetailsbutton);
     }
 
 }

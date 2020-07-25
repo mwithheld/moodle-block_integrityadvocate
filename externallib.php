@@ -30,12 +30,15 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
+/**
+ * Answers AJAX calls for this block.
+ */
 class block_integrityadvocate_external extends \external_api {
 
     /**
      * Describes the parameters for set_override.
      *
-     * @return external_function_parameters
+     * @return external_function_parameters The parameters for set_override.
      */
     public static function set_override_parameters(): \external_function_parameters {
         return new \external_function_parameters(

@@ -31,100 +31,52 @@ defined('MOODLE_INTERNAL') || die;
  */
 class Session {
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Moodle module ID this is attached to. */
     public $activityid;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Count of user clicks. */
     public $clickiamherecount;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Unix timestamp when this was ended. */
     public $end;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Count times user exited fullscreen mode. */
     public $exitfullscreencount;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var string Unique ID for this item. */
     public $id;
 
-    /**
-     *
-     * @var string Base64-encoded image.
-     */
+    /** @var string Base64-encoded image. */
     public $participantphoto;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Unix timestamp when this was started. */
     public $start;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Participant Status value. */
     public $status;
 
-    /**
-     *
-     * @var Participant parent of this session.
-     */
+    /** @var Participant parent of this session. */
     public $participant;
 
-    /**
-     *
-     * @var Flag[]
-     */
+    /** @var Flag[] Array of Flag objects in this session */
     public $flags = array();
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Unix timestamp when this was overridden. */
     public $overridedate = -1;
 
-    /**
-     *
-     * @var string User first name.
-     */
+    /**  @var string User first name. */
     public $overridelmsuserfirstname;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Moodle user id of the overriding user. */
     public $overridelmsuserid;
 
-    /**
-     *
-     * @var string User last name.
-     */
+    /** @var string User last name. */
     public $overridelmsuserlastname;
 
-    /**
-     *
-     * @var string Reason for override.
-     */
+    /** @var string Reason for override. */
     public $overridereason;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int Participant Status value applied by the overrider. */
     public $overridestatus;
 
     /**

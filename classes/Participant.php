@@ -33,23 +33,49 @@ defined('MOODLE_INTERNAL') || die;
  */
 class Participant {
 
-    // Our minimun-supported PHP is 7.2.  PHP < 7.4 does not support typed properties.
+    /** @var int Course ID. */
     public $courseid;
+
+    /** @var int Unix timestamp when this was created. */
     public $created = -1;
     public $email;
     public $firstname;
     public $lastname;
+
+    /** @var int Unix timestamp when this was modified. */
     public $modified = -1;
+
+    /** @var int Unix timestamp when this was overridden. */
     public $overridedate = -1;
+
+    /**  @var string User first name. */
     public $overridelmsuserfirstname;
+
+    /** @var int Moodle user id of the overriding user. */
     public $overridelmsuserid;
+
+    /** @var string User last name. */
     public $overridelmsuserlastname;
+
+    /** @var string Reason for override. */
     public $overridereason;
+
+    /** @var int Participant Status value applied by the overrider. */
     public $overridestatus;
+
+    /** @var int Unique id (Moodle user id) assigned to this participant */
     public $participantidentifier;
+
+    /** @var string Base64-encoded image. */
     public $participantphoto;
+
+    /** @var string URL the user can re-submit their ID to (if ID check failed and IA-side allows it). */
     public $resubmiturl;
+
+    /** @var [Session] Array of session objects attached to this participant */
     public $sessions = array();
+
+    /** @var int Participant Status value. */
     public $status;
 
     /**

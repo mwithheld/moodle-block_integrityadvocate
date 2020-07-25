@@ -36,11 +36,17 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 
+/**
+ * Privacy Subsystem for block_integrityadvocate.
+ */
 class provider implements \core_privacy\local\metadata\provider,
         \core_privacy\local\request\core_userlist_provider,
         \core_privacy\local\request\plugin\provider {
 
+    /** @var string Re-usable name for this medatadata */
     const PRIVACYMETADATA_STR = 'privacy:metadata';
+
+    /** @var str HTML linebreak */
     const BRNL = "<br>\n";
 
     /**
@@ -276,7 +282,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * Get list of unique IA participant and overrider IDs from the remote API.
      *
      * @param \context $blockcontext The IA block context.
-     * @return array List of unique IA participant and overrider IDs from the remote API.
+     * @return [int] Array of unique IA participant Ids and overrider Ids from the remote API.
      */
     public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
         $debug = false;
@@ -313,13 +319,12 @@ class provider implements \core_privacy\local\metadata\provider,
      * Request delete for the IA participants and overriders from the remote API.
      * One request per userid is sent, even if someone is both participant and overrider.
      *
-     * @param array $participants IA Participants associated with the block.
-     * @param array $useridstodelete List of userid to send deletion requests for.
-     * If empty, requests are sent for all participants.
+     * @param context_block $blockcontext The block context.
+     * @param [Participant] $participants IA Participants associated with the block.
+     * @param [int] $useridstodelete List of userid to send deletion requests for. If empty, requests are sent for all participants.
      * @return bool True on success.
      */
-    public static function delete_participants(\context_block $blockcontext, array $participants,
-            array $useridstodelete = array()): bool {
+    public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = array()): bool {
         // Prevent multiple messages for the same user by tracking the IDs we have sent to.
         $participantmessagesent = array();
         $overridemessagesent = array();
@@ -464,6 +469,8 @@ class provider implements \core_privacy\local\metadata\provider,
     /**
      * Email the user data delete request to INTEGRITYADVOCATE_PRIVACY_EMAIL
      *
+     * @param context_block $blockcontext The block context.
+     * @param string $msg Text to add to the email.
      * @return bool True on emailing success; else false.
      */
     private static function send_delete_request(\context_block $blockcontext, string $msg): bool {

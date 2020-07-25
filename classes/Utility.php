@@ -24,6 +24,8 @@
 
 namespace block_integrityadvocate;
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Generic utility functions not specific to Moodle.
  */
@@ -48,11 +50,12 @@ class Utility {
     }
 
     /**
-     * Check if the string is a guid
-     * Requires dashes and removes braces
+     * Check if the string is a guid.
+     * Requires dashes and removes braces.
+     * 
      * @link https://stackoverflow.com/a/1253417
-     * @param String $str
-     * @return true if is a valid guid
+     * @param String $str String to check.
+     * @return bool True if is a valid guid.
      */
     public static function is_guid(string $str): bool {
         return preg_match('/^[a-f\d]{8}-?(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i', $str);

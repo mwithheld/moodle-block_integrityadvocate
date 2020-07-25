@@ -36,8 +36,13 @@ defined('MOODLE_INTERNAL') || die;
  */
 class Api {
 
+    /** @var string URI to close the remote IA session */
     const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
+
+    /** @var string URI to get participant info */
     const ENDPOINT_PARTICIPANT = '/participant';
+
+    /** @var string URI to get course info */
     const ENDPOINT_PARTICIPANTS = '/course';
     // The API returns 10 results max per call by default, but our UI shows 20 users per page.
     // Ref https://integrityadvocate.com/developers.
@@ -46,17 +51,16 @@ class Api {
     // In case of errors, these params limit the recurson to some reasonable maximum.
     // Number of recursion levels max to 1000 students.
     const GET_PARTICIPANTS_RECURSEMAX = 1000 / self::GET_PARTICIPANTS_PERPAGE;
-    // In seconds = 5 minutes.
+
+    /** @var int Consider recursion failed after this time.  In seconds = 5 minutes. */
     const GET_PARTICIPANTS_TIMEOUT = 5 * 60;
 
     /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
      *
-     * @param string $appid IA AppID
      * @param string $appid The AppId to get data for
-     * @param int $userid The userid to close the proctoring session for
-     * @param int $moduleid The module id
      * @param int $courseid The course id
+     * @param int $moduleid The module id
      * @param int $userid The user id
      * @return bool true if the remote API close says it succeeded; else false
      */
@@ -99,7 +103,7 @@ class Api {
      * @param string $endpoint One of the self::ENDPOINT* constants.
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
-     * @param array[string]string $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
+     * @param [string] $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
@@ -300,10 +304,9 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @param type $courseid The course id to get info for.
-     * @param type $userid The user id to get info for.
+     * @param int $courseid The course id to get info for.
+     * @param int $userid The user id to get info for.
      * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
-     * @throws InvalidArgumentException
      */
     private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): \stdClass {
         $debug = false;
@@ -418,9 +421,8 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @return array Empty Array of stdClass of the API curl results which can be parsed into Participant objects.
-     *          For the structure see tests\fixtures\participants*.json.
-     * @throws InvalidArgumentException
+     * @param int $courseid The course id.
+     * @param string The next token to get subsequent results from the API.
      */
     private static function get_participants_data(string $apikey, string $appid, int $courseid, $nexttoken = null): array {
         $debug = false;
@@ -478,6 +480,7 @@ class Api {
      * Build the request signature.
      *
      * @param string $requesturi Full API URI with no querystring.
+     * @param int $requestmethod Request method e.g. GET, POST, PATCH.
      * @param int $requesttimestamp Unix timestamp of the request.
      * @param string $nonce Nonce built like this:
      *      $microtime = explode(' ', microtime());
@@ -969,10 +972,12 @@ class Api {
      * Override the Integrity Advocate ruling for a participant session.
      * Assumes you have validated and cleaned all params.
      *
-     * @param int $status An integer ParticipantStatus value to override the Integrity Advocate ruling: Accepts: 0 or 3
+     * @param string $apikey API key for the block instance.
+     * @param string $appid App ID fot the block instance.
+     * @param int $status An integer Participant Status value to override the Integrity Advocate ruling: Accepts: 0 or 3
      * @param string $reason User-provided reason for this override.
      * @param int $targetuserid The user to update.
-     * @param int $overrideuserid The user doing the overriding.
+     * @param stdClass $overrideuser The user doing the overriding.
      * @param int $courseid The course id.
      * @param int $moduleid The cmid.
      * @return bool True on success (HTTP 200 result).

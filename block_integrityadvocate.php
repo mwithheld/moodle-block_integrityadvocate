@@ -162,6 +162,11 @@ class block_integrityadvocate extends block_base {
         );
     }
 
+    /**
+     * Check of errors in the APIKey and AppId.
+     *
+     * @return [string] Array of error messages from lang file: error_*.
+     */
     private function get_apikey_appid_errors(): array {
         $debug = false;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
@@ -238,7 +243,13 @@ class block_integrityadvocate extends block_base {
         return $errors;
     }
 
-    private function add_proctor_js($user, bool $hidemodulecontent = true) {
+    /**
+     * Add proctoring JS to the page.
+     *
+     * @param StdClass $user Moodle user to get the JS for - the request is encoded for this user.
+     * @param bool $hidemodulecontent True to hide the module content by adding a style tag to the block output.
+     */
+    private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true) {
         $debug = true;
         global $OUTPUT;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Add the proctoring JS');
@@ -438,15 +449,30 @@ class block_integrityadvocate extends block_base {
         $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
     }
 
+    /**
+     * Get the course this block belongs to.
+     *
+     * @return stdClass The $COURSE.
+     */
     public function get_course() {
         global $COURSE;
         return $COURSE;
     }
 
+    /**
+     * Get the current block instance.
+     *
+     * @return block_integrityadvocate Block instance.
+     */
     public function get_instance() {
         return $this->instance;
     }
 
+    /**
+     * Return true if the block is configured to be visible.
+     *
+     * @return bool True if the block is configured to be visible
+     */
     public function is_visible(): bool {
         if (property_exists($this, 'visible') && isset($this->visible) && is_bool($this->visible)) {
             return $this->visible;

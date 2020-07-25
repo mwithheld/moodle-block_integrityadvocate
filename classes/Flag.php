@@ -31,12 +31,25 @@ defined('MOODLE_INTERNAL') || die;
  */
 class Flag {
 
+    /** @var string The data captured */
     public $capturedata;
+
+    /** @var string Date captured */
     public $capturedate = -1;
+
+    /** @var string Comments added to this capture */
     public $comment;
+
+    /** @var int Unix timestamp when this was created. */
     public $created = -1;
+
+    /** @var string IA-assigned code assigned to this flag */
     public $flagtypeid;
+
+    /** @var string IA-assigned name assigned to this flag */
     public $flagtypename;
+
+    /** @var string Unique ID assigned to this flag */
     public $id;
 
 }
