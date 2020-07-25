@@ -265,7 +265,7 @@ class block_integrityadvocate extends block_base {
      * Creates the blocks main content
      */
     public function get_content() {
-        global $USER, $COURSE, $DB, $CFG, $PAGE;
+        global $USER, $COURSE, $DB, $CFG;
         $debug = true;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
@@ -290,7 +290,7 @@ class block_integrityadvocate extends block_base {
             return;
         }
 
-        $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
+        $this->page->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
 
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
         $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
