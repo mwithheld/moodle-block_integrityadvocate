@@ -269,13 +269,12 @@ class Output {
     public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $includephoto = true, bool $showviewdetailsbutton = true): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto} \$participant->participantidentifier" . ia_u::var_dump($participant->participantidentifier, true);
+        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$includephoto={$includephoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ia_u::is_empty($participant) || !ia_status::is_status_int($participant->status)) {
-            $msg = 'Input params are invalid';
-            ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
+            $msg = $fxn . '::Input params are invalid; ' . ia_u::var_dump((func_get_args()));
             throw new \InvalidArgumentException($msg);
         }
 
