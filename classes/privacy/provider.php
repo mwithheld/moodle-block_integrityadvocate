@@ -176,7 +176,7 @@ class provider implements \core_privacy\local\metadata\provider,
     /**
      * Delete all user data for the specified user, in the specified contexts.
      *
-     * @param   approved_contextlist    $contextlist    The approved contexts and user information to delete information for.
+     * @param   approved_contextlist $contextlist    The approved contexts and user information to delete information for.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         $debug = false;
@@ -372,10 +372,20 @@ class provider implements \core_privacy\local\metadata\provider,
         // Remove info set on the remote API side that is not really needed or useful.
         unset($info['resubmiturl']);
 
-        // Translate data into user-readable strings.
+        // Translate data into user-readable strings - first at the participant level.
         $info->status = \block_integrityadvocate\Status::get_status_lang($participant->status);
-        foreach ($participant->sessions as $s) {
+        $info->overridestatus = \block_integrityadvocate\Status::get_status_lang($participant->overridestatus);
+
+        // Translate data into user-readable strings - in each session.
+        foreach ($participant->session as $s) {
             $s->status = \block_integrityadvocate\Status::get_status_lang($s->status);
+            $s->overridestatus = \block_integrityadvocate\Status::get_status_lang($s->overridestatus);
+
+            // Protect privacy of the overrider.
+            unset($info['overridelmsuserfirstname'],
+                    $info['overridelmsuserlastname'],
+                    $info['overridelmsuserid']
+            );
         }
 
         return (object) (array) $info;
