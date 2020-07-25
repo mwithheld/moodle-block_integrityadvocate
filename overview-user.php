@@ -115,7 +115,12 @@ if ($continue) {
         );
         // Add the override reason textbox.
         $PAGE->requires->strings_for_js(array('override_form_label', 'override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
-        $overrideform .= \html_writer::tag('input', '', array('class' => $prefix_overrideform . '_reason', 'name' => $prefix_overrideform . '_reason', 'maxlength' => 32));
+        $overrideform .= \html_writer::tag('input', '',
+                        array('class' => $prefix_overrideform . '_reason',
+                            'name' => $prefix_overrideform . '_reason',
+                            'maxlength' => 32,
+                            'required' => true
+        ));
         // Add hidden fields needed for the AJAX call.
         global $USER;
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));

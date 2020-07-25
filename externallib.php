@@ -63,7 +63,8 @@ class block_integrityadvocate_external extends \external_api {
     public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid, int $blockinstance_requesting_id, int $moduleid): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuserid}, \$blockinstance_requesting_id={$blockinstance_requesting_id}, \$moduleid={$moduleid}");
+        $debugvars = $fxn . "\$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuserid}, \$blockinstance_requesting_id={$blockinstance_requesting_id}, \$moduleid={$moduleid}";
+        $debug && ia_mu::log("::Started with " . $debugvars);
 
         self::validate_parameters(self::set_override_parameters(),
                 [
@@ -137,7 +138,7 @@ class block_integrityadvocate_external extends \external_api {
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "The targetuserid={$targetuserid} is not enrolled in the target module cmid={$moduleid}");
                 break;
         }
-        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . var_export($result['warnings'], true));
+        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             return $result;
@@ -148,12 +149,17 @@ class block_integrityadvocate_external extends \external_api {
         self::validate_context($cm->context);
 
         // Sanitize inputs.
-        $reasoncleaned = substr(preg_replace('/[^a-zA-Z0-9\ .,_-]/', '', clean_param($reason, PARAM_TEXT)), 0, 32);
+        $reasoncleaned = substr(trim(preg_replace('/[^a-zA-Z0-9\ .,_-]/', '', clean_param($reason, PARAM_TEXT))), 0, 32);
+        if (empty($reasoncleaned)) {
+            $reasoncleaned = \get_string('override_reason_none', INTEGRITYADVOCATE_BLOCK_NAME);
+        }
 
         // Do the call to the IA API.
         $result['success'] = ia_api::set_override_session($blockinstance_requesting->config->apikey, $blockinstance_requesting->config->appid, $status, $reasoncleaned, $targetuserid, $overrideuser, $courseid, $moduleid);
         if (!$result['success']) {
-            $result['warnings'] = 'Failed to save the override status';
+            $msg = 'Failed to save the override status';
+            $result['warnings'] = $msg;
+            ia_mu::log($fxn . "::$msg; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 

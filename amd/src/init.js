@@ -27,6 +27,23 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                         // Re-usable reference to the holder of the DataTable.
                         var dt_elt = $('#block_integrityadvocate_participant_table');
 
+                        // Ref https://stackoverflow.com/a/30503848.
+                        function delay_method(label, callback, time) {
+                            if (typeof window.delayed_methods == 'undefined') {
+                                window.delayed_methods = {};
+                            }
+                            delayed_methods[label] = Date.now();
+                            var t = delayed_methods[label];
+                            setTimeout(function () {
+                                if (delayed_methods[label] != t) {
+                                    return;
+                                } else {
+                                    delayed_methods[label] = "";
+                                    callback();
+                                }
+                            }, time || 500);
+                        }
+
                         var build_child_row = function (dataobject) {
                             var childrow = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
                                     '<tr><td>Override time:</td><td>' + dataobject.overridetime + '</td></tr>' +
@@ -115,7 +132,10 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 });
                                 $(this.frm.userinputs).each(function (_, userinput) {
                                     userinput.on('change keyup blur', function (e) {
-                                        self.save_set_status(self.validate_all());
+                                        delay_method('validate_and_toggle_save_button', function () {
+                                            self.save_set_status(self.validate_all());
+                                        }, 600);
+
                                         e.preventDefault();
                                         return false;
                                     });
@@ -156,6 +176,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                                 window.location.reload(true);
                                             },
                                             fail: function (xhr, textStatus, errorThrown) {
+                                                debug && window.console.log('overrideui::save_click::ajax.always');
                                                 console.log('textStatus', textStatus);
                                                 console.log('errorThrown', errorThrown);
                                                 alert(M.str.moodle.unknownerror);
@@ -191,14 +212,15 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
 
                             validate_reason() {
                                 var elt = this.frm.elt_reason;
-                                var val = elt.val();
                                 debug && window.console.log('overrideui::validate_reason::Started with frm=', this.frm);
                                 debug && window.console.log('overrideui::validate_reason::Started with elt=', elt);
+
+                                elt.val(elt.val().trim());
 
                                 // Clear the custom validity message b/c having it there cause checkValidity() to return false.
                                 elt[0].setCustomValidity('');
 
-                                if (val === '' || elt[0].checkValidity()) {
+                                if (elt[0].checkValidity()) {
                                     return true;
                                 } else {
                                     elt[0].setCustomValidity(M.str.block_integrityadvocate.override_reason_invalid);

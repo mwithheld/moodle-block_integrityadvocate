@@ -133,9 +133,10 @@ $string['time_expected'] = 'Expected';
 
 $string['override_form_label'] = 'Override the status';
 $string['override_reason_label'] = 'Reason for override';
-$string['override_reason_invalid'] = 'Must only contain characters in the range: a-zA-Z0-9._-';
+$string['override_reason_invalid'] = 'Required. Must only contain characters in the range: a-zA-Z0-9._-';
 $string['override_view'] = 'View overrides';
 $string['overridden_date'] = 'Overridden {$a}';
 $string['overridden'] = '(Overridden)';
 $string['viewhide_overrides'] = 'View/Hide overrides';
+$string['override_reason_none'] = 'No reason given';
 
