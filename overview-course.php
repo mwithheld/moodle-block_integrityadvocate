@@ -40,7 +40,7 @@ if (empty($courseid) || ia_u::is_empty($course)) {
     throw new \InvalidArgumentException('$courseid and $course are required');
 }
 
-$debug = true;
+$debug = false;
 $debug && ia_mu::log(basename(__FILE__) . '::Started');
 
 \require_capability('block/integrityadvocate:overview', $coursecontext);
