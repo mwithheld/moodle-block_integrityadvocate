@@ -530,11 +530,11 @@ class MoodleUtility {
      * Convert userid to moodle user object into if needed.
      *
      * @param int|stdClass $user The user object or id to convert
-     * @return bool false if no user found; else moodle user object
+     * @return null if no user found; else moodle user object
      * @throws InvalidArgumentException
      */
     public static function get_user_as_obj($user) {
-        $debug = false;
+        $debug = true;
         $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $user=' . ia_u::var_dump($user, true));
 
         if (is_numeric($user)) {

@@ -363,9 +363,9 @@ class block_integrityadvocate extends block_base {
                                 throw new \Exception('That user is not in this course');
                             }
 
-                            // Do not show the participant-level latest status.
+                            // Do not show the latest status.
                             // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
-                            $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid, true, true, false);
+                            $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid);
                         }
 
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
@@ -378,9 +378,9 @@ class block_integrityadvocate extends block_base {
                             throw new \Exception('That user is not in this course');
                         }
 
-                        // Do not show the participant-level latest status.
+                        // Do not show the latest status.
                         // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
-                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, false);
+                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                         break;
                 }
 
@@ -399,7 +399,7 @@ class block_integrityadvocate extends block_base {
                                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
                                 global $scorm;
                                 if (!isset($scorm)) {
-                                    throw new moodle_exception('Failed to find the global $scorm variable');
+                                    throw new \moodle_exception('Failed to find the global $scorm variable');
                                 }
                                 // If this is the entry page for a SCORM "new window" instance, we launch the IA proctoring on the SCORM entry page.
                                 if ($scorm->popup) {
@@ -408,7 +408,7 @@ class block_integrityadvocate extends block_base {
                                     } else {
                                         // The SCORM popup window (mod-scorm-view) does not load any blocks or JS, so we ignore that possibility.
                                         // Other pages should show the overview.
-                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, true);
                                     }
                                 } else {
                                     // Else it is a SCORM "same window" instance.
@@ -417,7 +417,7 @@ class block_integrityadvocate extends block_base {
                                     if ($this->page->pagetype === 'mod-scorm-player') {
                                         $this->add_proctor_js($USER, true);
                                     } else {
-                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, true);
                                     }
                                 }
                                 break;
@@ -429,7 +429,7 @@ class block_integrityadvocate extends block_base {
                                     $this->add_proctor_js($USER);
                                 } else if ($hascapability_selfview) {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see summary info');
-                                    $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                                    $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, true);
                                 }
                                 break;
                             default:
@@ -462,6 +462,16 @@ class block_integrityadvocate extends block_base {
     public function get_course() {
         global $COURSE;
         return $COURSE;
+    }
+
+    /**
+     * Get the block user.
+     *
+     * @return stdClass The $USER.
+     */
+    public function get_user() {
+        global $USER;
+        return $USER;
     }
 
     /**

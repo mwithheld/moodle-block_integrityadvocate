@@ -223,16 +223,19 @@ class Output {
     }
 
     /**
-     * Get the HTML showing the latest IA status overall.
+     * Get the HTML showing the latest IA session status overall for a module.
      *
+     * @param \context $modulecontext The module context to look in.
      * @param ia_participant $participant The participant to get the info for.
      * @param string $prefix CSS prefix to add to the HTML.
      * @return string HTML showing the latest IA status overall.
      */
-    public static function get_latest_status_html(ia_participant $participant, string $prefix): string {
+    public static function get_latest_status_html(\context $modulecontext, int $userid, string $prefix): string {
         $statushtml = '';
         $cssclassval = $prefix . '_status_val ';
-        switch ($participant->status) {
+        $status = ia_api::get_module_status($modulecontext, $userid);
+
+        switch ($status) {
             case ia_status::INPROGRESS_INT:
                 $statushtml = \html_writer::span(\get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_inprogress");
                 break;
@@ -249,7 +252,7 @@ class Output {
                 $statushtml = \html_writer::span(\get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_rules");
                 break;
             default:
-                $error = 'Invalid participant status value=' . serialize($participant->status);
+                $error = 'Invalid participant status value=' . serialize($status);
                 ia_mu::log($error);
                 throw new \InvalidArgumentException($error);
         }
@@ -264,12 +267,13 @@ class Output {
      * @param ia_participant $participant Participant object from the IA API.
      * @param bool $showphoto True to include the user photo.
      * @param bool $showviewdetailsbutton True to show the viewDetails button.
+     * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output showing latest participant-level status and photo.
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true): string {
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}; \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
+        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -283,7 +287,6 @@ class Output {
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
-        $resubmithtml = '';
 
         if ($participant->status === ia_status::INVALID_ID_INT) {
             // The user is allowed to re-submit their identity stuff, so build a link to show later.
@@ -296,15 +299,13 @@ class Output {
             }
         }
 
-        if ($showstatus) {
+        if ($showstatus && ($blockcontext = $blockinstance->context) && ($modulecontext = $blockcontext->get_parent_context()) && ($modulecontext->contextlevel == CONTEXT_MODULE)) {
             $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
                     \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                    self::get_latest_status_html($participant, $prefix) .
+                    self::get_latest_status_html($modulecontext, $blockinstance->get_user()->id, $prefix) .
                     \html_writer::end_tag('div');
         }
-        if ($resubmithtml) {
-            $out .= \html_writer::div($resubmithtml, $prefix . '_overview_participant_summary_resubmit');
-        }
+
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_start')) .
                 \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                 date('Y-m-d H:i', $participant->created) .
@@ -378,12 +379,13 @@ class Output {
      * @param int $userid User id to get info for.
      * @param bool $showphoto True to include the photo from the Participant info.
      * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
+     * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output showing latest status, flags, and photos.
      */
-    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true): string {
+    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}");
+        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
