@@ -26,7 +26,6 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
-use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -44,7 +43,7 @@ if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext
 }
 
 $userid = \required_param('userid', PARAM_INT);
-$debug = true;
+$debug = false;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockinstance->context->get_parent_context();
