@@ -60,7 +60,7 @@ class block_integrityadvocate extends block_base {
      * @return boolean
      */
     public function instance_create() {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
 
@@ -250,7 +250,7 @@ class block_integrityadvocate extends block_base {
      * @param bool $hidemodulecontent True to hide the module content by adding a style tag to the block output.
      */
     private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true) {
-        $debug = true;
+        $debug = false;
         global $OUTPUT;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Add the proctoring JS');
 
@@ -352,6 +352,7 @@ class block_integrityadvocate extends block_base {
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
                 switch (true) {
                     case $hascapability_overview:
+                        // When viewing a course student profile, show latest student info.
                         if (stripos($this->page->url, '/user/view.php?') > 0) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
@@ -362,7 +363,9 @@ class block_integrityadvocate extends block_base {
                                 throw new \Exception('That user is not in this course');
                             }
 
-                            $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid);
+                            // Do not show the participant-level latest status.
+                            // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
+                            $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid, true, true, false);
                         }
 
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
@@ -375,7 +378,9 @@ class block_integrityadvocate extends block_base {
                             throw new \Exception('That user is not in this course');
                         }
 
-                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                        // Do not show the participant-level latest status.
+                        // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
+                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, false);
                         break;
                 }
 

@@ -262,14 +262,14 @@ class Output {
      *
      * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param ia_participant $participant Participant object from the IA API.
-     * @param bool $includephoto True to include the user photo.
+     * @param bool $showphoto True to include the user photo.
      * @param bool $showviewdetailsbutton True to show the viewDetails button.
      * @return string HTML output showing latest participant-level status and photo.
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $includephoto = true, bool $showviewdetailsbutton = true): string {
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true): string {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$includephoto={$includephoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
+        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}; \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -284,7 +284,6 @@ class Output {
         $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
         $resubmithtml = '';
-        $statushtml = self::get_latest_status_html($participant, $prefix);
 
         if ($participant->status === ia_status::INVALID_ID_INT) {
             // The user is allowed to re-submit their identity stuff, so build a link to show later.
@@ -297,10 +296,12 @@ class Output {
             }
         }
 
-        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
-                \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                $statushtml .
-                \html_writer::end_tag('div');
+        if ($showstatus) {
+            $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
+                    \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
+                    self::get_latest_status_html($participant, $prefix) .
+                    \html_writer::end_tag('div');
+        }
         if ($resubmithtml) {
             $out .= \html_writer::div($resubmithtml, $prefix . '_overview_participant_summary_resubmit');
         }
@@ -321,8 +322,8 @@ class Output {
         // Close .block_integrityadvocate_overview_participant_summary_text.
         $out .= \html_writer::end_tag('div');
 
-        $debug && ia_mu::log($fxn . '::About to check if should include photo; $include_photo=' . $includephoto);
-        if ($includephoto) {
+        $debug && ia_mu::log($fxn . '::About to check if should include photo; $include_photo=' . $showphoto);
+        if ($showphoto) {
             $out .= self::get_participant_photo_output($participant);
         }
 
@@ -375,14 +376,14 @@ class Output {
      *
      * @param \block_integrityadvocate $blockinstance Block instance to get participant data for.
      * @param int $userid User id to get info for.
-     * @param bool $includephoto True to include the photo from the Participant info.
+     * @param bool $showphoto True to include the photo from the Participant info.
      * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
      * @return string HTML output showing latest status, flags, and photos.
      */
-    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $includephoto = true, bool $showviewdetailsbutton = true): string {
-        $debug = false;
+    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true): string {
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$includephoto={$includephoto}");
+        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}");
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
@@ -391,15 +392,7 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        // If the block is not configured yet, simply return empty result.
-        if ($configerrors = $blockinstance->get_config_errors()) {
-            // No visible IA block found with valid config, so skip any output.
-            if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
-                echo implode("<br />\n", $configerrors);
-            }
-            return '';
-        }
-
+        // Get the Participant info for the Moodle user.
         $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid);
 
         if (ia_u::is_empty($participant)) {
@@ -407,7 +400,7 @@ class Output {
             return '';
         }
 
-        return self::get_participant_basic_output($blockinstance, $participant, $includephoto, $showviewdetailsbutton);
+        return self::get_participant_basic_output($blockinstance, $participant, $showphoto, $showviewdetailsbutton, $showstatus);
     }
 
 }
