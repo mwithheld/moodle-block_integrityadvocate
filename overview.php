@@ -62,7 +62,7 @@ $perpage = \optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many
 // Determine course and context.
 $course = \get_course($courseid);
 if (ia_u::is_empty($course)) {
-    throw new InvalidArgumentException('Invalid $courseid specified');
+    throw new \InvalidArgumentException('Invalid $courseid specified');
 }
 $coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST);
 

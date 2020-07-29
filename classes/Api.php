@@ -184,7 +184,7 @@ class Api {
         if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
             $msg = 'Error: json_decode found no results: ' . json_last_error_msg();
             $debug && ia_mu::log($fxn . '::' . $msg);
-            throw new Exception('Failed to json_decode: ' . $msg);
+            throw new \Exception('Failed to json_decode: ' . $msg);
         }
 
         if (!$cache->set($cachekey, $responseparsed)) {

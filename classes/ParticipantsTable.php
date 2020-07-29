@@ -193,7 +193,7 @@ class ParticipantsTable extends \core_user\participants_table {
 
                 $responseparsed = json_decode($response->getBody());
                 if (ia_u::is_empty($responseparsed) && json_last_error() === JSON_ERROR_NONE) {
-                    throw new Exception('Failed to json_decode');
+                    throw new \Exception('Failed to json_decode');
                 }
                 $debug && ia_mu::log($fxn . '::After json_decode, got $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
