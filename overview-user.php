@@ -249,7 +249,11 @@ if ($continue) {
             // Column=session_overridestatus - show the *original* status.
             echo \html_writer::tag('td', ($hasoverride ? ia_status::get_status_lang($session->status) : ''), ['class' => "{$prefix}_session_overridestatus"]);
             // Column=session_overridename.
-            $overrideusername = isset($session->overridelmsuserid) ? $OUTPUT->user_picture(ia_mu::get_user_as_obj($session->overridelmsuserid), ['size' => 35, 'courseid' => $courseid, 'includefullname' => true]) : '';
+            if (isset($session->overridelmsuserid) && ($overrideuser = ia_mu::get_user_as_obj($session->overridelmsuserid))) {
+                $overrideusername = $OUTPUT->user_picture($overrideuser, ['size' => 35, 'courseid' => $courseid, 'includefullname' => true]);
+            } else {
+                $overrideusername = '';
+            }
             echo \html_writer::tag('td', ($hasoverride ? $overrideusername : ''), ['class' => "{$prefix}_session_overridename"]);
             // Column=session_overridereason.
             echo \html_writer::tag('td', ($hasoverride ? htmlspecialchars($session->overridereason) : ''), ['class' => "{$prefix}_session_overridereason"]);
