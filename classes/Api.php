@@ -585,7 +585,7 @@ class Api {
      * @return int A Status status constant _INT value.
      * @throws \InvalidArgumentException
      */
-    public static function get_status_in_module(\context $modulecontext, int $userid): int {
+    public static function get_module_status(\context $modulecontext, int $userid): int {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
@@ -634,7 +634,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        return self::get_status_in_module($modulecontext, $userid) === ia_status::INPROGRESS;
+        return self::get_module_status($modulecontext, $userid) === ia_status::INPROGRESS;
     }
 
     /**
@@ -659,7 +659,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        $statusinmodule = self::get_status_in_module($modulecontext, $userid);
+        $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && ia_mu::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
         $isstatusvalid = ia_status::is_invalid_status(intval($statusinmodule));
 
@@ -688,7 +688,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        $statusinmodule = self::get_status_in_module($modulecontext, $userid);
+        $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && ia_mu::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
         $isstatusvalid = ia_status::is_valid_status(intval($statusinmodule));
 
