@@ -52,7 +52,7 @@ class Utility {
     /**
      * Check if the string is a guid.
      * Requires dashes and removes braces.
-     * 
+     *
      * @link https://stackoverflow.com/a/1253417
      * @param String $str String to check.
      * @return bool True if is a valid guid.
