@@ -760,7 +760,7 @@ class Api {
             return array();
         }
 
-        // Cache so multiple calls don't repeat the same work.
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
         if ($cachedvalue = $cache->get($cachekey)) {
@@ -867,7 +867,7 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Minimally-required fields found');
 
-        // Cache so multiple calls don't repeat the same work.
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
         if ($cachedvalue = $cache->get($cachekey)) {
