@@ -224,6 +224,7 @@ class Output {
 
     /**
      * Get the HTML showing the latest IA session status overall for a module.
+     * If there is a resubmiturl in the session data and the session is not overridden, output that link HTML.
      *
      * @param \context $modulecontext The module context to look in.
      * @param ia_participant $participant The participant to get the info for.
@@ -231,6 +232,9 @@ class Output {
      * @return string HTML showing the latest IA status overall.
      */
     public static function get_latest_status_html(\context $modulecontext, int $userid, string $prefix): string {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+
         $statushtml = '';
         $cssclassval = $prefix . '_status_val ';
         $status = ia_api::get_module_status($modulecontext, $userid);
@@ -255,6 +259,17 @@ class Output {
                 $error = 'Invalid participant status value=' . serialize($status);
                 ia_mu::log($error);
                 throw new \InvalidArgumentException($error);
+        }
+
+        if ($status == ia_status::INVALID_ID_INT) {
+            $latestsession = self::get_module_session_latest($modulecontext, $userid);
+            if (!ia_u::is_empty($latestsession) && !$latestsession->has_override() && $latestsession->resubmiturl) {
+                // The user is allowed to re-submit their identity stuff, so build a link to show.
+                $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $latestsession->resubmiturl);
+                $statushtml .= \html_writer::span(
+                                format_text(\html_writer::link($latestsession->resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')), FORMAT_HTML),
+                                $prefix . '_resubmit_link');
+            }
         }
 
         return $statushtml;
@@ -289,17 +304,6 @@ class Output {
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
 
         if ($showstatus && ($blockcontext = $blockinstance->context) && ($modulecontext = $blockcontext->get_parent_context()) && ($modulecontext->contextlevel == CONTEXT_MODULE)) {
-            if ($participant->status === ia_status::INVALID_ID_INT) {
-                // The user is allowed to re-submit their identity stuff, so build a link to show later.
-                $resubmiturl = $participant->resubmiturl ? $participant->resubmiturl : '';
-                $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $resubmiturl);
-                if ($resubmiturl) {
-                    $out .= \html_writer::span(
-                                    format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')), FORMAT_HTML),
-                                    $prefix . '_resubmit_link');
-                }
-            }
-
             $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
                     \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                     self::get_latest_status_html($modulecontext, $blockinstance->get_user()->id, $prefix) .
