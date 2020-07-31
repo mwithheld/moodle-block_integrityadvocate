@@ -232,13 +232,15 @@ class Output {
      * @return string HTML showing the latest IA status overall.
      */
     public static function get_latest_status_html(\context $modulecontext, int $userid, string $prefix): string {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$modulecontext->instanceid=" . $modulecontext->instanceid . "; \$userid={$userid}; \$prefix={$prefix}";
+        $debug && ia_mu::log($debugvars);
 
         $statushtml = '';
         $cssclassval = $prefix . '_status_val ';
         $status = ia_api::get_module_status($modulecontext, $userid);
-
+        $debug && ia_mu::log($fxn . '::Got status=' . $status);
         switch ($status) {
             case ia_status::INPROGRESS_INT:
                 $statushtml = \html_writer::span(\get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_inprogress");
