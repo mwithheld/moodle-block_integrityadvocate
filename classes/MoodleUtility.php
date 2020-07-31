@@ -410,8 +410,23 @@ class MoodleUtility {
      * @throws InvalidArgumentException
      */
     public static function get_course_as_obj($course) {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+
         if (is_numeric($course)) {
+            // Cache so multiple calls don't repeat the same work.
+            $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+            $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $course);
+            if ($cachedvalue = $cache->get($cachekey)) {
+                $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+                return $cachedvalue;
+            }
+
             $course = \get_course(intval($course));
+
+            if (!$cache->set($cachekey, $course)) {
+                throw new \Exception('Failed to set value in perrequest cache');
+            }
         }
         if (ia_u::is_empty($course)) {
             return false;
@@ -498,6 +513,14 @@ class MoodleUtility {
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
         $debug && self::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $modulecontext->instanceid . $blockname . (int) $visibleonly . (int) $rownotinstance);
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
         // If there are multiple blocks in this context just return the first one .
         global $DB;
         $record = $DB->get_record('block_instances', $params, '*', IGNORE_MULTIPLE);
@@ -515,6 +538,10 @@ class MoodleUtility {
         if ($visibleonly && !$record->visible) {
             $debug && self::log($fxn . "::\$visibleonly=true and this instance is not visible so return false");
             return false;
+        }
+
+        if (!$cache->set($cachekey, $record)) {
+            throw new \Exception('Failed to set value in perrequest cache');
         }
 
         if ($rownotinstance) {
@@ -537,12 +564,25 @@ class MoodleUtility {
         $debug = false;
         $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $user=' . ia_u::var_dump($user, true));
 
+
         if (is_numeric($user)) {
+            // Cache so multiple calls don't repeat the same work.
+            $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+            $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $modulecontext->instanceid . $blockname . (int) $visibleonly . (int) $rownotinstance);
+            if ($cachedvalue = $cache->get($cachekey)) {
+                $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+                return $cachedvalue;
+            }
+
             $userarr = user_get_users_by_id(array(intval($user)));
             if (empty($userarr)) {
                 return false;
             }
             $user = array_pop($userarr);
+
+            if (!$cache->set($cachekey, $user)) {
+                throw new \Exception('Failed to set value in perrequest cache');
+            }
         }
         if (gettype($user) != 'object') {
             throw new \InvalidArgumentException('$user should be of type stdClass; got ' . gettype($user));
