@@ -534,7 +534,7 @@ class MoodleUtility {
      * @throws InvalidArgumentException
      */
     public static function get_user_as_obj($user) {
-        $debug = true;
+        $debug = false;
         $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $user=' . ia_u::var_dump($user, true));
 
         if (is_numeric($user)) {
