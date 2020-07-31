@@ -288,18 +288,18 @@ class Output {
         $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
 
-        if ($participant->status === ia_status::INVALID_ID_INT) {
-            // The user is allowed to re-submit their identity stuff, so build a link to show later.
-            $resubmiturl = $participant->resubmiturl ? $participant->resubmiturl : '';
-            $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $resubmiturl);
-            if ($resubmiturl) {
-                $out .= \html_writer::span(
-                                format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')), FORMAT_HTML),
-                                $prefix . '_resubmit_link');
-            }
-        }
-
         if ($showstatus && ($blockcontext = $blockinstance->context) && ($modulecontext = $blockcontext->get_parent_context()) && ($modulecontext->contextlevel == CONTEXT_MODULE)) {
+            if ($participant->status === ia_status::INVALID_ID_INT) {
+                // The user is allowed to re-submit their identity stuff, so build a link to show later.
+                $resubmiturl = $participant->resubmiturl ? $participant->resubmiturl : '';
+                $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $resubmiturl);
+                if ($resubmiturl) {
+                    $out .= \html_writer::span(
+                                    format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')), FORMAT_HTML),
+                                    $prefix . '_resubmit_link');
+                }
+            }
+
             $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
                     \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                     self::get_latest_status_html($modulecontext, $blockinstance->get_user()->id, $prefix) .
@@ -374,6 +374,7 @@ class Output {
 
     /**
      * Get the user $participant info and return HTML output showing latest status, flags, and photos.
+     * After getting the participant data for the userid, this is just a wrapper around get_participant_basic_output()
      *
      * @param \block_integrityadvocate $blockinstance Block instance to get participant data for.
      * @param int $userid User id to get info for.
