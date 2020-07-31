@@ -416,9 +416,9 @@ class MoodleUtility {
         if (is_numeric($course)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-            $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $course);
+            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($course, JSON_PARTIAL_OUTPUT_ON_ERROR)));
             if ($cachedvalue = $cache->get($cachekey)) {
-                $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+                $debug && self::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
 
@@ -503,7 +503,7 @@ class MoodleUtility {
      * @param string $blockname Block shortname e.g. for block_html it would be html.
      * @param bool $visibleonly Return only visible instances.
      * @param bool $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
-     * @return bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
+     * @return mixed bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
         $debug = false;
@@ -513,15 +513,10 @@ class MoodleUtility {
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
         $debug && self::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
-        // Cache so multiple calls don't repeat the same work.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $modulecontext->instanceid . $blockname . (int) $visibleonly . (int) $rownotinstance);
-        if ($cachedvalue = $cache->get($cachekey)) {
-            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
-            return $cachedvalue;
-        }
-
-        // If there are multiple blocks in this context just return the first one .
+        // Danger: Caching the resulting $record in the perrequest cache didn't work - we get an invalid stdClass back out.
+        //
+        //
+        // If there are multiple blocks in this context just return the first one.
         global $DB;
         $record = $DB->get_record('block_instances', $params, '*', IGNORE_MULTIPLE);
         $debug && self::log($fxn . '::Found blockinstance record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
@@ -538,10 +533,6 @@ class MoodleUtility {
         if ($visibleonly && !$record->visible) {
             $debug && self::log($fxn . "::\$visibleonly=true and this instance is not visible so return false");
             return false;
-        }
-
-        if (!$cache->set($cachekey, $record)) {
-            throw new \Exception('Failed to set value in perrequest cache');
         }
 
         if ($rownotinstance) {
@@ -568,9 +559,9 @@ class MoodleUtility {
         if (is_numeric($user)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-            $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $modulecontext->instanceid . $blockname . (int) $visibleonly . (int) $rownotinstance);
+            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR)));
             if ($cachedvalue = $cache->get($cachekey)) {
-                $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+                $debug && self::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
 
