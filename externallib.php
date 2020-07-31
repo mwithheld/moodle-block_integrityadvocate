@@ -141,7 +141,7 @@ class block_integrityadvocate_external extends \external_api {
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course id={$courseid} does not have overrideuserid={$overrideuserid} active with the permission {$overridepermission}");
                 break;
         }
-        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
+        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             return $result;
@@ -166,7 +166,7 @@ class block_integrityadvocate_external extends \external_api {
         }
         $result['submitted'] = true;
 
-        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result));
+        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 

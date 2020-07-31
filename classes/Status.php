@@ -287,7 +287,7 @@ class Status {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . "::Started with \$statusint={$statusint}");
         $statusints = array_keys(self::get_statuses());
-        $debug && ia_mu::log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints));
+        $debug && ia_mu::log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
 
         $returnthis = in_array($statusint, $statusints, true);
         $debug && ia_mu::log($fxn . "::About to return \$returnthis=$returnthis");
