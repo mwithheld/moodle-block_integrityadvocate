@@ -225,7 +225,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function get_module_user_sessions(\context $modulecontext, int $userid): array {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -241,18 +241,20 @@ class Api {
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
 
         // If the block is not configured yet, simply return empty result.
-        if (!isset($blockinstance->config->apikey) || empty($blockinstance->config->apikey) || !isset($blockinstance->config->appid) || empty($blockinstance->config->appid)) {
+        if (ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_config_errors())) {
+            ia_mu::log($fxn . '::The blockinstance has config errors, so return empty array');
             return array();
         }
 
         $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $userid);
-
         if (!isset($participantcoursedata->sessions) || empty($participantcoursedata->sessions)) {
+            ia_mu::log($fxn . '::Found no sessions in $participantcoursedata');
             return array();
         }
 
         $moduleusersessions = array();
         foreach ($participantcoursedata->sessions as $s) {
+            ia_mu::log($fxn . '::Checking if $s->activityid != $modulecontext->instanceid=' . ($s->activityid != $modulecontext->instanceid));
             if ($s->activityid != $modulecontext->instanceid) {
                 continue;
             }
@@ -537,7 +539,7 @@ class Api {
      * @throws \InvalidArgumentException
      */
     public static function get_module_session_latest(\context $modulecontext, int $userid) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -602,6 +604,7 @@ class Api {
         $notfoundval = ia_status::INPROGRESS_INT;
 
         $latestsession = self::get_module_session_latest($modulecontext, $userid);
+        ia_mu::log($fxn . '::Got $latestsession=' . ia_u::var_dump($latestsession, true));
         if (ia_u::is_empty($latestsession)) {
             $debug && ia_mu::log($fxn . "::The latest session for userid={$userid} was not found");
             return $notfoundval;
@@ -1122,14 +1125,16 @@ class Api {
 
         // Check each of the param types matches what is specified in $validparams[] for that param.
         // Throws an exception if there is a mismatch.
-        try {
-            foreach ($params as $argname => $argval) {
-                \validate_param($argval, $validparams[$argname]);
+
+        foreach ($params as $argname => $argval) {
+            try {
+
+            } catch (\invalid_parameter_exception $e) {
+                // Log a more useful message than Moodle gives us, then just throw it again.
+                ia_mu::log($fxn . '::The param is valid but the type is wrong for param=' . $argname . '; $argval=' . ia_u::var_dump($argval, true));
+                throw $e;
             }
-        } catch (\invalid_parameter_exception $e) {
-            // Log a more useful message than Moodle gives us, then just throw it again.
-            ia_mu::log($fxn . '::The param is valid but the type is wrong for param=' . $argname . '; $argval=' . ia_u::var_dump($argval, true));
-            throw $e;
+            \validate_param($argval, $validparams[$argname]);
         }
 
         // Everything is valid.
