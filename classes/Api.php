@@ -819,6 +819,12 @@ class Api {
             isset($input->Override_Reason) && ($session->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
         }
 
+        // Clean URL fields.
+        if (true) {
+            isset($input->ResubmitUrl) && ($session->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
+        }
+        $debug && ia_mu::log($fxn . '::Done url fields');
+
         // This field is a data uri ref https://css-tricks.com/data-uris/.
         $matches = array();
         if (isset($input->Participant_Photo) && preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)) {
@@ -917,10 +923,15 @@ class Api {
 
         // Clean URL fields.
         if (true) {
-            isset($input->Participant_Photo) && ($participant->participantphoto = filter_var($input->Participant_Photo, FILTER_SANITIZE_URL));
             isset($input->ResubmitUrl) && ($participant->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
         }
         $debug && ia_mu::log($fxn . '::Done url fields');
+
+        // This field is a data uri ref https://css-tricks.com/data-uris/.
+        $matches = array();
+        if (isset($input->Participant_Photo) && preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)) {
+            $session->participantphoto = $matches[0];
+        }
 
         // Clean status vs allowlist.
         if (isset($input->Status)) {

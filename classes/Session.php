@@ -46,8 +46,29 @@ class Session {
     /** @var string Unique ID for this item. */
     public $id;
 
+    /** @var int Unix timestamp when this was overridden. */
+    public $overridedate = -1;
+
+    /**  @var string Override user first name. */
+    public $overridelmsuserfirstname;
+
+    /** @var int Moodle user id of the overriding user. */
+    public $overridelmsuserid;
+
+    /** @var string Override user last name. */
+    public $overridelmsuserlastname;
+
+    /** @var string Reason for override. */
+    public $overridereason;
+
+    /** @var int Participant Status value applied by the overrider. */
+    public $overridestatus;
+
     /** @var string Base64-encoded image. */
     public $participantphoto;
+
+    /** @var string URL the user can re-submit their ID to (if ID check failed and IA-side allows it). */
+    public $resubmiturl;
 
     /** @var int Unix timestamp when this was started. */
     public $start;
@@ -60,24 +81,6 @@ class Session {
 
     /** @var Flag[] Array of Flag objects in this session */
     public $flags = array();
-
-    /** @var int Unix timestamp when this was overridden. */
-    public $overridedate = -1;
-
-    /**  @var string User first name. */
-    public $overridelmsuserfirstname;
-
-    /** @var int Moodle user id of the overriding user. */
-    public $overridelmsuserid;
-
-    /** @var string User last name. */
-    public $overridelmsuserlastname;
-
-    /** @var string Reason for override. */
-    public $overridereason;
-
-    /** @var int Participant Status value applied by the overrider. */
-    public $overridestatus;
 
     /**
      * Return true if the session is overridden.
