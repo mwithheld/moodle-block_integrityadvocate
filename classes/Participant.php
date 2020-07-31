@@ -38,8 +38,14 @@ class Participant {
 
     /** @var int Unix timestamp when this was created. */
     public $created = -1;
+
+    /** @var string The user email */
     public $email;
+
+    /** @var string The user firstname */
     public $firstname;
+
+    /** @var string The user lastname */
     public $lastname;
 
     /** @var int Unix timestamp when this was modified. */
@@ -48,13 +54,13 @@ class Participant {
     /** @var int Unix timestamp when this was overridden. */
     public $overridedate = -1;
 
-    /**  @var string User first name. */
+    /**  @var string Override user first name. */
     public $overridelmsuserfirstname;
 
     /** @var int Moodle user id of the overriding user. */
     public $overridelmsuserid;
 
-    /** @var string User last name. */
+    /** @var string Override user last name. */
     public $overridelmsuserlastname;
 
     /** @var string Reason for override. */
