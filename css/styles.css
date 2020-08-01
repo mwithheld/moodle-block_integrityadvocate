@@ -52,7 +52,8 @@
     margin-left: 0.5em;
 }
 .block_integrityadvocate_overview_participant_summary_status,
-.block_integrityadvocate_overview_participant_summary_start {
+.block_integrityadvocate_overview_participant_summary_start,
+.block_integrityadvocate_resubmit_link {
     margin-bottom: 5px;
     display: block;
 }
