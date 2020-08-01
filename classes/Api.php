@@ -135,7 +135,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1($endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
 
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
@@ -612,6 +612,7 @@ class Api {
 
         $status = $latestsession->get_status();
         $debug && ia_mu::log("About to return \$latestsession->status={$status}");
+
         return $status;
     }
 
@@ -753,7 +754,7 @@ class Api {
      * @return Session Null if failed to parse, otherwise a parsed Session object.
      */
     private static function parse_session(\stdClass $input, Participant $participant) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
@@ -765,7 +766,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -793,6 +794,7 @@ class Api {
         if (isset($input->Override_Status) && !empty($input->Override_Status)) {
             $session->overridestatus = ia_status::parse_status_string($input->Override_Status);
         }
+        $debug && ia_mu::log($fxn . '::Got status=' . $session->status . ' overridestatus=' . $session->overridestatus);
 
         // Clean int fields.
         if (true) {
@@ -876,9 +878,9 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Minimally-required fields found');
 
-        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+        // Cache so multiple calls don't repeat the same work. This cache should not be persession.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -930,7 +932,7 @@ class Api {
         // This field is a data uri ref https://css-tricks.com/data-uris/.
         $matches = array();
         if (isset($input->Participant_Photo) && preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)) {
-            $session->participantphoto = $matches[0];
+            $participant->participantphoto = $matches[0];
         }
 
         // Clean status vs allowlist.
