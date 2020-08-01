@@ -190,7 +190,7 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with \$context->id={$context->id}");
 
         // Cache so multiple calls don't repeat the same work.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
@@ -371,7 +371,7 @@ class MoodleUtility {
         $debug && self::log($fxn . "::Started with $cmid={$cmid}");
 
         // Cache so multiple calls don't repeat the same work.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cache = \cache::make('block_integrityadvocate', 'perrequest');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
         $debug && self::log($fxn . "::Built cachekey={$cachekey}");
         if ($cachedvalue = $cache->get($cachekey)) {
@@ -415,8 +415,8 @@ class MoodleUtility {
 
         if (is_numeric($course)) {
             // Cache so multiple calls don't repeat the same work.
-            $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($course, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+            $cache = \cache::make('block_integrityadvocate', 'perrequest');
+            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($course, JSON_PARTIAL_OUTPUT_ON_ERROR));
             if ($cachedvalue = $cache->get($cachekey)) {
                 $debug && self::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
@@ -558,8 +558,8 @@ class MoodleUtility {
 
         if (is_numeric($user)) {
             // Cache so multiple calls don't repeat the same work.
-            $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . sha1(json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR)));
+            $cache = \cache::make('block_integrityadvocate', 'perrequest');
+            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR));
             if ($cachedvalue = $cache->get($cachekey)) {
                 $debug && self::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
@@ -704,8 +704,7 @@ class MoodleUtility {
      * @return string The cache key.
      */
     public static function get_cache_key(string $key): string {
-        $blockversion = get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
-        return sha1($blockversion . $key);
+        return sha1(get_config('block_integrityadvocate', 'version') . $key);
     }
 
     /**
