@@ -264,7 +264,7 @@ class Output {
         }
 
         if ($status == ia_status::INVALID_ID_INT) {
-            $latestsession = self::get_module_session_latest($modulecontext, $userid);
+            $latestsession = ia_api::get_module_session_latest($modulecontext, $userid);
             if (!ia_u::is_empty($latestsession) && !$latestsession->has_override() && $latestsession->resubmiturl) {
                 // The user is allowed to re-submit their identity stuff, so build a link to show.
                 $debug && ia_mu::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $latestsession->resubmiturl);
