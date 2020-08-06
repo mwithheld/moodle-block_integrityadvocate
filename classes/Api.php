@@ -827,9 +827,9 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Done url fields');
 
-        // This field is a data uri ref https://css-tricks.com/data-uris/.
+        // This field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         $matches = array();
-        if (isset($input->Participant_Photo) && preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)) {
+        if (isset($input->Participant_Photo) && (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches) || validate_param($input->Participant_Photo, PARAM_URL))) {
             $session->participantphoto = $matches[0];
         }
 
@@ -929,9 +929,9 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Done url fields');
 
-        // This field is a data uri ref https://css-tricks.com/data-uris/.
+        // This field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         $matches = array();
-        if (isset($input->Participant_Photo) && preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)) {
+        if (isset($input->Participant_Photo) && (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches) || validate_param($input->Participant_Photo, PARAM_URL))) {
             $participant->participantphoto = $matches[0];
         }
 
