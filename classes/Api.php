@@ -720,30 +720,37 @@ class Api {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found');
             return null;
         }
-        $flag = new Flag();
-        $flag->id = $input->Id;
+        $output = new Flag();
+        $output->id = $input->Id;
 
         // Clean int fields.
         if (true) {
-            isset($input->Created) && ($flag->created = \clean_param($input->Created, PARAM_INT));
-            isset($input->CaptureDate) && ($flag->capturedate = \clean_param($input->CaptureDate, PARAM_INT));
-            isset($input->FlagType_Id) && ($flag->flagtypeid = \clean_param($input->FlagType_Id, PARAM_INT));
+            isset($input->Created) && ($output->created = \clean_param($input->Created, PARAM_INT));
+            isset($input->CaptureDate) && ($output->capturedate = \clean_param($input->CaptureDate, PARAM_INT));
+            isset($input->FlagType_Id) && ($output->flagtypeid = \clean_param($input->FlagType_Id, PARAM_INT));
         }
 
         // Clean text fields.
         if (true) {
-            isset($input->Comment) && ($flag->comment = \clean_param($input->Comment, PARAM_TEXT));
-            isset($input->FlagType_Name) && ($flag->flagtypename = \clean_param($input->FlagType_Name, PARAM_TEXT));
+            isset($input->Comment) && ($output->comment = \clean_param($input->Comment, PARAM_TEXT));
+            isset($input->FlagType_Name) && ($output->flagtypename = \clean_param($input->FlagType_Name, PARAM_TEXT));
         }
 
-        // This field is a data uri ref https://css-tricks.com/data-uris/.
-        $matches = array();
-        if (isset($input->CaptureData) && preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->CaptureData, $matches)) {
-            $flag->capturedata = $matches[0];
+        // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
+        if (isset($input->CaptureData)) {
+            $matches = array();
+            switch (true) {
+                case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->CaptureData, $matches)):
+                    $output->capturedata = $matches[0];
+                    break;
+                case (validate_param($input->CaptureData, PARAM_URL)):
+                    $output->capturedata = $input->CaptureData;
+                    break;
+            }
         }
 
-        $debug && ia_mu::log($fxn . '::About to return $flag=' . ia_u::var_dump($flag, true));
-        return $flag;
+        $debug && ia_mu::log($fxn . '::About to return $flag=' . ia_u::var_dump($output, true));
+        return $output;
     }
 
     /**
@@ -773,15 +780,15 @@ class Api {
         }
 
         $debug && ia_mu::log($fxn . '::About to create \block_integrityadvocate\Session()');
-        $session = new \block_integrityadvocate\Session();
+        $output = new \block_integrityadvocate\Session();
 
         // Check required field #1.
         if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found: Id');
             return array();
         }
-        $session->id = $input->Id;
-        $debug && ia_mu::log($fxn . '::Got $session->id=' . $session->id);
+        $output->id = $input->Id;
+        $debug && ia_mu::log($fxn . '::Got $session->id=' . $output->id);
 
         // Check required field #2.
         if (!isset($input->Status) || !is_string($input->Status) || strlen($input->Status) < 5) {
@@ -789,48 +796,55 @@ class Api {
             return array();
         }
         // This function throws an error if the status is invalid.
-        $session->status = ia_status::parse_status_string($input->Status);
-        $debug && ia_mu::log($fxn . '::Got $session->status=' . $session->status);
+        $output->status = ia_status::parse_status_string($input->Status);
+        $debug && ia_mu::log($fxn . '::Got $session->status=' . $output->status);
         if (isset($input->Override_Status) && !empty($input->Override_Status)) {
-            $session->overridestatus = ia_status::parse_status_string($input->Override_Status);
+            $output->overridestatus = ia_status::parse_status_string($input->Override_Status);
         }
-        $debug && ia_mu::log($fxn . '::Got status=' . $session->status . ' overridestatus=' . $session->overridestatus);
+        $debug && ia_mu::log($fxn . '::Got status=' . $output->status . ' overridestatus=' . $output->overridestatus);
 
         // Clean int fields.
         if (true) {
             if (isset($input->Activity_Id)) {
-                $session->activityid = \clean_param($input->Activity_Id, PARAM_INT);
-                if (!($courseid = ia_mu::get_courseid_from_cmid($session->activityid)) || $courseid !== $participant->courseid) {
-                    $debug && ia_mu::log($fxn . "::This session activity_id={$session->activityid} belongs to courseid={$courseid} vs participant->courseid={$participant->courseid}, so return empty");
+                $output->activityid = \clean_param($input->Activity_Id, PARAM_INT);
+                if (!($courseid = ia_mu::get_courseid_from_cmid($output->activityid)) || $courseid !== $participant->courseid) {
+                    $debug && ia_mu::log($fxn . "::This session activity_id={$output->activityid} belongs to courseid={$courseid} vs participant->courseid={$participant->courseid}, so return empty");
                     return array();
                 }
             }
-            isset($input->Click_IAmHere_Count) && ($session->clickiamherecount = \clean_param($input->Click_IAmHere_Count, PARAM_INT));
-            isset($input->Start) && ($session->start = \clean_param($input->Start, PARAM_INT));
-            isset($input->End) && ($session->end = \clean_param($input->End, PARAM_INT));
-            isset($input->Exit_Fullscreen_Count) && ($session->exitfullscreencount = \clean_param($input->Exit_Fullscreen_Count, PARAM_INT));
-            isset($input->Override_Date) && ($session->overridedate = \clean_param($input->Override_Date, PARAM_INT));
-            isset($input->Override_LMSUser_Id) && ($session->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
+            isset($input->Click_IAmHere_Count) && ($output->clickiamherecount = \clean_param($input->Click_IAmHere_Count, PARAM_INT));
+            isset($input->Start) && ($output->start = \clean_param($input->Start, PARAM_INT));
+            isset($input->End) && ($output->end = \clean_param($input->End, PARAM_INT));
+            isset($input->Exit_Fullscreen_Count) && ($output->exitfullscreencount = \clean_param($input->Exit_Fullscreen_Count, PARAM_INT));
+            isset($input->Override_Date) && ($output->overridedate = \clean_param($input->Override_Date, PARAM_INT));
+            isset($input->Override_LMSUser_Id) && ($output->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
         $debug && ia_mu::log($fxn . '::Done int fields');
 
         // Clean text fields.
         if (true) {
-            isset($input->Override_LMSUser_FirstName) && ($session->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
-            isset($input->Override_LMSUser_LastName) && ($session->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
-            isset($input->Override_Reason) && ($session->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
+            isset($input->Override_LMSUser_FirstName) && ($output->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
+            isset($input->Override_LMSUser_LastName) && ($output->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
+            isset($input->Override_Reason) && ($output->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
         }
 
         // Clean URL fields.
         if (true) {
-            isset($input->ResubmitUrl) && ($session->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
+            isset($input->ResubmitUrl) && ($output->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
         }
         $debug && ia_mu::log($fxn . '::Done url fields');
 
-        // This field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
-        $matches = array();
-        if (isset($input->Participant_Photo) && (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches) || validate_param($input->Participant_Photo, PARAM_URL))) {
-            $session->participantphoto = $matches[0];
+        // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
+        if (isset($input->Participant_Photo)) {
+            $matches = array();
+            switch (true) {
+                case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
+                    $output->participantphoto = $matches[0];
+                    break;
+                case (validate_param($input->Participant_Photo, PARAM_URL)):
+                    $output->participantphoto = $input->Participant_Photo;
+                    break;
+            }
         }
 
         $debug && ia_mu::log($fxn . '::About to check of we have flags');
@@ -838,20 +852,20 @@ class Api {
         if (isset($input->Flags) && is_array($input->Flags)) {
             foreach ($input->Flags as $f) {
                 if (!ia_u::is_empty($flag = self::parse_flag($f))) {
-                    $session->flags[] = $flag;
+                    $output->flags[] = $flag;
                 }
             }
         }
 
         // Link in the parent Participant object.
-        $session->participant = $participant;
+        $output->participant = $participant;
 
-        if (!$cache->set($cachekey, $session)) {
+        if (!$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in perrequest cache');
         }
 
-        $debug && ia_mu::log($fxn . '::About to return $session=' . ia_u::var_dump($session, true));
-        return $session;
+        $debug && ia_mu::log($fxn . '::About to return $session=' . ia_u::var_dump($output, true));
+        return $output;
     }
 
     /**
@@ -887,84 +901,91 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Not a cached value; build an ia_participant');
 
-        $participant = new ia_participant();
+        $output = new ia_participant();
 
         // Clean int fields.
         if (true) {
-            isset($input->ParticipantIdentifier) && ($participant->participantidentifier = \clean_param($input->ParticipantIdentifier, PARAM_INT));
-            isset($input->Course_Id) && ($participant->courseid = \clean_param($input->Course_Id, PARAM_INT));
+            isset($input->ParticipantIdentifier) && ($output->participantidentifier = \clean_param($input->ParticipantIdentifier, PARAM_INT));
+            isset($input->Course_Id) && ($output->courseid = \clean_param($input->Course_Id, PARAM_INT));
 
             // Check for minimally-required data.
-            if (!isset($participant->participantidentifier) || !isset($participant->courseid)) {
+            if (!isset($output->participantidentifier) || !isset($output->courseid)) {
                 $debug && ia_mu::log($fxn . '::Minimally-required fields not found');
                 return null;
             }
 
-            isset($input->Created) && ($participant->created = \clean_param($input->Created, PARAM_INT));
-            isset($input->Modified) && ($participant->modified = \clean_param($input->Modified, PARAM_INT));
+            isset($input->Created) && ($output->created = \clean_param($input->Created, PARAM_INT));
+            isset($input->Modified) && ($output->modified = \clean_param($input->Modified, PARAM_INT));
 
-            isset($input->Override_Date) && ($participant->overridedate = \clean_param($input->Override_Date, PARAM_INT));
-            isset($input->Override_LMSUser_Id) && ($participant->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
+            isset($input->Override_Date) && ($output->overridedate = \clean_param($input->Override_Date, PARAM_INT));
+            isset($input->Override_LMSUser_Id) && ($output->overridelmsuserid = \clean_param($input->Override_LMSUser_Id, PARAM_INT));
         }
         $debug && ia_mu::log($fxn . '::Done int fields');
 
         // Clean text fields.
         if (true) {
-            isset($input->FirstName) && ($participant->firstname = \clean_param($input->FirstName, PARAM_TEXT));
-            isset($input->LastName) && ($participant->lastname = \clean_param($input->LastName, PARAM_TEXT));
+            isset($input->FirstName) && ($output->firstname = \clean_param($input->FirstName, PARAM_TEXT));
+            isset($input->LastName) && ($output->lastname = \clean_param($input->LastName, PARAM_TEXT));
 
             if (isset($input->Email) && !empty(($val = \clean_param($input->Email, PARAM_EMAIL)))) {
-                $participant->email = $val;
+                $output->email = $val;
             }
 
-            isset($input->Override_LMSUser_FirstName) && ($participant->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
-            isset($input->Override_LMSUser_LastName) && ($participant->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
-            isset($input->Override_Reason) && ($participant->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
+            isset($input->Override_LMSUser_FirstName) && ($output->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
+            isset($input->Override_LMSUser_LastName) && ($output->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
+            isset($input->Override_Reason) && ($output->overridereason = \clean_param($input->Override_Reason, PARAM_TEXT));
         }
         $debug && ia_mu::log($fxn . '::Done text fields');
 
         // Clean URL fields.
         if (true) {
-            isset($input->ResubmitUrl) && ($participant->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
+            isset($input->ResubmitUrl) && ($output->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
         }
         $debug && ia_mu::log($fxn . '::Done url fields');
 
-        // This field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
-        $matches = array();
-        if (isset($input->Participant_Photo) && (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches) || validate_param($input->Participant_Photo, PARAM_URL))) {
-            $participant->participantphoto = $matches[0];
+        // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
+        if (isset($input->Participant_Photo)) {
+            $matches = array();
+            switch (true) {
+                case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
+                    $output->participantphoto = $matches[0];
+                    break;
+                case (validate_param($input->Participant_Photo, PARAM_URL)):
+                    $output->participantphoto = $input->Participant_Photo;
+                    break;
+            }
         }
 
         // Clean status vs allowlist.
         if (isset($input->Status)) {
-            $participant->status = ia_status::parse_status_string($input->Status);
+            $output->status = ia_status::parse_status_string($input->Status);
         }
         if (isset($input->Override_Status) && !empty($input->Override_Status)) {
-            $participant->overridestatus = ia_status::parse_status_string($input->Override_Status);
+            $output->overridestatus = ia_status::parse_status_string($input->Override_Status);
         }
         $debug && ia_mu::log($fxn . '::Done status fields');
 
         // Handle sessions data.
-        $participant->sessions = array();
+        $output->sessions = array();
         if (isset($input->Sessions) && is_array($input->Sessions)) {
             $debug && ia_mu::log($fxn . '::Found some sessions to look at');
             foreach ($input->Sessions as $s) {
-                if (!ia_u::is_empty($session = self::parse_session($s, $participant))) {
+                if (!ia_u::is_empty($session = self::parse_session($s, $output))) {
                     $debug && ia_mu::log($fxn . '::Got a valid session back, so add it to the participant');
                     if (isset($session->end) && ia_u::is_unixtime_past($session->end)) {
                         $end = filter_var($session->end, FILTER_SANITIZE_NUMBER_INT);
                     } else {
                         $end = time();
                     }
-                    $participant->sessions[] = $session;
+                    $output->sessions[] = $session;
                 } else {
                     $debug && ia_mu::log($fxn . '::This session failed to parse');
                 }
             }
 
             // If the session is in progress, update the global status to reflect this.
-            if (ia_u::count_if_countable($participant->sessions) && ($highestsessiontimestamp = max(array_keys($participant->sessions)) >= $participant->modified)) {
-                $participant->status = $participant->sessions[$highestsessiontimestamp]->status;
+            if (ia_u::count_if_countable($output->sessions) && ($highestsessiontimestamp = max(array_keys($output->sessions)) >= $output->modified)) {
+                $output->status = $output->sessions[$highestsessiontimestamp]->status;
             }
         } else {
             $debug && ia_mu::log($fxn . '::No sessions found');
@@ -972,17 +993,17 @@ class Api {
         $debug && ia_mu::log($fxn . '::Done sessions fields');
 
         // A participant is valid only if they have sessions.
-        if (empty($participant->sessions)) {
+        if (empty($output->sessions)) {
             $debug && ia_mu::log($fxn . '::No sessions found, so return null');
             return null;
         }
 
-        $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($participant, true));
+        $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($output, true));
 
-        if (!$cache->set($cachekey, $participant)) {
+        if (!$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in perrequest cache');
         }
-        return $participant;
+        return $output;
     }
 
     /**
@@ -1141,13 +1162,12 @@ class Api {
 
         foreach ($params as $argname => $argval) {
             try {
-
+                \validate_param($argval, $validparams[$argname]);
             } catch (\invalid_parameter_exception $e) {
                 // Log a more useful message than Moodle gives us, then just throw it again.
                 ia_mu::log($fxn . '::The param is valid but the type is wrong for param=' . $argname . '; $argval=' . ia_u::var_dump($argval, true));
                 throw $e;
             }
-            \validate_param($argval, $validparams[$argname]);
         }
 
         // Everything is valid.
