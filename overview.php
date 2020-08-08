@@ -149,7 +149,7 @@ if ($continue) {
     // Check if module have been selected in config.
     $modules = block_integrityadvocate_get_course_ia_modules($courseid);
     if (is_string($modules)) {
-        echo get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . "<br/>\n";
+        echo get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
         $continue = false;
     }
     $debug && ia_mu::log(basename(__FILE__) . '::Got module count=' . ia_u::count_if_countable($modules));
