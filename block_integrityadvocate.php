@@ -370,6 +370,20 @@ class block_integrityadvocate extends block_base {
 
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
                         $this->content->text .= ia_output::get_button_course_overview($this);
+                        $prefix = 'integrityadvocate_modulelist';
+                        $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
+                        $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());
+                        $iamodulesexist = is_countable($iamodules) && (count($iamodules) > 0);
+                        $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, count($iamodules)), array('class' => "{$prefix}_div_title"));
+                        if ($iamodulesexist) {
+                            foreach ($iamodules as $key => $m) {
+                                $this->content->text .= \html_writer::link($m['url'], $m['name'])
+                                . $actionurl = $this->page->url->out(false, array('sesskey'=> sesskey()))
+                                  .      ia_output::BRNL;
+                                //$this->content->text .= $this->page->blocks->edit_controls($m['block_integrityadvocate_instance']);
+                            }
+                        }
+                        $this->content->text .= \html_writer::end_tag('div');
                         break;
                     case $hascapability_selfview:
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
