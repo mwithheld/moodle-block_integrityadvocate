@@ -311,7 +311,7 @@ class block_integrityadvocate extends block_base {
         }
         if ($setuperrors && $hascapability_overview) {
             foreach ($setuperrors as $err) {
-                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . "<br />\n";
+                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Setup errors, so skip it');
             return;
@@ -338,7 +338,7 @@ class block_integrityadvocate extends block_base {
 
             // Error output is visible only to instructors.
             if ($hascapability_overview) {
-                $this->content->text .= implode("<br />\n", $configerrors);
+                $this->content->text .= implode(ia_output::BRNL, $configerrors);
             }
             return;
         }
@@ -378,8 +378,8 @@ class block_integrityadvocate extends block_base {
                         if ($iamodulesexist) {
                             foreach ($iamodules as $key => $m) {
                                 $this->content->text .= \html_writer::link($m['url'], $m['name'])
-                                . $actionurl = $this->page->url->out(false, array('sesskey'=> sesskey()))
-                                  .      ia_output::BRNL;
+                                        . $actionurl = $this->page->url->out(false, array('sesskey' => sesskey()))
+                                        . ia_output::BRNL;
                                 //$this->content->text .= $this->page->blocks->edit_controls($m['block_integrityadvocate_instance']);
                             }
                         }

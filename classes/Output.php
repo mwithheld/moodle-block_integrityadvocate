@@ -66,7 +66,7 @@ class Output {
         if ($configerrors = $blockinstance->get_config_errors()) {
             // No visible IA block found with valid config, so skip any output.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
-                echo implode("<br />\n", $configerrors);
+                echo implode(self::BRNL, $configerrors);
             }
             return '';
         }
@@ -107,7 +107,7 @@ class Output {
         if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
             // No visible IA block found with valid config, so skip any output, but show teachers the error.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
-                echo implode("<br />\n", $configerrors);
+                echo implode(self::BRNL, $configerrors);
             }
             return '';
         }

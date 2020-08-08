@@ -131,7 +131,7 @@ $continue = true;
 if ($configerrors = $blockinstance->get_config_errors()) {
     // No visible IA block found with valid config, so skip any output.
     if ($hascapability_overview) {
-        echo implode("<br />\n", $configerrors);
+        echo implode(ia_output::BRNL, $configerrors);
     }
     $continue = false;
 }
