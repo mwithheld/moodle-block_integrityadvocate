@@ -40,7 +40,10 @@
     margin: 0 10px 0 5px;
 }
 
-/* Integrity Advocate styles */
+.integrityadvocate_modulelist_form{
+    display:inline;
+}
+
 .block_integrityadvocate_status_valid {
     color: #008000;
 }

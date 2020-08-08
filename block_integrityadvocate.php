@@ -375,19 +375,25 @@ class block_integrityadvocate extends block_base {
                         $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());
                         $iamodulesexist = is_countable($iamodules) && (count($iamodules) > 0);
                         $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, count($iamodules)), array('class' => "{$prefix}_div_title"));
-                        if ($iamodulesexist) {
+                        if ($iamodulesexist && $this->page->user_allowed_editing()) {
+                            $this->content->footer .= "<script type=\"text/javascript\">document.addEventListener('DOMContentLoaded', function(event) {require(['jquery'], function($) {"
+                                    . "window.console.log('M.block_integrityadvocate.blockinit::This is the course view');";
+                            $this->content->footer .= "$('.integrityadvocate_modulelist_blockconfig').click(function() { $(this).closest('form').submit();return false; });});});</script>";
+
+                            // The start of the form is the same for each module, so just build it once.
+                            $formstart = '&nbsp;<form class="' . $prefix . '_form" method="post" action="' . $CFG->wwwroot . '/course/view.php">';
+                            $formstart .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
+                            $formstart .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+                            $formstart .= '<input type="hidden" name="edit" value="on">';
+
                             foreach ($iamodules as $key => $m) {
                                 // Output a link to the module.
                                 $this->content->text .= \html_writer::link($m['url'], $m['name']);
-                                if ($this->page->user_allowed_editing() && has_capability('moodle/block:edit', $blockcontext)) {
+                                if (has_capability('moodle/block:edit', $m['block_integrityadvocate_instance']['instance']->context)) {
                                     // Output a button to block config.
-                                    //$this->content->text .= \html_writer::link("{$m['url']}&sesskey=" . sesskey() . "&bui_editid={$m['block_integrityadvocate_instance']['id']}", 'block config');
-                                    $this->content->text .= '&nbsp;<form method="post" action="' . $CFG->wwwroot . '/course/view.php">';
-                                    $this->content->text .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
-                                    $this->content->text .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
-                                    $this->content->text .= '<input type="hidden" name="edit" value="on">';
-                                    $this->content->text .= '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">';
-                                    $this->content->text .= '<button type="submit" class="btn btn-secondary" id="single_button5f2e11dcdbdf02" title="">block config</button>';
+                                    $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">';
+                                    $blocktitle = get_string('configureblock', 'block', $m['block_integrityadvocate_instance']['instance']->title);
+                                    $this->content->text .= '<a href="#"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
                                     $this->content->text .= '</form>';
                                 }
                                 $this->content->text .= ia_output::BRNL;

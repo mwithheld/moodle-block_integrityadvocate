@@ -27,9 +27,11 @@ M.block_integrityadvocate = {
         var isQuizAttempt = (document.body.id === 'page-mod-quiz-attempt');
         var isScormPlayerSameWindow = (document.body.id === 'page-mod-scorm-player') && !M.mod_scormform;
         var isScormEntryNewWindow = (document.body.id === 'page-mod-scorm-view') && typeof M.mod_scormform !== 'undefined';
+
         if (isScormEntryNewWindow || isScormPlayerSameWindow) {
             var eltScormEnter = $('#scormviewform input[type="submit"]');
         }
+
         var eltUserNotifications = $('#user-notifications');
         var eltDivMain = $('div[role="main"]');
 
