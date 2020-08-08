@@ -377,10 +377,20 @@ class block_integrityadvocate extends block_base {
                         $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, count($iamodules)), array('class' => "{$prefix}_div_title"));
                         if ($iamodulesexist) {
                             foreach ($iamodules as $key => $m) {
-                                $this->content->text .= \html_writer::link($m['url'], $m['name'])
-                                        . $actionurl = $this->page->url->out(false, array('sesskey' => sesskey()))
-                                        . ia_output::BRNL;
-                                //$this->content->text .= $this->page->blocks->edit_controls($m['block_integrityadvocate_instance']);
+                                // Output a link to the module.
+                                $this->content->text .= \html_writer::link($m['url'], $m['name']);
+                                if ($this->page->user_allowed_editing() && has_capability('moodle/block:edit', $blockcontext)) {
+                                    // Output a button to block config.
+                                    //$this->content->text .= \html_writer::link("{$m['url']}&sesskey=" . sesskey() . "&bui_editid={$m['block_integrityadvocate_instance']['id']}", 'block config');
+                                    $this->content->text .= '&nbsp;<form method="post" action="' . $CFG->wwwroot . '/course/view.php">';
+                                    $this->content->text .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
+                                    $this->content->text .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+                                    $this->content->text .= '<input type="hidden" name="edit" value="on">';
+                                    $this->content->text .= '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">';
+                                    $this->content->text .= '<button type="submit" class="btn btn-secondary" id="single_button5f2e11dcdbdf02" title="">block config</button>';
+                                    $this->content->text .= '</form>';
+                                }
+                                $this->content->text .= ia_output::BRNL;
                             }
                         }
                         $this->content->text .= \html_writer::end_tag('div');
