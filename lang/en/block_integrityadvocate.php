@@ -38,6 +38,7 @@ $string['config_apikey'] = 'Api Key';
 $string['config_appid'] = 'Application Id';
 $string['config_blockversion'] = 'Version';
 $string['config_default_title'] = 'Integrity Advocate';
+$string['config_proctorquizinfopage'] = 'Show students proctoring on the quiz info page';
 
 $string['created'] = 'First seen';
 $string['disabled_editingmode'] = 'Course editing mode is enabled, so video monitoring is disabled';

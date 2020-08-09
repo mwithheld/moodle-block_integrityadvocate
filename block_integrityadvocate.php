@@ -376,8 +376,7 @@ class block_integrityadvocate extends block_base {
                         $iamodulesexist = is_countable($iamodules) && (count($iamodules) > 0);
                         $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, count($iamodules)), array('class' => "{$prefix}_div_title"));
                         if ($iamodulesexist && $this->page->user_allowed_editing()) {
-                            $this->content->footer .= "<script type=\"text/javascript\">document.addEventListener('DOMContentLoaded', function(event) {require(['jquery'], function($) {"
-                                    . "window.console.log('M.block_integrityadvocate.blockinit::This is the course view');";
+                            $this->content->footer .= "<script type=\"text/javascript\">document.addEventListener('DOMContentLoaded', function(event) {require(['jquery'], function($) {";
                             $this->content->footer .= "$('.integrityadvocate_modulelist_blockconfig').click(function() { $(this).closest('form').submit();return false; });});});</script>";
 
                             // The start of the form is the same for each module, so just build it once.
@@ -454,7 +453,7 @@ class block_integrityadvocate extends block_base {
                             case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
-                                if ($this->page->pagetype == 'mod-quiz-attempt') {
+                                if ($this->page->pagetype == 'mod-quiz-attempt' || ($this->page->pagetype == 'mod-quiz-view' && $this->config->proctorquizinfopage)) {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see proctoring JS');
                                     $this->add_proctor_js($USER);
                                 } else if ($hascapability_selfview) {
