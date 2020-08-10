@@ -178,10 +178,11 @@ class ParticipantsTable extends \core_user\participants_table {
         // The var $this->rawdata contains all the users for *this page* of the participants table.
         $debug && ia_mu::log($fxn . '::We should get data for ' . count($this->rawdata) . ' users');
         foreach ($this->rawdata as $u) {
-            $debug && ia_mu::log($fxn . '::About to get data for userid=' . $u->id);
+            $params = ['participantidentifier' => $u->id, 'courseid' => $courseid];
+            $debug && ia_mu::log($fxn . '::About to get data for params=' . ia_u::var_dump($params, true));
             $promise = $client->getAsync($requestapiurl, [
                 'headers' => ['Authorization' => $authheader],
-                'query' => ['participantidentifier' => $u->id, 'courseid' => $courseid],
+                'query' => $params,
             ]);
             $promise->then(function ($response) use ($blockinstance, $debug) {
                 $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -220,6 +221,11 @@ class ParticipantsTable extends \core_user\participants_table {
                 // Ignore 400-level errors.
                 // Ref https://stackoverflow.com/a/30957410.
                 $debug && ia_mu::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
+                continue;
+            } catch (\Exception $e) {
+                // Catch and log other errors, attempt to continue.
+                ia_mu::log($fxn . '::Ignoring an error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
+                \core\notification::error($e->getMessage());
                 continue;
             }
         }
