@@ -108,7 +108,7 @@ $PAGE->navbar->add($title);
 $PAGE->set_pagelayout('report');
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
 $PAGE->requires->string_for_js('filter', 'moodle');
-if ($userid) {
+if ($requestedpage == 'overview-user') {
 // This is the overview-user.php page.
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
     $PAGE->requires->jquery_plugin('ui-css');
@@ -116,6 +116,7 @@ if ($userid) {
 }
 
 // Start page output.
+// All header parts like JS, CSS must be above this.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 2);
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);

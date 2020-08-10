@@ -43,6 +43,7 @@ if (empty($courseid) || ia_u::is_empty($course)) {
 $debug = false;
 $debug && ia_mu::log(basename(__FILE__) . '::Started');
 
+// Must be teacher to see this page.
 \require_capability('block/integrityadvocate:overview', $coursecontext);
 
 // Output roles selector.
