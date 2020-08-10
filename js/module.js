@@ -36,68 +36,81 @@ M.block_integrityadvocate = {
     },
 
     /**
+     * Stuff to do when the proctor UI is loaded.
+     * Hide the loading gif and show the main content.
+     *
+     * @returns nothing.
+     */
+    proctorUILoaded: function() {
+        window.console.log('M.block_integrityadvocate.proctorUILoaded::Started');
+        var self = M.block_integrityadvocate;
+        self.eltUserNotifications.css({'background-image': 'none'}).height('auto');
+        var eltMainContent = $('#responseform, #scormpage, div[role="main"]');
+        switch (true) {
+            case self.isQuizAttempt:
+                window.console.log('M.block_integrityadvocate.proctorUILoaded::On quizzes, disable the submit button and hide the questions until IA is ready');
+                $('.mod_quiz-next-nav').removeAttr('disabled');
+                $('#block_integrityadvocate_hidequiz').remove();
+                eltMainContent.show();
+                break;
+            case self.isScormPlayerSameWindow:
+                window.console.log('M.block_integrityadvocate.proctorUILoaded::On SCORM samewindow, show the content and monitor for page close');
+                eltMainContent.show();
+                $('a.btn-secondary[title="' + M.util.get_string('scorm', 'exitactivity') + '"]').click(function() {
+                    window.console.log('Exiting the window - close the IA session');
+                    window.IntegrityAdvocate.endSession();
+                });
+                break;
+            case self.isScormEntryNewWindow:
+                window.console.log('M.block_integrityadvocate.proctorUILoaded::On SCORM newwindow, show the Enter form and monitor for page close');
+                self.eltDivMain.find('*').show();
+                eltMainContent.show();
+                $('#block_integrityadvocate_loading').remove();
+                $(window).on('beforeunload', function() {
+                    window.console.log('M.block_integrityadvocate.proctorUILoaded::Exiting the window - close the IA session');
+                    window.IntegrityAdvocate.endSession();
+                });
+                self.eltScormEnter.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
+                break;
+            default:
+                window.console.log('M.block_integrityadvocate.proctorUILoaded::This is the default page handler');
+                eltMainContent.show();
+        }
+    },
+    /**
      * AJAX-load the proctor UI JS and run anything needed after.
      * The proctorjsurl is per-user and time-encoded unique, so there is no point in tryng to cache it.
      *
      * @returns null Nothing.
      */
     loadProctorUi: function(proctorjsurl) {
-        if (/^https:\/\/ca\.integrityadvocateserver\.com\/participants\/integrity\?appid=.*/.test(proctorjsurl)) {
-            window.console.log('M.block_integrityadvocate.loadProctorUi::Invalid input param');
+        var self = M.block_integrityadvocate;
+        window.console.log('M.block_integrityadvocate.loadProctorUi::Started with proctorjsurl=', proctorjsurl);
+        if (!/^https:\/\/ca\.integrityadvocateserver\.com\/participants\/integrity\?appid=.*/.test(proctorjsurl)) {
+            window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param');
+            return;
         }
         // To prevent double-loading of the IA logic, check if IA is already loaded in this window or its parent.
         if (typeof window.IntegrityAdvocate !== 'undefined' || (window.opener !== null && window.opener.IntegrityAdvocate !== 'undefined')) {
             window.console.log('M.block_integrityadvocate.loadProctorUi::IntegrityAdvocate is already loaded');
+            // Hide the loading gif and show the main content.
+            self.proctorUILoaded();
             return;
         }
-        var self = M.block_integrityadvocate;
         $.getScript(self.decodeEntities(proctorjsurl))
                 .done(function() {
                     window.console.log('M.block_integrityadvocate.loadProctorUi::Proctoring JS loaded');
                     $(document).bind('IA_Ready', function() {
-                        window.console.log('M.block_integrityadvocate.loadProctorUi::IA_Ready event fired');
-                        self.eltUserNotifications.css({'background-image': 'none'}).height('auto');
-                        var eltMainContent = $('#block_integrityadvocate_hidequiz');
-                        switch (true) {
-                            case self.isQuizAttempt:
-                                window.console.log('M.block_integrityadvocate.loadProctorUi::On quizzes, disable the submit button and hide the questions until IA is ready');
-                                $('.mod_quiz-next-nav').removeAttr('disabled');
-                                $('#block_integrityadvocate_hidequiz').remove();
-                                eltMainContent.show();
-                                break;
-                            case self.isScormPlayerSameWindow:
-                                window.console.log('M.block_integrityadvocate.loadProctorUi::On SCORM samewindow, show the content and monitor for page close');
-                                eltMainContent.show();
-                                $('a.btn-secondary[title="' + M.util.get_string('scorm', 'exitactivity') + '"]').click(function() {
-                                    window.console.log('Exiting the window - close the IA session');
-                                    window.IntegrityAdvocate.endSession();
-                                });
-                                break;
-                            case self.isScormEntryNewWindow:
-                                window.console.log('M.block_integrityadvocate.loadProctorUi::On SCORM newwindow, show the Enter form and monitor for page close');
-                                self.eltDivMain.find('*').show();
-                                eltMainContent.show();
-                                $('#block_integrityadvocate_loading').remove();
-                                $(window).on('beforeunload', function() {
-                                    window.console.log('Exiting the window - close the IA session');
-                                    window.IntegrityAdvocate.endSession();
-                                });
-                                self.eltScormEnter.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
-                                break;
-                            default:
-                                window.console.log('M.block_integrityadvocate.loadProctorUi::This is the default page handler');
-                                $('#responseform, #scormpage, div[role="main"]').show();
-                        }
+                        // Hide the loading gif and show the main content.
+                        self.proctorUILoaded();
                     });
                 })
                 .fail(function(jqxhr, settings, exception) {
                     // Hide the loading gif.
                     $('#block_integrityadvocate_loading').remove();
                     self.eltUserNotifications.css({'background-image': 'none'}).height('auto');
-
                     // Show the main content.
                     self.eltDivMain.show();
-
                     // Dump out some info about what went wrong.
                     var msg = M.util.get_string('block_integrityadvocate', 'proctorjs_load_failed');
                     if (exception.toString() !== 'error') {
@@ -108,11 +121,9 @@ M.block_integrityadvocate = {
                     self.eltUserNotifications.html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
                 });
     },
-
     blockinit: function(Y, proctorjsurl) {
         var self = M.block_integrityadvocate;
         window.console.log('M.block_integrityadvocate.blockinit::Started with proctorjsurl=', proctorjsurl);
-
         // Vars for re-use.
         self.isQuizAttempt = (document.body.id === 'page-mod-quiz-attempt');
         self.isScormPlayerSameWindow = (document.body.id === 'page-mod-scorm-player') && !M.mod_scormform;
@@ -122,20 +133,16 @@ M.block_integrityadvocate = {
         }
         self.eltUserNotifications = $('#user-notifications');
         self.eltDivMain = $('div[role="main"]');
-
         // Load font used for icons.
         $('head').append($('<link rel="stylesheet" type="text/css" />').attr('href', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-
         // Handlers for different kinds of pages - this is for any required setup before the IA JS is loaded.
         switch (true) {
             case (self.isQuizAttempt):
                 window.console.log('M.block_integrityadvocate.blockinit::This is a quiz attempt page');
                 // Disables the Next button until IA JS is loaded
                 $('.mod_quiz-next-nav').attr('disabled', 1);
-
                 self.loadProctorUi(proctorjsurl);
                 break;
-
             case (self.isScormEntryNewWindow):
                 window.console.log('M.block_integrityadvocate.blockinit::This is a SCORM new "popup" entry page');
                 // Trigger the IA proctoring only on button click.
@@ -151,12 +158,10 @@ M.block_integrityadvocate = {
                         scrollTop: offset.top - 60,
                         scrollLeft: offset.left - 20
                     });
-
                     self.loadProctorUi(proctorjsurl);
                     return false;
                 });
                 break;
-
             default:
                 window.console.log('M.block_integrityadvocate.blockinit::This is the default page handler');
                 self.loadProctorUi(proctorjsurl);
