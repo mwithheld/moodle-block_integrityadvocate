@@ -43,10 +43,12 @@ if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext
 }
 
 // This is only optional_param() in overview.php.
-$userid = \required_param('userid', PARAM_INT);
+$moduleid = \required_param('moduleid', PARAM_INT);
 
-$debug = false;
+$debug = true;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
+
+die('Got here');
 
 $parentcontext = $blockinstance->context->get_parent_context();
 
@@ -256,7 +258,6 @@ if ($continue) {
     echo '</tbody>';
     echo "<tfoot>{$tr_header}</tfoot>";
     echo '</table>';
-    // Used as a JQueryUI popup to show the user picture.
     echo '<div id="dialog"></div>';
 }
 
