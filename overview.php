@@ -57,11 +57,9 @@ $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $requestedpage = ($userid ? 'overview-user' : 'overview-course');
 
-if ($requestedpage == 'overview-course') {
-    // These variables are only used in the course view.
-    $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT); // Group selected.
-    $perpage = \optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many per page.
-}
+// These variables should be built for all overview pages, but are only used in the course view.
+$groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
+$perpage = \optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT);
 
 // Determine course and context.
 $course = \get_course($courseid);
