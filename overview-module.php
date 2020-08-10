@@ -34,56 +34,48 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') or die();
 
-// Sanity checks.
-if (empty($blockinstanceid)) {
-    throw new InvalidArgumentException('$blockinstanceid is required');
-}
-if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) {
-    throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
-}
-
-// This is only optional_param() in overview.php.
-$moduleid = \required_param('moduleid', PARAM_INT);
-
 $debug = true;
-$debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
+$debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
 
-die('Got here');
-
-$parentcontext = $blockinstance->context->get_parent_context();
-
-// Note this capability check is on the parent, not the block instance.
-if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
-    // For teachers, allow access to any enrolled course user, even if not active.
-    if (!\is_enrolled($parentcontext, $userid)) {
-        throw new \Exception('That user is not in this course');
-    }
-} else if (\is_enrolled($parentcontext, $userid, 'block/integrityadvocate:selfview', true)) {
-    // For Students to view their own stuff, or for instructors to view their students.
-    if (intval($USER->id) !== $userid) {
-        throw new \Exception("You cannot view other users: \$USER->id={$USER->id}; \$userid={$userid}");
-    }
-} else {
-    throw new \Exception('No capabilities to view this course user');
+// Check all requirements.
+switch (true) {
+    case (empty($blockinstanceid)):
+        throw new \InvalidArgumentException('$blockinstanceid is required');
+    case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) :
+        throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
+    case (($moduleid = \required_param('moduleid', PARAM_INT)) < 1):
+        // This is only an optional param in overview.php.
+        // The above line throws an error if $moduleid is not passed as an integer.
+        // But we get here if $moduleid is zero or negative.
+        throw new \InvalidArgumentException("Invalid moduleid={$moduleid}");
+    case(!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
+        // The above line throws an error if the current user is not a teacher, so we should never get here.
+        $debug && ia_mu::log(__FILE__ . '::Checked required capability: overview');
+        break;
+    case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
+        throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
+    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1])):
+        // The above line throws an error if $overrideuserid cannot access the module.
+        // But we get here if $cm is empty.
+        throw new \InvalidArgumentException('Invalid $cm found');
+    case(empty($parentcontext = $blockinstance->context->get_parent_context())):
+        throw new \InvalidArgumentException('Failed to find a valid parent context');
+    case($parentcontext->contextlevel != \CONTEXT_MODULE):
+        // Must be enrolled in the module to see this page.
+        throw new \InvalidArgumentException("The passed-in moduleid={$moduleid} is not at the module context");
+    case(!empty(\require_capability('block/integrityadvocate:overview', $parentcontext))):
+        // The above line throws an error if the current user is not enrolled as an instructor in the module.
+        // Note this capability check is on the parent, not the block instance.
+        break;
+    default:
+        $debug && ia_mu::log(__FILE__ . '::All requirements are met');
 }
 
-$user = $DB->get_record('user', array('id' => $userid), '*', \MUST_EXIST);
-$participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
-
-// Show basic user info at the top.  Adapted from user/view.php.
-echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo']);
-echo $OUTPUT->user_picture($user, ['size' => 35, 'courseid' => $courseid, 'includefullname' => true]);
+// Show basic module info at the top.  Adapted from user/view.php.
+echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_module_moduleinfo']);
+echo ia_u::var_dump($cm->name);
 echo \html_writer::end_tag('div');
-
-if (ia_u::is_empty($participant)) {
-    $msg = 'No participant found';
-    if ($hascapability_overview) {
-        $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
-    }
-    echo $msg;
-    $continue = false;
-}
-
+die('Got here');
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container">']);
 $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
 
