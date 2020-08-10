@@ -50,23 +50,63 @@ $debug = false;
 \require_login();
 
 // Gather form data.
+// Used for the APIkey and AppId.
 $blockinstanceid = \required_param('instanceid', PARAM_INT);
+// Used for all overview pages.
 $courseid = \required_param('courseid', PARAM_INT);
+// Used for overview-user page.
 $userid = \optional_param('userid', 0, PARAM_INT);
-$debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
+// Used for overview-module page.
+$moduleid = \optional_param('moduleid', 0, PARAM_INT);
 
-$requestedpage = ($userid ? 'overview-user' : 'overview-course');
+// Params are used to build the current page URL.  These params are used for all overview pages.
+$params = [
+    'instanceid' => $blockinstanceid,
+    'courseid' => $courseid,
+];
 
-// These variables should be built for all overview pages, but are only used in the course view.
-$groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
-$perpage = \optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT);
+// Set up which overview page we should produce: -user, -module, or -course.
+switch (true) {
+    case ($userid):
+        $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
+        $requestedpage = 'overview-user';
+
+        $params += [
+            'userid' => $userid,
+            'sesskey' => sesskey(),
+        ];
+        break;
+    case ($moduleid):
+        $debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
+        $requestedpage = 'overview-module';
+
+        $params += [
+            'moduleid' => $moduleid,
+            'sesskey' => sesskey(),
+        ];
+        break;
+    default:
+        $requestedpage = 'overview-course';
+
+        // The Moodle Participants table wants lots of params.
+        $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
+        $perpage = \optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT);
+        // Find the role to display, defaulting to students.
+        // To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
+        $roleid = \optional_param('role', 0, PARAM_INT);
+        $params += [
+            'moduleid' => $moduleid,
+            'group' => $groupid,
+            'role' => $roleid,
+            'perpage' => $perpage,
+        ];
+}
 
 // Determine course and context.
 $course = \get_course($courseid);
-if (ia_u::is_empty($course)) {
+if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
-$coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST);
 
 // Check user is logged in *to the course*.
 \require_login($course, false);
@@ -79,24 +119,11 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
     throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . var_export($blockinstance, true) . '; context=' . var_export($blockinstance->context, true));
 }
 
-// Find the role to display, defaulting to students.
-// To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
-$roleid = \optional_param('role', 0, PARAM_INT);
-
 // Set up page parameters.
 $PAGE->set_course($course);
 $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
-$baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php',
-        array(
-    'instanceid' => $blockinstanceid,
-    'courseid' => $courseid,
-    // These are only used in overview-course.
-    'group' => $groupid,
-    'perpage' => $perpage,
-    'sesskey' => sesskey(),
-    'role' => $roleid,
-    'userid' => $userid,
-        ));
+// Used to build the page URL and in the overview-course page, the Participants table URL.
+$baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
 $title = \get_string(str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
@@ -105,12 +132,13 @@ $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
 $PAGE->set_pagelayout('report');
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
+// Used for JS-driven filter of table data.
 $PAGE->requires->string_for_js('filter', 'moodle');
 if ($requestedpage == 'overview-user') {
-// This is the overview-user.php page.
+    // This is the overview-user.php page: include JS and CSS for it.
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
-    $PAGE->requires->jquery_plugin('ui-css');
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
+    $PAGE->requires->jquery_plugin('ui-css');
 }
 
 // Start page output.
@@ -122,13 +150,15 @@ echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 // Gather capabilities for later use.
 $hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockinstance->context);
 $hascapability_override = \has_capability('block/integrityadvocate:override', $blockinstance->context);
+$hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $blockinstance->context);
 
+// Check for errors that mean we should not show any overview page.
 switch (true) {
     case ($configerrors = $blockinstance->get_config_errors()):
         $debug && ia_mu::log(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
         if ($hascapability_overview) {
-            echo implode(ia_output::BRNL, $configerrors);
+            \core\notification::error(implode(ia_output::BRNL, $configerrors));
         }
         break;
 
@@ -139,10 +169,16 @@ switch (true) {
         }
         break;
 
+    case(!$hascapability_overview && !$hascapability_selfview):
+        $msg = 'No permissions to see anything in the block';
+        $debug && ia_mu::log(__FILE__ . "::$msg");
+        \core\notification::error($msg);
+        break;
+
     case (is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
         $debug && ia_mu::log(__FILE__ . '::The course has no IA modules');
 
-        echo get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
+        \core\notification::error(get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL);
         break;
 
     default:
