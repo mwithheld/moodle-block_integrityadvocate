@@ -52,11 +52,12 @@ $parentcontext = $blockinstance->context->get_parent_context();
 
 // Note this capability check is on the parent, not the block instance.
 if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
-    // For teachersm allow access to any enrolled course user, even if not active.
+    // For teachers, allow access to any enrolled course user, even if not active.
     if (!\is_enrolled($parentcontext, $userid)) {
         throw new \Exception('That user is not in this course');
     }
 } else if (\is_enrolled($parentcontext, $userid, 'block/integrityadvocate:selfview', true)) {
+    // For Students to view their own stuff, or for instructors to view their students.
     if (intval($USER->id) !== $userid) {
         throw new \Exception("You cannot view other users: \$USER->id={$USER->id}; \$userid={$userid}");
     }
