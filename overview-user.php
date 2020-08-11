@@ -48,7 +48,7 @@ $userid = \required_param('userid', PARAM_INT);
 $debug = false;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
-$parentcontext = $blockinstance->context->get_parent_context();
+$parentcontext = $blockcontext->get_parent_context();
 
 // Note this capability check is on the parent, not the block instance.
 if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {

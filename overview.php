@@ -102,7 +102,7 @@ switch (true) {
         ];
 }
 
-// Determine course and context.
+// Determine course and course context.
 $course = \get_course($courseid);
 if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
@@ -115,8 +115,8 @@ if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::
 // Both overview pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
-if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context)) {
-    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . var_export($blockinstance, true) . '; context=' . var_export($blockinstance->context, true));
+if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
+    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . var_export($blockinstance, true) . '; context=' . var_export($blockcontext, true));
 }
 
 // Set up page parameters.
@@ -148,9 +148,9 @@ echo $OUTPUT->heading($title, 2);
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
 // Gather capabilities for later use.
-$hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockinstance->context);
-$hascapability_override = \has_capability('block/integrityadvocate:override', $blockinstance->context);
-$hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $blockinstance->context);
+$hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockcontext);
+$hascapability_override = \has_capability('block/integrityadvocate:override', $blockcontext);
+$hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $blockcontext);
 
 // Check for errors that mean we should not show any overview page.
 switch (true) {
