@@ -351,7 +351,7 @@ class Api {
     public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}; \$page={$page}";
+        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
