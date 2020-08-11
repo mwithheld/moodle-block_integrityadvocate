@@ -39,6 +39,8 @@ $debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
 
 // Check all requirements.
 switch (true) {
+    case (!INTEGRITYADVOCATE_FEATURE_COURSE_MODULELIST):
+        throw new Exception('This feature is disabled');
     case (empty($blockinstanceid)):
         throw new \InvalidArgumentException('$blockinstanceid is required');
     case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) :
@@ -74,17 +76,19 @@ switch (true) {
 // Show basic module info at the top.  Adapted from course/classes/output/course_module_name.php:export_for_template().
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_module_moduleinfo']);
 global $PAGE;
-$courserenderer = $PAGE->get_renderer('core', 'course');
-echo $courserenderer->course_section_cm_name_title($cm);
-//echo $activitylink;
+echo $PAGE->get_renderer('core', 'course')->course_section_cm_name_title($cm);
 echo \html_writer::end_tag('div');
 
+// Wraps the main content for this page.  The div must be closed at the end of this script.
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container']);
 
 // Get IA sessions associated with this course module for all participants.
+$participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
+$debug && ia_mu::log(__FILE__ . '::Got count($participants)=' . ia_u::count_if_countable($participants));
 $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
 
 if ($continue) {
+    echo __FILE__ . '::Got count($participants)=' . ia_u::count_if_countable($participants);
     // Should we show override stuff?
     $showoverride = INTEGRITYADVOCATE_FEATURE_OVERRIDE && $hascapability_override;
     $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
