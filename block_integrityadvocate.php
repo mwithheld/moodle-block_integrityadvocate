@@ -167,7 +167,7 @@ class block_integrityadvocate extends block_base {
      *
      * @return [string] Array of error messages from lang file: error_*.
      */
-    private function get_apikey_appid_errors(): array {
+    public function get_apikey_appid_errors(): array {
         $debug = false;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
 
