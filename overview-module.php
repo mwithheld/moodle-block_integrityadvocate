@@ -71,12 +71,17 @@ switch (true) {
         $debug && ia_mu::log(__FILE__ . '::All requirements are met');
 }
 
-// Show basic module info at the top.  Adapted from user/view.php.
+// Show basic module info at the top.  Adapted from course/classes/output/course_module_name.php:export_for_template().
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_module_moduleinfo']);
-echo ia_u::var_dump($cm->name);
+global $PAGE;
+$courserenderer = $PAGE->get_renderer('core', 'course');
+echo $courserenderer->course_section_cm_name_title($cm);
+//echo $activitylink;
 echo \html_writer::end_tag('div');
-die('Got here');
-echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container">']);
+
+echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container']);
+
+// Get IA sessions associated with this course module for all participants.
 $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
 
 if ($continue) {
