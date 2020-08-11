@@ -88,8 +88,11 @@ const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 /** @var string Optionally used for remote debugging */
 const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
-/** @var bool Feature control to enable/disable override functionality */
+/** @var bool Feature control: Enable/disable override functionality */
 const INTEGRITYADVOCATE_FEATURE_OVERRIDE = true;
+
+/** @var bool Feature control: Enable/disable showing list of modules in the course block */
+const INTEGRITYADVOCATE_FEATURE_COURSE_MODULELIST = true;
 
 /** @var string Determines where to send error logs * */
 static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
