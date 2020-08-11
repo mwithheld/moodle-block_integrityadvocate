@@ -25,6 +25,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -94,7 +95,9 @@ const INTEGRITYADVOCATE_FEATURE_OVERRIDE = true;
 /** @var bool Feature control: Enable/disable showing list of modules in the course block */
 const INTEGRITYADVOCATE_FEATURE_COURSE_MODULELIST = true;
 
-/** @var string Determines where to send error logs * */
+/** @var string Determines where to send error logs.
+ * For values, see MoodleUtility::log()'s switch statement.
+ */
 static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
 
 /*
@@ -131,7 +134,6 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
 
     // We only have user data where the block_integrityadvocate is added to a module.
     // In these cases we have existing code to get the user data from the blockinstance.
-    $blockcontext = $userlist->get_context();
     if ($blockcontext->contextlevel != CONTEXT_BLOCK) {
         return array();
     }
