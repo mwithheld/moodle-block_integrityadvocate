@@ -367,18 +367,14 @@ class Api {
 
         // This gets a json-decoded object of the IA API curl result.
         $participantsraw = self::get_participants_data($apikey, $appid, $courseid);
-        $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($participantsraw) ? '' : ia_u::var_dump($participantsraw, true)));
+        $debug && ia_mu::log($fxn . '::Got ' . ia_u::count_if_countable($participantsraw) . ' API result=' . (ia_u::is_empty($participantsraw) ? '' : ia_u::var_dump($participantsraw, true)));
 
         if (ia_u::is_empty($participantsraw)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return array();
         }
 
-        if (ia_u::is_empty($participantsraw)) {
-            return array();
-        }
-
-        // Process the partcipants returned.
+        $debug && ia_mu::log($fxn . '::About to process the participants returned');
         $parsedparticipants = array();
         foreach ($participantsraw as $pr) {
             $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
@@ -387,7 +383,7 @@ class Api {
                 continue;
             }
 
-            // Parse the partcipants returned.
+            // Parse the participants returned.
             $participant = self::parse_participant($pr);
             $debug && ia_mu::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
 
@@ -476,6 +472,7 @@ class Api {
         }
 
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
+        $debug && ia_mu::log($fxn . '::About to return count($participants)=' . ia_u::count_if_countable($participants));
         return $participants;
     }
 
