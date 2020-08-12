@@ -122,7 +122,7 @@ class Status {
         $statuses = array_replace(self::get_inprogress(), self::get_valids(), self::get_invalids());
 
         if (!$cache->set($cachekey, $statuses)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+            throw new \Exception('Failed to set value in the cache');
         }
 
         return $statuses;

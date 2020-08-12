@@ -213,7 +213,7 @@ class block_integrityadvocate extends block_base {
         // If this is a course-level block, just return what errors we have so far.
         if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
             if (!$cache->set($cachekey, $errors)) {
-                throw new \Exception('Failed to set value in perrequest cache');
+                throw new \Exception('Failed to set value in the cache');
             }
             return $errors;
         }
@@ -237,7 +237,7 @@ class block_integrityadvocate extends block_base {
         }
 
         if (!$cache->set($cachekey, $errors)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+            throw new \Exception('Failed to set value in the cache');
         }
 
         return $errors;

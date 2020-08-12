@@ -210,7 +210,7 @@ class MoodleUtility {
         }
 
         if (!$cache->set($cachekey, $rolestodisplay)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+            throw new \Exception('Failed to set value in the cache');
         }
 
         return $rolestodisplay;
@@ -396,7 +396,7 @@ class MoodleUtility {
         }
 
         if (!$cache->set($cachekey, $returnthis)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+            throw new \Exception('Failed to set value in the cache');
         }
 
         return $returnthis;
@@ -425,7 +425,7 @@ class MoodleUtility {
             $course = \get_course(intval($course));
 
             if (!$cache->set($cachekey, $course)) {
-                throw new \Exception('Failed to set value in perrequest cache');
+                throw new \Exception('Failed to set value in the cache');
             }
         }
         if (ia_u::is_empty($course)) {
@@ -572,7 +572,7 @@ class MoodleUtility {
             $user = array_pop($userarr);
 
             if (!$cache->set($cachekey, $user)) {
-                throw new \Exception('Failed to set value in perrequest cache');
+                throw new \Exception('Failed to set value in the cache');
             }
         }
         if (gettype($user) != 'object') {

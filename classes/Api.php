@@ -188,7 +188,7 @@ class Api {
         }
 
         if (!$cache->set($cachekey, $responseparsed)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+            throw new \Exception('Failed to set value in the cache');
         }
         return $responseparsed;
     }
@@ -858,7 +858,7 @@ class Api {
         $output->participant = $participant;
 
         if (!$cache->set($cachekey, $output)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+            throw new \Exception('Failed to set value in the cache');
         }
 
         $debug && ia_mu::log($fxn . '::About to return $session=' . ia_u::var_dump($output, true));
@@ -998,7 +998,7 @@ class Api {
         $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($output, true));
 
         if (!$cache->set($cachekey, $output)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+            throw new \Exception('Failed to set value in the cache');
         }
         return $output;
     }
