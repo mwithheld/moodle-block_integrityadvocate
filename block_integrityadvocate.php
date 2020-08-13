@@ -376,7 +376,7 @@ class block_integrityadvocate extends block_base {
                             $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
                             $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());
                             $iamodulesexist = ia_u::count_if_countable($iamodules) > 0;
-                            $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, ia_u::count_if_countable($iamodules)), array('class' => "{$prefix}_div_title"));
+                            $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, (($count = ia_u::count_if_countable($iamodules)) > 0 ? $count : 0)), array('class' => "{$prefix}_div_title"));
                             if ($iamodulesexist && $this->page->user_allowed_editing()) {
                                 $this->content->footer .= "<script type=\"text/javascript\">document.addEventListener('DOMContentLoaded', function(event) {require(['jquery'], function($) {";
                                 $this->content->footer .= "$('.integrityadvocate_modulelist_blockconfig').click(function() { $(this).closest('form').submit();return false; });});});</script>";
