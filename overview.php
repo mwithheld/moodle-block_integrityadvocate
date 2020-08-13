@@ -48,6 +48,7 @@ define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 $debug = false;
 
 \require_login();
+\confirm_sesskey() || print_error('confirmsesskeybad');
 
 // Gather form data.
 // Used for the APIkey and AppId.
@@ -110,7 +111,6 @@ if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::
 
 // Check user is logged in *to the course*.
 \require_login($course, false);
-\confirm_sesskey();
 
 // Both overview pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
