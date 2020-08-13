@@ -81,6 +81,7 @@ $string['no_local_participants'] = 'No course participants found';
 $string['no_modules_config_message'] = 'There are no modules found with activity completion enabled which have the Integrity Advocate block set up.';
 $string['no_modules_message'] = 'No modules found.';
 $string['no_remote_participants'] = 'No IA-side participants found';
+$string['no_remote_participant_sessions'] = 'No IA-side participant sessions found';
 $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
