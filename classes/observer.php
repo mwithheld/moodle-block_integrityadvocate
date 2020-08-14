@@ -169,7 +169,7 @@ class block_integrityadvocate_observer {
      * @throws InvalidArgumentException if the passed-in event is not from a module context level.
      */
     protected static function check_should_close_user_ia(\core\event\base $event) {
-        $debug = true;
+        $debug = false;
 
         $modulecontext = $event->get_context();
         if ($modulecontext->contextlevel != CONTEXT_MODULE) {

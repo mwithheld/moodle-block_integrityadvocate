@@ -283,7 +283,7 @@ class Status {
      * @return true if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
      */
     public static function is_status_int(int $statusint): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . "::Started with \$statusint={$statusint}");
         $statusints = array_keys(self::get_statuses());
