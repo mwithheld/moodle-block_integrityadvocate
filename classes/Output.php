@@ -51,7 +51,7 @@ class Output {
      * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
      */
     public static function add_block_js(\block_integrityadvocate $blockinstance, string $proctorjsurl): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started');
 
@@ -232,7 +232,7 @@ class Output {
      * @return string HTML showing the latest IA status overall.
      */
     public static function get_latest_status_html(\context $modulecontext, int $userid, string $prefix): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid=" . $modulecontext->instanceid . "; \$userid={$userid}; \$prefix={$prefix}";
         $debug && ia_mu::log($debugvars);
@@ -288,7 +288,7 @@ class Output {
      * @return string HTML output showing latest participant-level status and photo.
      */
     public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
@@ -390,7 +390,7 @@ class Output {
      * @return string HTML output showing latest status, flags, and photos.
      */
     public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
 
