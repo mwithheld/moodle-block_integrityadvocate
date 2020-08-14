@@ -80,7 +80,7 @@ switch (true) {
     case ($moduleid):
         $debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
-
+        // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
             'moduleid' => $moduleid,
             'sesskey' => sesskey(),
