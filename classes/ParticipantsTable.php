@@ -184,7 +184,12 @@ class ParticipantsTable extends \core_user\participants_table {
                 'headers' => ['Authorization' => $authheader],
                 'query' => $params,
             ]);
-            $promise->then(function ($response) use ($blockinstance, $debug) {
+            $debug && ia_mu::log($fxn . "::Sent getAsync with requestapiurl={$requestapiurl}; participantidentifier={$u->id}; courseid={$courseid}"); //; url={$url}
+            $promise->then(
+                    /**
+                     * On Guzzle response, parse the participant.
+                     */
+                    function (\Psr\Http\Message\ResponseInterface $response) use ($blockinstance, $debug) {
                 $fxn = __CLASS__ . '::' . __FUNCTION__;
                 $debug && ia_mu::log($fxn . '::Promise->then started with response=' . ia_u::var_dump($response, true));
                 if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($response->getBody())) {
@@ -210,7 +215,21 @@ class ParticipantsTable extends \core_user\participants_table {
 
                 // Participant photo.
                 $this->rawdata[$participant->participantidentifier]->iaphoto = ia_output::get_participant_photo_output($participant);
-            });
+            },
+                    /**
+                     * On Guzzle error, log if non-404.
+                     */
+                    function (\GuzzleHttp\Exception\RequestException $e) use ($debug, $fxn) {
+                if ($e->getResponse()->getStatusCode() == 404) {
+                    // Do not bother logging except in debug mode.
+                    $debug && ia_mu::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
+                    return;
+                }
+                // The getMessage() includes url, response code, and body.
+                ia_mu::log($fxn . '::Got a Guzzle exception=' . str_replace(array("\n", "\r"), '', $e->getMessage())
+                );
+            }
+            );
             $promises[] = $promise;
         }
 
@@ -218,14 +237,12 @@ class ParticipantsTable extends \core_user\participants_table {
             try {
                 $promise->wait();
             } catch (\GuzzleHttp\Exception\ClientException $e) {
-                // Ignore 400-level errors.
-                // Ref https://stackoverflow.com/a/30957410.
+                // Ignore 400-level errors. Ref https://stackoverflow.com/a/30957410.
                 $debug && ia_mu::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
                 continue;
             } catch (\Exception $e) {
                 // Catch and log other errors, attempt to continue.
-                ia_mu::log($fxn . '::Ignoring an error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
-                \core\notification::error($e->getMessage());
+                ia_mu::log($fxn . '::Ignoring an error: $e=' . get_class($e) . '; message=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
                 continue;
             }
         }
