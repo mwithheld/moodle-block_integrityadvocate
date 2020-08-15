@@ -1057,9 +1057,9 @@ class Api {
         }
         $debug && ia_mu::log($fxn . '::Minimally-required fields found');
 
-        // Cache so multiple calls don't repeat the same work. This cache should not be persession.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(implode('_', array(__CLASS__, __FUNCTION__, json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR))));
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
