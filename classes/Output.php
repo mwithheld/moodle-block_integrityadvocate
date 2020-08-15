@@ -158,12 +158,27 @@ class Output {
         }
 
         $parameters = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'sesskey' => sesskey());
+
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($parameters, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
         $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $parameters);
         $label = \get_string('button_overview', INTEGRITYADVOCATE_BLOCK_NAME);
         $options = array('class' => 'overviewButton');
 
         global $OUTPUT;
-        return $OUTPUT->single_button($url, $label, 'get', $options);
+        $output = $OUTPUT->single_button($url, $label, 'get', $options);
+
+        if (!$cache->set($cachekey, $output)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $output;
     }
 
     /**
@@ -187,12 +202,27 @@ class Output {
         }
 
         $parameters = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'userid' => $userid, 'sesskey' => sesskey());
+
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($parameters, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
         $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $parameters);
         $label = \get_string('overview_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
         $options = array('class' => 'block_integrityadvocate_overview_btn_view_details');
 
         global $OUTPUT;
-        return $OUTPUT->single_button($url, $label, 'get', $options);
+        $output = $OUTPUT->single_button($url, $label, 'get', $options);
+
+        if (!$cache->set($cachekey, $output)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $output;
     }
 
     /**
@@ -301,6 +331,14 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(implode('_', array(__CLASS__, __FUNCTION__, $blockinstance->instance->id, json_encode($participant, JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars)));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
         $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
@@ -340,6 +378,9 @@ class Output {
         // Start next section on a new line.
         $out .= '<div style="clear:both"></div>';
 
+        if (!$cache->set($cachekey, $out)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
         return $out;
     }
 
@@ -352,7 +393,7 @@ class Output {
     public static function get_participant_photo_output(ia_participant $participant): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$participant->participantidentifier=" . ia_u::var_dump($participant->participantidentifier, true);
+        $debugvars = $fxn . "::Started with \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
