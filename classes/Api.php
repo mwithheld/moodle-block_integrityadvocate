@@ -435,8 +435,8 @@ class Api {
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
         $debug && ia_mu::log($debugvars);
 
-        static $recursecount = 0;
-        if ($recursecount++ > self::RECURSEMAX) {
+        static $recursecountparticipants = 0;
+        if ($recursecountparticipants++ > self::RECURSEMAX) {
             throw new \Exception('Maximum recursion limit reached');
         }
 
@@ -585,8 +585,8 @@ class Api {
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
         $debug && ia_mu::log($debugvars);
 
-        static $recursecount = 0;
-        if ($recursecount++ > self::RECURSEMAX) {
+        static $recursecountparticipantsessions = 0;
+        if ($recursecountparticipantsessions++ > self::RECURSEMAX) {
             throw new \Exception('Maximum recursion limit reached');
         }
 
@@ -880,6 +880,14 @@ class Api {
             return null;
         }
 
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
         // Check required field #1.
         if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found');
@@ -912,6 +920,10 @@ class Api {
                     $output->capturedata = $input->CaptureData;
                     break;
             }
+        }
+
+        if (!$cache->set($cachekey, $output)) {
+            throw new \Exception('Failed to set value in the cache');
         }
 
         $debug && ia_mu::log($fxn . '::About to return $flag=' . ia_u::var_dump($output, true));
