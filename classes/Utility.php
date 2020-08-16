@@ -76,7 +76,7 @@ class Utility {
     }
 
     /**
-     * Same as stripos but with an array of needles
+     * Same as strpos but with an array of needles
      *
      * @link https://stackoverflow.com/a/9220624
      * @param string $haystack The string to search in

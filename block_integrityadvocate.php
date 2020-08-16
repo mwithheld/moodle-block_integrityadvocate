@@ -86,7 +86,7 @@ class block_integrityadvocate extends block_base {
 
         // If this is a quiz, auto-configure the quiz to...
         $debug && ia_mu::log($fxn . "::Looking at pagetype={$this->page->pagetype}");
-        if (stripos($this->page->pagetype, 'mod-quiz-') !== false) {
+        if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             // A. Show blocks during quiz attempt; and...
             $modulecontext = $this->context->get_parent_context();
             $debug && ia_mu::log($fxn . '::Got $modulecontext=' . ia_u::var_dump($modulecontext, true));
@@ -227,7 +227,7 @@ class block_integrityadvocate extends block_base {
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
         global $DB;
-        if (stripos($modulecontext->get_context_name(), 'quiz') === 0) {
+        if (str_starts_with($modulecontext->get_context_name(), 'quiz')) {
             $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
@@ -353,7 +353,7 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapability_overview:
                         // When viewing a course student profile, show latest student info.
-                        if (stripos($this->page->url, '/user/view.php?') > 0) {
+                        if (str_contains($this->page->url, '/user/view.php?')) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
@@ -427,7 +427,7 @@ class block_integrityadvocate extends block_base {
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
-                            case (stripos($this->page->pagetype, 'mod-scorm-') !== false):
+                            case (str_starts_with($this->page->pagetype, 'mod-scorm-')):
                                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
                                 global $scorm;
                                 if (!isset($scorm)) {
@@ -453,7 +453,7 @@ class block_integrityadvocate extends block_base {
                                     }
                                 }
                                 break;
-                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
+                            case(str_starts_with($this->page->pagetype, 'mod-quiz-')):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
                                 if ($this->page->pagetype == 'mod-quiz-attempt' || ($this->page->pagetype == 'mod-quiz-view' && $this->config->proctorquizinfopage)) {

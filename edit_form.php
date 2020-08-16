@@ -61,7 +61,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 52));
         $mform->setType('config_apikey', PARAM_BASE64);
 
-        if (stripos($this->page->pagetype, 'mod-quiz-') !== false) {
+        if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             $mform->addElement('selectyesno', 'config_proctorquizinfopage', get_string('config_proctorquizinfopage', INTEGRITYADVOCATE_BLOCK_NAME));
             $mform->setDefault('config_proctorquizinfopage', 0);
         }

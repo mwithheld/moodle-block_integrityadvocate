@@ -38,6 +38,7 @@ require_once($blockintegrityadvocatewwwroot . '/lib/completionlib.php');
 // Used for Monolog, which is caled in MoodleUtility.php::log().
 require_once(__DIR__ . '/vendor/autoload.php');
 
+require_once(__DIR__ . '/classes/polyfills.php');
 require_once(__DIR__ . '/classes/Utility.php');
 require_once(__DIR__ . '/classes/MoodleUtility.php');
 require_once(__DIR__ . '/classes/Output.php');
@@ -99,26 +100,6 @@ const INTEGRITYADVOCATE_FEATURE_COURSE_MODULELIST = true;
  * For values, see MoodleUtility::log()'s switch statement.
  */
 static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
-
-/*
- * Polyfill functions
- */
-if (version_compare(phpversion(), '7.3.0', '<')) {
-    if (!function_exists('is_countable')) {
-
-        /**
-         * Polyfill for is_countable()
-         *
-         * @link https://www.php.net/manual/en/function.is-countable.php#123089
-         * @param Countable $var object to check if it is countable.
-         * @return bool true if is countable.
-         */
-        function is_countable($var): bool {
-            return (is_array($var) || $var instanceof Countable);
-        }
-
-    }
-}
 
 /**
  * Get participants in this block context.

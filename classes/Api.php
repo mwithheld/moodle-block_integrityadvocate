@@ -123,7 +123,7 @@ class Api {
         }
 
         // Sanity check.
-        if (stripos($endpoint, '/') === false || !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !is_array($params)) {
+        if (!str_starts_with($endpoint, '/') || !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !is_array($params)) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
