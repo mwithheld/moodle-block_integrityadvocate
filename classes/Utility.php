@@ -134,11 +134,11 @@ class Utility {
      * @param bool $return <p>If you would like to capture the output of <b>print_r()</b>, use the <code>return</code> parameter. When this parameter is set to <b><code>TRUE</code></b>, <b>print_r()</b> will return the information rather than print it.</p>
      * @return mixed <p>If given a <code>string</code>, <code>integer</code> or <code>float</code>, the value itself will be printed. If given an <code>array</code>, values will be presented in a format that shows keys and elements. Similar notation is used for <code>object</code>s.</p><p>When the <code>return</code> parameter is <b><code>TRUE</code></b>, this function will return a <code>string</code>. Otherwise, the return value is <b><code>TRUE</code></b>.</p>
      */
-    public static function var_dump($expression, bool $return = true): string {
+    public static function var_dump($expression, bool $return = true) {
         // Avoid OOM errors.
         raise_memory_limit(MEMORY_HUGE);
         // Preg_replace prevents dying on base64-encoded images.
-        return preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', print_r($expression, $return));
+        return print_r(preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', print_r($expression, true)), $return);
     }
 
     /**

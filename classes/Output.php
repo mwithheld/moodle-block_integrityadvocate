@@ -88,7 +88,7 @@ class Output {
      * Build proctoring Javascript URL based on user and timestamp.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
-     * @param stdClass $user Current user object; needed so we can identify this user to the IA API
+     * @param \stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML if error; Also adds the student proctoring JS to the page.
      */
     public static function get_proctor_js_url(\block_integrityadvocate $blockinstance, \stdClass $user): string {
@@ -106,7 +106,7 @@ class Output {
         // If the block is not configured yet, simply return empty result.
         if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
             // No visible IA block found with valid config, so skip any output, but show teachers the error.
-            if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
+            if ($configerrors && \has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
                 echo implode(self::BRNL, $configerrors);
             }
             return '';
@@ -141,7 +141,7 @@ class Output {
     /**
      * Generate the HTML for a button to view details for all course users.
      *
-     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @return string HTML button to view user details.
      */
     public static function get_button_course_overview(\block_integrityadvocate $blockinstance): string {
@@ -184,7 +184,7 @@ class Output {
     /**
      * Generate the HTML to view details for this user.
      *
-     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param int $userid The user id.
      * @return string HTML button to view user details.
      */
@@ -257,7 +257,7 @@ class Output {
      * If there is a resubmiturl in the session data and the session is not overridden, output that link HTML.
      *
      * @param \context $modulecontext The module context to look in.
-     * @param ia_participant $participant The participant to get the info for.
+     * @param int $userid The user id to get the status for.
      * @param string $prefix CSS prefix to add to the HTML.
      * @return string HTML showing the latest IA status overall.
      */
@@ -310,14 +310,14 @@ class Output {
     /**
      * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
      *
-     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
-     * @param ia_participant $participant Participant object from the IA API.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param Participant $participant Participant object from the IA API.
      * @param bool $showphoto True to include the user photo.
      * @param bool $showviewdetailsbutton True to show the viewDetails button.
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output showing latest participant-level status and photo.
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, Participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
@@ -387,10 +387,10 @@ class Output {
     /**
      * Get the HTML used to display the participant photo in the IA summary output
      *
-     * @param ia_participant $participant An IA participant object to pull info from.
+     * @param \Participant $participant An IA participant object to pull info from.
      * @return string HTML to output
      */
-    public static function get_participant_photo_output(ia_participant $participant): string {
+    public static function get_participant_photo_output(Participant $participant): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";

@@ -34,7 +34,7 @@ class Flag {
     /** @var string The data captured */
     public $capturedata;
 
-    /** @var string Date captured */
+    /** @var int Date captured */
     public $capturedate = -1;
 
     /** @var string Comments added to this capture */

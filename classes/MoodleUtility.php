@@ -34,12 +34,12 @@ defined('MOODLE_INTERNAL') || die;
 class MoodleUtility {
 
     /**
-     * Get all instances of block_integrityadvocate in the Moodle site
+     * Get all instances of block_integrityadvocate in the Moodle site.
      * If there are multiple blocks in a single parent context just return the first from that context.
      *
      * @param string $blockname Shortname of the block to get.
-     * @param bool $visibleonly Set to true to return only visible instances
-     * @return array of block_integrityadvocate instances with key=block instance id
+     * @param bool $visibleonly Set to true to return only visible instances.
+     * @return array<\block_base> Array of block_integrityadvocate instances with key=block instance id.
      */
     public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
@@ -149,7 +149,7 @@ class MoodleUtility {
      *
      * @param object[] $a array of event information
      * @param object[] $b array of event information
-     * @return int <0, 0 or >0 depending on order of modules on course page
+     * @return int Val <0, 0 or >0 depending on order of modules on course page
      */
     protected static function modules_compare_events($a, $b): int {
         if ($a['section'] != $b['section']) {
@@ -181,8 +181,8 @@ class MoodleUtility {
     /**
      * Given a context, get array of roles usable in a roles select box.
      *
-     * @param \context $coursecontext The course context.
-     * @return [roleid=>role name].
+     * @param \context $context The course context.
+     * @return array<roleid=role name>.
      */
     public static function get_roles_for_select(\context $context): array {
         $debug = false;
@@ -220,7 +220,7 @@ class MoodleUtility {
      * Returns the modules with completion set in current course.
      *
      * @param int courseid The id of the course.
-     * @return [module[name=>value]] Modules with completion settings in the course.
+     * @return array<module<name=value>> Modules with completion settings in the course.
      */
     public static function get_modules_with_completion(int $courseid): array {
         $modinfo = \get_fast_modinfo($courseid, -1);
@@ -258,14 +258,14 @@ class MoodleUtility {
     /**
      * Filters modules that a user cannot see due to grouping constraints.
      *
-     * @param stdClass $cfg Pass in the Moodle $CFG object.
-     * @param [object] $modules The possible modules that can occur for modules.
+     * @param \stdClass $cfg Pass in the Moodle $CFG object.
+     * @param array<object> $modules The possible modules that can occur for modules.
      * @param int $userid The user's id.
      * @param int $courseid the course for filtering visibility.
-     * @param int[] $exclusions Assignment exemptions for students in the course.
-     * @return [object] The array without the restricted modules.
+     * @param array<int> $exclusions Assignment exemptions for students in the course.
+     * @return array<object> The array without the restricted modules.
      */
-    public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, $exclusions): array {
+    public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, array $exclusions): array {
         $filteredmodules = array();
         $modinfo = \get_fast_modinfo($courseid, $userid);
         $coursecontext = \CONTEXT_COURSE::instance($courseid);
@@ -335,9 +335,8 @@ class MoodleUtility {
     /**
      * Check if site and optionally also course completion is enabled.
      *
-     * @param int|object $course Optional courseid or course object to check.
-     * If not specified, only site-level completion is checked.
-     * @return array of error identifier strings
+     * @param int|object $course Optional courseid or course object to check. If not specified, only site-level completion is checked.
+     * @return array<string> of error identifier strings
      */
     public static function get_completion_setup_errors($course = null): array {
         global $CFG;
@@ -405,9 +404,8 @@ class MoodleUtility {
     /**
      * Convert course id to moodle course object into if needed.
      *
-     * @param int|stdClass $course The course object or courseid to check
-     * @return bool false if no course found; else Moodle course object
-     * @throws InvalidArgumentException
+     * @param int|\stdClass $course The course object or courseid to check
+     * @return bool false if no course found; else Moodle course object.
      */
     public static function get_course_as_obj($course) {
         $debug = false;
@@ -441,7 +439,7 @@ class MoodleUtility {
     /**
      * Finds gradebook exclusions for students in a course
      *
-     * @param moodle_database $db Moodle DB object
+     * @param \moodle_database $db Moodle DB object
      * @param int $courseid The ID of the course containing grade items
      * @return array of exclusions as module-user pairs
      */
@@ -463,13 +461,13 @@ class MoodleUtility {
     /**
      * Get the student role (in the course) to show by default e.g. on the course-overview page dropdown box.
      *
-     * @param context $coursecontext Course context in which to get the default role.
+     * @param \context $coursecontext Course context in which to get the default role.
      * @return int the role id that is for student archetype in this course
      */
     public static function get_default_course_role(\context $coursecontext): int {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && self::log($fxn . "::Started with $cmid={$cmid}");
+        $debug && self::log($fxn . "::Started with $coursecontext={$coursecontext->instanceid}");
 
         // Sanity check.
         if (ia_u::is_empty($coursecontext) || ($coursecontext->contextlevel !== \CONTEXT_COURSE)) {
@@ -499,11 +497,11 @@ class MoodleUtility {
     /**
      * Get the first block instance matching the shortname in the given context.
      *
-     * @param context $modulecontext Context to find the IA block in.
+     * @param \context $modulecontext Context to find the IA block in.
      * @param string $blockname Block shortname e.g. for block_html it would be html.
      * @param bool $visibleonly Return only visible instances.
      * @param bool $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
-     * @return mixed bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
+     * @return bool|\block_integrityadvocate bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
         $debug = false;
@@ -547,9 +545,8 @@ class MoodleUtility {
     /**
      * Convert userid to moodle user object into if needed.
      *
-     * @param int|stdClass $user The user object or id to convert
-     * @return null if no user found; else moodle user object
-     * @throws InvalidArgumentException
+     * @param int|\stdClass $user The user object or id to convert
+     * @return null|\stdClass Null if no user found; else moodle user object.
      */
     public static function get_user_as_obj($user) {
         $debug = false;
@@ -723,10 +720,10 @@ class MoodleUtility {
     /**
      * Create a unix timestamp nonce and store it in the Moodle $SESSION variable.
      *
-     * @param string $key
-     * @return string
+     * @param string $key Key for the nonce that is stored in $SESSION.
+     * @return int Unix timestamp The value of the nonce.
      */
-    public static function nonce_set(string $key): string {
+    public static function nonce_set(string $key): int {
         global $SESSION;
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;

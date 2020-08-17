@@ -94,7 +94,7 @@ class Session {
     /**
      * Get the net session status, accounting for any overrides.
      */
-    public function get_status() {
+    public function get_status(): int {
         if (isset($this->overridestatus)) {
             return $this->overridestatus;
         }

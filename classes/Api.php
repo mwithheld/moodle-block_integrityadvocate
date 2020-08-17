@@ -92,9 +92,9 @@ class Api {
         ));
         $url = INTEGRITYADVOCATE_BASEURL . self::ENDPOINT_CLOSE_SESSION . '?' .
                 'appid=' . urlencode($appid) .
-                '&participantidentifier=' . urlencode($userid) .
-                '&courseid=' . urlencode($courseid) .
-                '&activityid=' . urlencode($moduleid);
+                '&participantidentifier=' . $userid .
+                '&courseid=' . $courseid .
+                '&activityid=' . $moduleid;
         $response = $curl->get($url);
         $responsecode = $curl->get_info('http_code');
         $debug && ia_mu::log($fxn . '::Sent url=' . var_export($url, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
@@ -108,7 +108,7 @@ class Api {
      * @param string $endpoint One of the self::ENDPOINT* constants.
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
-     * @param [string] $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
+     * @param array<key=val> $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
@@ -226,8 +226,7 @@ class Api {
      *
      * @param \context $modulecontext Module context to look in.
      * @param int $userid User to get participant data for.
-     * @return array Array of sessions; Empty array if nothing found.
-     * @throws \InvalidArgumentException
+     * @return array<Session> Array of Sessions; Empty array if nothing found.
      */
     public static function get_module_user_sessions(\context $modulecontext, int $userid): array {
         $debug = true;
@@ -279,7 +278,7 @@ class Api {
      * @param string $appid The AppId to get data for
      * @param int $courseid The course id
      * @param int $userid The user id
-     * @return Participant Null if nothing found; else the parsed Participant object.
+     * @return null|Participant Null if nothing found; else the parsed Participant object.
      */
     public static function get_participant(string $apikey, string $appid, int $courseid, int $userid) {
         $debug = false;
@@ -314,7 +313,7 @@ class Api {
      * @param string $appid The app id.
      * @param int $courseid The course id to get info for.
      * @param int $userid The user id to get info for.
-     * @return stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
+     * @return \stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
      */
     private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): \stdClass {
         $debug = false;
@@ -351,7 +350,7 @@ class Api {
      * @param string $appid The AppId to get data for.
      * @param int $courseid Get info for this course.
      * @param int $userid Optionally filter for this user.
-     * @return object[] Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
+     * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
     public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null): array {
         $debug = false;
@@ -426,7 +425,7 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @param array $params Query params in key-value format: courseid=>someval is required, optional userid=>intval.
+     * @param array<key=val> $params Query params in key-value format: courseid=>someval is required, optional userid=>intval.
      * @param string The next token to get subsequent results from the API.
      */
     private static function get_participants_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
@@ -500,7 +499,7 @@ class Api {
      * @param int $courseid Get info for this course.
      * @param int $moduleid Get info for this course module.
      * @param int $userid Optionally get info for this user.
-     * @return object[] Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
+     * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
     public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, $userid = null): array {
         $debug = true;
@@ -576,7 +575,7 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @param array $params Query params in key-value format: [courseid=>intval, activityid=>intval] are required, optional userid=>intval.
+     * @param array<key=val> $params Query params in key-value format: [courseid=>intval, activityid=>intval] are required, optional userid=>intval.
      * @param string The next token to get subsequent results from the API.
      */
     private static function get_participantsessions_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
@@ -655,7 +654,7 @@ class Api {
      *      $nonce = $microtime[1] . substr($microtime[0], 2, 6);
      * @param string $apikey API key for the block instance.
      * @param string $appid App ID fot the block instance.
-     * @return string the request signature to be sent in the header of the request.
+     * @return string The request signature to be sent in the header of the request.
      */
     public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
         $debug = false;
@@ -700,8 +699,7 @@ class Api {
      *
      * @param \context $modulecontext The module context to look for IA info in.
      * @param int $userid The userid to get participant info for.
-     * @return Session Null if nothing found; else the most recent session for that user in that activity.
-     * @throws \InvalidArgumentException
+     * @return null|Session Null if nothing found; else the most recent session for that user in that activity.
      */
     public static function get_module_session_latest(\context $modulecontext, int $userid) {
         $debug = true;
@@ -750,7 +748,6 @@ class Api {
      * @param \context $modulecontext The module context to look in.
      * @param int $userid The userid to get IA info for.
      * @return int A Status status constant _INT value.
-     * @throws \InvalidArgumentException
      */
     public static function get_module_status(\context $modulecontext, int $userid): int {
         $debug = false;
@@ -787,8 +784,7 @@ class Api {
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
-     * @return bool True if the status value for the user in the module represents "In Progress"
-     * @throws \InvalidArgumentException
+     * @return bool True if the status value for the user in the module represents "In Progress".
      */
     public static function is_status_inprogress(context $modulecontext, int $userid): bool {
         $debug = false;
@@ -812,8 +808,7 @@ class Api {
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
-     * @return bool True if the status value for the user in the module represents "Invalid"
-     * @throws \InvalidArgumentException
+     * @return bool True if the status value for the user in the module represents "Invalid".
      */
     public static function is_status_invalid(\context $modulecontext, int $userid): bool {
         $debug = false;
@@ -841,8 +836,7 @@ class Api {
      *
      * @param \block_integrityadvocate\context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
-     * @return bool True if the status value for the user in the module represents "Valid"
-     * @throws \InvalidArgumentException
+     * @return bool True if the status value for the user in the module represents "Valid".
      */
     public static function is_status_valid(\context $modulecontext, int $userid): bool {
         $debug = false;
@@ -867,8 +861,8 @@ class Api {
     /**
      * Extract Flag object info from API session data, cleaning all the fields.
      *
-     * @param stdClass $input API flag data
-     * @return Flag Null if failed to parse; otherwise a Flag object.
+     * @param \stdClass $input API flag data
+     * @return null|Flag Null if failed to parse; otherwise a Flag object.
      */
     private static function parse_flag(\stdClass $input) {
         $debug = false;
@@ -933,9 +927,9 @@ class Api {
     /**
      * Extract a Session object from API Participant data, cleaning all the fields.
      *
-     * @param stdClass $input API session data
+     * @param \stdClass $input API session data
      * @param Participant $participant Parent object
-     * @return Session Null if failed to parse, otherwise a parsed Session object.
+     * @return null|Session Null if failed to parse, otherwise a parsed Session object.
      */
     private static function parse_session(\stdClass $input, Participant $participant) {
         $debug = true;
@@ -1048,8 +1042,8 @@ class Api {
     /**
      * Extract a Participant object from API data, cleaning all the fields.
      *
-     * @param stdClass $input API participant data
-     * @return ia_participant Null if failed to parse, otherwise the parsed Participant object.
+     * @param \stdClass $input API participant data
+     * @return null|Participant Null if failed to parse, otherwise the parsed Participant object.
      */
     public static function parse_participant(\stdClass $input) {
         $debug = false;
@@ -1076,9 +1070,9 @@ class Api {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
-        $debug && ia_mu::log($fxn . '::Not a cached value; build an ia_participant');
+        $debug && ia_mu::log($fxn . '::Not a cached value; build a Participant');
 
-        $output = new ia_participant();
+        $output = new Participant();
 
         // Clean int fields.
         if (true) {
@@ -1192,7 +1186,7 @@ class Api {
      * @param int $status An integer Participant Status value to override the Integrity Advocate ruling: Accepts: 0 or 3
      * @param string $reason User-provided reason for this override.
      * @param int $targetuserid The user to update.
-     * @param stdClass $overrideuser The user doing the overriding.
+     * @param \stdClass $overrideuser The user doing the overriding.
      * @param int $courseid The course id.
      * @param int $moduleid The cmid.
      * @return bool True on success (HTTP 200 result).
@@ -1289,9 +1283,8 @@ class Api {
      * Make sure the required params are present, there's no extra params, and param types are valid.
      *
      * @param string $endpoint One of the constants self::ENDPOINT*
-     * @param array $params Key-value array of params being sent to the API endpoint.
+     * @param array<key=val> $params Key-value array of params being sent to the API endpoint.
      * @return bool True if everything seems valid.
-     * @throws \invalid_parameter_exception if $param is not of given type
      */
     public static function validate_endpoint_params(string $endpoint, array $params = array()): bool {
         $debug = false;

@@ -124,7 +124,7 @@ class provider implements \core_privacy\local\metadata\provider,
      *
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
-    public static function delete_data_for_users(\core_privacy\local\request\approved_userlist $userlist) {
+    public static function delete_data_for_users(approved_userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
@@ -284,8 +284,8 @@ class provider implements \core_privacy\local\metadata\provider,
     /**
      * Get list of unique IA participant and overrider IDs from the remote API.
      *
-     * @param \context $blockcontext The IA block context.
-     * @return [int] Array of unique IA participant Ids and overrider Ids from the remote API.
+     * @param \context_block $blockcontext The IA block context.
+     * @return array<int> Array of unique IA participant Ids and overrider Ids from the remote API.
      */
     public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
         $debug = false;
@@ -322,9 +322,9 @@ class provider implements \core_privacy\local\metadata\provider,
      * Request delete for the IA participants and overriders from the remote API.
      * One request per userid is sent, even if someone is both participant and overrider.
      *
-     * @param context_block $blockcontext The block context.
-     * @param [Participant] $participants IA Participants associated with the block.
-     * @param [int] $useridstodelete List of userid to send deletion requests for. If empty, requests are sent for all participants.
+     * @param \context_block $blockcontext The block context.
+     * @param array<\block_integrityadvocate\Participant> $participants IA Participants associated with the block.
+     * @param array<int> $useridstodelete List of userid to send deletion requests for. If empty, requests are sent for all participants.
      * @return bool True on success.
      */
     public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = array()): bool {
@@ -367,9 +367,9 @@ class provider implements \core_privacy\local\metadata\provider,
      * Gather IA participant info to send in the delete request.
      *
      * @param \block_integrityadvocate\Participant $participant
-     * @return stdClass Participant info to for export to the user on request.
+     * @return \stdClass Participant info to for export to the user on request.
      */
-    private static function get_participant_info_for_export(Participant $participant): stdClass {
+    private static function get_participant_info_for_export(\block_integrityadvocate\Participant $participant): stdClass {
         $info = $participant;
         // Protect privacy of the overrider.
         unset($info['overridelmsuserfirstname'],
@@ -405,7 +405,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param \block_integrityadvocate\Participant $participant
      * @return string HTML Participant info to uniquely identify the entry to IntegrityAdvocate.
      */
-    private static function get_participant_info_for_deletion(Participant $participant): string {
+    private static function get_participant_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
         $usefulfields = array(
             'cmid',
             'courseid',
@@ -438,7 +438,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param \block_integrityadvocate\Participant $participant
      * @return string HTML Participant and override info to uniquely identify the entry to IntegrityAdvocate.
      */
-    private static function get_override_info_for_deletion(Participant $participant): string {
+    private static function get_override_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
         $usefulfields = array(
             'cmid',
             'courseid',

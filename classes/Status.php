@@ -109,7 +109,7 @@ class Status {
      * Get an array of all statuses; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array of all statuses; [(key=int; val=string)].
+     * @return array<int=string> of all statuses; [(key=int; val=string)].
      */
     public static function get_statuses(): array {
         // Cache so multiple calls don't repeat the same work.
@@ -132,7 +132,7 @@ class Status {
      * Get an array of statuses that represent the "In progress state"; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array of overridable statuses
+     * @return array<int=string> of overridable statuses
      */
     public static function get_inprogress(): array {
         return array(
@@ -144,7 +144,7 @@ class Status {
      * Get an array of statuses that are considered invalid; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array of overridable statuses
+     * @return array<int=string> of overridable statuses
      */
     public static function get_invalids(): array {
         return array(
@@ -159,7 +159,7 @@ class Status {
      * This should NOT be used as a sole determinant if a status from the API represents an overriden value since the Valid value is the same either way.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array of overridable statuses
+     * @return array<int=string> of overridable statuses
      */
     public static function get_overrides(): array {
         return array(
@@ -172,7 +172,7 @@ class Status {
      * Get an array of "valid" statuses; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array of overridable statuses
+     * @return array<int=string> of valid statuses
      */
     public static function get_valids(): array {
         return array(
@@ -250,7 +250,7 @@ class Status {
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
 
      * @param int $statusint The int to check.
-     * @return true if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
+     * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_override_status(int $statusint): bool {
         return in_array($statusint, array_keys(self::get_overrides()));
@@ -260,7 +260,7 @@ class Status {
      * Check if the status is a member of the array of statuses that are considered valid.
      *
      * @param int $statusint The int to check.
-     * @return true if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
+     * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_valid_status(int $statusint): bool {
         return in_array($statusint, array_keys(self::get_valids()));
@@ -270,7 +270,7 @@ class Status {
      * Check if the status is a member of the array of statuses that are considered valid.
      *
      * @param int $statusint The int to check.
-     * @return true if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
+     * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_invalid_status(int $statusint): bool {
         return in_array($statusint, array_keys(self::get_invalids()));
@@ -280,7 +280,7 @@ class Status {
      * Return if the status integer value is a valid one.
      *
      * @param int $statusint The integer value to check.
-     * @return true if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
+     * @return bool True if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
      */
     public static function is_status_int(int $statusint): bool {
         $debug = false;
