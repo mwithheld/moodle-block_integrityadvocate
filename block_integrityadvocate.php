@@ -47,7 +47,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     *  we have global config/settings data
+     *  We have global config/settings data.
      *
      * @return bool
      */
@@ -56,7 +56,8 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Do any additional initialization you may need at the time a new block instance is created
+     * Do any additional initialization you may need at the time a new block instance is created.
+     *
      * @return boolean
      */
     public function instance_create() {
@@ -110,7 +111,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Controls the block title based on instance configuration
+     * Controls the block title based on instance configuration.
      *
      * @return bool
      */
@@ -121,7 +122,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Controls whether multiple instances of the block are allowed on a page
+     * Controls whether multiple instances of the block are allowed on a page.
      *
      * @return bool
      */
@@ -130,7 +131,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Controls whether the block is configurable
+     * Controls whether the block is configurable.
      *
      * @return bool
      */
@@ -139,7 +140,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Defines where the block can be added
+     * Defines where the block can be added.
      *
      * @return array
      */
@@ -165,7 +166,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Check of errors in the APIKey and AppId.
      *
-     * @return [string] Array of error messages from lang file: error_*.
+     * @return array<string> Array of error messages from lang file: error_*.
      */
     public function get_apikey_appid_errors(): array {
         $debug = false;
@@ -194,8 +195,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Return config errors if there are any.
      *
-     * @throws Exception If error
-     * @return array(field=>error message)
+     * @return array<field=error message>
      */
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
@@ -246,7 +246,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Add proctoring JS to the page.
      *
-     * @param StdClass $user Moodle user to get the JS for - the request is encoded for this user.
+     * @param \stdClass $user Moodle user to get the JS for - the request is encoded for this user.
      * @param bool $hidemodulecontent True to hide the module content by adding a style tag to the block output.
      */
     private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true) {
@@ -273,7 +273,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Creates the blocks main content
+     * Creates the blocks main content.
      */
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
@@ -489,7 +489,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the course this block belongs to.
      *
-     * @return stdClass The $COURSE.
+     * @return \stdClass The $COURSE.
      */
     public function get_course() {
         global $COURSE;
@@ -499,7 +499,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the block user.
      *
-     * @return stdClass The $USER.
+     * @return \stdClass The $USER.
      */
     public function get_user() {
         global $USER;
@@ -518,7 +518,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Return true if the block is configured to be visible.
      *
-     * @return bool True if the block is configured to be visible
+     * @return bool True if the block is configured to be visible.
      */
     public function is_visible(): bool {
         if (property_exists($this, 'visible') && isset($this->visible) && is_bool($this->visible)) {
