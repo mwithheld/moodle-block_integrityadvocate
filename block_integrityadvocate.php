@@ -456,7 +456,7 @@ class block_integrityadvocate extends block_base {
                             case(str_starts_with($this->page->pagetype, 'mod-quiz-')):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
-                                if ($this->page->pagetype == 'mod-quiz-attempt' || ($this->page->pagetype == 'mod-quiz-view' && $this->config->proctorquizinfopage)) {
+                                if ($this->page->pagetype == 'mod-quiz-attempt' || ($this->page->pagetype == 'mod-quiz-view' && (isset($this->config->proctorquizinfopage) && $this->config->proctorquizinfopage))) {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see proctoring JS');
                                     $this->add_proctor_js($USER);
                                 } else if ($hascapability_selfview) {
