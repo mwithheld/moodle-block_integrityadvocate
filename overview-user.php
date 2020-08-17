@@ -32,7 +32,7 @@ use block_integrityadvocate\Utility as ia_u;
 defined('MOODLE_INTERNAL') || die;
 
 // Security check - this file must be included from overview.php.
-defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') or die();
+defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
 // Sanity checks.
 if (empty($blockinstanceid)) {
