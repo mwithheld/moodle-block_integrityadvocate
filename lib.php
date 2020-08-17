@@ -106,7 +106,7 @@ static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
  * Returns empty array if not a block context, if the block is missing APIKey/AppId, or if no participants found.
  *
  * @param \context $blockcontext Block context to get IA Participants data for.
- * @return array Array of block_integrityadvocate\Participant objects.
+ * @return array<\Participant> Array of Participant objects.
  */
 function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
     $debug = false;
@@ -139,8 +139,8 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * Get the modules in this course that have a configured IA block attached
  * optionally filtered to IA blocks having a matching apikey and appid or visible
  *
- * @param stdClass|int $course The course to get modules from; if int the course object will be looked up
- * @param array $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
+ * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up
+ * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
  * @return string|array Array of modules that match; else string error identifier
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = array()) {
@@ -174,9 +174,9 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = array(
 /**
  * Filter the input Moodle modules array for ones that use an IA block.
  *
- * @param object[] $modules Course modules to check
- * @param array $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
- * @return array of course modules.
+ * @param array<\stdClass> $modules Course modules to check
+ * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
+ * @return array<\stdClass> of course modules.
  */
 function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = array()): array {
     $debug = false;

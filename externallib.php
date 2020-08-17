@@ -62,6 +62,7 @@ class block_integrityadvocate_external extends \external_api {
      * @param int $overrideuserid Overriding user id.  Must be active in the course with this block's ovderride priv.
      * @param int $blockinstance_requesting_id Block instance id. Must be an instance of this block.  Because the overview is for the whole course, the moduleid from this blockinstance may not contain the correct moduleid.
      * @param int $moduleid CMID for the module.
+     * @return array Build result array that sent back as the AJAX result.
      */
     public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid, int $blockinstance_requesting_id, int $moduleid): array {
         $debug = false;

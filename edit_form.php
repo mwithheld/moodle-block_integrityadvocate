@@ -40,7 +40,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * Overridden to create any form fields specific to this type of block.
      * We can't add a type check here without causing a warning b/c the parent class does not have the type check.
      *
-     * @param stdClass|MoodleQuickForm $mform the form being built.
+     * @param \stdClass|MoodleQuickForm $mform the form being built.
      */
     protected function specific_definition($mform) {
         // Start block specific section in config form.

@@ -36,7 +36,7 @@ defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') or die();
 
 // Sanity checks.
 if (empty($blockinstanceid)) {
-    throw new InvalidArgumentException('$blockinstanceid is required');
+    throw new \InvalidArgumentException('$blockinstanceid is required');
 }
 if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) {
     throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
