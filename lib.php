@@ -115,7 +115,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
 
     // We only have user data where the block_integrityadvocate is added to a module.
     // In these cases we have existing code to get the user data from the blockinstance.
-    if ($blockcontext->contextlevel != CONTEXT_BLOCK) {
+    if ($blockcontext->contextlevel !== CONTEXT_BLOCK) {
         return array();
     }
 

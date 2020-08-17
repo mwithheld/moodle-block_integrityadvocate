@@ -219,7 +219,7 @@ class block_integrityadvocate extends block_base {
         }
 
         $courseid = $this->context->get_course_context()->instanceid;
-        if ($courseid == \SITEID) {
+        if ($courseid === \SITEID) {
             throw new \Exception('This block cannot exist on the site context');
         }
 
