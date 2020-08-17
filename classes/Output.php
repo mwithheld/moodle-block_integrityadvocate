@@ -75,8 +75,8 @@ class Output {
         $jsmodule = array(
             'name' => INTEGRITYADVOCATE_BLOCK_NAME,
             'fullpath' => self::BLOCK_JS_PATH . '/module.js',
-            'requires' => array(),
-            'strings' => array(),
+            'requires' => [],
+            'strings' => [],
         );
 
         $blockinstance->page->requires->jquery_plugin('jquery');

@@ -172,7 +172,7 @@ class block_integrityadvocate extends block_base {
         $debug = false;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
 
-        $errors = array();
+        $errors = [];
         $hasblockconfig = isset($this->config) && !ia_u::is_empty($this->config);
 
         if (!$hasblockconfig) {

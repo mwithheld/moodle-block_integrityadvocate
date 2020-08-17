@@ -116,14 +116,14 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
     // We only have user data where the block_integrityadvocate is added to a module.
     // In these cases we have existing code to get the user data from the blockinstance.
     if ($blockcontext->contextlevel !== CONTEXT_BLOCK) {
-        return array();
+        return [];
     }
 
     $blockinstance = \block_instance_by_id($blockcontext->instanceid);
 
     // We cannot get data from the remote API without an APIKey and AppId.
     if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || $blockinstance->get_apikey_appid_errors()) {
-        return array();
+        return [];
     }
 
     $coursecontext = $blockcontext->get_course_context();
@@ -143,7 +143,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
  * @return string|array Array of modules that match; else string error identifier
  */
-function block_integrityadvocate_get_course_ia_modules($course, $filter = array()) {
+function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
     $debug = false;
 
     // Massage the course input if needed.
@@ -178,7 +178,7 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = array(
  * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
  * @return array<\stdClass> of course modules.
  */
-function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = array()): array {
+function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array {
     $debug = false;
     $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
 

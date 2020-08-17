@@ -61,7 +61,7 @@ $bulkoperations = \has_capability('moodle/course:bulkmessaging', $coursecontext)
 // Setup the ParticipantsTable instance.
 require_once(__DIR__ . '/classes/ParticipantsTable.php');
 $participanttable = new ParticipantsTable(
-        $courseid, $groupid, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1, $searchkeywords = array(), $bulkoperations,
+        $courseid, $groupid, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1, $searchkeywords = [], $bulkoperations,
         $selectall = \optional_param('selectall', false, \PARAM_BOOL)
 );
 $participanttable->define_baseurl($baseurl);
@@ -87,7 +87,7 @@ if ($bulkoperations) {
     echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checknone', 'class' => 'btn btn-secondary',
         'value' => \get_string('deselectall')));
     echo \html_writer::end_tag('div');
-    $displaylist = array();
+    $displaylist = [];
     if ($messagingallowed) {
         $displaylist['#messageselect'] = \get_string('messageselectadd');
     }

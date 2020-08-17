@@ -173,7 +173,7 @@ class ParticipantsTable extends \core_user\participants_table {
         $requestsignature = ia_api::get_request_signature($requestapiurl, 'GET', $requesttimestamp, $nonce, $blockinstance->config->apikey, $appid = $blockinstance->config->appid);
         $authheader = 'amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
 
-        $promises = array();
+        $promises = [];
 
         // The var $this->rawdata contains all the users for *this page* of the participants table.
         $debug && ia_mu::log($fxn . '::We should get data for ' . count($this->rawdata) . ' users');

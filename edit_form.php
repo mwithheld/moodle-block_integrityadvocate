@@ -86,7 +86,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
 
-        $errors = array();
+        $errors = [];
 
         if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {
             $data['config_appid'] = rtrim(ltrim(trim($data['config_appid']), '{'), '}');

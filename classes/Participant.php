@@ -79,7 +79,7 @@ class Participant {
     public $resubmiturl;
 
     /** @var array<Session> Array of session objects attached to this participant */
-    public $sessions = array();
+    public $sessions = [];
 
     /** @var int Participant Status value. */
     public $status;

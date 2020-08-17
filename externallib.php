@@ -84,7 +84,7 @@ class block_integrityadvocate_external extends \external_api {
         $result = array(
             'submitted' => false,
             'success' => true,
-            'warnings' => array(),
+            'warnings' => [],
         );
         $blockversion = get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         $coursecontext = null;

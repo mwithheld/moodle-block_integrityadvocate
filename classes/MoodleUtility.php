@@ -53,11 +53,11 @@ class MoodleUtility {
         $debug && self::log($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
             $debug && self::log($fxn . "::No instances of block_{$blockname} found");
-            return array();
+            return [];
         }
 
         // Go through each of the block instances and check visibility.
-        $blockinstances = array();
+        $blockinstances = [];
         foreach ($records as $r) {
             $debug && self::log($fxn . '::Looking at $br=' . ia_u::var_dump($r, true));
 
@@ -90,7 +90,7 @@ class MoodleUtility {
     private static function get_blocks_in_context(int $contextid, string $blockname) {
         global $DB;
 
-        $blockinstances = array();
+        $blockinstances = [];
         $recordset = $DB->get_recordset('block_instances', array('parentcontextid' => $contextid, 'blockname' => $blockname));
         foreach ($recordset as $r) {
             $blockinstances[$r->id] = \block_instance_by_id($r->id);
@@ -226,7 +226,7 @@ class MoodleUtility {
         $modinfo = \get_fast_modinfo($courseid, -1);
         // Used for sorting.
         $sections = $modinfo->get_sections();
-        $modules = array();
+        $modules = [];
         foreach ($modinfo->instances as $module => $instances) {
             $modulename = \get_string('pluginname', $module);
             foreach ($instances as $cm) {
@@ -266,7 +266,7 @@ class MoodleUtility {
      * @return array<object> The array without the restricted modules.
      */
     public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, array $exclusions): array {
-        $filteredmodules = array();
+        $filteredmodules = [];
         $modinfo = \get_fast_modinfo($courseid, $userid);
         $coursecontext = \CONTEXT_COURSE::instance($courseid);
 
@@ -340,7 +340,7 @@ class MoodleUtility {
      */
     public static function get_completion_setup_errors($course = null): array {
         global $CFG;
-        $errors = array();
+        $errors = [];
 
         // Check if completion is enabled at site level.
         if (!$CFG->enablecompletion) {
@@ -451,7 +451,7 @@ class MoodleUtility {
                     AND g.excluded <> 0";
         $params = array('courseid' => $courseid);
         $results = $db->get_records_sql($query, $params);
-        $exclusions = array();
+        $exclusions = [];
         foreach ($results as $value) {
             $exclusions[] = $value->exclusion;
         }

@@ -80,7 +80,7 @@ class Session {
     public $participant;
 
     /** @var Flag[] Array of Flag objects in this session */
-    public $flags = array();
+    public $flags = [];
 
     /**
      * Return true if the session is overridden.

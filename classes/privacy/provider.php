@@ -84,7 +84,7 @@ class provider implements \core_privacy\local\metadata\provider,
         );
 
         // Combine the above keys with corresponding values into a new key-value array.
-        $privacyitemsarr = array();
+        $privacyitemsarr = [];
         foreach ($privacyitems as $key) {
             $privacyitemsarr[$key] = self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':' . $key;
         }
@@ -227,7 +227,7 @@ class provider implements \core_privacy\local\metadata\provider,
         }
 
         // For each visible IA block instance, get the context id.
-        $contextids = array();
+        $contextids = [];
         foreach ($blockinstances as $b) {
             $blockcontext = $b->context;
             $parentcontext = $blockcontext->get_parent_context();
@@ -295,14 +295,14 @@ class provider implements \core_privacy\local\metadata\provider,
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
         $debug && ia_mu::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
-            return array();
+            return [];
         }
 
         // If we got participants, we are in the block context and the parent is a module.
         //
         // Populate this list with user ids who have IA data in this context.
         // This lets us use add_users() to minimize DB calls rather than add_user() in the below loop.
-        $userids = array();
+        $userids = [];
         foreach ($participants as $p) {
             // Populate if is a participant.
             if (isset($p->participantidentifier) && !empty($p->participantidentifier)) {
@@ -327,10 +327,10 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param array<int> $useridstodelete List of userid to send deletion requests for. If empty, requests are sent for all participants.
      * @return bool True on success.
      */
-    public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = array()): bool {
+    public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = []): bool {
         // Prevent multiple messages for the same user by tracking the IDs we have sent to.
-        $participantmessagesent = array();
-        $overridemessagesent = array();
+        $participantmessagesent = [];
+        $overridemessagesent = [];
 
         foreach ($participants as $p) {
             // Check the participant is one we should delete.
@@ -419,7 +419,7 @@ class provider implements \core_privacy\local\metadata\provider,
             'status',
         );
 
-        $info = array();
+        $info = [];
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
                 $val = \block_integrityadvocate\Status::get_status_lang($participant->$property);
@@ -456,7 +456,7 @@ class provider implements \core_privacy\local\metadata\provider,
             'status',
         );
 
-        $info = array();
+        $info = [];
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
                 $val = \block_integrityadvocate\Status::get_status_lang($participant->$property);

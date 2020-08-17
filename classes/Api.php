@@ -111,7 +111,7 @@ class Api {
      * @param array<key=val> $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
-    private static function get(string $endpoint, string $apikey, string $appid, array $params = array()) {
+    private static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
@@ -119,7 +119,7 @@ class Api {
 
         // If the block is not configured yet, simply return empty result.
         if (empty($apikey) || empty($appid)) {
-            return array();
+            return [];
         }
 
         // Sanity check.
@@ -247,16 +247,16 @@ class Api {
         // If the block is not configured yet, simply return empty result.
         if (ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_config_errors())) {
             ia_mu::log($fxn . '::The blockinstance has config errors, so return empty array');
-            return array();
+            return [];
         }
 
         $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $userid);
         if (!isset($participantcoursedata->sessions) || empty($participantcoursedata->sessions)) {
             ia_mu::log($fxn . '::Found no sessions in $participantcoursedata');
-            return array();
+            return [];
         }
 
-        $moduleusersessions = array();
+        $moduleusersessions = [];
         foreach ($participantcoursedata->sessions as $s) {
             ia_mu::log($fxn . '::Checking if $s->activityid != $modulecontext->instanceid=' . ($s->activityid != $modulecontext->instanceid));
             if ($s->activityid != $modulecontext->instanceid) {
@@ -375,11 +375,11 @@ class Api {
 
         if (ia_u::is_empty($participantsraw)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
-            return array();
+            return [];
         }
 
         $debug && ia_mu::log($fxn . '::About to process the participants returned');
-        $parsedparticipants = array();
+        $parsedparticipants = [];
         foreach ($participantsraw as $pr) {
             $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
             if (ia_u::is_empty($pr)) {
@@ -442,7 +442,7 @@ class Api {
         // Stop recursion when $result->NextToken = 'null'.
         // WTF: It's a string with content 'null' when other fields returned are actual NULL.
         if ($nexttoken == 'null') {
-            return array();
+            return [];
         }
 
         // Sanity check.
@@ -529,17 +529,17 @@ class Api {
 
         if (ia_u::is_empty($participantsessionsraw)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
-            return array();
+            return [];
         }
 
         // Sessions will be attached to this Participant object.
         $participant = self::get_participant($apikey, $appid, $courseid, $userid);
         if (empty($participant)) {
-            return array();
+            return [];
         }
 
         $debug && ia_mu::log($fxn . '::About to process the participant sessions returned');
-        $parsedparticipantsessions = array();
+        $parsedparticipantsessions = [];
         foreach ($participantsessionsraw as $pr) {
             $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
             if (ia_u::is_empty($pr)) {
@@ -592,7 +592,7 @@ class Api {
         // Stop recursion when $result->NextToken = 'null'.
         // WTF: It's a string with content 'null' when other fields returned are actual NULL.
         if ($nexttoken == 'null') {
-            return array();
+            return [];
         }
 
         // Sanity check.
@@ -905,7 +905,7 @@ class Api {
 
         // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         if (isset($input->CaptureData)) {
-            $matches = array();
+            $matches = [];
             switch (true) {
                 case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->CaptureData, $matches)):
                     $output->capturedata = $matches[0];
@@ -939,7 +939,7 @@ class Api {
         // Sanity check.
         if (ia_u::is_empty($input)) {
             $debug && ia_mu::log($fxn . '::Empty object found, so return false');
-            return array();
+            return [];
         }
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
@@ -956,7 +956,7 @@ class Api {
         // Check required field #1.
         if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found: Id');
-            return array();
+            return [];
         }
         $output->id = $input->Id;
         $debug && ia_mu::log($fxn . '::Got $session->id=' . $output->id);
@@ -964,7 +964,7 @@ class Api {
         // Check required field #2.
         if (!isset($input->Status) || !is_string($input->Status) || strlen($input->Status) < 5) {
             $debug && ia_mu::log($fxn . '::Minimally-required fields not found: Status');
-            return array();
+            return [];
         }
         // This function throws an error if the status is invalid.
         $output->status = ia_status::parse_status_string($input->Status);
@@ -980,7 +980,7 @@ class Api {
                 $output->activityid = \clean_param($input->Activity_Id, PARAM_INT);
                 if (!($courseid = ia_mu::get_courseid_from_cmid($output->activityid)) || $courseid !== $participant->courseid) {
                     $debug && ia_mu::log($fxn . "::This session activity_id={$output->activityid} belongs to courseid={$courseid} vs participant->courseid={$participant->courseid}, so return empty");
-                    return array();
+                    return [];
                 }
             }
             isset($input->Click_IAmHere_Count) && ($output->clickiamherecount = \clean_param($input->Click_IAmHere_Count, PARAM_INT));
@@ -1007,7 +1007,7 @@ class Api {
 
         // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         if (isset($input->Participant_Photo)) {
-            $matches = array();
+            $matches = [];
             switch (true) {
                 case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
                     $output->participantphoto = $matches[0];
@@ -1116,7 +1116,7 @@ class Api {
 
         // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         if (isset($input->Participant_Photo)) {
-            $matches = array();
+            $matches = [];
             switch (true) {
                 case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
                     $output->participantphoto = $matches[0];
@@ -1137,7 +1137,7 @@ class Api {
         $debug && ia_mu::log($fxn . '::Done status fields');
 
         // Handle sessions data.
-        $output->sessions = array();
+        $output->sessions = [];
         if (isset($input->Sessions) && is_array($input->Sessions)) {
             $debug && ia_mu::log($fxn . '::Found some sessions to look at');
             foreach ($input->Sessions as $s) {
@@ -1286,7 +1286,7 @@ class Api {
      * @param array<key=val> $params Key-value array of params being sent to the API endpoint.
      * @return bool True if everything seems valid.
      */
-    public static function validate_endpoint_params(string $endpoint, array $params = array()): bool {
+    public static function validate_endpoint_params(string $endpoint, array $params = []): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . "::Started with \$endpoint={$endpoint}; \$args=" . ($params ? ia_u::var_dump($params, true) : ''));
