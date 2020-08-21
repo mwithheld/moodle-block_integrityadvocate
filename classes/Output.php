@@ -182,13 +182,13 @@ class Output {
     }
 
     /**
-     * Generate the HTML to view details for this user.
+     * Generate the HTML for the Overview button.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param int $userid The user id.
-     * @return string HTML button to view user details.
+     * @return string HTML button.
      */
-    public static function get_button_userdetails(\block_integrityadvocate $blockinstance, int $userid): string {
+    public static function get_button_overview(\block_integrityadvocate $blockinstance, int $userid): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
@@ -313,14 +313,14 @@ class Output {
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param Participant $participant Participant object from the IA API.
      * @param bool $showphoto True to include the user photo.
-     * @param bool $showviewdetailsbutton True to show the viewDetails button.
+     * @param bool $showoverviewbutton True to show the Overview button.
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
-     * @return string HTML output showing latest participant-level status and photo.
+     * @return string HTML output.
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, Participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, Participant $participant, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
+        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -360,8 +360,8 @@ class Output {
                 date('Y-m-d H:i', $participant->modified) .
                 \html_writer::end_tag('div');
 
-        if ($showviewdetailsbutton) {
-            $out .= self::get_button_userdetails($blockinstance, $participant->participantidentifier);
+        if ($showoverviewbutton) {
+            $out .= self::get_button_overview($blockinstance, $participant->participantidentifier);
         }
 
         // Close .block_integrityadvocate_overview_participant_summary_text.
@@ -426,14 +426,14 @@ class Output {
      * @param \block_integrityadvocate $blockinstance Block instance to get participant data for.
      * @param int $userid User id to get info for.
      * @param bool $showphoto True to include the photo from the Participant info.
-     * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
+     * @param bool $showoverviewbutton True to show the "View Details" button to get more info about the users IA session.
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output showing latest status, flags, and photos.
      */
-    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
+    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
+        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
@@ -450,7 +450,7 @@ class Output {
             return '';
         }
 
-        return self::get_participant_basic_output($blockinstance, $participant, $showphoto, $showviewdetailsbutton, $showstatus);
+        return self::get_participant_basic_output($blockinstance, $participant, $showphoto, $showoverviewbutton, $showstatus);
     }
 
 }
