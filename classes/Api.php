@@ -453,7 +453,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
         foreach (array_keys($params) as $key) {
-            if (!in_array($key, array('courseid', 'userid'))) {
+            if (!in_array($key, array('externaluserid'))) {
                 $msg = 'Input params are invalid';
                 ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -521,31 +521,66 @@ class Api {
         set_time_limit(self::RECURSION_TIMEOUT);
 
         $params = ['courseid' => $courseid, 'activityid' => $moduleid];
-        $userid && ($params['userid'] = $userid);
+        $userid && ($params['participantidentifier'] = $userid);
 
         // This gets a json-decoded object of the IA API curl result.
         $participantsessionsraw = self::get_participantsessions_data($apikey, $appid, $params);
-        $debug && ia_mu::log($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API result = ' . (ia_u::is_empty($participantsessionsraw) ? '' : ia_u::var_dump($participantsessionsraw, true)));
+        $debug && ia_mu::log($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API results= ' . (ia_u::is_empty($participantsessionsraw) ? '' : ia_u::var_dump($participantsessionsraw, true)));
 
         if (ia_u::is_empty($participantsessionsraw)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
             return [];
         }
 
-        // Sessions will be attached to this Participant object.
-        $participant = self::get_participant($apikey, $appid, $courseid, $userid);
-        if (empty($participant)) {
-            return [];
-        }
+        // Sessions must be attached to parent participant objects.
+        // Collect them here as we retrieve the data and build them.
+        $participants = [];
 
-        $debug && ia_mu::log($fxn . '::About to process the participant sessions returned');
+        $debug && ia_mu::log($fxn . '::About to process the participantsessions returned');
         $parsedparticipantsessions = [];
         foreach ($participantsessionsraw as $pr) {
             $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
-            if (ia_u::is_empty($pr)) {
-                $debug && ia_mu::log($fxn . '::Skip: This $participantsessionsraw entry is empty');
+            if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !is_numeric($participantidentifier = $pr->ParticipantIdentifier) || intval($participantidentifier) !== $userid) {
+                $debug && ia_mu::log($fxn . '::Skip: This $participantsessionsraw entry is empty or invalid');
                 continue;
             }
+
+            // It is expensive and unneccesary to call the participant API endpoint for each.
+            // Sessions will be attached to this mock Participant object.
+            if (!isset($participants[$participantidentifier])) {
+                switch (true) {
+                    case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
+                        continue;
+                    case(!isset($pr->Course_Id) || intval($pr->Course_Id) !== intval($courseid)):
+                        continue;
+                    case(!isset($pr->Activity_Id) || intval($pr->Activity_Id) !== intval($moduleid)):
+                        continue;
+                    case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
+                        continue;
+                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid))):
+                        // The above line also throws an error if $overrideuserid cannot access the module.
+                        continue;
+                    case(!\is_enrolled($cm->context, $user /* Include inactive enrolments. */)):
+                        continue;
+                }
+
+                $participant = new ia_participant();
+                $participant->courseid = $courseid;
+                $participant->participantidentifier = (int) $participantidentifier;
+                $participant->firstname = $user->firstname;
+                $participant->lastname = $user->lastname;
+                $participant->email = $user->email;
+
+//                $participant = self::get_participant($apikey, $appid, $courseid, $participantidentifier);
+//                if (empty($participant)) {
+//                    return [];
+//                }
+                $participants[$participantidentifier] = $participant;
+            }
+            $debug && ia_mu::log($fxn . '::Got $participant=' . ia_u::var_dump($participant, true));
+
+            // Use the stored participant.
+            $participant = $participants[$participantidentifier];
 
             // Parse the participant session returned.
             $participantsession = self::parse_session($pr, $participant);
@@ -600,14 +635,14 @@ class Api {
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) ||
                 !isset($params['courseid']) || !is_number($params['courseid']) ||
                 !isset($params['activityid']) || !is_number($params['activityid']) ||
-                (isset($params['userid']) && !is_number($params['userid']))
+                (isset($params['participantidentifier']) && !is_number($params['participantidentifier']))
         ) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
         foreach (array_keys($params) as $key) {
-            if (!in_array($key, array('courseid', 'activityid', 'userid'))) {
+            if (!in_array($key, array('courseid', 'activityid', 'participantidentifier'))) {
                 $msg = "Input param {$key} is invalid";
                 ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -1085,6 +1120,20 @@ class Api {
                 return null;
             }
 
+            $userid = $output->participantidentifier;
+            $courseid = $output->courseid;
+            switch (true) {
+                case(!($user = ia_mu::get_user_as_obj($userid))) :
+                    $debug && ia_mu::log($fxn . "::User not found for participantidentifier={$userid}");
+                    return null;
+                case (ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))):
+                    $debug && ia_mu::log($fxn . "::Invalid \$courseid={$courseid} specified or course context not found");
+                    return null;
+                case(!\is_enrolled($coursecontext, $user /* Include inactive enrolments. */)) :
+                    $debug && ia_mu::log($fxn . "::Course id={$courseid} does not have targetuserid={$targetuserid} enrolled");
+                    return null;
+            }
+
             isset($input->Created) && ($output->created = \clean_param($input->Created, PARAM_INT));
             isset($input->Modified) && ($output->modified = \clean_param($input->Modified, PARAM_INT));
 
@@ -1298,7 +1347,10 @@ class Api {
         // For each endpoint, specify what the accepted params are and their types.
         switch ($endpoint) {
             case self::ENDPOINT_PARTICIPANT:
-                $validparams = array('participantidentifier' => \PARAM_INT, 'courseid' => \PARAM_INT);
+                $validparams = array(
+                    'participantidentifier' => \PARAM_INT,
+                    'courseid' => \PARAM_INT
+                );
                 // All params are required.
                 $requiredparams = array_keys($validparams);
                 break;
@@ -1310,6 +1362,7 @@ class Api {
                     'limit' => \PARAM_INT,
                     'nexttoken' => \PARAM_TEXT,
                     'status' => \PARAM_TEXT,
+                    'externaluserid' => \PARAM_INT,
                 );
                 $requiredparams = array('courseid');
                 break;
