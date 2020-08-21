@@ -474,7 +474,7 @@ class Api {
         }
 
         $participants = $result->Participants;
-        $debug && ia_mu::log($fxn . '::$result->NextToken=' . gettype($result->NextToken) . ':' . $result->NextToken);
+        $debug && ia_mu::log($fxn . '::$result->NextToken=:' . $result->NextToken);
 
         if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
             $debug && ia_mu::log($fxn . '::About to recurse to get more results');
@@ -540,28 +540,33 @@ class Api {
         $parsedparticipantsessions = [];
         foreach ($participantsessionsraw as $pr) {
             $debug && ia_mu::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
-            if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !is_numeric($participantidentifier = $pr->ParticipantIdentifier) || intval($participantidentifier) !== $userid) {
+            if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !is_numeric($participantidentifier = $pr->ParticipantIdentifier)) {
                 $debug && ia_mu::log($fxn . '::Skip: This $participantsessionsraw entry is empty or invalid');
+                continue;
+            }
+            if ($userid && intval($participantidentifier) !== intval($userid)) {
+                $debug && ia_mu::log($fxn . "::Skip: This \$participantidentifier={$participantidentifier} does not match the \$userid={$userid}");
                 continue;
             }
 
             // It is expensive and unneccesary to call the participant API endpoint for each.
             // Sessions will be attached to this mock Participant object.
             if (!isset($participants[$participantidentifier])) {
+                $debug && ia_mu::log($fxn . "::\$user=" . ia_u::var_dump($user = ia_mu::get_user_as_obj($participantidentifier)));
                 switch (true) {
                     case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
-                        continue;
+                        continue 2;
                     case(!isset($pr->Course_Id) || intval($pr->Course_Id) !== intval($courseid)):
-                        continue;
+                        continue 2;
                     case(!isset($pr->Activity_Id) || intval($pr->Activity_Id) !== intval($moduleid)):
-                        continue;
+                        continue 2;
                     case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
-                        continue;
-                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid))):
+                        continue 2;
+                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $participantidentifier)[1])):
                         // The above line also throws an error if $overrideuserid cannot access the module.
-                        continue;
+                        continue 2;
                     case(!\is_enrolled($cm->context, $user /* Include inactive enrolments. */)):
-                        continue;
+                        continue 2;
                 }
 
                 $participant = new ia_participant();
@@ -570,11 +575,6 @@ class Api {
                 $participant->firstname = $user->firstname;
                 $participant->lastname = $user->lastname;
                 $participant->email = $user->email;
-
-//                $participant = self::get_participant($apikey, $appid, $courseid, $participantidentifier);
-//                if (empty($participant)) {
-//                    return [];
-//                }
                 $participants[$participantidentifier] = $participant;
             }
             $debug && ia_mu::log($fxn . '::Got $participant=' . ia_u::var_dump($participant, true));
@@ -663,7 +663,7 @@ class Api {
         }
 
         $participantsessions = $result->ParticipantSessions;
-        $debug && ia_mu::log($fxn . '::$result->NextToken=' . gettype($result->NextToken) . ':' . $result->NextToken);
+        $debug && ia_mu::log($fxn . '::$result->NextToken=' . $result->NextToken);
 
         if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
             $debug && ia_mu::log($fxn . '::About to recurse to get more results');
