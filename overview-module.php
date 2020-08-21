@@ -87,7 +87,7 @@ echo \html_writer::end_tag('div');
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container']);
 
 // Get IA sessions associated with this course module for all participants.
-$participantsessions = ia_api::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $moduleid, $userid);
+$participantsessions = ia_api::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $moduleid);
 $debug && ia_mu::log(__FILE__ . '::Got count($participantsessions)=' . ia_u::count_if_countable($participantsessions));
 
 
