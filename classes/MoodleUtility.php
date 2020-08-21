@@ -568,6 +568,10 @@ class MoodleUtility {
             }
             $user = array_pop($userarr);
 
+            if (isset($user->deleted) && $user->deleted) {
+                return false;
+            }
+
             if (!$cache->set($cachekey, $user)) {
                 throw new \Exception('Failed to set value in the cache');
             }
