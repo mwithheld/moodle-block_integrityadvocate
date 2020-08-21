@@ -352,7 +352,7 @@ class block_integrityadvocate extends block_base {
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
                 switch (true) {
                     case $hascapability_overview:
-                        // When viewing a course student profile, show latest student info.
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course student profile: show latest student info');
                         if (str_contains($this->page->url, '/user/view.php?')) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
@@ -368,7 +368,7 @@ class block_integrityadvocate extends block_base {
                             $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid);
                         }
 
-                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course: show the overview button and the module list.');
                         $this->content->text .= ia_output::get_button_course_overview($this);
 
                         if (INTEGRITYADVOCATE_FEATURE_COURSE_MODULELIST) {
@@ -404,12 +404,12 @@ class block_integrityadvocate extends block_base {
                         $this->content->text .= \html_writer::end_tag('div');
                         break;
                     case $hascapability_selfview:
-                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
                         // Check the user is enrolled in this course, but they must be active.
                         if (!\is_enrolled($parentcontext, $USER, null, true)) {
                             throw new \Exception('That user is not in this course');
                         }
 
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student viewing a course: show the overview button only');
                         // Do not show the latest status.
                         // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
                         $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
@@ -421,18 +421,18 @@ class block_integrityadvocate extends block_base {
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_MODULE');
                 switch (true) {
                     case $hascapability_overview:
-                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher should see the overview button');
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview button');
                         $this->content->text .= ia_output::get_button_course_overview($this);
                         break;
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
                             case (str_starts_with($this->page->pagetype, 'mod-scorm-')):
-                                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
                                 global $scorm;
                                 if (!isset($scorm)) {
                                     throw new \moodle_exception('Failed to find the global $scorm variable');
                                 }
+                                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student viewing a module: Show the proctoring UI maybe');
                                 // If this is the entry page for a SCORM "new window" instance, we launch the IA proctoring on the SCORM entry page.
                                 if ($scorm->popup) {
                                     if ($this->page->pagetype === 'mod-scorm-view') {
