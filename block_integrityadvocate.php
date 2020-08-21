@@ -364,7 +364,6 @@ class block_integrityadvocate extends block_base {
                             }
 
                             // Do not show the latest status.
-                            // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
                             $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid);
                         }
 
@@ -411,7 +410,6 @@ class block_integrityadvocate extends block_base {
 
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student viewing a course: show the overview button only');
                         // Do not show the latest status.
-                        // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
                         $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                         break;
                 }
