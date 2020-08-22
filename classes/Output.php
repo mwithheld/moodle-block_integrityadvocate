@@ -160,21 +160,23 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        $parameters = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid);
+        $params = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid);
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
         switch (intval($parentcontext->contextlevel)) {
             case (intval(\CONTEXT_COURSE)):
                 $debug && ia_mu::log($fxn . '::parentcontext=course');
-                $parameters += ['userid' => $userid];
                 if ($userid) {
+                    $debug && ia_mu::log($fxn . "::We have a \$userid={$userid} so label the button with view details");
+                    $params += ['userid' => $userid];
                     $label = \get_string('btn_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
+                } else {
+                    $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
                 }
-                $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case (intval(\CONTEXT_MODULE)):
                 $debug && ia_mu::log($fxn . '::parentcontext=module');
-                $parameters += ['moduleid' => $parentcontext->instanceid];
+                $params += ['moduleid' => $parentcontext->instanceid];
                 $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             default:
@@ -182,16 +184,17 @@ class Output {
                 $debug && ia_mu::log($fxn . '::' . $msg);
                 throw new Exepttion($msg);
         }
+        $debug && ia_mu::log($fxn . '::Built params=' . ia_u::var_dump($params));
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($parameters, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
 
-        $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $parameters);
+        $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $params);
         $options = array('class' => 'block_integrityadvocate_overview_btn_view_details');
 
         global $OUTPUT;
