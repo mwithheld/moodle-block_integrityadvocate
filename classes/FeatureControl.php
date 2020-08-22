@@ -29,9 +29,9 @@ namespace block_integrityadvocate;
  */
 class FeatureControl {
 
-    const CACHE = false;
-    const SESSION_STATUS_OVERRIDE = true;
+    const CACHE = true;
     const MODULE_LIST = true;
     const OVERVIEW_MODULE = true;
+    const SESSION_STATUS_OVERRIDE = true;
 
 }
