@@ -48,7 +48,6 @@ define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 $debug = false;
 
 \require_login();
-\confirm_sesskey() || print_error('confirmsesskeybad');
 
 // Gather form data.
 // Used for the APIkey and AppId.
@@ -74,16 +73,14 @@ switch (true) {
 
         $params += [
             'userid' => $userid,
-            'sesskey' => sesskey(),
         ];
         break;
-    case ($moduleid):
+    case ($moduleid && $block_integrityadvocate_features['overviewmodule']):
         $debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
             'moduleid' => $moduleid,
-            'sesskey' => sesskey(),
         ];
         break;
     default:
@@ -96,10 +93,9 @@ switch (true) {
         // To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
         $roleid = \optional_param('role', 0, PARAM_INT);
         $params += [
-            'moduleid' => $moduleid,
             'group' => $groupid,
-            'role' => $roleid,
             'perpage' => $perpage,
+            'role' => $roleid,
         ];
 }
 
