@@ -100,11 +100,10 @@ if ($continue) {
     }
 
     usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
-    $modinfo = \get_fast_modinfo($courseid, -1);
     $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
     $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
 
-    // Build the override UI hidden to the page so we can just swap it in on click
+    // Build the override UI hidden to the page so we can just swap it in on click.
     if ($showoverride) {
         $prefix_overrideform = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
         // Create a form for the override UI.
@@ -126,7 +125,6 @@ if ($continue) {
                             'required' => true
         ));
         // Add hidden fields needed for the AJAX call.
-        global $USER;
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_overrideuserid', 'name' => $prefix_overrideform . '_overrideuserid', 'value' => $USER->id));
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_sesskey', 'name' => 'sesskey', 'value' => sesskey()));
