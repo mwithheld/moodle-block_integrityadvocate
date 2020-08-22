@@ -170,12 +170,12 @@ class Output {
                 if ($userid) {
                     $label = \get_string('btn_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
                 }
-                $label = \get_string('btn_overv', INTEGRITYADVOCATE_BLOCK_NAME);
+                $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case (intval(\CONTEXT_MODULE)):
                 $debug && ia_mu::log($fxn . '::parentcontext=module');
                 $parameters += ['moduleid' => $parentcontext->instanceid];
-                $label = \get_string('button_overview', INTEGRITYADVOCATE_BLOCK_NAME);
+                $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             default:
                 $msg = 'Unrecognized parent context';

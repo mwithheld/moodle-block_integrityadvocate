@@ -85,6 +85,8 @@ $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
 
+$string['btn_overview'] = 'Overview';
+$string['btn_view_details'] = 'View details';
 $string['overview_course'] = 'Integrity Advocate Course Overview';
 $string['overview_module'] = 'Integrity Advocate Module Overview';
 $string['overview_user'] = 'Integrity Advocate User Overview';
@@ -92,8 +94,6 @@ $string['flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
-$string['btn_view_details'] = 'View details';
-$string['button_overview'] = 'Overview';
 
 $string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en" target="_blank">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en" target="_blank">Integrity Advocate Privacy</a> for more information.';
