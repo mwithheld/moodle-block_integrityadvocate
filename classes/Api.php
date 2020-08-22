@@ -281,7 +281,7 @@ class Api {
      * @return null|Participant Null if nothing found; else the parsed Participant object.
      */
     public static function get_participant(string $apikey, string $appid, int $courseid, int $userid) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -468,6 +468,14 @@ class Api {
         $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
 
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($result, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
         if (ia_u::is_empty($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return new \stdClass();
@@ -482,6 +490,10 @@ class Api {
             // The nexttoken value is only needed for the above get request.
             unset($params['nexttoken']);
             $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $params, $result->NextToken));
+        }
+
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $participants)) {
+            throw new \Exception('Failed to set value in the cache');
         }
 
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
