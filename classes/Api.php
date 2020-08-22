@@ -243,22 +243,23 @@ class Api {
 
         // Get the APIKey and AppID for this module.
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
+        $debug && ia_mu::log($fxn . '::Got blockinstance with id=' . isset($blockinstance->instance->id) ?: 'empty');
 
         // If the block is not configured yet, simply return empty result.
         if (ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_config_errors())) {
-            ia_mu::log($fxn . '::The blockinstance has config errors, so return empty array');
+            $debug && ia_mu::log($fxn . '::The blockinstance is empty or has config errors, so return empty array');
             return [];
         }
 
         $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $userid);
         if (!isset($participantcoursedata->sessions) || empty($participantcoursedata->sessions)) {
-            ia_mu::log($fxn . '::Found no sessions in $participantcoursedata');
+            $debug && ia_mu::log($fxn . '::Found no sessions in $participantcoursedata');
             return [];
         }
 
         $moduleusersessions = [];
         foreach ($participantcoursedata->sessions as $s) {
-            ia_mu::log($fxn . '::Checking if $s->activityid != $modulecontext->instanceid=' . ($s->activityid != $modulecontext->instanceid));
+            $debug && ia_mu::log($fxn . '::Checking if $s->activityid != $modulecontext->instanceid=' . ($s->activityid != $modulecontext->instanceid));
             if ($s->activityid != $modulecontext->instanceid) {
                 continue;
             }
@@ -785,7 +786,7 @@ class Api {
      * @return int A Status status constant _INT value.
      */
     public static function get_module_status(\context $modulecontext, int $userid): int {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -801,7 +802,7 @@ class Api {
         $notfoundval = ia_status::INPROGRESS_INT;
 
         $latestsession = self::get_module_session_latest($modulecontext, $userid);
-        ia_mu::log($fxn . '::Got $latestsession=' . ia_u::var_dump($latestsession, true));
+        $debug && ia_mu::log($fxn . '::Got $latestsession=' . ia_u::var_dump($latestsession, true));
         if (ia_u::is_empty($latestsession)) {
             $debug && ia_mu::log($fxn . "::The latest session for userid={$userid} was not found");
             return $notfoundval;
@@ -822,7 +823,7 @@ class Api {
      * @return bool True if the status value for the user in the module represents "In Progress".
      */
     public static function is_status_inprogress(context $modulecontext, int $userid): bool {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -846,7 +847,7 @@ class Api {
      * @return bool True if the status value for the user in the module represents "Invalid".
      */
     public static function is_status_invalid(\context $modulecontext, int $userid): bool {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -874,7 +875,7 @@ class Api {
      * @return bool True if the status value for the user in the module represents "Valid".
      */
     public static function is_status_valid(\context $modulecontext, int $userid): bool {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
