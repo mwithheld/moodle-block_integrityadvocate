@@ -120,8 +120,7 @@ class MoodleUtility {
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && self::log($fxn . "::Looking at \$c->id={$c->id}; "
-                            . "\$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
+            $debug && self::log($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
             if (intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
                 continue;
             }
@@ -504,42 +503,48 @@ class MoodleUtility {
      * @return bool|\block_integrityadvocate bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
         $debug && self::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
+        //Z--.
         // Danger: Caching the resulting $record in the perrequest cache didn't work - we get an invalid stdClass back out.
-        //
-        //
-        // If there are multiple blocks in this context just return the first one.
+        //Z--.
         global $DB;
-        $record = $DB->get_record('block_instances', $params, '*', IGNORE_MULTIPLE);
-        $debug && self::log($fxn . '::Found blockinstance record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
-        if (ia_u::is_empty($record)) {
-            $debug && self::log($fxn . "::No instance of block_{$blockname} is associated with this context");
+        $records = $DB->get_records('block_instances', $params);
+        $debug && self::log($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
+        if (ia_u::is_empty($records)) {
+            $debug && self::log($fxn . "::No instances of block_{$blockname} is associated with this context");
             return false;
         }
 
-        // Check if it is visible and get the IA appid from the block instance config.
-        $record->visible = self::get_block_visibility($modulecontext->id, $record->id);
-        $debug && self::log($fxn .
-                        "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$record->id} found \$record->visible={$record->visible}");
+        // If there are multiple blocks in this context just return the first valid one.
+        $blockrecord = null;
+        foreach ($records as $r) {
+            // Check if it is visible and get the IA appid from the block instance config.
+            $r->visible = self::get_block_visibility($modulecontext->id, $r->id);
+            $debug && self::log($fxn . "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$r->id} found \$record->visible={$r->visible}");
+            if ($visibleonly && !$r->visible) {
+                $debug && self::log($fxn . "::\$visibleonly=true and this instance is not visible so skip it");
+                continue;
+            }
 
-        if ($visibleonly && !$record->visible) {
-            $debug && self::log($fxn . "::\$visibleonly=true and this instance is not visible so return false");
+            $blockrecord = $r;
+            break;
+        }
+        if (empty($blockrecord)) {
+            $debug && self::log($fxn . "::No valid blockrecord found, so return false");
             return false;
         }
 
         if ($rownotinstance) {
-            return $record;
+            return $blockrecord;
         }
 
-        $blockinstance = \block_instance_by_id($record->id);
-
-        return $blockinstance;
+        return \block_instance_by_id($blockrecord->id);
     }
 
     /**
