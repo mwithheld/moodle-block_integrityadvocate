@@ -87,7 +87,7 @@ $continue = isset($participant->sessions) && is_array($participant->sessions) &&
 
 if ($continue) {
     // Should we show override stuff?
-    $showoverride = $block_integrityadvocate_features['override'] && $hascapability_override;
+    $showoverride = FeatureControl::SESSION_STATUS_OVERRIDE && $hascapability_override;
     $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
 
     // Set a nonce into the server-side user session.

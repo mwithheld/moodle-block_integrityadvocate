@@ -141,8 +141,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
-
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -192,7 +191,7 @@ class Api {
             throw new \Exception('Failed to json_decode: ' . $msg);
         }
 
-        if (!$cache->set($cachekey, $responseparsed)) {
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $responseparsed)) {
             throw new \Exception('Failed to set value in the cache');
         }
         return $responseparsed;
@@ -913,7 +912,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -952,7 +951,7 @@ class Api {
             }
         }
 
-        if (!$cache->set($cachekey, $output)) {
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -981,7 +980,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -1067,7 +1066,7 @@ class Api {
         // Link in the parent Participant object.
         $output->participant = $participant;
 
-        if (!$cache->set($cachekey, $output)) {
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -1102,7 +1101,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(implode('_', array(__CLASS__, __FUNCTION__, json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR))));
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -1221,7 +1220,7 @@ class Api {
 
         $debug && ia_mu::log($fxn . '::About to return $participant= ' . ia_u::var_dump($output, true));
 
-        if (!$cache->set($cachekey, $output)) {
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
         return $output;

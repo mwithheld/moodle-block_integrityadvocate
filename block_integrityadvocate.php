@@ -200,7 +200,7 @@ class block_integrityadvocate extends block_base {
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (block_integrityadvocate\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
 
@@ -212,7 +212,7 @@ class block_integrityadvocate extends block_base {
         // Check the context we got is module context and not course context.
         // If this is a course-level block, just return what errors we have so far.
         if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
-            if (!$cache->set($cachekey, $errors)) {
+            if (block_integrityadvocate\FeatureControl::CACHE && !$cache->set($cachekey, $errors)) {
                 throw new \Exception('Failed to set value in the cache');
             }
             return $errors;
@@ -236,7 +236,7 @@ class block_integrityadvocate extends block_base {
             }
         }
 
-        if (!$cache->set($cachekey, $errors)) {
+        if (block_integrityadvocate\FeatureControl::CACHE && !$cache->set($cachekey, $errors)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -369,8 +369,7 @@ class block_integrityadvocate extends block_base {
 
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course: show the overview button and the module list.');
                         $this->content->text .= ia_output::get_button_overview($this);
-                        global $block_integrityadvocate_features;
-                        if ($block_integrityadvocate_features['coursemodulelist']) {
+                        if (block_integrityadvocate\FeatureControl::MODULE_LIST) {
                             $prefix = 'integrityadvocate_modulelist';
                             $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
                             $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());

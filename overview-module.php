@@ -43,7 +43,7 @@ $userid = $USER->id;
 
 // Check all requirements.
 switch (true) {
-    case (!$block_integrityadvocate_features['overviewmodule']):
+    case (!FeatureControl::OVERVIEW_MODULE):
         throw new Exception('This feature is disabled');
     case (empty($blockinstanceid)):
         throw new \InvalidArgumentException('$blockinstanceid is required');

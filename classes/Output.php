@@ -186,7 +186,7 @@ class Output {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($parameters, JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -197,7 +197,7 @@ class Output {
         global $OUTPUT;
         $output = $OUTPUT->single_button($url, $label, 'get', $options);
 
-        if (!$cache->set($cachekey, $output)) {
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -313,7 +313,7 @@ class Output {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(implode('_', array(__CLASS__, __FUNCTION__, $blockinstance->instance->id, json_encode($participant, JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars)));
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -357,7 +357,7 @@ class Output {
         // Start next section on a new line.
         $out .= '<div style="clear:both"></div>';
 
-        if (!$cache->set($cachekey, $out)) {
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $out)) {
             throw new \Exception('Failed to set value in the cache');
         }
         return $out;

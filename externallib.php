@@ -89,8 +89,6 @@ class block_integrityadvocate_external extends \external_api {
         $blockversion = get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         $coursecontext = null;
 
-        global $block_integrityadvocate_features;
-
         // Check for things that should make this fail.
         switch (true) {
             case(!\confirm_sesskey()):
@@ -115,7 +113,7 @@ class block_integrityadvocate_external extends \external_api {
             case(!$blockinstance_requesting->is_visible()) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Blockinstanceid={$blockinstance_requesting_id} is hidden");
                 break;
-            case(!$block_integrityadvocate_features['override']) :
+            case(!block_integrityadvocate\FeatureControl::SESSION_STATUS_OVERRIDE) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'This feature is disabled');
                 break;
             case(!($coursecontext = $blockinstance_requesting->context->get_course_context())) :
