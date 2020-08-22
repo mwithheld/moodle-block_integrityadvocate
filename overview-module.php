@@ -89,15 +89,58 @@ echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . 
 // Get IA sessions associated with this course module for all participants.
 $participantsessions = ia_api::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $moduleid);
 $debug && ia_mu::log(__FILE__ . '::Got count($participantsessions)=' . ia_u::count_if_countable($participantsessions));
+// Disabled on purpose: echo 'Done the API call; participantsessions=<PRE>' . ia_u::var_dump($participantsessions, true) . '</PRE>';.
 
+if ($participantsessions) {
+    $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant'; // Should we show override stuff?
+    $showoverride = FeatureControl::SESSION_STATUS_OVERRIDE && $hascapability_override;
 
-//$continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
+    // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
+    echo '<table id="' . $prefix . '_table" class="stripe order-column hover display">';
+    $tr = '<tr>';
+    $tr_end = '</tr>';
+    echo '<thead>';
+    $tr_header = $tr;
+    $tr_header .= \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_session_activitymodule"]);
+    $tr_header .= \html_writer::tag('th', \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_start"]);
+    $tr_header .= \html_writer::tag('th', \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_end"]);
 
-echo 'Done the API call; participantsessions=<PRE>' . ia_u::var_dump($participantsessions, true) . '</PRE>';
-foreach ($participantsessions as $ps) {
+    $tr_header .= \html_writer::tag('th', \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status"]);
+    $tr_header .= \html_writer::tag('th', \get_string('photo', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_photo"]);
+    $tr_header .= \html_writer::tag('th', \get_string('flags', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_flags"]);
 
-}
-exit;
+    if ($showoverride) {
+        $tr_header .= \html_writer::tag('th', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridedate"]);
+        $tr_header .= \html_writer::tag('th', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridestatus"]);
+
+        $tr_header .= \html_writer::tag('th', \get_string('session_overridename', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridename"]);
+        $tr_header .= \html_writer::tag('th', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridereason"]);
+    }
+    $tr_header .= $tr_end;
+    echo "{$tr_header}</thead><tbody>";
+    echo $tr;
+
+    foreach ($participantsessions as $session) {
+        echo '<PRE>' . ia_u::var_dump($session) . '</PRE><hr>' . ia_output::BRNL;
+        // Column=User.
+        $user = ia_mu::get_user_as_obj($session->participant->participantidentifier);
+        echo \html_writer::tag('td', ia_mu::get_user_picture($user), ['data-sort' => fullname($user), 'class' => "{$prefix}_session_start"]);
+
+        // Column=session_start.
+        $sessionstart = ia_u::is_unixtime_past($session->start) ? $session->start : '';
+        echo \html_writer::tag('td', ($sessionstart ? \userdate($session->start) : ''), ['data-sort' => $session->start, 'class' => "{$prefix}_session_start"]);
+        // Column=session_end.
+        $sessionend = ia_u::is_unixtime_past($session->end) ? $session->end : '';
+        echo \html_writer::tag('td', ($sessionend ? \userdate($sessionend) : ''), ['data-sort' => $sessionend, 'class' => "{$prefix}_session_end"]);
+
+//        echo "email={$session->participant->email}; ";
+//        echo "session start={$session->start}; ";
+//        echo "session end={$session->end}; ";
+//        echo "session status={$session->status}; ";
+//        echo "captured photo={photo here}; ";
+//        echo "captured flags={flags}; " . ia_output::BRNL;
+        echo $tr_end;
+    }
 ////$continue = false;
 //if ($continue) {
 //    echo __FILE__ . '::Got count($participants)=' . ia_u::count_if_countable($participants);
@@ -274,4 +317,5 @@ exit;
 //    echo '<div id="dialog"></div>';
 //}
 // Close the participant_container.
+}
 echo \html_writer::end_tag('div');
