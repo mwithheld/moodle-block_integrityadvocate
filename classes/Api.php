@@ -468,13 +468,13 @@ class Api {
         $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
         $debug && ia_mu::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
 
-        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($result, JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
-            return $cachedvalue;
-        }
+//        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
+//        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+//        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($result, JSON_PARTIAL_OUTPUT_ON_ERROR));
+//        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+//            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+//            return $cachedvalue;
+//        }
 
         if (ia_u::is_empty($result)) {
             $debug && ia_mu::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -492,10 +492,9 @@ class Api {
             $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $params, $result->NextToken));
         }
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $participants)) {
-            throw new \Exception('Failed to set value in the cache');
-        }
-
+//        if (FeatureControl::CACHE && !$cache->set($cachekey, $participants)) {
+//            throw new \Exception('Failed to set value in the cache');
+//        }
         // Disabled on purpose: $debug && ia_mu::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
         $debug && ia_mu::log($fxn . '::About to return count($participants)=' . ia_u::count_if_countable($participants));
         return $participants;
