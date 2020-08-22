@@ -87,7 +87,7 @@ $continue = isset($participant->sessions) && is_array($participant->sessions) &&
 
 if ($continue) {
     // Should we show override stuff?
-    $showoverride = INTEGRITYADVOCATE_FEATURE_OVERRIDE && $hascapability_override;
+    $showoverride = $block_integrityadvocate_features['override'] && $hascapability_override;
     $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
 
     // Set a nonce into the server-side user session.
@@ -129,6 +129,7 @@ if ($continue) {
         global $USER;
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_overrideuserid', 'name' => $prefix_overrideform . '_overrideuserid', 'value' => $USER->id));
+        $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_sesskey', 'name' => 'sesskey', 'value' => sesskey()));
         // Add icons.
         $overrideform .= Output::add_icon('e/save', $prefix_overrideform, 'save');
         $overrideform .= Output::add_icon('i/loading', $prefix_overrideform, 'loading');
