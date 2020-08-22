@@ -589,6 +589,38 @@ class MoodleUtility {
     }
 
     /**
+     * Build the formatted Moodle user info HTML with optional params.
+     *
+     * @param \stdClass $user Moodle User object.
+     * @param array $params Optional e.g ['size' => 35, 'courseid' => $courseid, 'includefullname' => true].
+     * @return string HTML for displaying user info.
+     */
+    public static function get_user_picture(\stdClass $user, array $params = array()): string {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$user->id={$user->id}; \$params=" . serialize($params);
+        $debug && self::log($debugvars);
+
+
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && self::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
+        global $OUTPUT;
+        $user_picture = $OUTPUT->user_picture($user, $params);
+
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $user_picture)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $user_picture;
+    }
+
+    /**
      * Get user last access in course.
      *
      * @param int $userid The user id to look for.
