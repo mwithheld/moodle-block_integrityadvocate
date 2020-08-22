@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Integrity Advocate';
-$string['button_overview'] = 'Overview';
 $string['proctorjs_load_failed'] = "The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.";
 $string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://integrityadvocate.com/Home/Privacy" target="_blank">Privacy</a><br /><a href="https://integrityadvocate.com/Troubleshooting" target="_blank">Troubleshooting</a><br /><a href="https://support.integrityadvocate.com/hc/ target="_blank">Support</a>';
 
@@ -93,7 +92,8 @@ $string['flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
-$string['overview_view_details'] = 'View details';
+$string['btn_view_details'] = 'View details';
+$string['button_overview'] = 'Overview';
 
 $string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en" target="_blank">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en" target="_blank">Integrity Advocate Privacy</a> for more information.';
