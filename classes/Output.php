@@ -146,7 +146,7 @@ class Output {
      * @return string HTML button.
      */
     public static function get_button_overview(\block_integrityadvocate $blockinstance, $userid = null): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
