@@ -368,9 +368,9 @@ class block_integrityadvocate extends block_base {
                         }
 
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course: show the overview button and the module list.');
-                        $this->content->text .= ia_output::get_button_course_overview($this);
-
-                        if (INTEGRITYADVOCATE_FEATURE_COURSE_MODULELIST) {
+                        $this->content->text .= ia_output::get_button_overview($this);
+                        global $block_integrityadvocate_features;
+                        if ($block_integrityadvocate_features['coursemodulelist']) {
                             $prefix = 'integrityadvocate_modulelist';
                             $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
                             $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());
@@ -420,7 +420,7 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapability_overview:
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview button');
-                        $this->content->text .= ia_output::get_button_course_overview($this);
+                        $this->content->text .= ia_output::get_button_overview($this);
                         break;
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
