@@ -89,8 +89,13 @@ class block_integrityadvocate_external extends \external_api {
         $blockversion = get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         $coursecontext = null;
 
+        global $block_integrityadvocate_features;
+
         // Check for things that should make this fail.
         switch (true) {
+            case(!\confirm_sesskey()):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => get_string('confirmsesskeybad'));
+                break;
             case(!ia_mu::nonce_validate(INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstance_requesting_id}_{$targetuserid}")):
                 // This nonce should be put into the server-side user session (ia_mu::nonce_set($noncekey)) when the form is generated.
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'Nonce not found');
@@ -110,7 +115,7 @@ class block_integrityadvocate_external extends \external_api {
             case(!$blockinstance_requesting->is_visible()) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Blockinstanceid={$blockinstance_requesting_id} is hidden");
                 break;
-            case(!INTEGRITYADVOCATE_FEATURE_OVERRIDE) :
+            case(!$block_integrityadvocate_features['override']) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'This feature is disabled');
                 break;
             case(!($coursecontext = $blockinstance_requesting->context->get_course_context())) :
