@@ -105,8 +105,11 @@
 .block_integrityadvocate_overview_btn_view_details {
     margin: 10px;
 }
-.block_integrityadvocate_overview_user_userinfo {
+.block_integrityadvocate_overview_user_userinfo, .block_integrityadvocate_overview_module_moduleinfo{
     padding-bottom: 1em;
+}
+.block_integrityadvocate_overview_module_moduleinfo img{
+    margin-right:0.5em;
 }
 
 .block_integrityadvocate_table {
