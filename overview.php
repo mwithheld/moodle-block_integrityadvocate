@@ -105,7 +105,7 @@ if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
 
-// Check user is logged in *to the course*.
+// Check the current USER is logged in *to the course*.
 \require_login($course, false);
 
 // Both overview pages require the blockinstance.
@@ -124,18 +124,19 @@ $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
 $title = \get_string(str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->navbar->add($title);
 $PAGE->set_pagelayout('report');
-$PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
-// Used for JS-driven filter of table data.
+// Used for JS-driven filter of table data on all overview pages.
 $PAGE->requires->string_for_js('filter', 'moodle');
-if ($requestedpage == 'overview-user') {
-    // This is the overview-user.php page: include JS and CSS for it.
+if (in_array($requestedpage, ['overview-user', 'overview-module'], true)) {
+    // Include JS and CSS for DataTables.
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
     $PAGE->requires->jquery_plugin('ui-css');
+    $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
 }
+$PAGE->set_heading($title);
+$PAGE->navbar->add($title);
+$PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
 
 // Start page output.
 // All header parts like JS, CSS must be above this.
