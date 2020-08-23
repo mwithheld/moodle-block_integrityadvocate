@@ -79,7 +79,6 @@ switch (true) {
 
 // Show basic module info at the top.  Adapted from course/classes/output/course_module_name.php:export_for_template().
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_module_moduleinfo']);
-global $PAGE;
 echo $PAGE->get_renderer('core', 'course')->course_section_cm_name_title($cm);
 echo \html_writer::end_tag('div');
 
@@ -103,8 +102,11 @@ if ($participantsessions) {
         $participants[$participantidentifier]->sessions[$session->id] = $session;
     }
 
-    $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant'; // Should we show override stuff?
+    // Should we show override stuff?
     $showoverride = FeatureControl::SESSION_STATUS_OVERRIDE && $hascapability_override;
+    $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
+
+    $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
 
     // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
     echo '<table id="' . $prefix . '_table" class="stripe order-column hover display">';
@@ -160,9 +162,9 @@ if ($participantsessions) {
         // If overridden, show the overridden status.
         if ($hasoverride) {
             // If overridden as Valid, add text "(Overridden)".
-            echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus) . ' ' . \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status {$prefix}_session_overridden" . $overrideclass]);
+            echo \html_writer::tag('td', ia_status::get_status_lang($session->overridestatus) . ' ' . \get_string('overridden', INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::get_button_overview($blockinstance, $p->participantidentifier), ['class' => "{$prefix}_session_status {$prefix}_session_overridden" . $overrideclass]);
         } else {
-            echo \html_writer::tag('td', ia_status::get_status_lang($session->status), ['class' => "{$prefix}_session_status" . $overrideclass]);
+            echo \html_writer::tag('td', ia_status::get_status_lang($session->status) . ia_output::get_button_overview($blockinstance, $p->participantidentifier), ['class' => "{$prefix}_session_status" . $overrideclass]);
         }
 
         // Column=session_photo.
@@ -212,6 +214,7 @@ if ($participantsessions) {
     echo '</tbody>';
     echo "<tfoot>{$tr_header}</tfoot>";
     echo '</table>';
+    // Used as a JQueryUI popup to show the user picture.
     echo '<div id="dialog"></div>';
 }
 // Close the participant_container.
