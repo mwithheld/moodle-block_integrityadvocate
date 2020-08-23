@@ -45,7 +45,7 @@ if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext
 // This is only optional_param() in overview.php.
 $userid = \required_param('userid', PARAM_INT);
 
-$debug = false;
+$debug = true;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockcontext->get_parent_context();
@@ -65,8 +65,9 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     throw new \Exception('No capabilities to view this course user');
 }
 
-$user = $DB->get_record('user', array('id' => $userid), '*', \MUST_EXIST);
+$user = ia_mu::get_user_as_obj($userid);
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
+$debug && ia_mu::log(__FILE__ . "::For \$blockinstanct->config->apikey={$blockinstance->config->apikey}; \$blockinstance->config->appid={$blockinstance->config->appid}; \$courseid={$courseid}; \$userid={$userid}, got participant=" . ia_u::var_dump($participant));
 
 // Show basic user info at the top.  Adapted from user/view.php.
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo']);
@@ -74,7 +75,7 @@ echo $OUTPUT->user_picture($user, ['size' => 35, 'courseid' => $courseid, 'inclu
 echo \html_writer::end_tag('div');
 
 if (ia_u::is_empty($participant)) {
-    $msg = 'No participant found';
+    $msg = "No block found or no participants found for this block instance (id={$blockinstanceid})";
     if ($hascapability_overview) {
         $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
     }
@@ -101,7 +102,6 @@ if ($continue) {
 
     usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
     $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
-    $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
 
     // Build the override UI hidden to the page so we can just swap it in on click.
     if ($showoverride) {
