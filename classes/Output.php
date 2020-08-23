@@ -146,7 +146,7 @@ class Output {
      * @return string HTML button.
      */
     public static function get_button_overview(\block_integrityadvocate $blockinstance, $userid = null): string {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -161,23 +161,27 @@ class Output {
         }
 
         $params = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid);
+        if ($userid) {
+            $debug && ia_mu::log($fxn . "::We have a \$userid={$userid} so label the button with view details");
+            $params += ['userid' => $userid];
+            $label = \get_string('btn_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
+        }
+
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
         switch (intval($parentcontext->contextlevel)) {
             case (intval(\CONTEXT_COURSE)):
                 $debug && ia_mu::log($fxn . '::parentcontext=course');
-                if ($userid) {
-                    $debug && ia_mu::log($fxn . "::We have a \$userid={$userid} so label the button with view details");
-                    $params += ['userid' => $userid];
-                    $label = \get_string('btn_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
-                } else {
+                if (!$userid) {
                     $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
                 }
                 break;
             case (intval(\CONTEXT_MODULE)):
                 $debug && ia_mu::log($fxn . '::parentcontext=module');
                 $params += ['moduleid' => $parentcontext->instanceid];
-                $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
+                if (!$userid) {
+                    $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
+                }
                 break;
             default:
                 $msg = 'Unrecognized parent context';
