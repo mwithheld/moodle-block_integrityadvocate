@@ -21,6 +21,7 @@ buildZip: &buildZip
       #- ls -altrh
       - zipfilepath="${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip"
       # -$pluginver
+      - find . -empty -type d -delete #Moodle installer fails on empty dirs
       - zip -r9 $zipfilepath ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
       - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@$zipfilepath"
 
