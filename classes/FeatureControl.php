@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate class to represent a single IA participant session flag.
+ * IntegrityAdvocate class to enable/disable features easily.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
@@ -24,32 +24,14 @@
 
 namespace block_integrityadvocate;
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
- * Class to represent a single IA participant session flag.
+ * Feature control: Enable/disable features easily.
  */
-class Flag {
+class FeatureControl {
 
-    /** @var string The data captured */
-    public $capturedata;
-
-    /** @var int Date captured */
-    public $capturedate = -1;
-
-    /** @var string Comments added to this capture */
-    public $comment;
-
-    /** @var int Unix timestamp when this was created. */
-    public $created = -1;
-
-    /** @var string IA-assigned code assigned to this flag */
-    public $flagtypeid;
-
-    /** @var string IA-assigned name assigned to this flag */
-    public $flagtypename;
-
-    /** @var string Unique ID assigned to this flag */
-    public $id;
+    const CACHE = true;
+    const MODULE_LIST = true;
+    const OVERVIEW_MODULE = true;
+    const SESSION_STATUS_OVERRIDE = true;
 
 }

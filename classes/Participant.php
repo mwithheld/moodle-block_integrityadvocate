@@ -78,8 +78,8 @@ class Participant {
     /** @var string URL the user can re-submit their ID to (if ID check failed and IA-side allows it). */
     public $resubmiturl;
 
-    /** @var [Session] Array of session objects attached to this participant */
-    public $sessions = array();
+    /** @var array<Session> Array of session objects attached to this participant */
+    public $sessions = [];
 
     /** @var int Participant Status value. */
     public $status;

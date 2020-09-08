@@ -80,7 +80,7 @@ class Session {
     public $participant;
 
     /** @var Flag[] Array of Flag objects in this session */
-    public $flags = array();
+    public $flags = [];
 
     /**
      * Return true if the session is overridden.
@@ -94,7 +94,7 @@ class Session {
     /**
      * Get the net session status, accounting for any overrides.
      */
-    public function get_status() {
+    public function get_status(): int {
         if (isset($this->overridestatus)) {
             return $this->overridestatus;
         }

@@ -62,6 +62,7 @@ class block_integrityadvocate_external extends \external_api {
      * @param int $overrideuserid Overriding user id.  Must be active in the course with this block's ovderride priv.
      * @param int $blockinstance_requesting_id Block instance id. Must be an instance of this block.  Because the overview is for the whole course, the moduleid from this blockinstance may not contain the correct moduleid.
      * @param int $moduleid CMID for the module.
+     * @return array Build result array that sent back as the AJAX result.
      */
     public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid, int $blockinstance_requesting_id, int $moduleid): array {
         $debug = false;
@@ -83,13 +84,16 @@ class block_integrityadvocate_external extends \external_api {
         $result = array(
             'submitted' => false,
             'success' => true,
-            'warnings' => array(),
+            'warnings' => [],
         );
         $blockversion = get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         $coursecontext = null;
 
         // Check for things that should make this fail.
         switch (true) {
+            case(!\confirm_sesskey()):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => get_string('confirmsesskeybad'));
+                break;
             case(!ia_mu::nonce_validate(INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstance_requesting_id}_{$targetuserid}")):
                 // This nonce should be put into the server-side user session (ia_mu::nonce_set($noncekey)) when the form is generated.
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'Nonce not found');
@@ -109,7 +113,7 @@ class block_integrityadvocate_external extends \external_api {
             case(!$blockinstance_requesting->is_visible()) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Blockinstanceid={$blockinstance_requesting_id} is hidden");
                 break;
-            case(!INTEGRITYADVOCATE_FEATURE_OVERRIDE) :
+            case(!block_integrityadvocate\FeatureControl::SESSION_STATUS_OVERRIDE) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'This feature is disabled');
                 break;
             case(!($coursecontext = $blockinstance_requesting->context->get_course_context())) :

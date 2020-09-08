@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Integrity Advocate';
-$string['button_overview'] = 'Overview';
 $string['proctorjs_load_failed'] = "The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.";
 $string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://integrityadvocate.com/Home/Privacy" target="_blank">Privacy</a><br /><a href="https://integrityadvocate.com/Troubleshooting" target="_blank">Troubleshooting</a><br /><a href="https://support.integrityadvocate.com/hc/ target="_blank">Support</a>';
 
@@ -38,11 +37,14 @@ $string['config_apikey'] = 'Api Key';
 $string['config_appid'] = 'Application Id';
 $string['config_blockversion'] = 'Version';
 $string['config_default_title'] = 'Integrity Advocate';
+$string['config_proctorquizinfopage'] = 'Show students proctoring on the quiz info page';
 
 $string['created'] = 'First seen';
 $string['disabled_editingmode'] = 'Course editing mode is enabled, so video monitoring is disabled';
 $string['disabled_haseditcap'] = 'Disabled for non-students';
 $string['disabled_notenrolled'] = 'Not available - you are not enrolled in this course';
+
+$string['modulelist_title'] = 'Blocks in this course ({$a})';
 
 $string['error_curlcloseia'] = 'Curl error closing the IA session';
 $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info - check the API key and app id are valid';
@@ -78,17 +80,20 @@ $string['no_local_participants'] = 'No course participants found';
 $string['no_modules_config_message'] = 'There are no modules found with activity completion enabled which have the Integrity Advocate block set up.';
 $string['no_modules_message'] = 'No modules found.';
 $string['no_remote_participants'] = 'No IA-side participants found';
+$string['no_remote_participant_sessions'] = 'No IA-side participant sessions found';
 $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
 
+$string['btn_overview'] = 'Overview';
+$string['btn_view_details'] = 'View details';
 $string['overview_course'] = 'Integrity Advocate Course Overview';
-$string['overview_user'] = 'Integrity Advocate User Sessions';
+$string['overview_module'] = 'Integrity Advocate Module Overview';
+$string['overview_user'] = 'Integrity Advocate User Overview';
 $string['flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
-$string['overview_view_details'] = 'View details';
 
 $string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en" target="_blank">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://integrityadvocate.com/Home/Privacy?lang=en" target="_blank">Integrity Advocate Privacy</a> for more information.';

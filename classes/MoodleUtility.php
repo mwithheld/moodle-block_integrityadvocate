@@ -34,12 +34,12 @@ defined('MOODLE_INTERNAL') || die;
 class MoodleUtility {
 
     /**
-     * Get all instances of block_integrityadvocate in the Moodle site
+     * Get all instances of block_integrityadvocate in the Moodle site.
      * If there are multiple blocks in a single parent context just return the first from that context.
      *
      * @param string $blockname Shortname of the block to get.
-     * @param bool $visibleonly Set to true to return only visible instances
-     * @return array of block_integrityadvocate instances with key=block instance id
+     * @param bool $visibleonly Set to true to return only visible instances.
+     * @return array<\block_base> Array of block_integrityadvocate instances with key=block instance id.
      */
     public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
@@ -53,11 +53,11 @@ class MoodleUtility {
         $debug && self::log($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
             $debug && self::log($fxn . "::No instances of block_{$blockname} found");
-            return array();
+            return [];
         }
 
         // Go through each of the block instances and check visibility.
-        $blockinstances = array();
+        $blockinstances = [];
         foreach ($records as $r) {
             $debug && self::log($fxn . '::Looking at $br=' . ia_u::var_dump($r, true));
 
@@ -90,7 +90,7 @@ class MoodleUtility {
     private static function get_blocks_in_context(int $contextid, string $blockname) {
         global $DB;
 
-        $blockinstances = array();
+        $blockinstances = [];
         $recordset = $DB->get_recordset('block_instances', array('parentcontextid' => $contextid, 'blockname' => $blockname));
         foreach ($recordset as $r) {
             $blockinstances[$r->id] = \block_instance_by_id($r->id);
@@ -120,8 +120,7 @@ class MoodleUtility {
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && self::log($fxn . "::Looking at \$c->id={$c->id}; "
-                            . "\$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
+            $debug && self::log($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
             if (intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
                 continue;
             }
@@ -149,7 +148,7 @@ class MoodleUtility {
      *
      * @param object[] $a array of event information
      * @param object[] $b array of event information
-     * @return int <0, 0 or >0 depending on order of modules on course page
+     * @return int Val <0, 0 or >0 depending on order of modules on course page
      */
     protected static function modules_compare_events($a, $b): int {
         if ($a['section'] != $b['section']) {
@@ -181,8 +180,8 @@ class MoodleUtility {
     /**
      * Given a context, get array of roles usable in a roles select box.
      *
-     * @param \context $coursecontext The course context.
-     * @return [roleid=>role name].
+     * @param \context $context The course context.
+     * @return array<roleid=role name>.
      */
     public static function get_roles_for_select(\context $context): array {
         $debug = false;
@@ -192,7 +191,7 @@ class MoodleUtility {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -209,8 +208,8 @@ class MoodleUtility {
             $rolestodisplay[$role->id] = $role->localname;
         }
 
-        if (!$cache->set($cachekey, $rolestodisplay)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $rolestodisplay)) {
+            throw new \Exception('Failed to set value in the cache');
         }
 
         return $rolestodisplay;
@@ -220,13 +219,13 @@ class MoodleUtility {
      * Returns the modules with completion set in current course.
      *
      * @param int courseid The id of the course.
-     * @return [module[name=>value]] Modules with completion settings in the course.
+     * @return array<module<name=value>> Modules with completion settings in the course.
      */
     public static function get_modules_with_completion(int $courseid): array {
         $modinfo = \get_fast_modinfo($courseid, -1);
         // Used for sorting.
         $sections = $modinfo->get_sections();
-        $modules = array();
+        $modules = [];
         foreach ($modinfo->instances as $module => $instances) {
             $modulename = \get_string('pluginname', $module);
             foreach ($instances as $cm) {
@@ -258,15 +257,15 @@ class MoodleUtility {
     /**
      * Filters modules that a user cannot see due to grouping constraints.
      *
-     * @param stdClass $cfg Pass in the Moodle $CFG object.
-     * @param [object] $modules The possible modules that can occur for modules.
+     * @param \stdClass $cfg Pass in the Moodle $CFG object.
+     * @param array<object> $modules The possible modules that can occur for modules.
      * @param int $userid The user's id.
      * @param int $courseid the course for filtering visibility.
-     * @param int[] $exclusions Assignment exemptions for students in the course.
-     * @return [object] The array without the restricted modules.
+     * @param array<int> $exclusions Assignment exemptions for students in the course.
+     * @return array<object> The array without the restricted modules.
      */
-    public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, $exclusions): array {
-        $filteredmodules = array();
+    public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, array $exclusions): array {
+        $filteredmodules = [];
         $modinfo = \get_fast_modinfo($courseid, $userid);
         $coursecontext = \CONTEXT_COURSE::instance($courseid);
 
@@ -335,13 +334,12 @@ class MoodleUtility {
     /**
      * Check if site and optionally also course completion is enabled.
      *
-     * @param int|object $course Optional courseid or course object to check.
-     * If not specified, only site-level completion is checked.
-     * @return array of error identifier strings
+     * @param int|object $course Optional courseid or course object to check. If not specified, only site-level completion is checked.
+     * @return array<string> of error identifier strings
      */
     public static function get_completion_setup_errors($course = null): array {
         global $CFG;
-        $errors = array();
+        $errors = [];
 
         // Check if completion is enabled at site level.
         if (!$CFG->enablecompletion) {
@@ -374,7 +372,7 @@ class MoodleUtility {
         $cache = \cache::make('block_integrityadvocate', 'perrequest');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
         $debug && self::log($fxn . "::Built cachekey={$cachekey}");
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && self::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -395,8 +393,8 @@ class MoodleUtility {
             $returnthis = $course->id;
         }
 
-        if (!$cache->set($cachekey, $returnthis)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
+            throw new \Exception('Failed to set value in the cache');
         }
 
         return $returnthis;
@@ -405,9 +403,8 @@ class MoodleUtility {
     /**
      * Convert course id to moodle course object into if needed.
      *
-     * @param int|stdClass $course The course object or courseid to check
-     * @return bool false if no course found; else Moodle course object
-     * @throws InvalidArgumentException
+     * @param int|\stdClass $course The course object or courseid to check
+     * @return bool false if no course found; else Moodle course object.
      */
     public static function get_course_as_obj($course) {
         $debug = false;
@@ -417,15 +414,15 @@ class MoodleUtility {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($course, JSON_PARTIAL_OUTPUT_ON_ERROR));
-            if ($cachedvalue = $cache->get($cachekey)) {
+            if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && self::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
 
             $course = \get_course(intval($course));
 
-            if (!$cache->set($cachekey, $course)) {
-                throw new \Exception('Failed to set value in perrequest cache');
+            if (FeatureControl::CACHE && !$cache->set($cachekey, $course)) {
+                throw new \Exception('Failed to set value in the cache');
             }
         }
         if (ia_u::is_empty($course)) {
@@ -441,7 +438,7 @@ class MoodleUtility {
     /**
      * Finds gradebook exclusions for students in a course
      *
-     * @param moodle_database $db Moodle DB object
+     * @param \moodle_database $db Moodle DB object
      * @param int $courseid The ID of the course containing grade items
      * @return array of exclusions as module-user pairs
      */
@@ -453,7 +450,7 @@ class MoodleUtility {
                     AND g.excluded <> 0";
         $params = array('courseid' => $courseid);
         $results = $db->get_records_sql($query, $params);
-        $exclusions = array();
+        $exclusions = [];
         foreach ($results as $value) {
             $exclusions[] = $value->exclusion;
         }
@@ -463,13 +460,13 @@ class MoodleUtility {
     /**
      * Get the student role (in the course) to show by default e.g. on the course-overview page dropdown box.
      *
-     * @param context $coursecontext Course context in which to get the default role.
+     * @param \context $coursecontext Course context in which to get the default role.
      * @return int the role id that is for student archetype in this course
      */
     public static function get_default_course_role(\context $coursecontext): int {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && self::log($fxn . "::Started with $cmid={$cmid}");
+        $debug && self::log($fxn . "::Started with $coursecontext={$coursecontext->instanceid}");
 
         // Sanity check.
         if (ia_u::is_empty($coursecontext) || ($coursecontext->contextlevel !== \CONTEXT_COURSE)) {
@@ -499,57 +496,62 @@ class MoodleUtility {
     /**
      * Get the first block instance matching the shortname in the given context.
      *
-     * @param context $modulecontext Context to find the IA block in.
+     * @param \context $modulecontext Context to find the IA block in.
      * @param string $blockname Block shortname e.g. for block_html it would be html.
      * @param bool $visibleonly Return only visible instances.
      * @param bool $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
-     * @return mixed bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
+     * @return bool|\block_integrityadvocate bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
         $debug && self::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
+        //Z--.
         // Danger: Caching the resulting $record in the perrequest cache didn't work - we get an invalid stdClass back out.
-        //
-        //
-        // If there are multiple blocks in this context just return the first one.
+        //Z--.
         global $DB;
-        $record = $DB->get_record('block_instances', $params, '*', IGNORE_MULTIPLE);
-        $debug && self::log($fxn . '::Found blockinstance record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
-        if (ia_u::is_empty($record)) {
-            $debug && self::log($fxn . "::No instance of block_{$blockname} is associated with this context");
+        $records = $DB->get_records('block_instances', $params);
+        $debug && self::log($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
+        if (ia_u::is_empty($records)) {
+            $debug && self::log($fxn . "::No instances of block_{$blockname} is associated with this context");
             return false;
         }
 
-        // Check if it is visible and get the IA appid from the block instance config.
-        $record->visible = self::get_block_visibility($modulecontext->id, $record->id);
-        $debug && self::log($fxn .
-                        "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$record->id} found \$record->visible={$record->visible}");
+        // If there are multiple blocks in this context just return the first valid one.
+        $blockrecord = null;
+        foreach ($records as $r) {
+            // Check if it is visible and get the IA appid from the block instance config.
+            $r->visible = self::get_block_visibility($modulecontext->id, $r->id);
+            $debug && self::log($fxn . "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$r->id} found \$record->visible={$r->visible}");
+            if ($visibleonly && !$r->visible) {
+                $debug && self::log($fxn . "::\$visibleonly=true and this instance is not visible so skip it");
+                continue;
+            }
 
-        if ($visibleonly && !$record->visible) {
-            $debug && self::log($fxn . "::\$visibleonly=true and this instance is not visible so return false");
+            $blockrecord = $r;
+            break;
+        }
+        if (empty($blockrecord)) {
+            $debug && self::log($fxn . "::No valid blockrecord found, so return false");
             return false;
         }
 
         if ($rownotinstance) {
-            return $record;
+            return $blockrecord;
         }
 
-        $blockinstance = \block_instance_by_id($record->id);
-
-        return $blockinstance;
+        return \block_instance_by_id($blockrecord->id);
     }
 
     /**
      * Convert userid to moodle user object into if needed.
      *
-     * @param int|stdClass $user The user object or id to convert
-     * @return null if no user found; else moodle user object
-     * @throws InvalidArgumentException
+     * @param int|\stdClass $user The user object or id to convert
+     * @return null|\stdClass Null if no user found; else moodle user object.
      */
     public static function get_user_as_obj($user) {
         $debug = false;
@@ -560,7 +562,7 @@ class MoodleUtility {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR));
-            if ($cachedvalue = $cache->get($cachekey)) {
+            if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && self::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
@@ -571,8 +573,12 @@ class MoodleUtility {
             }
             $user = array_pop($userarr);
 
-            if (!$cache->set($cachekey, $user)) {
-                throw new \Exception('Failed to set value in perrequest cache');
+            if (isset($user->deleted) && $user->deleted) {
+                return false;
+            }
+
+            if (FeatureControl::CACHE && !$cache->set($cachekey, $user)) {
+                throw new \Exception('Failed to set value in the cache');
             }
         }
         if (gettype($user) != 'object') {
@@ -580,6 +586,38 @@ class MoodleUtility {
         }
 
         return $user;
+    }
+
+    /**
+     * Build the formatted Moodle user info HTML with optional params.
+     *
+     * @param \stdClass $user Moodle User object.
+     * @param array $params Optional e.g ['size' => 35, 'courseid' => $courseid, 'includefullname' => true].
+     * @return string HTML for displaying user info.
+     */
+    public static function get_user_picture(\stdClass $user, array $params = array()): string {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$user->id={$user->id}; \$params=" . serialize($params);
+        $debug && self::log($debugvars);
+
+
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && self::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
+        global $OUTPUT;
+        $user_picture = $OUTPUT->user_picture($user, $params);
+
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $user_picture)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $user_picture;
     }
 
     /**
@@ -723,10 +761,10 @@ class MoodleUtility {
     /**
      * Create a unix timestamp nonce and store it in the Moodle $SESSION variable.
      *
-     * @param string $key
-     * @return string
+     * @param string $key Key for the nonce that is stored in $SESSION.
+     * @return int Unix timestamp The value of the nonce.
      */
-    public static function nonce_set(string $key): string {
+    public static function nonce_set(string $key): int {
         global $SESSION;
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;

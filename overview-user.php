@@ -32,29 +32,32 @@ use block_integrityadvocate\Utility as ia_u;
 defined('MOODLE_INTERNAL') || die;
 
 // Security check - this file must be included from overview.php.
-defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') or die();
+defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
 // Sanity checks.
 if (empty($blockinstanceid)) {
-    throw new InvalidArgumentException('$blockinstanceid is required');
+    throw new \InvalidArgumentException('$blockinstanceid is required');
 }
 if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) {
     throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
 }
 
+// This is only optional_param() in overview.php.
 $userid = \required_param('userid', PARAM_INT);
-$debug = false;
+
+$debug = true;
 $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
 
-$parentcontext = $blockinstance->context->get_parent_context();
+$parentcontext = $blockcontext->get_parent_context();
 
 // Note this capability check is on the parent, not the block instance.
 if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
-    // For teachersm allow access to any enrolled course user, even if not active.
+    // For teachers, allow access to any enrolled course user, even if not active.
     if (!\is_enrolled($parentcontext, $userid)) {
         throw new \Exception('That user is not in this course');
     }
 } else if (\is_enrolled($parentcontext, $userid, 'block/integrityadvocate:selfview', true)) {
+    // For Students to view their own stuff, or for instructors to view their students.
     if (intval($USER->id) !== $userid) {
         throw new \Exception("You cannot view other users: \$USER->id={$USER->id}; \$userid={$userid}");
     }
@@ -62,8 +65,9 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     throw new \Exception('No capabilities to view this course user');
 }
 
-$user = $DB->get_record('user', array('id' => $userid), '*', \MUST_EXIST);
+$user = ia_mu::get_user_as_obj($userid);
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
+$debug && ia_mu::log(__FILE__ . "::For \$blockinstanct->config->apikey={$blockinstance->config->apikey}; \$blockinstance->config->appid={$blockinstance->config->appid}; \$courseid={$courseid}; \$userid={$userid}, got participant=" . ia_u::var_dump($participant));
 
 // Show basic user info at the top.  Adapted from user/view.php.
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo']);
@@ -71,7 +75,7 @@ echo $OUTPUT->user_picture($user, ['size' => 35, 'courseid' => $courseid, 'inclu
 echo \html_writer::end_tag('div');
 
 if (ia_u::is_empty($participant)) {
-    $msg = 'No participant found';
+    $msg = "No block found or no participants found for this block instance (id={$blockinstanceid})";
     if ($hascapability_overview) {
         $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
     }
@@ -79,12 +83,14 @@ if (ia_u::is_empty($participant)) {
     $continue = false;
 }
 
-echo '<div id="overview_participant_container">';
+echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container']);
 $continue = isset($participant->sessions) && is_array($participant->sessions) && !empty($sessions = array_values($participant->sessions));
-$showoverride = INTEGRITYADVOCATE_FEATURE_OVERRIDE && $hascapability_override;
-$debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
 
 if ($continue) {
+    // Should we show override stuff?
+    $showoverride = FeatureControl::SESSION_STATUS_OVERRIDE && $hascapability_override;
+    $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
+
     // Set a nonce into the server-side user session.
     // This means you can only do one override per user at a time.
     // Ref https://codex.wordpress.org/WordPress_Nonces for why it is a good idea to use nonces here.
@@ -95,11 +101,9 @@ if ($continue) {
     }
 
     usort($sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
-    $modinfo = \get_fast_modinfo($courseid, -1);
-    $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
     $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
 
-    // Build the override UI hidden to the page so we can just swap it in on click
+    // Build the override UI hidden to the page so we can just swap it in on click.
     if ($showoverride) {
         $prefix_overrideform = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
         // Create a form for the override UI.
@@ -121,16 +125,16 @@ if ($continue) {
                             'required' => true
         ));
         // Add hidden fields needed for the AJAX call.
-        global $USER;
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));
         $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_overrideuserid', 'name' => $prefix_overrideform . '_overrideuserid', 'value' => $USER->id));
+        $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_sesskey', 'name' => 'sesskey', 'value' => sesskey()));
         // Add icons.
         $overrideform .= Output::add_icon('e/save', $prefix_overrideform, 'save');
         $overrideform .= Output::add_icon('i/loading', $prefix_overrideform, 'loading');
         $overrideform .= Output::add_icon('e/cancel', $prefix_overrideform, 'cancel');
         // Close the form.
         $overrideform .= \html_writer::end_tag('form');
-        // Finally, output the form.
+        // Output the form we just built.
         echo $overrideform;
     }
 
@@ -191,21 +195,10 @@ if ($continue) {
         $hasoverride = $session->has_override();
         $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$hasoverride={$hasoverride}");
 
-        // Temporary test data.
-        if (false && ($hasoverride = (bool) random_int(0, 1))) {
-            $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Temporary test data> Set \$hasoverride={$hasoverride}");
-            $session->overridedate = random_int($session->end, time());
-            $overrideints = array_keys(ia_status::get_overrides());
-            sort($overrideints);
-            $session->overridestatus = random_int(min($overrideints), max($overrideints));
-        }
-        $overridedate = ia_u::is_unixtime_past($session->overridedate) ? $session->overridedate : '';
-
         // Column=session_status.
         $latestmodulesession = $participant->get_latest_module_session($cmid);
         $canoverride = $showoverride && $latestmodulesession && ($session->id == $latestmodulesession->id);
         $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$canoverride={$canoverride}");
-
         $overrideclass = $canoverride ? " {$prefix}_session_overrideui" : '';
         // If overridden, show the overridden status.
         if ($hasoverride) {
@@ -226,23 +219,20 @@ if ($continue) {
             usort($flags, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_created_desc'));
             $flagoutput = '';
             foreach ($session->flags as $f) {
-                // This is not very useful: $flagoutput .= htmlentities($f->flagtypename) . Output::BRNL;.
+                // Omit b/c this is not very useful: $flagoutput .= htmlentities($f->flagtypename) . Output::BRNL;.
                 $flagoutput .= htmlentities($f->comment) . Output::BRNL;
                 $capturedate = (isset($f->capturedate) ?: '');
                 if (isset($f->capturedata) && ($f->capturedata != $session->participantphoto)) {
                     $flagoutput .= \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
                 }
             }
+            // Column=session_flags.
             echo \html_writer::tag('td', $flagoutput, ['class' => "{$prefix}_session_flags"]);
         }
 
         // Instructor: If overridden, show the override info.
         if ($showoverride) {
-            // Temporary test data.
-            if (false && $hasoverride) {
-                $session->overridelmsuserid = 4;
-                $session->overridereason = ' Blah cuz I wanted to test this';
-            }
+            $overridedate = ia_u::is_unixtime_past($session->overridedate) ? $session->overridedate : '';
 
             // Column=session_overridedate.
             echo \html_writer::tag('td', ($hasoverride ? \userdate($overridedate) : ''), ['class' => "{$prefix}_session_overridedate"]);
@@ -254,6 +244,7 @@ if ($continue) {
             } else {
                 $overrideusername = '';
             }
+            // Column=session_overridename.
             echo \html_writer::tag('td', ($hasoverride ? $overrideusername : ''), ['class' => "{$prefix}_session_overridename"]);
             // Column=session_overridereason.
             echo \html_writer::tag('td', ($hasoverride ? htmlspecialchars($session->overridereason) : ''), ['class' => "{$prefix}_session_overridereason"]);
@@ -264,7 +255,9 @@ if ($continue) {
     echo '</tbody>';
     echo "<tfoot>{$tr_header}</tfoot>";
     echo '</table>';
+    // Used as a JQueryUI popup to show the user picture.
     echo '<div id="dialog"></div>';
 }
-echo '</div>';
 
+// Close the participant_container.
+echo \html_writer::end_tag('div');

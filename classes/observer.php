@@ -42,7 +42,7 @@ class block_integrityadvocate_observer {
      * User logout and other course events lead to the user's remote IA sessions being closed.
      *
      * @param \core\event\base $event Event to maybe act on
-     * @return true if attempted to close the remote IA session; else false.
+     * @return bool True if attempted to close the remote IA session; else false.
      */
     public static function process_event(\core\event\base $event): bool {
         $debug = false;
@@ -165,8 +165,7 @@ class block_integrityadvocate_observer {
      * Checks the user is enrolled and the block is visible.
      *
      * @param \core\event\base $event Triggered event.
-     * @return Mixed bool False if should not close the remote IA session; else returns the $blockinstance.
-     * @throws InvalidArgumentException if the passed-in event is not from a module context level.
+     * @return bool|\block_base False if should not close the remote IA session; else returns the $blockinstance.
      */
     protected static function check_should_close_user_ia(\core\event\base $event) {
         $debug = false;
@@ -212,9 +211,9 @@ class block_integrityadvocate_observer {
      * Actually close the remote IA session.
      * Assumes the user is enrolled in the block's parent context
      *
-     * @param block_integrityadvocate $blockinstance to close sessions for
+     * @param \block_integrityadvocate $blockinstance to close sessions for
      * @param int $userid The Moodle userid to close the session for
-     * @return Mixed bool true if remote session is closed; else false.
+     * @return bool true if remote session is closed; else false.
      */
     protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
         $debug = false;

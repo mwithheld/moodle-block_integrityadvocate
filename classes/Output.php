@@ -66,7 +66,7 @@ class Output {
         if ($configerrors = $blockinstance->get_config_errors()) {
             // No visible IA block found with valid config, so skip any output.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
-                echo implode("<br />\n", $configerrors);
+                echo implode(self::BRNL, $configerrors);
             }
             return '';
         }
@@ -75,8 +75,8 @@ class Output {
         $jsmodule = array(
             'name' => INTEGRITYADVOCATE_BLOCK_NAME,
             'fullpath' => self::BLOCK_JS_PATH . '/module.js',
-            'requires' => array(),
-            'strings' => array(),
+            'requires' => [],
+            'strings' => [],
         );
 
         $blockinstance->page->requires->jquery_plugin('jquery');
@@ -88,7 +88,7 @@ class Output {
      * Build proctoring Javascript URL based on user and timestamp.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
-     * @param stdClass $user Current user object; needed so we can identify this user to the IA API
+     * @param \stdClass $user Current user object; needed so we can identify this user to the IA API
      * @return string HTML if error; Also adds the student proctoring JS to the page.
      */
     public static function get_proctor_js_url(\block_integrityadvocate $blockinstance, \stdClass $user): string {
@@ -106,8 +106,8 @@ class Output {
         // If the block is not configured yet, simply return empty result.
         if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
             // No visible IA block found with valid config, so skip any output, but show teachers the error.
-            if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
-                echo implode("<br />\n", $configerrors);
+            if ($configerrors && \has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
+                echo implode(self::BRNL, $configerrors);
             }
             return '';
         }
@@ -139,60 +139,76 @@ class Output {
     }
 
     /**
-     * Generate the HTML for a button to view details for all course users.
+     * Generate the HTML for the Overview button, whether for course, module, or person.
      *
-     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
-     * @return string HTML button to view user details.
-     */
-    public static function get_button_course_overview(\block_integrityadvocate $blockinstance): string {
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}";
-        $debug && ia_mu::log($debugvars);
-
-        // Sanity check.
-        if (ia_u::is_empty($blockinstance) || !is_numeric($courseid = $blockinstance->get_course()->id)) {
-            $msg = 'Input params are invalid';
-            ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
-            throw new \InvalidArgumentException($msg);
-        }
-
-        $parameters = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'sesskey' => sesskey());
-        $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $parameters);
-        $label = \get_string('button_overview', INTEGRITYADVOCATE_BLOCK_NAME);
-        $options = array('class' => 'overviewButton');
-
-        global $OUTPUT;
-        return $OUTPUT->single_button($url, $label, 'get', $options);
-    }
-
-    /**
-     * Generate the HTML to view details for this user.
-     *
-     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param int $userid The user id.
-     * @return string HTML button to view user details.
+     * @return string HTML button.
      */
-    public static function get_button_userdetails(\block_integrityadvocate $blockinstance, int $userid): string {
-        $debug = false;
+    public static function get_button_overview(\block_integrityadvocate $blockinstance, $userid = null): string {
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || !is_numeric($courseid = $blockinstance->get_course()->id)) {
+        if (ia_u::is_empty($blockinstance) ||
+                !is_numeric($courseid = $blockinstance->get_course()->id) ||
+                (isset($userid) && !is_int($userid))) {
             $msg = 'Input params are invalid';
             ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
-        $parameters = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'userid' => $userid, 'sesskey' => sesskey());
-        $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $parameters);
-        $label = \get_string('overview_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
+        $params = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid);
+        if ($userid) {
+            $debug && ia_mu::log($fxn . "::We have a \$userid={$userid} so label the button with view details");
+            $params += ['userid' => $userid];
+            $label = \get_string('btn_view_details', INTEGRITYADVOCATE_BLOCK_NAME);
+        }
+
+        $blockcontext = $blockinstance->context;
+        $parentcontext = $blockcontext->get_parent_context();
+        switch (intval($parentcontext->contextlevel)) {
+            case (intval(\CONTEXT_COURSE)):
+                $debug && ia_mu::log($fxn . '::parentcontext=course');
+                if (!$userid) {
+                    $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
+                }
+                break;
+            case (intval(\CONTEXT_MODULE)):
+                $debug && ia_mu::log($fxn . '::parentcontext=module');
+                $params += ['moduleid' => $parentcontext->instanceid];
+                if (!$userid) {
+                    $label = \get_string('btn_overview', INTEGRITYADVOCATE_BLOCK_NAME);
+                }
+                break;
+            default:
+                $msg = 'Unrecognized parent context';
+                $debug && ia_mu::log($fxn . '::' . $msg);
+                throw new Exepttion($msg);
+        }
+        $debug && ia_mu::log($fxn . '::Built params=' . ia_u::var_dump($params));
+
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
+        }
+
+        $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $params);
         $options = array('class' => 'block_integrityadvocate_overview_btn_view_details');
 
         global $OUTPUT;
-        return $OUTPUT->single_button($url, $label, 'get', $options);
+        $output = $OUTPUT->single_button($url, $label, 'get', $options);
+
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $output;
     }
 
     /**
@@ -227,7 +243,7 @@ class Output {
      * If there is a resubmiturl in the session data and the session is not overridden, output that link HTML.
      *
      * @param \context $modulecontext The module context to look in.
-     * @param ia_participant $participant The participant to get the info for.
+     * @param int $userid The user id to get the status for.
      * @param string $prefix CSS prefix to add to the HTML.
      * @return string HTML showing the latest IA status overall.
      */
@@ -280,17 +296,17 @@ class Output {
     /**
      * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
      *
-     * @param block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
-     * @param ia_participant $participant Participant object from the IA API.
+     * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
+     * @param Participant $participant Participant object from the IA API.
      * @param bool $showphoto True to include the user photo.
-     * @param bool $showviewdetailsbutton True to show the viewDetails button.
+     * @param bool $showoverviewbutton True to show the Overview button.
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
-     * @return string HTML output showing latest participant-level status and photo.
+     * @return string HTML output.
      */
-    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
-        $debug = false;
+    public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, Participant $participant, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
+        $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -299,6 +315,14 @@ class Output {
             ia_mu::log($fxn . '::' . $msg);
             ia_mu::log($fxn . '::ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) . '; ia_u::is_empty($participant)=' . ia_u::is_empty($participant) . '; ia_status::is_status_int($participant->status)=' . ia_status::is_status_int($participant->status));
             throw new \InvalidArgumentException($msg);
+        }
+
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(implode('_', array(__CLASS__, __FUNCTION__, $blockinstance->instance->id, json_encode($participant, JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars)));
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
+            return $cachedvalue;
         }
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
@@ -322,8 +346,8 @@ class Output {
                 date('Y-m-d H:i', $participant->modified) .
                 \html_writer::end_tag('div');
 
-        if ($showviewdetailsbutton) {
-            $out .= self::get_button_userdetails($blockinstance, $participant->participantidentifier);
+        if ($showoverviewbutton) {
+            $out .= self::get_button_overview($blockinstance, $participant->participantidentifier);
         }
 
         // Close .block_integrityadvocate_overview_participant_summary_text.
@@ -340,19 +364,22 @@ class Output {
         // Start next section on a new line.
         $out .= '<div style="clear:both"></div>';
 
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $out)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
         return $out;
     }
 
     /**
      * Get the HTML used to display the participant photo in the IA summary output
      *
-     * @param ia_participant $participant An IA participant object to pull info from.
+     * @param \Participant $participant An IA participant object to pull info from.
      * @return string HTML to output
      */
-    public static function get_participant_photo_output(ia_participant $participant): string {
+    public static function get_participant_photo_output(Participant $participant): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$participant->participantidentifier=" . ia_u::var_dump($participant->participantidentifier, true);
+        $debugvars = $fxn . "::Started with \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
         $debug && ia_mu::log($debugvars);
 
         // Sanity check.
@@ -385,14 +412,14 @@ class Output {
      * @param \block_integrityadvocate $blockinstance Block instance to get participant data for.
      * @param int $userid User id to get info for.
      * @param bool $showphoto True to include the photo from the Participant info.
-     * @param bool $showviewdetailsbutton True to show the "View Details" button to get more info about the users IA session.
+     * @param bool $showoverviewbutton True to show the "View Details" button to get more info about the users IA session.
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output showing latest status, flags, and photos.
      */
-    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = false): string {
+    public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showviewdetailsbutton={$showviewdetailsbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
+        $debug && ia_mu::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
@@ -409,7 +436,7 @@ class Output {
             return '';
         }
 
-        return self::get_participant_basic_output($blockinstance, $participant, $showphoto, $showviewdetailsbutton, $showstatus);
+        return self::get_participant_basic_output($blockinstance, $participant, $showphoto, $showoverviewbutton, $showstatus);
     }
 
 }

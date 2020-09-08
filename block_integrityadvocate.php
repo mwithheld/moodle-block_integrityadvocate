@@ -47,7 +47,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     *  we have global config/settings data
+     *  We have global config/settings data.
      *
      * @return bool
      */
@@ -56,7 +56,8 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Do any additional initialization you may need at the time a new block instance is created
+     * Do any additional initialization you may need at the time a new block instance is created.
+     *
      * @return boolean
      */
     public function instance_create() {
@@ -67,7 +68,7 @@ class block_integrityadvocate extends block_base {
         // Get the first IA block with APIKey and APPId, and use it for this block.
         global $COURSE;
         $blocks = ia_mu::get_all_course_blocks($COURSE->id, INTEGRITYADVOCATE_SHORTNAME);
-        $debug && ia_mu::log($fxn . '::Got count(blocks)=' . count($blocks));
+        $debug && ia_mu::log($fxn . '::Got count(blocks)=' . ia_u::count_if_countable($blocks));
         foreach ($blocks as $key => $b) {
             $debug && ia_mu::log($fxn . "::Looking at block_instance.id={$key}");
 
@@ -86,7 +87,7 @@ class block_integrityadvocate extends block_base {
 
         // If this is a quiz, auto-configure the quiz to...
         $debug && ia_mu::log($fxn . "::Looking at pagetype={$this->page->pagetype}");
-        if (stripos($this->page->pagetype, 'mod-quiz-') !== false) {
+        if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             // A. Show blocks during quiz attempt; and...
             $modulecontext = $this->context->get_parent_context();
             $debug && ia_mu::log($fxn . '::Got $modulecontext=' . ia_u::var_dump($modulecontext, true));
@@ -110,7 +111,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Controls the block title based on instance configuration
+     * Controls the block title based on instance configuration.
      *
      * @return bool
      */
@@ -121,7 +122,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Controls whether multiple instances of the block are allowed on a page
+     * Controls whether multiple instances of the block are allowed on a page.
      *
      * @return bool
      */
@@ -130,7 +131,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Controls whether the block is configurable
+     * Controls whether the block is configurable.
      *
      * @return bool
      */
@@ -139,7 +140,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Defines where the block can be added
+     * Defines where the block can be added.
      *
      * @return array
      */
@@ -165,13 +166,13 @@ class block_integrityadvocate extends block_base {
     /**
      * Check of errors in the APIKey and AppId.
      *
-     * @return [string] Array of error messages from lang file: error_*.
+     * @return array<string> Array of error messages from lang file: error_*.
      */
-    private function get_apikey_appid_errors(): array {
+    public function get_apikey_appid_errors(): array {
         $debug = false;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
 
-        $errors = array();
+        $errors = [];
         $hasblockconfig = isset($this->config) && !ia_u::is_empty($this->config);
 
         if (!$hasblockconfig) {
@@ -194,13 +195,12 @@ class block_integrityadvocate extends block_base {
     /**
      * Return config errors if there are any.
      *
-     * @throws Exception If error
-     * @return array(field=>error message)
+     * @return array<field=error message>
      */
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
-        if ($cachedvalue = $cache->get($cachekey)) {
+        if (block_integrityadvocate\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
 
@@ -212,14 +212,14 @@ class block_integrityadvocate extends block_base {
         // Check the context we got is module context and not course context.
         // If this is a course-level block, just return what errors we have so far.
         if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
-            if (!$cache->set($cachekey, $errors)) {
-                throw new \Exception('Failed to set value in perrequest cache');
+            if (block_integrityadvocate\FeatureControl::CACHE && !$cache->set($cachekey, $errors)) {
+                throw new \Exception('Failed to set value in the cache');
             }
             return $errors;
         }
 
         $courseid = $this->context->get_course_context()->instanceid;
-        if ($courseid == \SITEID) {
+        if ($courseid === \SITEID) {
             throw new \Exception('This block cannot exist on the site context');
         }
 
@@ -227,7 +227,7 @@ class block_integrityadvocate extends block_base {
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
         global $DB;
-        if (stripos($modulecontext->get_context_name(), 'quiz') === 0) {
+        if (str_starts_with($modulecontext->get_context_name(), 'quiz')) {
             $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
@@ -236,8 +236,8 @@ class block_integrityadvocate extends block_base {
             }
         }
 
-        if (!$cache->set($cachekey, $errors)) {
-            throw new \Exception('Failed to set value in perrequest cache');
+        if (block_integrityadvocate\FeatureControl::CACHE && !$cache->set($cachekey, $errors)) {
+            throw new \Exception('Failed to set value in the cache');
         }
 
         return $errors;
@@ -246,7 +246,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Add proctoring JS to the page.
      *
-     * @param StdClass $user Moodle user to get the JS for - the request is encoded for this user.
+     * @param \stdClass $user Moodle user to get the JS for - the request is encoded for this user.
      * @param bool $hidemodulecontent True to hide the module content by adding a style tag to the block output.
      */
     private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true) {
@@ -273,7 +273,7 @@ class block_integrityadvocate extends block_base {
     }
 
     /**
-     * Creates the blocks main content
+     * Creates the blocks main content.
      */
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
@@ -311,7 +311,7 @@ class block_integrityadvocate extends block_base {
         }
         if ($setuperrors && $hascapability_overview) {
             foreach ($setuperrors as $err) {
-                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . "<br />\n";
+                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Setup errors, so skip it');
             return;
@@ -338,7 +338,7 @@ class block_integrityadvocate extends block_base {
 
             // Error output is visible only to instructors.
             if ($hascapability_overview) {
-                $this->content->text .= implode("<br />\n", $configerrors);
+                $this->content->text .= implode(ia_output::BRNL, $configerrors);
             }
             return;
         }
@@ -352,8 +352,8 @@ class block_integrityadvocate extends block_base {
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_COURSE');
                 switch (true) {
                     case $hascapability_overview:
-                        // When viewing a course student profile, show latest student info.
-                        if (stripos($this->page->url, '/user/view.php?') > 0) {
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course student profile: show latest student info');
+                        if (str_contains($this->page->url, '/user/view.php?')) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
@@ -364,22 +364,51 @@ class block_integrityadvocate extends block_base {
                             }
 
                             // Do not show the latest status.
-                            // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
                             $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid);
                         }
 
-                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teachers should see the overview button');
-                        $this->content->text .= ia_output::get_button_course_overview($this);
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course: show the overview button and the module list.');
+                        $this->content->text .= ia_output::get_button_overview($this);
+                        if (block_integrityadvocate\FeatureControl::MODULE_LIST) {
+                            $prefix = 'integrityadvocate_modulelist';
+                            $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
+                            $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());
+                            $iamodulesexist = ia_u::count_if_countable($iamodules) > 0;
+                            $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, (($count = ia_u::count_if_countable($iamodules)) > 0 ? $count : 0)), array('class' => "{$prefix}_div_title"));
+                            if ($iamodulesexist && $this->page->user_allowed_editing()) {
+                                $this->content->footer .= "<script type=\"text/javascript\">document.addEventListener('DOMContentLoaded', function(event) {require(['jquery'], function($) {";
+                                $this->content->footer .= "$('.integrityadvocate_modulelist_blockconfig').click(function() { $(this).closest('form').submit();return false; });});});</script>";
+
+                                // The start of the form is the same for each module, so just build it once.
+                                $formstart = '&nbsp;<form class="' . $prefix . '_form" method="post" action="' . $CFG->wwwroot . '/course/view.php">';
+                                $formstart .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
+                                $formstart .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+                                $formstart .= '<input type="hidden" name="edit" value="on">';
+
+                                foreach ($iamodules as $key => $m) {
+                                    // Output a link to the module.
+                                    $this->content->text .= \html_writer::link($m['url'], $m['name']);
+                                    if (has_capability('moodle/block:edit', $m['block_integrityadvocate_instance']['instance']->context)) {
+                                        // Output a button to block config.
+                                        $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">';
+                                        $blocktitle = get_string('configureblock', 'block', $m['block_integrityadvocate_instance']['instance']->title);
+                                        $this->content->text .= '<a href="#"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                                        $this->content->text .= '</form>';
+                                    }
+                                    $this->content->text .= ia_output::BRNL;
+                                }
+                            }
+                        }
+                        $this->content->text .= \html_writer::end_tag('div');
                         break;
                     case $hascapability_selfview:
-                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student should see their own summary IA results');
                         // Check the user is enrolled in this course, but they must be active.
                         if (!\is_enrolled($parentcontext, $USER, null, true)) {
                             throw new \Exception('That user is not in this course');
                         }
 
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student viewing a course: show the overview button only');
                         // Do not show the latest status.
-                        // Params: \block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showviewdetailsbutton = true, bool $showstatus = true.
                         $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
                         break;
                 }
@@ -389,18 +418,18 @@ class block_integrityadvocate extends block_base {
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_MODULE');
                 switch (true) {
                     case $hascapability_overview:
-                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher should see the overview button');
-                        $this->content->text .= ia_output::get_button_course_overview($this);
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview button');
+                        $this->content->text .= ia_output::get_button_overview($this);
                         break;
                     case \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
-                            case (stripos($this->page->pagetype, 'mod-scorm-') !== false):
-                                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::SCORM:Student should see proctoring JS');
+                            case (str_starts_with($this->page->pagetype, 'mod-scorm-')):
                                 global $scorm;
                                 if (!isset($scorm)) {
                                     throw new \moodle_exception('Failed to find the global $scorm variable');
                                 }
+                                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Student viewing a module: Show the proctoring UI maybe');
                                 // If this is the entry page for a SCORM "new window" instance, we launch the IA proctoring on the SCORM entry page.
                                 if ($scorm->popup) {
                                     if ($this->page->pagetype === 'mod-scorm-view') {
@@ -421,10 +450,10 @@ class block_integrityadvocate extends block_base {
                                     }
                                 }
                                 break;
-                            case(stripos($this->page->pagetype, 'mod-quiz-') !== false):
+                            case(str_starts_with($this->page->pagetype, 'mod-quiz-')):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
-                                if ($this->page->pagetype == 'mod-quiz-attempt') {
+                                if ($this->page->pagetype == 'mod-quiz-attempt' || ($this->page->pagetype == 'mod-quiz-view' && (isset($this->config->proctorquizinfopage) && $this->config->proctorquizinfopage))) {
                                     $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see proctoring JS');
                                     $this->add_proctor_js($USER);
                                 } else if ($hascapability_selfview) {
@@ -457,7 +486,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the course this block belongs to.
      *
-     * @return stdClass The $COURSE.
+     * @return \stdClass The $COURSE.
      */
     public function get_course() {
         global $COURSE;
@@ -467,7 +496,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the block user.
      *
-     * @return stdClass The $USER.
+     * @return \stdClass The $USER.
      */
     public function get_user() {
         global $USER;
@@ -486,7 +515,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Return true if the block is configured to be visible.
      *
-     * @return bool True if the block is configured to be visible
+     * @return bool True if the block is configured to be visible.
      */
     public function is_visible(): bool {
         if (property_exists($this, 'visible') && isset($this->visible) && is_bool($this->visible)) {

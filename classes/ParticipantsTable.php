@@ -173,15 +173,16 @@ class ParticipantsTable extends \core_user\participants_table {
         $requestsignature = ia_api::get_request_signature($requestapiurl, 'GET', $requesttimestamp, $nonce, $blockinstance->config->apikey, $appid = $blockinstance->config->appid);
         $authheader = 'amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
 
-        $promises = array();
+        $promises = [];
 
         // The var $this->rawdata contains all the users for *this page* of the participants table.
         $debug && ia_mu::log($fxn . '::We should get data for ' . count($this->rawdata) . ' users');
         foreach ($this->rawdata as $u) {
-            $debug && ia_mu::log($fxn . '::About to get data for userid=' . $u->id);
+            $params = ['participantidentifier' => $u->id, 'courseid' => $courseid];
+            $debug && ia_mu::log($fxn . '::About to get data for params=' . ia_u::var_dump($params, true));
             $promise = $client->getAsync($requestapiurl, [
                 'headers' => ['Authorization' => $authheader],
-                'query' => ['participantidentifier' => $u->id, 'courseid' => $courseid],
+                'query' => $params,
             ]);
             $debug && ia_mu::log($fxn . "::Sent getAsync with requestapiurl={$requestapiurl}; participantidentifier={$u->id}; courseid={$courseid}"); //; url={$url}
             $promise->then(

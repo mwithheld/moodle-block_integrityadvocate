@@ -40,7 +40,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * Overridden to create any form fields specific to this type of block.
      * We can't add a type check here without causing a warning b/c the parent class does not have the type check.
      *
-     * @param stdClass|MoodleQuickForm $mform the form being built.
+     * @param \stdClass|MoodleQuickForm $mform the form being built.
      */
     protected function specific_definition($mform) {
         // Start block specific section in config form.
@@ -60,6 +60,11 @@ class block_integrityadvocate_edit_form extends block_edit_form {
 
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 52));
         $mform->setType('config_apikey', PARAM_BASE64);
+
+        if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
+            $mform->addElement('selectyesno', 'config_proctorquizinfopage', get_string('config_proctorquizinfopage', INTEGRITYADVOCATE_BLOCK_NAME));
+            $mform->setDefault('config_proctorquizinfopage', 0);
+        }
 
         $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
     }
@@ -81,7 +86,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
 
-        $errors = array();
+        $errors = [];
 
         if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {
             $data['config_appid'] = rtrim(ltrim(trim($data['config_appid']), '{'), '}');
