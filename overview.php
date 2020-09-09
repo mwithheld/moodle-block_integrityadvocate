@@ -42,7 +42,7 @@ require_once($CFG->libdir . '/tablelib.php');
 /** @var int How many users per page to show by default. */
 const DEFAULT_PAGE_SIZE = 20;
 
-/** int Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
+/** bool Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false;
