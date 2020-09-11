@@ -100,7 +100,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                     this.frm.eltCancel = this.frm.find('.' + this.prefix + '_cancel');
 
                                     this.frm.eltReason
-                                            .attr('placeholder', M.util.get_string('block_integrityadvocate', 'override_reason_label'))
+                                            .attr('placeholder', M.util.get_string('override_reason_label', 'block_integrityadvocate'))
                                             .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}')
                                             .on('keyup keypress', function(e) {
                                                 var keyCode = e.keyCode || e.which;
@@ -187,7 +187,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                                     debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::saveClick::ajax.always');
                                                     console.log('textStatus', textStatus);
                                                     console.log('errorThrown', errorThrown);
-                                                    alert(M.util.get_string('moodle', 'unknownerror'));
+                                                    alert(M.util.get_string('unknownerror', 'moodle'));
                                                     // Set true to force reload from server not cache.  This is said to be deprecated but since we might have old browsers we'll do it.
                                                     window.location.reload(true);
                                                 },
@@ -231,7 +231,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                     if (elt[0].checkValidity()) {
                                         return true;
                                     } else {
-                                        elt[0].setCustomValidity(M.util.get_string('block_integrityadvocate', 'override_reason_invalid'));
+                                        elt[0].setCustomValidity(M.util.get_string('override_reason_invalid', 'block_integrityadvocate'));
                                         return false;
                                     }
                                 }
@@ -314,7 +314,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
 
                                     // If overridden, show more info in child row.
                                     eltDt.find('.block_integrityadvocate_participant_session_overridden').each(function() {
-                                        $(this).append('<i class="fa fa-chevron-circle-down block_integrityadvocate_overriden_icon" aria-hidden="true" title="' + M.util.get_string('block_integrityadvocate', 'viewhide_overrides') + '"></i>');
+                                        $(this).append('<i class="fa fa-chevron-circle-down block_integrityadvocate_overriden_icon" aria-hidden="true" title="' + M.util.get_string('viewhide_overrides', 'block_integrityadvocate') + '"></i>');
                                         $(this).find('i.block_integrityadvocate_overriden_icon').click(function() {
                                             debug && window.console.log('M.block_integrityadvocate.init.js::overridden_icon.click fired');
                                             var tr = $(this).parents('tr');
@@ -348,7 +348,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                         elt.prepend('<div class="oldstatusinfo">' + oldvalue.text() + '</div>');
                                         oldvalue.remove();
 
-                                        elt.append('<i class="fa fa-pencil-square-o block_integrityadvocate_override_edit" aria-hidden="true" title="' + M.util.get_string('block_integrityadvocate', 'override_form_label') + '"></i>');
+                                        elt.append('<i class="fa fa-pencil-square-o block_integrityadvocate_override_edit" aria-hidden="true" title="' + M.util.get_string('override_form_label', 'block_integrityadvocate') + '"></i>');
                                         var o = new OverrideUi();
                                         elt.find('i.block_integrityadvocate_override_edit').click(function() {
                                             debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::add_override_click::Override button clicked');
