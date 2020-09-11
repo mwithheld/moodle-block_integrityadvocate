@@ -117,7 +117,6 @@ if ($continue) {
                         array('class' => $prefix_overrideform . '_status_select', 'required' => true)
         );
         // Add the override reason textbox.
-        $PAGE->requires->strings_for_js(array('override_form_label', 'override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
         $overrideform .= \html_writer::tag('input', '',
                         array('class' => $prefix_overrideform . '_reason',
                             'name' => $prefix_overrideform . '_reason',

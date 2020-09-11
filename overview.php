@@ -70,7 +70,7 @@ switch (true) {
     case ($userid):
         $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
         $requestedpage = 'overview-user';
-
+        $PAGE->requires->strings_for_js(array('override_form_label', 'override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
         $params += [
             'userid' => $userid,
         ];
