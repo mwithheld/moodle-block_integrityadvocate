@@ -1240,6 +1240,7 @@ class Api {
     /**
      * Override the Integrity Advocate ruling for a participant session.
      * Assumes you have validated and cleaned all params.
+     * This functin does not validate incoming data.
      *
      * @param string $apikey API key for the block instance.
      * @param string $appid App ID fot the block instance.
@@ -1321,7 +1322,7 @@ class Api {
             'Override_Reason' => $reason,
             'Override_LMSUser_FirstName' => $overrideuser->firstname,
             'Override_LMSUser_LastName' => $overrideuser->lastname,
-            'Override_LMSUser_Id' => $targetuserid,
+            'Override_LMSUser_Id' => $overrideuser->id,
         );
         $debug && ia_mu::log($fxn . "::Built params=" . var_export($params_body, true));
 
