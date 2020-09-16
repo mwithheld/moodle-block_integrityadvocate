@@ -97,7 +97,7 @@ M.block_integrityadvocate = {
                 (typeof window.opener !== 'undefined' && window.opener !== null && typeof window.opener.IntegrityAdvocate !== 'undefined' && window.opener.IntegrityAdvocate !== 'undefined')
                 (typeof window.parent !== 'undefined' && window.parent !== null && typeof window.parent.IntegrityAdvocate !== 'undefined' && window.parent.IntegrityAdvocate !== 'undefined')
                 ) {
-            debug && window.console.log('M.block_integrityadvocate.loadProctorUi::IntegrityAdvocate is already loaded');
+            window.console.log('M.block_integrityadvocate.loadProctorUi::IntegrityAdvocate is already loaded');
             // Hide the loading gif and show the main content.
             self.proctorUILoaded();
             return;
