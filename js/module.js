@@ -92,8 +92,11 @@ M.block_integrityadvocate = {
             window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param');
             return;
         }
-        // To prevent double-loading of the IA logic, check if IA is already loaded in this window or its parent.
-        if (typeof window.IntegrityAdvocate !== 'undefined' || (window.opener !== null && window.opener.IntegrityAdvocate !== 'undefined')) {
+        // To prevent double-loading of the IA logic, check if IA is already loaded in this window or its opener/parent.
+        if (typeof window.IntegrityAdvocate !== 'undefined' ||
+                (typeof window.opener !== 'undefined' && window.opener !== null && typeof window.opener.IntegrityAdvocate !== 'undefined' && window.opener.IntegrityAdvocate !== 'undefined')
+                (typeof window.parent !== 'undefined' && window.parent !== null && typeof window.parent.IntegrityAdvocate !== 'undefined' && window.parent.IntegrityAdvocate !== 'undefined')
+                ) {
             debug && window.console.log('M.block_integrityadvocate.loadProctorUi::IntegrityAdvocate is already loaded');
             // Hide the loading gif and show the main content.
             self.proctorUILoaded();
