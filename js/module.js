@@ -91,28 +91,13 @@ M.block_integrityadvocate = {
             window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param');
             return;
         }
-        try {
-            debug && window.console.log('M.block_integrityadvocate.loadProctorUi::About to check for window.IntegrityAdvocate=', window.IntegrityAdvocate);
-            // To prevent double-loading of the IA logic, check if IA is already loaded in this window or its opener|parent.
-            if (typeof window.IntegrityAdvocate !== 'undefined' ||
-                    (typeof window.opener !== 'undefined' && window.opener !== null && Object.keys(window.opener).length && !window.opener.closed && typeof window.opener.IntegrityAdvocate !== 'undefined' && window.opener.IntegrityAdvocate !== 'undefined') ||
-                    (typeof window.parent !== 'undefined' && window.parent !== null && Object.keys(window.parent).length && !window.parent.closed && typeof window.parent.IntegrityAdvocate !== 'undefined' && window.parent.IntegrityAdvocate !== 'undefined')
-                    ) {
-                window.console.log('M.block_integrityadvocate.loadProctorUi::IntegrityAdvocate is already loaded');
-                // Hide the loading gif and show the main content.
-                self.proctorUILoaded();
-                return;
-            }
-        } catch (e) {
-            window.console.log('M.block_integrityadvocate.loadProctorUi::Caught exception e', e);
-            if (e.toString().toLowerCase().indexOf('permission denied') !== -1) {
-                // Ignore the error b/c it means the window.opener|parent.IntegrityAdvocate object does not exist is not accessible.
-                // We do not need to close the loading gif and exit this loadProctorUi() function.
-                window.console.log('M.block_integrityadvocate.loadProctorUi::Ignore the permission denied error and proceed to load the IA script');
-            } else {
-                // Some other problem - let it blow up.
-                throw e;
-            }
+        debug && window.console.log('M.block_integrityadvocate.loadProctorUi::About to check for window.IntegrityAdvocate=', window.IntegrityAdvocate);
+        // To prevent double-loading of the IA logic, check if IA is already loaded in this window.
+        if (typeof window.IntegrityAdvocate !== 'undefined') {
+            window.console.log('M.block_integrityadvocate.loadProctorUi::IntegrityAdvocate is already loaded');
+            // Hide the loading gif and show the main content.
+            self.proctorUILoaded();
+            return;
         }
         $.getScript(self.decodeEntities(proctorjsurl))
                 .done(function() {
