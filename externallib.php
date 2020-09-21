@@ -36,24 +36,6 @@ use block_integrityadvocate\Utility as ia_u;
 class block_integrityadvocate_external extends \external_api {
 
     /**
-     * Describes the parameters for set_override.
-     *
-     * @return external_function_parameters The parameters for set_override.
-     */
-    public static function set_override_parameters(): \external_function_parameters {
-        return new \external_function_parameters(
-                [
-            'status' => new \external_value(PARAM_INT, 'Status'),
-            'reason' => new \external_value(PARAM_TEXT, 'Reason for override'),
-            'targetuserid' => new \external_value(PARAM_INT, 'Target user id'),
-            'overrideuserid' => new \external_value(PARAM_INT, 'Overriding user id'),
-            'blockinstanceid' => new \external_value(PARAM_INT, 'Block instance id'),
-            'moduleid' => new \external_value(PARAM_INT, 'Module cmid'),
-                ]
-        );
-    }
-
-    /**
      * Set the override status and reason.
      *
      * @param int $status The integer status.
@@ -172,6 +154,24 @@ class block_integrityadvocate_external extends \external_api {
 
         $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
+    }
+
+    /**
+     * Describes the parameters for set_override.
+     *
+     * @return external_function_parameters The parameters for set_override.
+     */
+    public static function set_override_parameters(): \external_function_parameters {
+        return new \external_function_parameters(
+                [
+            'status' => new \external_value(PARAM_INT, 'Status'),
+            'reason' => new \external_value(PARAM_TEXT, 'Reason for override'),
+            'targetuserid' => new \external_value(PARAM_INT, 'Target user id'),
+            'overrideuserid' => new \external_value(PARAM_INT, 'Overriding user id'),
+            'blockinstanceid' => new \external_value(PARAM_INT, 'Block instance id'),
+            'moduleid' => new \external_value(PARAM_INT, 'Module cmid'),
+                ]
+        );
     }
 
     /**
