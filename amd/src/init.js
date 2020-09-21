@@ -184,7 +184,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                                     window.location.reload(true);
                                                 },
                                                 fail: function(xhr_unused, textStatus, errorThrown) {
-                                                    debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::saveClick::ajax.always');
+                                                    debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::saveClick::ajax.fail');
                                                     console.log('textStatus', textStatus);
                                                     console.log('errorThrown', errorThrown);
                                                     alert(M.util.get_string('unknownerror', 'moodle'));
