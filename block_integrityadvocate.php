@@ -477,10 +477,28 @@ class block_integrityadvocate extends block_base {
                 break;
         }
 
+        $this->content->footer = $this->get_footer();
+    }
+
+    private function get_footer() {
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
+        if (block_integrityadvocate\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            return $cachedvalue;
+        }
+
+        global $CFG;
+        $returnthis = '';
         $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
-        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
         $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
-        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
+
+        if (block_integrityadvocate\FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $returnthis;
     }
 
     /**
