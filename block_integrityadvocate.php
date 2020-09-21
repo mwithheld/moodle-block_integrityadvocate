@@ -478,7 +478,7 @@ class block_integrityadvocate extends block_base {
         }
 
         $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
-        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . '</div>';
+        $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on ' . $CFG->release . '</div>';
         $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
         $this->content->footer .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
     }
