@@ -146,7 +146,7 @@ class Output {
      * @return string HTML button.
      */
     public static function get_button_overview(\block_integrityadvocate $blockinstance, $userid = null): string {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -319,7 +319,7 @@ class Output {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(implode('_', array(__CLASS__, __FUNCTION__, $blockinstance->instance->id, json_encode($participant, JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars)));
+        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $blockinstance->instance->id, json_encode($participant->__toString(), JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars]));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && ia_mu::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
