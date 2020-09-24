@@ -140,4 +140,18 @@ class Participant {
         return $latestsession;
     }
 
+    /**
+     * Return a string representation of this object.
+     * The (recursive) session>participant property is removed.
+     *
+     * @return string representation of this object.
+     */
+    public function __toString() {
+        $self = clone($this);
+        foreach ($self->sessions as $key => $s) {
+            $self->sessions[$key] = $s->__toString();
+        }
+        return json_encode($self, JSON_PARTIAL_OUTPUT_ON_ERROR);
+    }
+
 }

@@ -101,4 +101,16 @@ class Session {
         return $this->status;
     }
 
+    /**
+     * Return a string representation of this object.
+     * The (recursive) participant property is removed.
+     *
+     * @return string representation of this object.
+     */
+    public function __toString(): string {
+        $self = clone($this);
+        unset($self->participant);
+        return json_encode($self, JSON_PARTIAL_OUTPUT_ON_ERROR);
+    }
+
 }
