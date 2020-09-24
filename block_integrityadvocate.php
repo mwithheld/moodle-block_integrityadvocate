@@ -371,7 +371,7 @@ class block_integrityadvocate extends block_base {
                         }
 
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course: show the overview button and the module list.');
-                        $this->content->text .= ia_output::get_button_overview($this);
+                        $this->content->text .= ia_output::get_button_overview_course($this);
                         if (block_integrityadvocate\FeatureControl::MODULE_LIST) {
                             $prefix = 'integrityadvocate_modulelist';
                             $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
@@ -421,8 +421,9 @@ class block_integrityadvocate extends block_base {
                 $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Context=CONTEXT_MODULE');
                 switch (true) {
                     case $hascapability_overview:
-                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview button');
-                        $this->content->text .= ia_output::get_button_overview($this);
+                        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview module button AND the overview course button');
+                        $this->content->text .= ia_output::get_button_overview_module($this);
+                        $this->content->text .= ia_output::get_button_overview_course($this);
                         break;
                     case $hascapability_view && \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
