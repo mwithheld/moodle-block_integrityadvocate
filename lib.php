@@ -54,46 +54,20 @@ const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
 /** @var string Longer name for this plugin. */
 const INTEGRITYADVOCATE_BLOCK_NAME = 'block_integrityadvocate';
 
-/** @var string Scheduled cron task name. */
-const INTEGRITYADVOCATE_TASKNAME = 'block_integrityadvocate\task\process_integrityadvocate';
-
 /** @var string Base url for the API with no trailing slash. */
 const INTEGRITYADVOCATE_BASEURL = 'https://ca.integrityadvocateserver.com';
 
 /** @var string Path relative to baseurl of the API with no trailing slash. */
 const INTEGRITYADVOCATE_API_PATH = '/api';
 
-/** @var string Store logged messaged to the standard PHP error log. */
-const INTEGRITYADVOCATE_LOGDEST_ERRORLOG = 'ERRORLOG';
-
-/** @var string Send logged messages to standard HTML output, adding a <br> tag and a newline. */
-const INTEGRITYADVOCATE_LOGDEST_HTML = 'HTML';
-
-/** @var string Store logged messaged to the moodle log handler plain-textified. */
-const INTEGRITYADVOCATE_LOGDEST_MLOG = 'MLOG';
-
-/** @var string Store logged messaged to STDOUT through htmlentities. */
-const INTEGRITYADVOCATE_LOGDEST_STDOUT = 'STDOUT';
-
-/** @var string Store logged messaged to STDOUT through htmlentities. */
-const INTEGRITYADVOCATE_LOGDEST_LOGGLY = 'LOGGLY';
-
-/** @var int Time out remote IA sessions after this many minutes. */
-const INTEGRITYADVOCATE_SESS_TIMEOUT = 10;
+/** @var string Email address for privacy api data cleanup requests */
+const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 
 /** @var string Regex to check a string is a Data URI ref ref https://css-tricks.com/data-uris/. */
 const INTEGRITYADVOCATE_REGEX_DATAURI = '#data:image\/[a-zA-z-]*;base64,\s*[^"\s$]*#';
 
-/** @var string Email address for privacy api data cleanup requests */
-const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
-
-/** @var string Optionally used for remote debugging */
-const INTEGRITYADVOCATE_LOG_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
-
-/** @var string Determines where to send error logs.
- * For values, see MoodleUtility::log()'s switch statement.
- */
-static $blockintegrityadvocatelogdest = INTEGRITYADVOCATE_LOGDEST_ERRORLOG;
+/** @var string String part to denote a session started key */
+const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
 
 /**
  * Get participants in this block context.
