@@ -29,9 +29,19 @@ namespace block_integrityadvocate;
  */
 class FeatureControl {
 
+    /** @var bool True to allow caching using MUC. */
     const CACHE = true;
+
+    /** @var bool True to show a list of IA-enabled modules on the course-level block. */
     const MODULE_LIST = true;
+
+    /** @var bool True to allow showing the overview_module content. */
     const OVERVIEW_MODULE = true;
+
+    /** @var bool True to allow instructors to override the IA session status. */
     const SESSION_STATUS_OVERRIDE = true;
+
+    /** @var bool True to keep track of when session are started. */
+    const SESSION_STARTED_TRACKING = true;
 
 }
