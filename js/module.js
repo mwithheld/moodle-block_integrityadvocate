@@ -34,6 +34,64 @@ M.block_integrityadvocate = {
         textArea.innerHTML = encodedString;
         return textArea.value;
     },
+    sessionOpen: function() {
+        var debug = true;
+        debug && window.console.log('M.block_integrityadvocate.sessionOpen::Started');
+        var self = M.block_integrityadvocate;
+
+        require(['core/ajax'], function(ajax) {
+            ajax.call([{
+                    methodname: 'block_integrityadvocate_session_open',
+                    args: {
+                        appid: self.appid,
+                        courseid: self.courseid,
+                        moduleid: self.activityid,
+                        userid: self.participantidentifier
+                    },
+                    done: function() {
+                        debug && window.console.log('M.block_integrityadvocate.sessionOpen::ajax.done');
+                    },
+                    fail: function(xhr_unused, textStatus, errorThrown) {
+                        debug && window.console.log('M.block_integrityadvocate.sessionOpen::ajax.fail');
+                        console.log('textStatus', textStatus);
+                        console.log('errorThrown', errorThrown);
+                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionOpen::ajax.fail');
+                    }
+                }]);
+        });
+
+        debug && window.console.log('M.block_integrityadvocate.sessionOpen::Done');
+    },
+    sessionClose: function(callback) {
+        var debug = true;
+        debug && window.console.log('M.block_integrityadvocate.sessionClose::Started');
+        var self = M.block_integrityadvocate;
+
+        require(['core/ajax'], function(ajax) {
+            ajax.call([{
+                    methodname: 'block_integrityadvocate_session_close',
+                    args: {
+                        appid: self.appid,
+                        courseid: self.courseid,
+                        moduleid: self.activityid,
+                        userid: self.participantidentifier
+                    },
+                    done: function() {
+                        debug && window.console.log('M.block_integrityadvocate.sessionClose::ajax.done');
+                        typeof callback === 'function' && callback();
+                    },
+                    fail: function(xhr_unused, textStatus, errorThrown) {
+                        debug && window.console.log('M.block_integrityadvocate.sessionClose::ajax.fail');
+                        console.log('textStatus', textStatus);
+                        console.log('errorThrown', errorThrown);
+                        window.IntegrityAdvocate.endSession();
+                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionClose::ajax.fail');
+                    }
+                }]);
+        });
+
+        debug && window.console.log('M.block_integrityadvocate.sessionClose::Done');
+    },
     /**
      * Stuff to do when the proctor UI is loaded.
      * Hide the loading gif and show the main content.
@@ -41,7 +99,7 @@ M.block_integrityadvocate = {
      * @returns nothing.
      */
     proctorUILoaded: function() {
-        var debug = false;
+        var debug = true;
         debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::Started');
         var self = M.block_integrityadvocate;
         self.eltUserNotifications.css({'background-image': 'none'}).height('auto');
@@ -56,9 +114,17 @@ M.block_integrityadvocate = {
             case self.isScormPlayerSameWindow:
                 debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::On SCORM samewindow, show the content and monitor for page close');
                 eltMainContent.show();
-                $('a.btn-secondary[title="' + M.util.get_string('scorm', 'exitactivity') + '"]').click(function() {
-                    debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::Exiting the window - close the IA session');
-                    window.IntegrityAdvocate.endSession();
+
+                var elt = $('a.btn-secondary[title="' + M.util.get_string('exitactivity', 'scorm') + '"]');
+                elt.on('click.block_integrityadvocate', function(e) {
+                    debug && window.console.log('M.block_integrityadvocate.exitactivity.on(click)::started');
+                    self.sessionClose(function() {
+                        debug && window.console.log('M.block_integrityadvocate.exitactivity.promise.done::started');
+                        elt.off('click.block_integrityadvocate')
+                        elt[0].click();
+                    });
+                    e.preventDefault();
+                    return false;
                 });
                 break;
             case self.isScormEntryNewWindow:
@@ -68,7 +134,7 @@ M.block_integrityadvocate = {
                 $('#block_integrityadvocate_loading').remove();
                 $(window).on('beforeunload', function() {
                     debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::Exiting the window - close the IA session');
-                    window.IntegrityAdvocate.endSession();
+                    self.sessionClose();
                 });
                 self.eltScormEnter.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
                 break;
@@ -103,6 +169,9 @@ M.block_integrityadvocate = {
                 .done(function() {
                     debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Proctoring JS loaded');
                     $(document).bind('IA_Ready', function() {
+                        // Remember that we have started a session so we only close it once.
+                        self.sessionOpen();
+
                         // Hide the loading gif and show the main content.
                         self.proctorUILoaded();
                     });
@@ -114,7 +183,7 @@ M.block_integrityadvocate = {
                     // Show the main content.
                     self.eltDivMain.show();
                     // Dump out some info about what went wrong.
-                    var msg = M.util.get_string('block_integrityadvocate', 'proctorjs_load_failed');
+                    var msg = M.util.get_string('proctorjs_load_failed', 'block_integrityadvocate');
                     if (exception.toString() !== 'error') {
                         msg += "Error details:\n" + exception.toString();
                     }
@@ -124,10 +193,19 @@ M.block_integrityadvocate = {
                 });
     },
     blockinit: function(Y, proctorjsurl) {
-        var debug = false;
+        var debug = true;
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.blockinit::Started with proctorjsurl=', proctorjsurl);
-        // Vars for re-use.
+
+        // Register input vars for re-use.
+        var url = new URL(proctorjsurl);
+        var params = new URLSearchParams(url.search.replace(/\&amp;/g, '&'));
+        debug && window.console.log('M.block_integrityadvocate.blockinit::Parsed proctorjsurl=', url);
+        params.forEach(function(value, key) {
+            self[decodeURIComponent(key)] = decodeURIComponent(value);
+        });
+
+        // Register derived vars for re-use.
         self.isQuizAttempt = (document.body.id === 'page-mod-quiz-attempt');
         self.isScormPlayerSameWindow = (document.body.id === 'page-mod-scorm-player') && !M.mod_scormform;
         self.isScormEntryNewWindow = (document.body.id === 'page-mod-scorm-view') && typeof M.mod_scormform !== 'undefined';
