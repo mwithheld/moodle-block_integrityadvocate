@@ -59,7 +59,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function get_metadata(collection $collection): collection {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with $collection=' . var_export($collection, true), INTEGRITYADVOCATE_LOGDEST_HTML);
+        $debug && ia_mu::log($fxn . '::Started with $collection=' . var_export($collection, true), \block_integrityadvocate\LogDestination::HTML);
 
         $privacyitems = array(
             // Course info.
@@ -91,7 +91,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         $collection->add_external_location_link(INTEGRITYADVOCATE_BLOCK_NAME, $privacyitemsarr,
                 self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation');
-        $debug && ia_mu::log('About to return $collection=' . var_export($collection, true), INTEGRITYADVOCATE_LOGDEST_HTML);
+        $debug && ia_mu::log('About to return $collection=' . var_export($collection, true), \block_integrityadvocate\LogDestination::HTML);
 
         return $collection;
     }
