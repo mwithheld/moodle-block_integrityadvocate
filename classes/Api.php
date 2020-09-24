@@ -70,7 +70,7 @@ class Api {
      * @return bool true if the remote API close says it succeeded; else false
      */
     public static function close_remote_session(string $appid, int $courseid, int $moduleid, int $userid): bool {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -81,6 +81,17 @@ class Api {
             ia_mu::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
+
+        if (FeatureControl::SESSION_STARTED_TRACKING) {
+            if (!ia_mu::nonce_validate(implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid]), true)) {
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Found no session_started value - do not close the session');
+                return false;
+            } else {
+                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Found a session_started value so close the session and clear the session_started flag');
+                // Just fall out of the if-else.
+            }
+        }
+        $debug = false;
 
         // Do not cache these requests.
         $curl = new \curl();
@@ -112,7 +123,7 @@ class Api {
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
         $debug && ia_mu::log($debugvars);
@@ -228,7 +239,7 @@ class Api {
      * @return array<Session> Array of Sessions; Empty array if nothing found.
      */
     public static function get_module_user_sessions(\context $modulecontext, int $userid): array {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -281,7 +292,7 @@ class Api {
      * @return null|Participant Null if nothing found; else the parsed Participant object.
      */
     public static function get_participant(string $apikey, string $appid, int $courseid, int $userid) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -513,7 +524,7 @@ class Api {
      * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
     public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, $userid = null): array {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -625,7 +636,7 @@ class Api {
      * @param string The next token to get subsequent results from the API.
      */
     private static function get_participantsessions_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
         $debug && ia_mu::log($debugvars);
@@ -748,7 +759,7 @@ class Api {
      * @return null|Session Null if nothing found; else the most recent session for that user in that activity.
      */
     public static function get_module_session_latest(\context $modulecontext, int $userid) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -796,7 +807,7 @@ class Api {
      * @return int A Status status constant _INT value.
      */
     public static function get_module_status(\context $modulecontext, int $userid): int {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -833,7 +844,7 @@ class Api {
      * @return bool True if the status value for the user in the module represents "In Progress".
      */
     public static function is_status_inprogress(context $modulecontext, int $userid): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -857,7 +868,7 @@ class Api {
      * @return bool True if the status value for the user in the module represents "Invalid".
      */
     public static function is_status_invalid(\context $modulecontext, int $userid): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -885,7 +896,7 @@ class Api {
      * @return bool True if the status value for the user in the module represents "Valid".
      */
     public static function is_status_valid(\context $modulecontext, int $userid): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && ia_mu::log($debugvars);
@@ -978,7 +989,7 @@ class Api {
      * @return null|Session Null if failed to parse, otherwise a parsed Session object.
      */
     private static function parse_session(\stdClass $input, Participant $participant) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && ia_mu::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
 
