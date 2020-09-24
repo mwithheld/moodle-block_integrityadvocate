@@ -214,8 +214,10 @@ M.block_integrityadvocate = {
         }
         self.eltUserNotifications = $('#user-notifications');
         self.eltDivMain = $('div[role="main"]');
+
         // Load font used for icons.
         $('head').append($('<link rel="stylesheet" type="text/css" />').attr('href', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+
         // Handlers for different kinds of pages - this is for any required setup before the IA JS is loaded.
         switch (true) {
             case (self.isQuizAttempt):
@@ -230,9 +232,11 @@ M.block_integrityadvocate = {
                 self.eltScormEnter.on('click.block_integrityadvocate', function(e) {
                     $('#scormviewform input[type="submit"]').attr('disabled', 'disabled');
                     e.preventDefault();
+
                     // Hide the SCORM content until the IA JS is loaded.
                     self.eltDivMain.find('*').hide();
                     self.eltUserNotifications.css('text-align', 'center').append('<i id="block_integrityadvocate_loading" class="fa fa-spinner fa-spin" style="font-size:72px"></i>');
+
                     // Fix display of the loading gif.
                     var offset = self.eltUserNotifications.offset();
                     $('html, body').animate({
