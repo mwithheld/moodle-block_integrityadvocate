@@ -86,7 +86,8 @@ $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
 
-$string['btn_overview'] = 'Overview';
+$string['btn_overview_course'] = 'Course Overview';
+$string['btn_overview_module'] = 'Course Overview';
 $string['btn_view_details'] = 'View details';
 $string['overview_course'] = 'Integrity Advocate Course Overview';
 $string['overview_module'] = 'Integrity Advocate Module Overview';
