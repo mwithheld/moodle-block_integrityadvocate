@@ -69,6 +69,7 @@ $string['integrityadvocate:myaddinstance'] = 'Add a Integrity Advocate block to 
 $string['integrityadvocate:override'] = 'Override Integrity Advocate results';
 $string['integrityadvocate:overview'] = 'View course overview of Integrity Advocate results';
 $string['integrityadvocate:selfview'] = 'View own Integrity Advocate results';
+$string['integrityadvocate:view'] = 'Use the Integrity Advocate block as a student';
 
 $string['last_modified'] = 'Last modified';
 $string['lastaccess'] = 'Last in course';
