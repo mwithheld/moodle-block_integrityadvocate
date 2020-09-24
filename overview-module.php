@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
-$debug = true;
+$debug = false;
 $debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER;

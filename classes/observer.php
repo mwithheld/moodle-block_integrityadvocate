@@ -216,7 +216,7 @@ class block_integrityadvocate_observer {
      * @return bool true if remote session is closed; else false.
      */
     protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
-        $debug = false;
+        $debug = true;
         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started");
 
         $appid = isset($blockinstance->config->appid) ? trim($blockinstance->config->appid) : false;
