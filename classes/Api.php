@@ -52,10 +52,10 @@ class Api {
     const ENDPOINTS = array(self::ENDPOINT_PARTICIPANT, self::ENDPOINT_PARTICIPANTS, self::ENDPOINT_PARTICIPANTSESSIONS);
 
     /** @var int The API returns 10 results max per call by default, but our UI shows 20 users per page.  Set the number we want per UI page here. Ref https://integrityadvocate.com/developers. */
-    const RESULTS_PERPAGE = 20;
+    // Unused at the moment: const RESULTS_PERPAGE = 20;.
 
-    /** @var int In case of errors, these params limit the recursion to some reasonable maximum. */
-    const RECURSEMAX = 1000 / self::RESULTS_PERPAGE;
+    /** @var int In case of errors, this limits recursion to some reasonable maximum. */
+    const RECURSEMAX = 250;
 
     /** @var int Consider recursion failed after this time.  In seconds = 5 minutes. */
     const RECURSION_TIMEOUT = 5 * 60;
