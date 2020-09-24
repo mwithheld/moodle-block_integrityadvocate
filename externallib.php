@@ -36,12 +36,211 @@ use block_integrityadvocate\Utility as ia_u;
 class block_integrityadvocate_external extends \external_api {
 
     /**
+     * Describes the parameters for session_* functions.
+     *
+     * @return external_function_parameters The parameters for session_*() functions.
+     */
+    private static function session_function_params(): \external_function_parameters {
+        return new \external_function_parameters(
+                [
+            'appid' => new \external_value(PARAM_ALPHANUMEXT, 'appid'),
+            'courseid' => new \external_value(PARAM_INT, 'courseid'),
+            'moduleid' => new \external_value(PARAM_INT, 'moduleid'),
+            'userid' => new \external_value(PARAM_INT, 'userid'),
+                ]
+        );
+    }
+
+    private static function session_function_returns(): \external_single_structure {
+        return new \external_single_structure(
+                [
+            'submitted' => new \external_value(PARAM_BOOL, 'submitted', true, false, false),
+            'warnings' => new \external_warnings()
+                ]
+        );
+    }
+
+    private static function session_function_validate_params(string $appid, int $courseid, int $moduleid, int $userid): array {
+        global $USER;
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
+        $debug && ia_mu::log($debugvars);
+
+        self::validate_parameters(self::session_function_params(),
+                [
+                    'appid' => $appid,
+                    'courseid' => $courseid,
+                    'moduleid' => $moduleid,
+                    'userid' => $userid,
+                ]
+        );
+
+        $result = array(
+            'submitted' => false,
+            'success' => true,
+            'warnings' => [],
+        );
+        $blockversion = get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
+        $coursecontext = null;
+
+        // Check for things that should make this fail.
+        switch (true) {
+            case(!\confirm_sesskey()):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => get_string('confirmsesskeybad'));
+                break;
+            case(!block_integrityadvocate\FeatureControl::SESSION_STARTED_TRACKING) :
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'This feature is disabled');
+                break;
+            case(!ia_u::is_guid($appid)):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The input appid is an invalid GUID');
+                break;
+            case(!($course = ia_mu::get_course_as_obj($courseid))):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The input courseid is an invalid course id');
+                break;
+            case(!($coursecontext = \context_course::instance($courseid))):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The course context is invalid');
+                break;
+            case(!\is_enrolled($coursecontext, $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course id={$courseid} does not have targetuserid={$targetuserid} enrolled");
+                break;
+            case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
+                break;
+            case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1]) || !($blockinstance = ia_mu::get_first_block($cm->context, INTEGRITYADVOCATE_SHORTNAME, false))):
+                // The above line also throws an error if $overrideuserid cannot access the module.
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The target module must have an instance of ' . INTEGRITYADVOCATE_SHORTNAME . ' attached');
+                break;
+            case($blockinstance->config->appid !== $appid):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "The input appid {$blockinstance->config->appid} does not match the block intance appid={$appid}");
+                break;
+            case(intval($userid) !== intval($USER->id)):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The userid is not the current user');
+                break;
+            case(!($user = ia_mu::get_user_as_obj($userid))):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The userid is not a valid user');
+                break;
+            case($user->deleted || $user->suspended):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The user is suspended or deleted');
+                break;
+            case(!\is_enrolled(($modulecontext = $cm->context), $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "The userid={$userid} is not enrolled in the target module cmid={$moduleid}");
+                break;
+            case(\has_capability('block/integrityadvocate:overview', $cm->context)):
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'Instructors do not get the proctoring UI so never need to open or close the session');
+                break;
+        }
+        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        if (isset($result['warnings']) && !empty($result['warnings'])) {
+            $result['success'] = false;
+            return $result;
+        }
+        $debug && ia_mu::log($fxn . '::No warnings');
+
+        // Makes sure the current user may execute functions in this context.
+        self::validate_context($cm->context);
+
+        return $result;
+    }
+
+    /**
+     * Describes the parameters for session_close.
+     *
+     * @return external_function_parameters The parameters for session_open.
+     */
+    public static function session_close_parameters(): \external_function_parameters {
+        return self::session_function_params();
+    }
+
+    public static function session_close(string $appid, int $courseid, int $moduleid, int $userid): array {
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
+        $debug && ia_mu::log($debugvars);
+
+        $result = array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
+        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+
+        if (isset($result['warnings']) && !empty($result['warnings'])) {
+            $result['success'] = false;
+            return $result;
+        }
+        $debug && ia_mu::log($fxn . '::No warnings');
+
+        $result['success'] = ia_api::close_remote_session($appid, $courseid, $moduleid, $userid);
+        if (!$result['success']) {
+            $msg = 'Failed to save the session start flag';
+            $result['warnings'] = $msg;
+            ia_mu::log($fxn . "::$msg; \$debugvars={$debugvars}");
+        }
+        $result['submitted'] = true;
+
+        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        return $result;
+    }
+
+    /**
+     * Describes the session_open return value.
+     *
+     * @return external_single_structure
+     */
+    public static function session_close_returns(): \external_single_structure {
+        return self::session_function_returns();
+    }
+
+    /**
+     * Describes the parameters for session_open.
+     *
+     * @return external_function_parameters The parameters for session_open.
+     */
+    public static function session_open_parameters(): \external_function_parameters {
+        return self::session_function_params();
+    }
+
+    public static function session_open(string $appid, int $courseid, int $moduleid, int $userid): array {
+        global $USER;
+        $debug = true;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
+        $debug && ia_mu::log($debugvars);
+
+        $result = array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
+        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+
+        if (isset($result['warnings']) && !empty($result['warnings'])) {
+            $result['success'] = false;
+            return $result;
+        }
+        $debug && ia_mu::log($fxn . '::No warnings');
+
+        $result['success'] = ia_mu::nonce_set(implode('_', array(INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid)));
+        if (!$result['success']) {
+            $msg = 'Failed to save the session start flag';
+            $result['warnings'] = $msg;
+            ia_mu::log($fxn . "::$msg; \$debugvars={$debugvars}");
+        }
+        $result['submitted'] = true;
+
+        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        return $result;
+    }
+
+    /**
+     * Describes the session_open return value.
+     *
+     * @return external_single_structure
+     */
+    public static function session_open_returns(): \external_single_structure {
+        return self::session_function_returns();
+    }
+
+    /**
      * Set the override status and reason.
      *
      * @param int $status The integer status.
      * @param string $reason The reason for override.
      * @param int $targetuserid Target user id.  Must be enrolled in the course.
-     * @param int $overrideuserid Overriding user id.  Must be active in the course with this block's ovderride priv.
+     * @param int $overrideuserid Overriding user id.  Must be active in the course with this block's override priv.
      * @param int $blockinstance_requesting_id Block instance id. Must be an instance of this block.  Because the overview is for the whole course, the moduleid from this blockinstance may not contain the correct moduleid.
      * @param int $moduleid CMID for the module.
      * @return array Build result array that sent back as the AJAX result.
@@ -49,8 +248,8 @@ class block_integrityadvocate_external extends \external_api {
     public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid, int $blockinstance_requesting_id, int $moduleid): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "\$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuserid}, \$blockinstance_requesting_id={$blockinstance_requesting_id}, \$moduleid={$moduleid}";
-        $debug && ia_mu::log("::Started with " . $debugvars);
+        $debugvars = $fxn . "::Started with \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuserid}, \$blockinstance_requesting_id={$blockinstance_requesting_id}, \$moduleid={$moduleid}";
+        $debug && ia_mu::log($debugvars);
 
         self::validate_parameters(self::set_override_parameters(),
                 [
@@ -76,6 +275,9 @@ class block_integrityadvocate_external extends \external_api {
             case(!\confirm_sesskey()):
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => get_string('confirmsesskeybad'));
                 break;
+            case(!block_integrityadvocate\FeatureControl::SESSION_STATUS_OVERRIDE) :
+                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'This feature is disabled');
+                break;
             case(!ia_mu::nonce_validate(INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstance_requesting_id}_{$targetuserid}")):
                 // This nonce should be put into the server-side user session (ia_mu::nonce_set($noncekey)) when the form is generated.
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'Nonce not found');
@@ -94,9 +296,6 @@ class block_integrityadvocate_external extends \external_api {
                 break;
             case(!$blockinstance_requesting->is_visible()) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Blockinstanceid={$blockinstance_requesting_id} is hidden");
-                break;
-            case(!block_integrityadvocate\FeatureControl::SESSION_STATUS_OVERRIDE) :
-                $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'This feature is disabled');
                 break;
             case(!($coursecontext = $blockinstance_requesting->context->get_course_context())) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course context not found for blockinstanceid={$blockinstance_requesting_id}");
@@ -120,10 +319,10 @@ class block_integrityadvocate_external extends \external_api {
                 // The above line also throws an error if $overrideuserid cannot access the module.
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'The target module must have an instance of ' . INTEGRITYADVOCATE_SHORTNAME . ' attached');
                 break;
-            case(!\is_enrolled(($blockcontext = $cm->context), $targetuser /* Include inactive enrolments. */)) :
+            case(!\is_enrolled(($modulecontext = $cm->context), $targetuser /* Include inactive enrolments. */)) :
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "The targetuserid={$targetuserid} is not enrolled in the target module cmid={$moduleid}");
                 break;
-            case(!($hascapability_override = \has_capability(($overridepermission = 'block/integrityadvocate:override'), $blockcontext, $overrideuser))):
+            case(!($hascapability_override = \has_capability(($overridepermission = 'block/integrityadvocate:override'), $modulecontext, $overrideuser))):
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course id={$courseid} does not have overrideuserid={$overrideuserid} active with the permission {$overridepermission}");
                 break;
         }
