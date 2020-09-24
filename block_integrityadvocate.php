@@ -309,9 +309,11 @@ class block_integrityadvocate extends block_base {
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapability_overview);
             ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
-        if ($setuperrors && $hascapability_overview) {
-            foreach ($setuperrors as $err) {
-                $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
+        if ($setuperrors) {
+            if ($hascapability_overview) {
+                foreach ($setuperrors as $err) {
+                    $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
+                }
             }
             $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Setup errors, so skip it');
             return;
@@ -330,6 +332,7 @@ class block_integrityadvocate extends block_base {
             return;
         }
 
+        $hascapability_view = \has_capability('block/integrityadvocate:view', $this->context);
         $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $this->context);
 
         // Check if there is any errors.
@@ -421,7 +424,7 @@ class block_integrityadvocate extends block_base {
                         $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview button');
                         $this->content->text .= ia_output::get_button_overview($this);
                         break;
-                    case \is_enrolled($parentcontext, $USER, null, true):
+                    case $hascapability_view && \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.
                         switch (true) {
                             case (str_starts_with($this->page->pagetype, 'mod-scorm-')):

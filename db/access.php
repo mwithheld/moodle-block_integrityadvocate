@@ -48,7 +48,18 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
+    // Can view their own info in the block.
     'block/integrityadvocate:selfview' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+        ),
+        'clonepermissionsfrom' => 'moodle/grade:view'
+    ),
+    // Can use the IA block.
+    'block/integrityadvocate:view' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
