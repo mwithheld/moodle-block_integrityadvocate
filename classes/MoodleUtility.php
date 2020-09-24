@@ -321,7 +321,7 @@ class MoodleUtility {
         global $DB;
         $debug = false;
 
-        $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid));
+        $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid), 'id,visible', IGNORE_MULTIPLE);
         $debug && self::log(__CLASS__ . '::' . __FUNCTION__ . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
             // There is no block_positions record, and the default is visible.
@@ -382,8 +382,7 @@ class MoodleUtility {
                     SELECT c.id
                       FROM {course_modules} cm
                       JOIN {course} c ON c.id = cm.course
-                     WHERE cm.id = ?", array($cmid));
-
+                     WHERE cm.id = ?", array($cmid), 'id', IGNORE_MULTIPLE);
         $debug && self::log($fxn . '::Got course=' . ia_u::var_dump($course, true));
 
         if (ia_u::is_empty($course) || !isset($course->id)) {
@@ -484,7 +483,7 @@ class MoodleUtility {
         $params = array('contextid' => $coursecontext->id, 'archetype' => 'student');
 
         global $DB;
-        $studentrole = $DB->get_record_sql($sql, $params);
+        $studentrole = $DB->get_record_sql($sql, $params, 'id', MUST_EXIST);
         if (!ia_u::is_empty($studentrole)) {
             $studentroleid = $studentrole->id;
         } else {
@@ -503,7 +502,7 @@ class MoodleUtility {
      * @return bool|\block_integrityadvocate bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
@@ -656,17 +655,17 @@ class MoodleUtility {
      * Log $message to HTML output, mlog, stdout, or error log
      *
      * @param string $message Message to log
-     * @param string $dest One of the INTEGRITYADVOCATE_LOGDEST_* constants.
+     * @param string $dest One of the LogDestination::* constants.
      * @return bool True on completion
      */
     public static function log(string $message, string $dest = ''): bool {
-        global $CFG, $blockintegrityadvocatelogdest;
+        global $CFG;
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $dest=' . $dest . "\n");
 
         if (ia_u::is_empty($dest)) {
-            $dest = $blockintegrityadvocatelogdest;
+            $dest = LogDestination::$default;
         }
         $debug && error_log($fxn . '::After cleanup, $dest=' . $dest . "\n");
 
@@ -678,16 +677,16 @@ class MoodleUtility {
         $cleanedmsg = trim(preg_replace('/^[ \t]*[\r\n]+/m', '', $cleanedmsg));
 
         switch ($dest) {
-            case INTEGRITYADVOCATE_LOGDEST_HTML:
+            case LogDestination::HTML:
                 print($cleanedmsg) . "<br />\n";
                 break;
-            case INTEGRITYADVOCATE_LOGDEST_MLOG:
+            case LogDestination::MLOG:
                 mtrace(html_to_text($cleanedmsg, 0, false));
                 break;
-            case INTEGRITYADVOCATE_LOGDEST_STDOUT:
+            case LogDestination::STDOUT:
                 print(htmlentities($cleanedmsg, 0, false)) . "\n";
                 break;
-            case INTEGRITYADVOCATE_LOGDEST_LOGGLY:
+            case LogDestination::LOGGLY:
                 if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1])) {
                     $debugbacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
                 } else if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
@@ -712,10 +711,10 @@ class MoodleUtility {
                 // Usage https://github.com/Seldaek/monolog/blob/1.x/doc/01-usage.md.
                 // Usage https://dzone.com/articles/php-monolog-tutorial-a-step-by-step-guide.
                 $log = new \Monolog\Logger("$tag,$siteslug,$classorfile");
-                $log->pushHandler(new \Monolog\Handler\LogglyHandler(INTEGRITYADVOCATE_LOG_TOKEN, \Monolog\Logger::DEBUG));
+                $log->pushHandler(new \Monolog\Handler\LogglyHandler(LogDestination::LOGGLY_TOKEN, \Monolog\Logger::DEBUG));
                 $log->debug($cleanedmsg);
                 break;
-            case INTEGRITYADVOCATE_LOGDEST_ERRORLOG:
+            case LogDestination::ERRORLOG:
             default:
                 error_log($cleanedmsg);
                 break;
@@ -781,9 +780,10 @@ class MoodleUtility {
      * Check the nonce key exists in $SESSION and is not timed out.  Deletes the nonce key.
      *
      * @param string $key The Nonce key to check.  This gets cleaned automatically.
-     * @return bool True if the nonce key exists and is not timed out
+     * @param bool $returntrueifexists True means: Return true if the nonce key exists, ignoring the timeout..
+     * @return bool $returntrueifexists=false: True if the nonce key exists, is not empty (unixtime=0), and is not timed out.  $returntrueifexists=true: Returns true if the nonce key exists and is not empty (unixtime=0).
      */
-    public static function nonce_validate(string $key): bool {
+    public static function nonce_validate(string $key, bool $returntrueifexists = false): bool {
         global $SESSION;
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -791,7 +791,7 @@ class MoodleUtility {
 
         // Clean up $contextname so it is a safe cache key.
         $sessionkey = self::get_cache_key($key);
-        if (!isset($SESSION->$sessionkey) || empty($SESSION->$sessionkey)) {
+        if (!isset($SESSION->$sessionkey) || empty($SESSION->$sessionkey) || $SESSION->$sessionkey < 0) {
             $debug && self::log($fxn . "::\$SESSION does not contain key={$key}");
             return false;
         }
@@ -799,8 +799,12 @@ class MoodleUtility {
         $nonce = $SESSION->$sessionkey;
         $debug && self::log($fxn . "::\Found nonce={$nonce}");
 
-        // Yay, now delete it since it should only be used once.
+        // Delete it since it should only be used once.
         unset($SESSION->$sessionkey);
+
+        if ($returntrueifexists) {
+            return true;
+        }
 
         global $CFG;
 
