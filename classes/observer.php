@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use block_integrityadvocate\Api as ia_api;
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -45,23 +46,23 @@ class block_integrityadvocate_observer {
      * @return bool True if attempted to close the remote IA session; else false.
      */
     public static function process_event(\core\event\base $event): bool {
-        $debug = false;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
-            // Disabled on purpose: ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
+            // Disabled on purpose: Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
         }
 
         // No CLI events correspond to a user finishing an IA session.
         if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
             return false;
         }
 
         // If there is no user attached to this event, we can't close the user's IA session, so skip.
         if (!is_numeric($event->userid)) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
             return false;
         }
 
@@ -69,10 +70,10 @@ class block_integrityadvocate_observer {
         // Note \core\event\user_graded events are contextlevel=50, but there are other events that should close the IA session.
         $iscoursemodulechangeevent = ( $event->contextlevel === CONTEXT_MODULE && is_numeric($event->courseid) && $event->courseid != SITEID );
         if (!$iscoursemodulechangeevent) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
             return false;
         }
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::This is a module-level event, so continue');
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::This is a module-level event, so continue');
 
         /*
          * blocklist events to *not* act on.
@@ -103,11 +104,11 @@ class block_integrityadvocate_observer {
                         '\\mod_workshop\\event\\submission_reassessed',
             )):
                 // None of these exact string matches on event names correspond to finishing an module.
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
+                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
             default:
                 // Do nothing.
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not blocklisted so continue");
+                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not blocklisted so continue");
         }
 
         /*
@@ -128,10 +129,10 @@ class block_integrityadvocate_observer {
                         '\\mod_quiz\\event\\attempt_reviewed',
                         '\\mod_quiz\\event\\attempt_submitted',
             )):
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
+                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
-                $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the allowlist to be acted on, so skip it; debuginfo={$debuginfo}");
+                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the allowlist to be acted on, so skip it; debuginfo={$debuginfo}");
                 return false;
         }
 
@@ -148,15 +149,15 @@ class block_integrityadvocate_observer {
      * @return bool True if attempted to close the remote IA session; else false.
      */
     protected static function close_module_user_session(\core\event\base $event) {
-        $debug = false;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
         if (!($blockinstance = self::check_should_close_user_ia($event))) {
             return false;
         }
 
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
         return self::close_session($blockinstance, $event->userid);
     }
 
@@ -168,33 +169,33 @@ class block_integrityadvocate_observer {
      * @return bool|\block_base False if should not close the remote IA session; else returns the $blockinstance.
      */
     protected static function check_should_close_user_ia(\core\event\base $event) {
-        $debug = false;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 
         $modulecontext = $event->get_context();
         if ($modulecontext->contextlevel != CONTEXT_MODULE) {
             $msg = 'The passed-in event is not from a module context level';
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::$msg");
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::$msg");
             throw new \InvalidArgumentException($msg);
         }
 
         if (!\is_enrolled($modulecontext, $event->userid, null, true)) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has no active enrolment in this course-module so skip it');
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has no active enrolment in this course-module so skip it');
             return false;
         }
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
 
         if ($debug) {
             // Remove the block_ prefix and _observer suffix.
             $blockname = implode('_', array_slice(explode('_', substr(__CLASS__, strrpos(__CLASS__, '\\') + 1)), 1, -1));
-            ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
         }
 
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::Maybe we should ask the IA API to close the session');
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Maybe we should ask the IA API to close the session');
 
         // Make sure an IA block instance is present and visible.
         $blockinstance = ia_mu::get_first_block($modulecontext, \INTEGRITYADVOCATE_SHORTNAME);
         if (!$blockinstance || $blockinstance->get_config_errors()) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . '::The block is not present or not visible, or has config errors, so skip it');
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::The block is not present or not visible, or has config errors, so skip it');
             return false;
         }
 
@@ -216,13 +217,13 @@ class block_integrityadvocate_observer {
      * @return bool true if remote session is closed; else false.
      */
     protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
-        $debug = true;
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Started");
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started");
 
         $appid = isset($blockinstance->config->appid) ? trim($blockinstance->config->appid) : false;
-        $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
         if (!$appid) {
-            $debug && ia_mu::log(__CLASS__ . '::' . __FUNCTION__ . "::The block instance has no appid configured, so skip it");
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::The block instance has no appid configured, so skip it");
             return false;
         }
 

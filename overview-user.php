@@ -25,6 +25,7 @@
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\Api as ia_api;
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
@@ -45,8 +46,8 @@ if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext
 // This is only optional_param() in overview.php.
 $userid = \required_param('userid', PARAM_INT);
 
-$debug = false;
-$debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
+$debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug && Logger::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockcontext->get_parent_context();
 
@@ -67,7 +68,7 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
 
 $user = ia_mu::get_user_as_obj($userid);
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
-$debug && ia_mu::log(__FILE__ . "::For \$blockinstanct->config->apikey={$blockinstance->config->apikey}; \$blockinstance->config->appid={$blockinstance->config->appid}; \$courseid={$courseid}; \$userid={$userid}, got participant=" . ia_u::var_dump($participant));
+$debug && Logger::log(__FILE__ . "::For \$blockinstanct->config->apikey={$blockinstance->config->apikey}; \$blockinstance->config->appid={$blockinstance->config->appid}; \$courseid={$courseid}; \$userid={$userid}, got participant=" . ia_u::var_dump($participant));
 
 // Show basic user info at the top.  Adapted from user/view.php.
 echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_user_userinfo']);
@@ -89,14 +90,14 @@ $continue = isset($participant->sessions) && is_array($participant->sessions) &&
 if ($continue) {
     // Should we show override stuff?
     $showoverride = FeatureControl::SESSION_STATUS_OVERRIDE && $hascapability_override;
-    $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
+    $debug && Logger::log(__FILE__ . "::Got \$showoverride={$showoverride}");
 
     // Set a nonce into the server-side user session.
     // This means you can only do one override per user at a time.
     // Ref https://codex.wordpress.org/WordPress_Nonces for why it is a good idea to use nonces here.
     if ($showoverride) {
         $noncekey = INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstanceid}_{$participant->participantidentifier}";
-        $debug && ia_mu::log(__FILE__ . "::About to nonce_set({$noncekey})");
+        $debug && Logger::log(__FILE__ . "::About to nonce_set({$noncekey})");
         ia_mu::nonce_set($noncekey);
     }
 
@@ -165,13 +166,13 @@ if ($continue) {
     foreach ($sessions as $session) {
         switch (true) {
             case(ia_u::is_empty($session) || !isset($session->flags)):
-                $debug && ia_mu::log(__FILE__ . '::This session is empty or has no flags, so skip it');
+                $debug && Logger::log(__FILE__ . '::This session is empty or has no flags, so skip it');
                 continue 2;
             case(!isset($session->activityid) || !($cmid = $session->activityid)):
-                $debug && ia_mu::log(__FILE__ . 'This session has no activityid so skip it');
+                $debug && Logger::log(__FILE__ . 'This session has no activityid so skip it');
                 continue 2;
             case(!($courseid = ia_mu::get_courseid_from_cmid($cmid)) || intval($courseid) !== intval($session->participant->courseid)):
-                $debug && ia_mu::log(__FILE__ . "::This session belongs to courseid={$courseid} not matching participant->courseid={$session->participant->courseid}");
+                $debug && Logger::log(__FILE__ . "::This session belongs to courseid={$courseid} not matching participant->courseid={$session->participant->courseid}");
                 continue 2;
         }
 
@@ -192,12 +193,12 @@ if ($continue) {
 
         $debuginfo = "name={$cm->name}; cmid={$cmid}";
         $hasoverride = $session->has_override();
-        $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$hasoverride={$hasoverride}");
+        $debug && Logger::log(__FILE__ . "::{$debuginfo}:Got \$hasoverride={$hasoverride}");
 
         // Column=session_status.
         $latestmodulesession = $participant->get_latest_module_session($cmid);
         $canoverride = $showoverride && $latestmodulesession && ($session->id == $latestmodulesession->id);
-        $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$canoverride={$canoverride}");
+        $debug && Logger::log(__FILE__ . "::{$debuginfo}:Got \$canoverride={$canoverride}");
         $overrideclass = $canoverride ? " {$prefix}_session_overrideui" : '';
         // If overridden, show the overridden status.
         if ($hasoverride) {

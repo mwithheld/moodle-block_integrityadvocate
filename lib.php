@@ -26,6 +26,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use block_integrityadvocate\Api as ia_api;
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -77,9 +78,9 @@ const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
  * @return array<\Participant> Array of Participant objects.
  */
 function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
-    $debug = false;
+    $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
     $fxn = __CLASS__ . '::' . __FUNCTION__;
-    $debug && ia_mu::log($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
+    $debug && Logger::log($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
 
     // We only have user data where the block_integrityadvocate is added to a module.
     // In these cases we have existing code to get the user data from the blockinstance.
@@ -98,7 +99,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
 
     // Get IA participant data from the remote API.
     $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $coursecontext->instanceid);
-    $debug && ia_mu::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+    $debug && Logger::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
 
     return $participants;
 }
@@ -112,25 +113,25 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * @return string|array Array of modules that match; else string error identifier
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
-    $debug = false;
+    $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 
     // Massage the course input if needed.
     $course = ia_mu::get_course_as_obj($course);
     if (!$course) {
         return 'no_course';
     }
-    $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : ia_u::var_dump($filter, true)));
+    $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : ia_u::var_dump($filter, true)));
 
     // Get modules in this course.
     $modules = ia_mu::get_modules_with_completion($course->id);
     if (empty($modules)) {
         return 'no_modules_message';
     }
-    $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . ia_u::count_if_countable($modules) . ' modules in this course');
+    $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . ia_u::count_if_countable($modules) . ' modules in this course');
 
     // Filter for modules that use an IA block.
     $modules = block_integrityadvocate_filter_modules_use_ia_block($modules, $filter);
-    $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . ia_u::count_if_countable($modules) . ' modules that use IA');
+    $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Found ' . ia_u::count_if_countable($modules) . ' modules that use IA');
 
     if (!$modules) {
         return 'no_modules_config_message';
@@ -147,11 +148,11 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
  * @return array<\stdClass> of course modules.
  */
 function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array {
-    $debug = false;
-    $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
+    $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+    $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
 
     foreach ($modules as $key => $m) {
-        // Disabled on purpose: $debug &&ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at module with url=' . $a->url);.
+        // Disabled on purpose: $debug &&Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Looking at module with url=' . $a->url);.
         $modulecontext = $m['context'];
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, isset($filter['visible']) && (bool) $filter['visible']);
 
@@ -162,11 +163,11 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         }
 
         $blockinstanceid = $blockinstance->instance->id;
-        $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' . $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
+        $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' . $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
 
         // Init the result to false.
         if (isset($filter['configured']) && $filter['configured'] && $blockinstance->get_config_errors()) {
-            $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::This blockinstance is not fully configured');
+            $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::This blockinstance is not fully configured');
             unset($modules[$key]);
             continue;
         }
@@ -182,19 +183,19 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         }
         if ($requireapikey || $requireappid) {
             // Filter for modules with matching apikey and appid.
-            $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Looking to filter for apikey and appid');
+            $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Looking to filter for apikey and appid');
 
             if ($requireapikey && ($blockinstance->config->apikey !== $requireapikey)) {
-                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $apikey);
+                $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $apikey);
                 unset($modules[$key]);
                 continue;
             }
             if ($requireappid && ($blockinstance->config->appid !== $requireappid)) {
-                $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $appid);
+                $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $appid);
                 unset($modules[$key]);
                 continue;
             }
-            $debug && ia_mu::log(__FILE__ . '::' . __FUNCTION__ . '::After filtering for apikey/appid, count($modules)=' . ia_u::count_if_countable($modules));
+            $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::After filtering for apikey/appid, count($modules)=' . ia_u::count_if_countable($modules));
         }
 
         // Add the blockinstance data to the $amodules array to be returned.

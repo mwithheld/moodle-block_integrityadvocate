@@ -24,6 +24,7 @@
 
 namespace block_integrityadvocate;
 
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -98,7 +99,7 @@ class Status {
                 break;
             default:
                 $error = 'Invalid participant review status value=' . serialize($statusstring);
-                ia_mu::log($error);
+                Logger::log($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -205,7 +206,7 @@ class Status {
                 break;
             default:
                 $error = 'Invalid participant review status value=' . $statusint;
-                ia_mu::log($error);
+                Logger::log($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -237,7 +238,7 @@ class Status {
                 break;
             default:
                 $error = __FUNCTION__ . '::Invalid participant review status value=' . $statusint;
-                ia_mu::log($error);
+                Logger::log($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -283,14 +284,14 @@ class Status {
      * @return bool True if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
      */
     public static function is_status_int(int $statusint): bool {
-        $debug = false;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . "::Started with \$statusint={$statusint}");
+        $debug && Logger::log($fxn . "::Started with \$statusint={$statusint}");
         $statusints = array_keys(self::get_statuses());
-        $debug && ia_mu::log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
+        $debug && Logger::log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
 
         $returnthis = in_array($statusint, $statusints, true);
-        $debug && ia_mu::log($fxn . "::About to return \$returnthis=$returnthis");
+        $debug && Logger::log($fxn . "::About to return \$returnthis=$returnthis");
         return $returnthis;
     }
 

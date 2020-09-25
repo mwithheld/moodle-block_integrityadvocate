@@ -29,6 +29,7 @@
 
 namespace block_integrityadvocate;
 
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
@@ -45,7 +46,7 @@ const DEFAULT_PAGE_SIZE = 20;
 /** bool Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
-$debug = false;
+$debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 
 \require_login();
 
@@ -68,7 +69,7 @@ $params = [
 // Set up which overview page we should produce: -user, -module, or -course.
 switch (true) {
     case ($userid):
-        $debug && ia_mu::log(__FILE__ . '::Got param $userid=' . $userid);
+        $debug && Logger::log(__FILE__ . '::Got param $userid=' . $userid);
         $requestedpage = 'overview-user';
         $PAGE->requires->strings_for_js(array('override_form_label', 'override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
         $params += [
@@ -76,7 +77,7 @@ switch (true) {
         ];
         break;
     case ($moduleid && FeatureControl::OVERVIEW_MODULE):
-        $debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
+        $debug && Logger::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
@@ -152,7 +153,7 @@ $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $b
 // Check for errors that mean we should not show any overview page.
 switch (true) {
     case ($configerrors = $blockinstance->get_config_errors()):
-        $debug && ia_mu::log(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
+        $debug && Logger::log(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
         if ($hascapability_overview) {
             \core\notification::error(implode(ia_output::BRNL, $configerrors));
@@ -160,7 +161,7 @@ switch (true) {
         break;
 
     case($setuperrors = ia_mu::get_completion_setup_errors($course)):
-        $debug && ia_mu::log(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
+        $debug && Logger::log(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
         foreach ($setuperrors as $err) {
             echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
         }
@@ -168,18 +169,18 @@ switch (true) {
 
     case(!$hascapability_overview && !$hascapability_selfview):
         $msg = 'No permissions to see anything in the block';
-        $debug && ia_mu::log(__FILE__ . "::$msg");
+        $debug && Logger::log(__FILE__ . "::$msg");
         \core\notification::error($msg);
         break;
 
     case (is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
-        $debug && ia_mu::log(__FILE__ . '::The course has no IA modules');
+        $debug && Logger::log(__FILE__ . '::The course has no IA modules');
 
         \core\notification::error(get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL);
         break;
 
     default:
-        $debug && ia_mu::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
+        $debug && Logger::log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
         // All overview pages use this JS for interactive features.
         $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');

@@ -25,6 +25,7 @@
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\Api as ia_api;
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
@@ -138,15 +139,15 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      */
     public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
-        $debug = false;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
+        $debug && Logger::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || !is_numeric($courseid = $blockinstance->get_course()->id)) {
             $msg = 'Input params are invalid';
-            ia_mu::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
-            ia_mu::log($fxn . '::' . $msg);
+            Logger::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
+            Logger::log($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -176,24 +177,24 @@ class ParticipantsTable extends \core_user\participants_table {
         $promises = [];
 
         // The var $this->rawdata contains all the users for *this page* of the participants table.
-        $debug && ia_mu::log($fxn . '::We should get data for ' . count($this->rawdata) . ' users');
+        $debug && Logger::log($fxn . '::We should get data for ' . count($this->rawdata) . ' users');
         foreach ($this->rawdata as $u) {
             $params = ['participantidentifier' => $u->id, 'courseid' => $courseid];
-            $debug && ia_mu::log($fxn . '::About to get data for params=' . ia_u::var_dump($params, true));
+            $debug && Logger::log($fxn . '::About to get data for params=' . ia_u::var_dump($params, true));
             $promise = $client->getAsync($requestapiurl, [
                 'headers' => ['Authorization' => $authheader],
                 'query' => $params,
             ]);
-            $debug && ia_mu::log($fxn . "::Sent getAsync with requestapiurl={$requestapiurl}; participantidentifier={$u->id}; courseid={$courseid}"); //; url={$url}
+            $debug && Logger::log($fxn . "::Sent getAsync with requestapiurl={$requestapiurl}; participantidentifier={$u->id}; courseid={$courseid}"); //; url={$url}
             $promise->then(
                     /**
                      * On Guzzle response, parse the participant.
                      */
                     function (\Psr\Http\Message\ResponseInterface $response) use ($blockinstance, $debug) {
                 $fxn = __CLASS__ . '::' . __FUNCTION__;
-                $debug && ia_mu::log($fxn . '::Promise->then started with response=' . ia_u::var_dump($response, true));
+                $debug && Logger::log($fxn . '::Promise->then started with response=' . ia_u::var_dump($response, true));
                 if (ia_u::is_empty($response) || $response->getStatusCode() !== 200 || ia_u::is_empty($response->getBody())) {
-                    $debug && ia_mu::log($fxn . '::Invalid response so skipping');
+                    $debug && Logger::log($fxn . '::Invalid response so skipping');
                     return;
                 }
 
@@ -201,14 +202,14 @@ class ParticipantsTable extends \core_user\participants_table {
                 if (ia_u::is_empty($responseparsed) && json_last_error() === JSON_ERROR_NONE) {
                     throw new \Exception('Failed to json_decode');
                 }
-                $debug && ia_mu::log($fxn . '::After json_decode, got $responseparsed=' . ia_u::var_dump($responseparsed, true));
+                $debug && Logger::log($fxn . '::After json_decode, got $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
                 $participant = ia_api::parse_participant($responseparsed);
                 if (ia_u::is_empty($participant) || !isset($participant->participantidentifier)) {
-                    $debug && ia_mu::log($fxn . '::Empty participant');
+                    $debug && Logger::log($fxn . '::Empty participant');
                     return;
                 } else {
-                    $debug && ia_mu::log($fxn . '::Got a participant with id=' . $participant->participantidentifier);
+                    $debug && Logger::log($fxn . '::Got a participant with id=' . $participant->participantidentifier);
                 }
 
                 $this->rawdata[$participant->participantidentifier]->iadata = ia_output::get_participant_basic_output($blockinstance, $participant, false, true, false);
@@ -222,11 +223,11 @@ class ParticipantsTable extends \core_user\participants_table {
                     function (\GuzzleHttp\Exception\RequestException $e) use ($debug, $fxn) {
                 if ($e->getResponse()->getStatusCode() == 404) {
                     // Do not bother logging except in debug mode.
-                    $debug && ia_mu::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
+                    $debug && Logger::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
                     return;
                 }
                 // The getMessage() includes url, response code, and body.
-                ia_mu::log($fxn . '::Got a Guzzle exception=' . str_replace(array("\n", "\r"), '', $e->getMessage())
+                Logger::log($fxn . '::Got a Guzzle exception=' . str_replace(array("\n", "\r"), '', $e->getMessage())
                 );
             }
             );
@@ -238,17 +239,17 @@ class ParticipantsTable extends \core_user\participants_table {
                 $promise->wait();
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 // Ignore 400-level errors. Ref https://stackoverflow.com/a/30957410.
-                $debug && ia_mu::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
+                $debug && Logger::log($fxn . '::Ignoring a 400-level error: $e=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
                 continue;
             } catch (\Exception $e) {
                 // Catch and log other errors, attempt to continue.
-                ia_mu::log($fxn . '::Ignoring an error: $e=' . get_class($e) . '; message=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
+                Logger::log($fxn . '::Ignoring an error: $e=' . get_class($e) . '; message=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
                 continue;
             }
         }
 
-        // Disabled on purpose: $debug && ia_mu::log($fxn . "::About to return; \$this->rawdata=" . ia_u::var_dump($this->rawdata, true));.
-        $debug && ia_mu::log($fxn . '::About to return');
+        // Disabled on purpose: $debug && Logger::log($fxn . "::About to return; \$this->rawdata=" . ia_u::var_dump($this->rawdata, true));.
+        $debug && Logger::log($fxn . '::About to return');
     }
 
     /**

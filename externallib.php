@@ -26,6 +26,7 @@ require_once($CFG->libdir . '/externallib.php');
 require_once(__DIR__ . '/lib.php');
 
 use block_integrityadvocate\Api as ia_api;
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
@@ -62,10 +63,10 @@ class block_integrityadvocate_external extends \external_api {
 
     private static function session_function_validate_params(string $appid, int $courseid, int $moduleid, int $userid): array {
         global $USER;
-        $debug = true;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && ia_mu::log($debugvars);
+        $debug && Logger::log($debugvars);
 
         self::validate_parameters(self::session_function_params(),
                 [
@@ -130,12 +131,12 @@ class block_integrityadvocate_external extends \external_api {
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => 'Instructors do not get the proctoring UI so never need to open or close the session');
                 break;
         }
-        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             return $result;
         }
-        $debug && ia_mu::log($fxn . '::No warnings');
+        $debug && Logger::log($fxn . '::No warnings');
 
         // Makes sure the current user may execute functions in this context.
         self::validate_context($cm->context);
@@ -153,29 +154,29 @@ class block_integrityadvocate_external extends \external_api {
     }
 
     public static function session_close(string $appid, int $courseid, int $moduleid, int $userid): array {
-        $debug = true;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && ia_mu::log($debugvars);
+        $debug && Logger::log($debugvars);
 
         $result = array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
-        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             return $result;
         }
-        $debug && ia_mu::log($fxn . '::No warnings');
+        $debug && Logger::log($fxn . '::No warnings');
 
         $result['success'] = ia_api::close_remote_session($appid, $courseid, $moduleid, $userid);
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag';
             $result['warnings'] = $msg;
-            ia_mu::log($fxn . "::$msg; \$debugvars={$debugvars}");
+            Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
-        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && Logger::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 
@@ -199,29 +200,29 @@ class block_integrityadvocate_external extends \external_api {
 
     public static function session_open(string $appid, int $courseid, int $moduleid, int $userid): array {
         global $USER;
-        $debug = true;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && ia_mu::log($debugvars);
+        $debug && Logger::log($debugvars);
 
         $result = array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
-        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             return $result;
         }
-        $debug && ia_mu::log($fxn . '::No warnings');
+        $debug && Logger::log($fxn . '::No warnings');
 
         $result['success'] = ia_mu::nonce_set(implode('_', array(INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid)));
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag';
             $result['warnings'] = $msg;
-            ia_mu::log($fxn . "::$msg; \$debugvars={$debugvars}");
+            Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
-        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && Logger::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 
@@ -246,10 +247,10 @@ class block_integrityadvocate_external extends \external_api {
      * @return array Build result array that sent back as the AJAX result.
      */
     public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid, int $blockinstance_requesting_id, int $moduleid): array {
-        $debug = false;
+        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuserid}, \$blockinstance_requesting_id={$blockinstance_requesting_id}, \$moduleid={$moduleid}";
-        $debug && ia_mu::log($debugvars);
+        $debug && Logger::log($debugvars);
 
         self::validate_parameters(self::set_override_parameters(),
                 [
@@ -326,12 +327,12 @@ class block_integrityadvocate_external extends \external_api {
                 $result['warnings'][] = array('warningcode' => $blockversion . __LINE__, 'message' => "Course id={$courseid} does not have overrideuserid={$overrideuserid} active with the permission {$overridepermission}");
                 break;
         }
-        $debug && ia_mu::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             return $result;
         }
-        $debug && ia_mu::log($fxn . '::No warnings');
+        $debug && Logger::log($fxn . '::No warnings');
 
         // Makes sure the current user may execute functions in this context.
         self::validate_context($cm->context);
@@ -347,11 +348,11 @@ class block_integrityadvocate_external extends \external_api {
         if (!$result['success']) {
             $msg = 'Failed to save the override status';
             $result['warnings'] = $msg;
-            ia_mu::log($fxn . "::$msg; \$debugvars={$debugvars}");
+            Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
-        $debug && ia_mu::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && Logger::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 

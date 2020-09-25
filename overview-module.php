@@ -25,6 +25,7 @@
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\Api as ia_api;
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Status as ia_status;
@@ -35,8 +36,8 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
-$debug = false;
-$debug && ia_mu::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
+$debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug && Logger::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER;
 $userid = $USER->id;
@@ -56,7 +57,7 @@ switch (true) {
         throw new \InvalidArgumentException("Invalid moduleid={$moduleid}");
     case(!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // The above line throws an error if the current user is not a teacher, so we should never get here.
-        $debug && ia_mu::log(__FILE__ . '::Checked required capability: overview');
+        $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
         break;
     case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
         throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
@@ -74,7 +75,7 @@ switch (true) {
         // Note this capability check is on the parent, not the block instance.
         break;
     default:
-        $debug && ia_mu::log(__FILE__ . '::All requirements are met');
+        $debug && Logger::log(__FILE__ . '::All requirements are met');
 }
 
 // Show basic module info at the top.  Adapted from course/classes/output/course_module_name.php:export_for_template().
@@ -87,7 +88,7 @@ echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . 
 
 // Get IA sessions associated with this course module for all participants.
 $participantsessions = ia_api::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $moduleid);
-$debug && ia_mu::log(__FILE__ . '::Got count($participantsessions)=' . ia_u::count_if_countable($participantsessions));
+$debug && Logger::log(__FILE__ . '::Got count($participantsessions)=' . ia_u::count_if_countable($participantsessions));
 // Disabled on purpose: echo 'Done the API call; participantsessions=<PRE>' . ia_u::var_dump($participantsessions, true) . '</PRE>';.
 
 if ($participantsessions) {
@@ -104,7 +105,7 @@ if ($participantsessions) {
 
     // Should we show override stuff?
     $showoverride = FeatureControl::SESSION_STATUS_OVERRIDE && $hascapability_override;
-    $debug && ia_mu::log(__FILE__ . "::Got \$showoverride={$showoverride}");
+    $debug && Logger::log(__FILE__ . "::Got \$showoverride={$showoverride}");
 
     $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_participant';
 
@@ -152,12 +153,12 @@ if ($participantsessions) {
         echo \html_writer::tag('td', ($sessionend ? \userdate($sessionend) : ''), ['data-sort' => $sessionend, 'class' => "{$prefix}_session_end"]);
 
         $hasoverride = $session->has_override();
-        $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$hasoverride={$hasoverride}");
+        $debug && Logger::log(__FILE__ . "::{$debuginfo}:Got \$hasoverride={$hasoverride}");
 
         // Column=session_status.
         $latestmodulesession = $p->get_latest_module_session($moduleid);
         $canoverride = false;
-        $debug && ia_mu::log(__FILE__ . "::{$debuginfo}:Got \$canoverride={$canoverride}");
+        $debug && Logger::log(__FILE__ . "::{$debuginfo}:Got \$canoverride={$canoverride}");
         $overrideclass = $canoverride ? " {$prefix}_session_overrideui" : '';
         // If overridden, show the overridden status.
         if ($hasoverride) {

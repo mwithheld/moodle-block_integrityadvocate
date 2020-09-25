@@ -25,6 +25,7 @@
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
 defined('MOODLE_INTERNAL') || die;
@@ -40,8 +41,8 @@ if (empty($courseid) || ia_u::is_empty($course)) {
     throw new \InvalidArgumentException('$courseid and $course are required');
 }
 
-$debug = false;
-$debug && ia_mu::log(basename(__FILE__) . '::Started');
+$debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug && Logger::log(basename(__FILE__) . '::Started');
 
 // Must be teacher to see this page.
 \require_capability('block/integrityadvocate:overview', $coursecontext);
@@ -52,7 +53,7 @@ echo $OUTPUT->container_start('progressoverviewmenus');
 echo '&nbsp;' . \get_string('role') . '&nbsp;';
 echo $OUTPUT->single_select($PAGE->url, 'role', ia_mu::get_roles_for_select($coursecontext), $roleid);
 echo $OUTPUT->container_end();
-$debug && ia_mu::log(basename(__FILE__) . '::Done outputting roles');
+$debug && Logger::log(basename(__FILE__) . '::Done outputting roles');
 
 $notesallowed = !empty($CFG->enablenotes) && \has_capability('moodle/notes:manage', $coursecontext);
 $messagingallowed = !empty($CFG->messaging) && \has_capability('moodle/site:sendmessage', $coursecontext);
@@ -69,7 +70,7 @@ $participanttable->define_baseurl($baseurl);
 // Populate the ParticipantsTable instance with user rows from Moodle core info.
 $participanttable->setup_and_populate($perpage);
 
-$debug && ia_mu::log(basename(__FILE__) . '::About to populate_from_blockinstance()');
+$debug && Logger::log(basename(__FILE__) . '::About to populate_from_blockinstance()');
 // Populate the ParticipantsTable instance user rows with blockinstance-specific IA participant info.
 // No return value.
 $participanttable->populate_from_blockinstance($blockinstance);
