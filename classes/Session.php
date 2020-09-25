@@ -109,6 +109,9 @@ class Session {
      */
     public function __toString(): string {
         $self = clone($this);
+        if (isset($self->participantphoto) && !empty($self->participantphoto)) {
+            $self->participantphoto = preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', $self->participantphoto);
+        }
         unset($self->participant);
         return json_encode($self, JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
