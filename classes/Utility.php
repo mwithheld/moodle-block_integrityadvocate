@@ -128,7 +128,7 @@ class Utility {
     }
 
     /**
-     * Just wraps print_r(), but defaults to returning as a string.
+     * Just wraps print_r(), but defaults to returning as a string.  If $expression is an object that has implemented __toString() then this is used.
      *
      * @param mixed $expression <p>The expression to be printed.</p>
      * @param bool $return <p>If you would like to capture the output of <b>print_r()</b>, use the <code>return</code> parameter. When this parameter is set to <b><code>TRUE</code></b>, <b>print_r()</b> will return the information rather than print it.</p>
@@ -137,6 +137,11 @@ class Utility {
     public static function var_dump($expression, bool $return = true) {
         // Avoid OOM errors.
         raise_memory_limit(MEMORY_HUGE);
+
+        if (is_object($expression) && method_exists(get_class($expression), '__toString')) {
+            $expression = $expression->__toString();
+        }
+
         // Preg_replace prevents dying on base64-encoded images.
         return print_r(preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', print_r($expression, true)), $return);
     }
