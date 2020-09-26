@@ -58,8 +58,8 @@ class Api {
     /** @var int In case of errors, this limits recursion to some reasonable maximum. */
     const RECURSEMAX = 250;
 
-    /** @var int Consider recursion failed after this time.  In seconds = 5 minutes. */
-    const RECURSION_TIMEOUT = 5 * 60;
+    /** @var int Consider recursion failed after this time.  In seconds = 10 minutes. */
+    const RECURSION_TIMEOUT = 10 * 60;
 
     /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
@@ -379,7 +379,8 @@ class Api {
 
         // In case of infinite loop, bail out after trying for some time.
         $oldexecutionlimit = ini_get('max_execution_time');
-        set_time_limit(self::RECURSION_TIMEOUT);
+        \core_php_time_limit::raise(self::RECURSION_TIMEOUT);
+        raise_memory_limit(MEMORY_EXTRA);
 
         // This gets a json-decoded object of the IA API curl result.
         $participantsraw = self::get_participants_data($apikey, $appid, ['courseid' => $courseid]);
@@ -424,7 +425,7 @@ class Api {
         }
 
         // Reset the execution time limit back to what it was.  This will restart the timer from zero but that's OK.
-        set_time_limit($oldexecutionlimit);
+        \core_php_time_limit::raise($oldexecutionlimit);
 
         $debug && Logger::log($fxn . '::About to return count($parsedparticipants)=' . ia_u::count_if_countable($parsedparticipants));
         return $parsedparticipants;
