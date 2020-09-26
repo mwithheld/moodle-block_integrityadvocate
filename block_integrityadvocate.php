@@ -368,7 +368,7 @@ class block_integrityadvocate extends block_base {
                             }
 
                             // Do not show the latest status.
-                            $this->content->text .= ia_output::get_user_basic_output($this, $targetuserid);
+                            $this->content->text .= ia_output::get_user_summary_output($this, $targetuserid);
                         }
 
                         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course: show the overview button and the module list.');
@@ -413,7 +413,7 @@ class block_integrityadvocate extends block_base {
 
                         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Student viewing a course: show the overview button only');
                         // Do not show the latest status.
-                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id);
+                        $this->content->text .= ia_output::get_user_summary_output($this, $USER->id);
                         break;
                 }
 
@@ -442,7 +442,7 @@ class block_integrityadvocate extends block_base {
                                     } else {
                                         // The SCORM popup window (mod-scorm-view) does not load any blocks or JS, so we ignore that possibility.
                                         // Other pages should show the overview.
-                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, true);
+                                        $this->content->text .= ia_output::get_user_summary_output($this, $USER->id, true, true, true);
                                     }
                                 } else {
                                     // Else it is a SCORM "same window" instance.
@@ -451,7 +451,7 @@ class block_integrityadvocate extends block_base {
                                     if ($this->page->pagetype === 'mod-scorm-player') {
                                         $this->add_proctor_js($USER, true);
                                     } else {
-                                        $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, true);
+                                        $this->content->text .= ia_output::get_user_summary_output($this, $USER->id, true, true, true);
                                     }
                                 }
                                 break;
@@ -463,7 +463,7 @@ class block_integrityadvocate extends block_base {
                                     $this->add_proctor_js($USER);
                                 } else if ($hascapability_selfview) {
                                     $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Quiz:Student should see summary info');
-                                    $this->content->text .= ia_output::get_user_basic_output($this, $USER->id, true, true, true);
+                                    $this->content->text .= ia_output::get_user_summary_output($this, $USER->id, true, true, true);
                                 }
                                 break;
                             default:
