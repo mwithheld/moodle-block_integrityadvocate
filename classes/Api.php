@@ -36,6 +36,7 @@ defined('MOODLE_INTERNAL') || die;
  * Functions to interact with the IntegrityAdvocate API.
  */
 class Api {
+    // API ref https://integrityadvocate.com/Developers#aEndpointMethods
 
     /** @var string URI to close the remote IA session */
     const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
@@ -262,20 +263,7 @@ class Api {
             return [];
         }
 
-        $participantcoursedata = self::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $userid);
-        if (!isset($participantcoursedata->sessions) || empty($participantcoursedata->sessions)) {
-            $debug && Logger::log($fxn . '::Found no sessions in $participantcoursedata');
-            return [];
-        }
-
-        $moduleusersessions = [];
-        foreach ($participantcoursedata->sessions as $s) {
-            $debug && Logger::log($fxn . '::Checking if $s->activityid != $modulecontext->instanceid=' . ($s->activityid != $modulecontext->instanceid));
-            if ($s->activityid != $modulecontext->instanceid) {
-                continue;
-            }
-            $moduleusersessions[] = $s;
-        }
+        $moduleusersessions = self::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $modulecontext->instanceid, $userid);
 
         return $moduleusersessions;
     }
@@ -356,8 +344,6 @@ class Api {
      * Get IA proctoring participants from the remote API for the given inputs.
      * Note there is no session data attached to these results.
      *
-     * @link https://integrityadvocate.com/Developers#aEndpointMethods
-     *
      * @param string $apikey The API Key to get data for.
      * @param string $appid The AppId to get data for.
      * @param int $courseid Get info for this course.
@@ -421,9 +407,6 @@ class Api {
             $parsedparticipants[$participant->participantidentifier] = $participant;
         }
 
-        // Reset the execution time limit back to what it was.  This will restart the timer from zero but that's OK.
-        \core_php_time_limit::raise($oldexecutionlimit);
-
         $debug && Logger::log($fxn . '::About to return count($parsedparticipants)=' . ia_u::count_if_countable($parsedparticipants));
         return $parsedparticipants;
     }
@@ -435,8 +418,9 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @param array<key=val> $params Query params in key-value format: courseid=>someval is required, optional userid=>intval.
+     * @param array<key=val> $params Query params in key-value format: courseid=>someval is required; optional userid=>intval.
      * @param string The next token to get subsequent results from the API.
+     * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
     private static function get_participants_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
@@ -523,7 +507,7 @@ class Api {
      * @param int $courseid Get info for this course.
      * @param int $moduleid Get info for this course module.
      * @param int $userid Optionally get info for this user.
-     * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
+     * @return array<Session> Empty array if nothing found; Else array of Session objects.
      */
     public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, $userid = null): array {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
@@ -532,18 +516,13 @@ class Api {
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) ||
-                (isset($userid) && !is_number($userid))
-        ) {
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || (isset($userid) && !is_number($userid))) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
-        // In case of infinite loop, bail out after trying for some time.
-        $oldexecutionlimit = ini_get('max_execution_time');
-        set_time_limit(self::RECURSION_TIMEOUT);
-
+        // Build the parameters array to pass to the API data getter.
         $params = ['courseid' => $courseid, 'activityid' => $moduleid];
         $userid && ($params['participantidentifier'] = $userid);
 
@@ -620,9 +599,6 @@ class Api {
             $parsedparticipantsessions[$participantsession->id] = $participantsession;
         }
 
-        // Reset the execution time limit back to what it was.  This will restart the timer from zero but that's OK.
-        set_time_limit($oldexecutionlimit);
-
         $debug && Logger::log($fxn . '::About to return count($parsedparticipantsessions)=' . ia_u::count_if_countable($parsedparticipantsessions));
         return $parsedparticipantsessions;
     }
@@ -636,6 +612,7 @@ class Api {
      * @param string $appid The app id.
      * @param array<key=val> $params Query params in key-value format: [courseid=>intval, activityid=>intval] are required, optional userid=>intval.
      * @param string The next token to get subsequent results from the API.
+     * @return array<Session> Empty array if nothing found; Else array of Session objects.
      */
     private static function get_participantsessions_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
@@ -695,6 +672,8 @@ class Api {
 
             // The nexttoken value is only needed for the above get request.
             unset($params['nexttoken']);
+            \core_php_time_limit::raise();
+            echo ' ';
             $participantsessions = array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
         }
 
