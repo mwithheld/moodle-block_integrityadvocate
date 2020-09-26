@@ -52,7 +52,7 @@ class Output {
      * @return string HTML if error, otherwise empty string.  Also adds the JS to the page.
      */
     public static function add_block_js(\block_integrityadvocate $blockinstance, string $proctorjsurl): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started');
 
@@ -93,7 +93,7 @@ class Output {
      * @return string HTML if error; Also adds the student proctoring JS to the page.
      */
     public static function get_proctor_js_url(\block_integrityadvocate $blockinstance, \stdClass $user): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started');
 
@@ -147,7 +147,7 @@ class Output {
      * @return string HTML button.
      */
     public static function get_button_overview_course(\block_integrityadvocate $blockinstance, $userid = null): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
@@ -201,7 +201,7 @@ class Output {
      * @return string HTML button.
      */
     public static function get_button_overview_module(\block_integrityadvocate $blockinstance, $userid = null): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
@@ -255,7 +255,7 @@ class Output {
      * @return string HTML button.
      */
     public static function get_button_overview(\block_integrityadvocate $blockinstance, $userid = null): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
@@ -313,7 +313,7 @@ class Output {
      * @return string HTML showing the latest IA status overall.
      */
     public static function get_latest_status_html(\context $modulecontext, int $userid, string $prefix): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid=" . $modulecontext->instanceid . "; \$userid={$userid}; \$prefix={$prefix}";
         $debug && Logger::log($debugvars);
@@ -369,7 +369,7 @@ class Output {
      * @return string HTML output.
      */
     public static function get_participant_basic_output(\block_integrityadvocate $blockinstance, Participant $participant, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
         $debug && Logger::log($debugvars);
@@ -442,7 +442,7 @@ class Output {
      * @return string HTML to output
      */
     public static function get_participant_photo_output(Participant $participant): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
         $debug && Logger::log($debugvars);
@@ -482,7 +482,7 @@ class Output {
      * @return string HTML output showing latest status, flags, and photos.
      */
     public static function get_user_basic_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
 

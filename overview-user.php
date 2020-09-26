@@ -46,7 +46,7 @@ if (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext
 // This is only optional_param() in overview.php.
 $userid = \required_param('userid', PARAM_INT);
 
-$debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 $debug && Logger::log(__FILE__ . '::Got param $userid=' . $userid);
 
 $parentcontext = $blockcontext->get_parent_context();

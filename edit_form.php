@@ -15,14 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block configuration form definition
+ * IntegrityAdvocate block per-instance configuration form definition.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use block_integrityadvocate\Logger as Logger;
-use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -30,7 +29,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 
 /**
- * IntegrityAdvocate block config form class
+ * IntegrityAdvocate per-instance block config form class.
  *
  * @copyright IntegrityAdvocate.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -83,7 +82,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $unused): array {
-        $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
 

@@ -78,7 +78,7 @@ const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
  * @return array<\Participant> Array of Participant objects.
  */
 function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
-    $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+    $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
     $fxn = __CLASS__ . '::' . __FUNCTION__;
     $debug && Logger::log($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
 
@@ -113,7 +113,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * @return string|array Array of modules that match; else string error identifier
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
-    $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+    $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 
     // Massage the course input if needed.
     $course = ia_mu::get_course_as_obj($course);
@@ -148,7 +148,7 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
  * @return array<\stdClass> of course modules.
  */
 function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array {
-    $debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+    $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
     $debug && Logger::log(__FILE__ . '::' . __FUNCTION__ . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
 
     foreach ($modules as $key => $m) {

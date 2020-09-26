@@ -41,7 +41,7 @@ if (empty($courseid) || ia_u::is_empty($course)) {
     throw new \InvalidArgumentException('$courseid and $course are required');
 }
 
-$debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 $debug && Logger::log(basename(__FILE__) . '::Started');
 
 // Must be teacher to see this page.

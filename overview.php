@@ -46,7 +46,7 @@ const DEFAULT_PAGE_SIZE = 20;
 /** bool Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
-$debug = false || Logger::doLogForClass(__CLASS__) || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 
 \require_login();
 
