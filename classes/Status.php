@@ -40,6 +40,12 @@ class Status {
      * The integer values themselves have no meaning.
      */
 
+    /** @var string String this block uses for a user with no IA sessions yet. */
+    const NOTSTARTED = 'Not Started';
+
+    /** @var int The int value representing this status */
+    const NOTSTARTED_INT = -2;
+
     /** @var string String the IA API uses for a proctor session that is started but not yet complete. */
     const INPROGRESS = 'In Progress';
 
