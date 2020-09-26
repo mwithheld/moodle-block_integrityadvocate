@@ -47,11 +47,9 @@ if ($ADMIN->fulltree) {
     $settings->add($setting);
 
     // Debug logging: function-level.
-    $reflection = new \ReflectionClass(INTEGRITYADVOCATE_BLOCK_NAME . '\Api');
     $logforfunctionoptions = [];
-    foreach ($reflection->getMethods() as $method) {
-        $val = $method->class . '::' . $method->name;
-        $logforfunctionoptions[$val] = $val;
+    foreach (Logger::get_functions_for_logging() as $method) {
+        $logforfunctionoptions[$method] = $method;
     }
     $setting = new admin_setting_configmultiselect(INTEGRITYADVOCATE_BLOCK_NAME . '/config_logforfunction',
             get_string('config_logforfunction', INTEGRITYADVOCATE_BLOCK_NAME),
