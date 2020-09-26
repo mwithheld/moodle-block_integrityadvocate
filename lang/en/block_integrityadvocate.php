@@ -137,6 +137,7 @@ $string['session_overridestatus'] = 'Overrides original status';
 $string['shortname'] = 'Short course name';
 $string['showallinfo'] = 'Show all info';
 
+$string['status_status_notstarted'] = 'Not started';
 $string['status_in_progress'] = 'In progress';
 $string['status_invalid_id'] = 'Invalid (ID)';
 $string['status_invalid_override'] = 'Invalid';
