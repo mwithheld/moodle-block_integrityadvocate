@@ -25,6 +25,7 @@
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\MoodleUtility as ia_mu;
 
 /**
  * Determines where to send error logs.
@@ -33,22 +34,25 @@ use block_integrityadvocate\Utility as ia_u;
  */
 class Logger {
 
-    /** @var string Store logged messaged to the standard PHP error log. */
+    /** @var string Do not store logged messages. */
+    const NONE = 'NONE';
+
+    /** @var string Store logged messages to the standard PHP error log. */
     const ERRORLOG = 'ERRORLOG';
 
     /** @var string Send logged messages to standard HTML output, adding a <br> tag and a newline. */
     const HTML = 'HTML';
 
-    /** @var string Store logged messaged to STDOUT through htmlentities. */
+    /** @var string Store logged messages to STDOUT through htmlentities. */
     const LOGGLY = 'LOGGLY';
 
     /** @var string Required for Loggly logging */
     const LOGGLY_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
-    /** @var string Store logged messaged to the moodle log handler plain-textified. */
+    /** @var string Store logged messages to the moodle log handler plain-textified. */
     const MLOG = 'MLOG';
 
-    /** @var string Store logged messaged to STDOUT through htmlentities. */
+    /** @var string Store logged messages to STDOUT through htmlentities. */
     const STDOUT = 'STDOUT';
 
     /** @var string Even if the local debug flag is false, this enables debug logging for these classnames (including namespace).
@@ -57,7 +61,7 @@ class Logger {
      *   - non-namespaced class method: classname
      *   - namespaced class method: namespace\classname, e.g. 'block_integrityadvocate\Api'
      */
-    public static $logForClass = [];
+    // Unused: public static $logForClass = [];.
 
     /** @var string Even if the local debug flag is false, this enables debug logging for these functions.
      * Names come from __METHOD__.
@@ -69,14 +73,14 @@ class Logger {
      * This is overridden by $logForClass.
      */
     public static $logForFunction = [
-//        'block_integrityadvocate\Api::get_participant',
-//        'block_integrityadvocate\Api::get_participants_data',
-        'block_integrityadvocate\Api::get_participantsessions',
-        'block_integrityadvocate\Api::get_participantsessions_data',
+//        INTEGRITYADVOCATE_BLOCK_NAME.'\Api::get_participant',
+//        INTEGRITYADVOCATE_BLOCK_NAME.'\Api::get_participants_data',
+        INTEGRITYADVOCATE_BLOCK_NAME . '\Api::get_participantsessions',
+        INTEGRITYADVOCATE_BLOCK_NAME . '\Api::get_participantsessions_data',
     ];
 
     /** @var string Determines where to send error logs. For values, see self::log()'s switch statement. */
-    public static $default = self::LOGGLY;
+    public static $default = self::NONE;
 
     /**
      * Return true if the namespaced classname is in the self::$logForClass array,
@@ -88,13 +92,13 @@ class Logger {
      *
      * @param string $classname Namespaced classname, e.g. block_integrityadvocate\Api.
      * @return bool True if the namespaced classname is in the self::$logForClass array,
+      public static function doLogForClass(string $classname): bool {
+      if (empty($classname)) {
+      return false;
+      }
+      return in_array($classname, self::$logForClass, true);
+      }
      */
-    public static function doLogForClass(string $classname): bool {
-        if (empty($classname)) {
-            return false;
-        }
-        return in_array($classname, self::$logForClass, true);
-    }
 
     /**
      * Return true if the namespaced functionname is in the self::$logForClass array, indicating we should debug log for this class.
@@ -103,35 +107,81 @@ class Logger {
      *   - non-namespaced class method: classname::functionname
      *   - non-namespaced standalone function: functionname
      *   - namespaced class method: namespace\classname::functionname
-     *   - namespaced standalone function: namespace\functionname
+     *   - namespaced standalone function: namespace\functionname.
      * @param string $classname Namespaced functionname.
-     * @return bool True if the namespaced functionname is in the self::$logForFunction array,
+     * @return bool True if the namespaced functionname is in the self::$logForFunction array.
      */
     public static function doLogForFunction(string $functionname): bool {
         if (empty($functionname)) {
             return false;
         }
-        return in_array($functionname, self::$logForFunction, true);
+        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
+        return in_array($functionname, array_merge((is_array($blockconfig->config_logforip) ?: []), self::$logForFunction), true);
+    }
+
+    private static function isWithinLogTime(): bool {
+        $debug = /* Do not make this true except in unusual circumstances */ false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && error_log($fxn . '::Started');
+
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__);
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
+            return ($cachedvalue === 'y') ? 1 : 0;
+        }
+
+        $now = time();
+        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
+
+        // Log for 24 hours from the this time.
+        $result = $now < $blockconfig->config_logfromtime + 86400;
+        $debug && error_log($fxn . '::Got $result=' . $result);
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $result ? 'y' : 'n')) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+        return $result;
     }
 
     /**
-     * Log $message to HTML output, mlog, stdout, or error log
+     * Log $message to HTML output, mlog, stdout, or error log.
      *
-     * @param string $message Message to log
+     * @param string $message Message to log.
      * @param string $dest One of the LogDestination::* constants.
-     * @return bool True on completion
+     * @return bool True on completion.
      */
     public static function log(string $message, string $dest = ''): bool {
-        global $CFG;
-        $debug = /* Do not make this true except in unusual circumstances */ false;
+        $debug = /* Do not make this true except in unusual circumstances */ true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $dest=' . $dest . "\n");
+        $debug && error_log($fxn . '::Started with $dest=' . $dest);
 
+        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         if (ia_u::is_empty($dest)) {
-            $dest = Logger::$default;
+            if (!ia_u::is_empty($blockconfig->config_logdestination)) {
+                $dest = $blockconfig->config_logdestination;
+            } else {
+                $dest = Logger::$default;
+            }
         }
-        $debug && error_log($fxn . '::After cleanup, $dest=' . $dest . "\n");
+        $debug && error_log($fxn . '::After cleanup, $dest=' . $dest);
 
+        // Short circuit without logging anything in these cases.
+        if ($dest === Logger::NONE) {
+            $debug && error_log($fxn . '::Skipping - $dest=NONE');
+            return false;
+        }
+        $debug && error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
+        if (!isset($blockconfig->config_logforip) || empty($blockconfig->config_logforip) || !remoteip_in_list($blockconfig->config_logforip)) {
+            $debug && error_log($fxn . '::Skipping - logforip');
+            return false;
+        }
+        if (!self::isWithinLogTime()) {
+            $debug && error_log($fxn . '::Skipping - not isWithinLogTime()');
+            return false;
+        }
+
+        global $CFG;
         // If the file path is included, strip it.
         $cleanedmsg = str_replace(realpath($CFG->dirroot), '', $message);
         // Remove base64-encoded images.
