@@ -70,7 +70,7 @@ class Logger {
      *   - non-namespaced standalone function: functionname
      *   - namespaced class method: namespace\classname::functionname
      *   - namespaced standalone function: namespace\functionname
-     * This is overridden by $logForClass.
+     * This is overridden by $logForClass and is only used if $blockconfig->config_logforfunction is empty.
      */
     public static $logForFunction = [
 //        INTEGRITYADVOCATE_BLOCK_NAME.'\Api::get_participant',
@@ -112,11 +112,18 @@ class Logger {
      * @return bool True if the namespaced functionname is in the self::$logForFunction array.
      */
     public static function doLogForFunction(string $functionname): bool {
+        $debug = /* Do not make this true except in unusual circumstances */ false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && error_log($fxn . '::Started with $functionname=' . $functionname);
+
         if (empty($functionname)) {
             return false;
         }
         $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
-        return in_array($functionname, array_merge((is_array($blockconfig->config_logforip) ?: []), self::$logForFunction), true);
+        $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
+//        $debug && error_log($fxn . '::Got self::$logForFunction=' . ia_u::var_dump(self::$logForFunction));
+//        $debug && error_log($fxn . '::Got merged=' . ia_u::var_dump(array_merge((is_array($blockconfig->config_logforfunction) ?: []), self::$logForFunction)));
+        return in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
     }
 
     private static function isWithinLogTime(): bool {
@@ -152,7 +159,7 @@ class Logger {
      * @return bool True on completion.
      */
     public static function log(string $message, string $dest = ''): bool {
-        $debug = /* Do not make this true except in unusual circumstances */ true;
+        $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $dest=' . $dest);
 
@@ -247,6 +254,23 @@ class Logger {
         // Allow alpha-numeric characters, dash, period, and underscore.
         $maxlength = 64;
         return \core_text::substr(trim(preg_replace('/[^0-9a-z_\-.]+/i', '-', clean_param($key, PARAM_TEXT))), 0, $maxlength);
+    }
+
+    public static function get_functions_for_logging(): array {
+        $classesToLog = [
+            INTEGRITYADVOCATE_BLOCK_NAME . '\Api',
+            INTEGRITYADVOCATE_BLOCK_NAME . '\Output',
+        ];
+        $classfunctionstolog = [];
+        foreach ($classesToLog as $class) {
+            $reflection = new \ReflectionClass($class);
+            foreach ($reflection->getMethods() as $method) {
+                $val = $method->class . '::' . $method->name;
+                $classfunctionstolog[] = $val;
+            }
+        }
+        sort($classfunctionstolog);
+        return $classfunctionstolog;
     }
 
 }
