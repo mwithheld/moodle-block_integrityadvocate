@@ -377,9 +377,6 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        // In case of infinite loop, bail out after trying for some time.
-        $oldexecutionlimit = ini_get('max_execution_time');
-        \core_php_time_limit::raise(self::RECURSION_TIMEOUT);
         raise_memory_limit(MEMORY_EXTRA);
 
         // This gets a json-decoded object of the IA API curl result.
@@ -503,6 +500,8 @@ class Api {
 
             // The nexttoken value is only needed for the above get request.
             unset($params['nexttoken']);
+            \core_php_time_limit::raise();
+            echo ' ';
             $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $params, $result->NextToken));
         }
 
