@@ -768,7 +768,7 @@ class Api {
 
         // Iterate over the sessions to find the ones relevant to this module.
         // Choose the one with the newest end or start time.
-        foreach (self::get_module_user_sessions($modulecontext, $userid) as $s) {
+        foreach (self::get_module_user_sessions($modulecontext, $userid, 1) as $s) {
             $debug && Logger::log($fxn . "::Looking at \$s->id={$s->id}");
             // Only match the module's activity id.
             if (intval($modulecontext->instanceid) !== intval($s->activityid)) {
