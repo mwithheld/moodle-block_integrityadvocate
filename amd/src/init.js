@@ -9,10 +9,11 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
+                            // Paging options ref https://datatables.net/reference/option/paging.
                             $('#participants').DataTable({
                                 'autoWidth': false,
                                 'columnDefs': [{'orderable': false, 'targets': [4, 5]}],
-                                'info': false,
+                                /*'info': true, // Show information about the table including information about filtered data; default=true. */
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'order': [], // Disable initial sort.
                                 'ordering': false,
@@ -290,17 +291,21 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
+                            // Paging options ref https://datatables.net/reference/option/paging.
                             eltDt.dataTable({
                                 'autoWidth': true,
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'ordering': true,
                                 'order': [[0, 'desc'], [1, 'desc']],
-                                'paging': false,
                                 'row-border': true,
                                 'searching': true,
                                 'scrollX': true,
-                                'columnDefs': [
-                                    {
+
+                                /* Paging options: */
+                                'paging': true,
+                                'lengthChange': false, /*Do not allow end users to change the number of records to be shown per page; default=true. */
+
+                                'columnDefs': [{
                                         'targets': [4],
                                         'orderable': false,
                                         'searchable': false
