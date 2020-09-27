@@ -170,7 +170,7 @@ class Api {
         $requestmethod = 'GET';
         $microtime = explode(' ', microtime());
         $nonce = $microtime[1] . substr($microtime[0], 2, 6);
-        $debug && Logger::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
+        $debug && Logger::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
         $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
         // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
@@ -240,10 +240,10 @@ class Api {
      * @param int $userid User to get participant data for.
      * @return array<Session> Array of Sessions; Empty array if nothing found.
      */
-    public static function get_module_user_sessions(\context $modulecontext, int $userid): array {
+    public static function get_module_user_sessions(\context $modulecontext, int $userid, int $limit = 0): array {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
+        $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}; \$limit={$limit}";
         $debug && Logger::log($debugvars);
 
         // Sanity check.
@@ -263,8 +263,7 @@ class Api {
             return [];
         }
 
-        $moduleusersessions = self::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $modulecontext->instanceid, $userid);
-
+        $moduleusersessions = self::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $modulecontext->instanceid, $userid, $limit);
         return $moduleusersessions;
     }
 
@@ -509,10 +508,10 @@ class Api {
      * @param int $userid Optionally get info for this user.
      * @return array<Session> Empty array if nothing found; Else array of Session objects.
      */
-    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, $userid = null): array {
+    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, $userid = null, int $limit = 0): array {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
+        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}; \$limit={$limit}";
         $debug && Logger::log($debugvars);
 
         // Sanity check.
@@ -525,6 +524,10 @@ class Api {
         // Build the parameters array to pass to the API data getter.
         $params = ['courseid' => $courseid, 'activityid' => $moduleid];
         $userid && ($params['participantidentifier'] = $userid);
+        if ($limit > 0 && $limit <= 10) {
+            $params['limit'] = $limit;
+            $params['backwardsearch'] = 'true';
+        }
 
         // This gets a json-decoded object of the IA API curl result.
         $participantsessionsraw = self::get_participantsessions_data($apikey, $appid, $params);
@@ -644,7 +647,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
         foreach (array_keys($params) as $key) {
-            if (!in_array($key, array('courseid', 'activityid', 'participantidentifier'))) {
+            if (!in_array($key, array('courseid', 'activityid', 'participantidentifier', 'limit', 'backwardsearch'))) {
                 $msg = "Input param {$key} is invalid";
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -665,16 +668,21 @@ class Api {
         }
 
         $participantsessions = $result->ParticipantSessions;
-        $debug && Logger::log($fxn . '::$result->NextToken=' . $result->NextToken);
+        $debug && Logger::log($fxn . '::count($participantsessions)=' . count($participantsessions) . '; isset($params[\'limit\'])=' . isset($params['limit']));
 
-        if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
-            $debug && Logger::log($fxn . '::About to recurse to get more results');
+        if (isset($params['limit']) && ia_u::count_if_countable($participantsessions) >= $params['limit']) {
+            $debug && Logger::log($fxn . '::We have a limit set and we have reached it');
+        } else {
+            $debug && Logger::log($fxn . "::We have no limit set or have not reached it; check for a NextToken: \$result->NextToken={$result->NextToken}");
+            if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
+                $debug && Logger::log($fxn . '::About to recurse to get more results');
 
-            // The nexttoken value is only needed for the above get request.
-            unset($params['nexttoken']);
-            \core_php_time_limit::raise();
-            echo ' ';
-            $participantsessions = array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
+                // The nexttoken value is only needed for the above get request.
+                unset($params['nexttoken']);
+                \core_php_time_limit::raise();
+                echo ' ';
+                $participantsessions = array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
+            }
         }
 
         // Disabled on purpose: $debug && Logger::log($fxn . '::About to return $participantsessions=' . ia_u::var_dump($participantsessions, true));.
@@ -1361,7 +1369,7 @@ class Api {
                 break;
             case self::ENDPOINT_PARTICIPANTS:
                 $validparams = array(
-                    'backwardsearch' => \PARAM_BOOL,
+                    'backwardsearch' => \PARAM_ALPHA,
                     'courseid' => \PARAM_INT,
                     'lastmodified' => \PARAM_INT,
                     'limit' => \PARAM_INT,
@@ -1374,7 +1382,7 @@ class Api {
             case self::ENDPOINT_PARTICIPANTSESSIONS:
                 $validparams = array(
                     'activityid' => \PARAM_INT,
-                    'backwardsearch' => \PARAM_BOOL,
+                    'backwardsearch' => \PARAM_ALPHA,
                     'courseid' => \PARAM_INT,
                     'lastmodified' => \PARAM_INT,
                     'limit' => \PARAM_INT,
@@ -1409,8 +1417,23 @@ class Api {
 
         foreach ($params as $argname => $argval) {
             try {
+                $debug && Logger::log($fxn . "::For \$argname={$argname}, about to validate_param(\$argval={$argval}, \$validparams[\$argname]=$validparams[$argname])");
                 \validate_param($argval, $validparams[$argname]);
-            } catch (\invalid_parameter_exception $e) {
+                switch ($argname) {
+                    case 'backwardsearch':
+                        if (!in_array($argval, ['true', 'false'])) {
+                            throw new invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
+                        }
+                        break;
+                    case 'statuses':
+                        $remotestatuses = ia_status::get_statuses();
+                        unset($remotestatuses[ia_status::NOTSTARTED_INT]);
+                        if (!in_array($argval, $remotestatuses)) {
+                            throw new invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
+                        }
+                        break;
+                }
+            } catch (Exception $e) {
                 // Log a more useful message than Moodle gives us, then just throw it again.
                 Logger::log($fxn . '::The param is valid but the type is wrong for param=' . $argname . '; $argval=' . ia_u::var_dump($argval, true));
                 throw $e;
