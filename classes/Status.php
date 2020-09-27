@@ -126,7 +126,7 @@ class Status {
             return $cachedvalue;
         }
 
-        $statuses = array_replace(self::get_inprogress(), self::get_valids(), self::get_invalids());
+        $statuses = array_replace([self::NOTSTARTED_INT => self::get_status_lang(self::NOTSTARTED_INT)], self::get_inprogress(), self::get_valids(), self::get_invalids());
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $statuses)) {
             throw new \Exception('Failed to set value in the cache');
@@ -195,6 +195,9 @@ class Status {
      */
     public static function get_status_string(int $statusint): string {
         switch ($statusint) {
+            case self::NOTSTARTED_INT:
+                $status = self::NOTSTARTED;
+                break;
             case self::INPROGRESS_INT:
                 $status = self::INPROGRESS;
                 break;
@@ -227,6 +230,9 @@ class Status {
      */
     public static function get_status_lang(int $statusint): string {
         switch ($statusint) {
+            case self::NOTSTARTED_INT:
+                $status = \get_string('status_notstarted', \INTEGRITYADVOCATE_BLOCK_NAME);
+                break;
             case self::INPROGRESS_INT:
                 $status = \get_string('status_in_progress', \INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
@@ -284,10 +290,10 @@ class Status {
     }
 
     /**
-     * Return if the status integer value is a valid one.
+     * Return if the status integer value is one that is defined in this class.
      *
      * @param int $statusint The integer value to check.
-     * @return bool True if is a valid status integer representing In progress, Valid, Invalid ID, Invalid Rules.
+     * @return bool True if the status integer is one of the ones defined in this class.
      */
     public static function is_status_int(int $statusint): bool {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
