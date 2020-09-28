@@ -159,7 +159,7 @@ class Api {
             return $cachedvalue;
         }
 
-        // Set up request variables to get IA participant info.
+        // Set up request variables.
         // Ref API docs at https://integrityadvocate.com/Developers#aEvents.
         $debug && Logger::log($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params, true) : ''));
         $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
