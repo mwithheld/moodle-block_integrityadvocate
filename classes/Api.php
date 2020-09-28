@@ -412,12 +412,12 @@ class Api {
 
     /**
      * Get IA participant data (non-parsed) for multiple course-users.
-     * There is no ability here to filter by course or user, so filter the results in the calling function.
+     * There is no ability here to filter by user or module, so filter the results in the calling function.
      * Note there is no session data attached to these results.
      *
      * @param string $apikey The API key.
      * @param string $appid The app id.
-     * @param array<key=val> $params Query params in key-value format: courseid=>someval is required; optional userid=>intval.
+     * @param array<key=val> $params Query params in key-value format: courseid=>someval is required.  Optional externaluserid=user email.
      * @param string The next token to get subsequent results from the API.
      * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
@@ -441,11 +441,12 @@ class Api {
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !is_number($params['courseid'])) {
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !isser($params['courseid']) || !is_number($params['courseid'])) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
+        // The only valid param at the moment is externaluserid.
         foreach (array_keys($params) as $key) {
             if (!in_array($key, array('externaluserid'))) {
                 $msg = 'Input params are invalid';
