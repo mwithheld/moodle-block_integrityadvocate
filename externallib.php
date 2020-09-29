@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die;
-require_once($CFG->libdir . '/externallib.php');
 require_once(__DIR__ . '/lib.php');
+require_once($CFG->libdir . '/externallib.php');
 
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\Logger as Logger;
@@ -170,8 +170,8 @@ class block_integrityadvocate_external extends \external_api {
 
         $result['success'] = ia_api::close_remote_session($appid, $courseid, $moduleid, $userid);
         if (!$result['success']) {
-            $msg = 'Failed to save the session start flag';
-            $result['warnings'] = $msg;
+            $msg = 'Failed to save the session start flag to the remote IA server';
+            $result['warnings'] = array('warningcode' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg);
             Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
@@ -216,8 +216,8 @@ class block_integrityadvocate_external extends \external_api {
 
         $result['success'] = ia_mu::nonce_set(implode('_', array(INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid)));
         if (!$result['success']) {
-            $msg = 'Failed to save the session start flag';
-            $result['warnings'] = $msg;
+            $msg = 'Failed to save the session start flag to the remote IA server';
+            $result['warnings'] = array('warningcode' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg);
             Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
@@ -346,8 +346,8 @@ class block_integrityadvocate_external extends \external_api {
         // Do the call to the IA API.
         $result['success'] = ia_api::set_override_session($blockinstance_requesting->config->apikey, $blockinstance_requesting->config->appid, $status, $reasoncleaned, $targetuserid, $overrideuser, $courseid, $moduleid);
         if (!$result['success']) {
-            $msg = 'Failed to save the override status';
-            $result['warnings'] = $msg;
+            $msg = 'Failed to save the override status to the remote IA server';
+            $result['warnings'] = array('warningcode' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg);
             Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
