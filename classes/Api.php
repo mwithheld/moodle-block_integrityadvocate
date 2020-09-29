@@ -62,6 +62,9 @@ class Api {
     /** @var int Consider recursion failed after this time.  In seconds = 10 minutes. */
     const RECURSION_TIMEOUT = 10 * 60;
 
+    /** @var int Accept these HTTP response codes as successful */
+    const HTTP_SUCCESS_CODE = [200, 201, 202];
+
     /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
      *
@@ -93,7 +96,6 @@ class Api {
                 // Just fall out of the if-else.
             }
         }
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 
         // Do not cache these requests.
         $curl = new \curl();
@@ -103,16 +105,21 @@ class Api {
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0
         ));
-        $url = INTEGRITYADVOCATE_BASEURL . self::ENDPOINT_CLOSE_SESSION . '?' .
+        $requesturi = INTEGRITYADVOCATE_BASEURL . self::ENDPOINT_CLOSE_SESSION . '?' .
                 'appid=' . urlencode($appid) .
                 '&participantidentifier=' . $userid .
                 '&courseid=' . $courseid .
                 '&activityid=' . $moduleid;
-        $response = $curl->get($url);
+        $response = $curl->get($requesturi);
         $responsecode = $curl->get_info('http_code');
-        $debug && Logger::log($fxn . '::Sent url=' . var_export($url, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
+        $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
-        return intval($responsecode) < 400;
+        $success = in_array(intval($responsecode), self::HTTP_SUCCESS_CODE);
+        if (!$success) {
+            $msg = $fxn . '::Request to the IA server failed: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            Logger::log($msg);
+        }
+        return $success;
     }
 
     /**
@@ -190,13 +197,22 @@ class Api {
         $response = $curl->get($requesturi);
 
         $responseparsed = json_decode($response);
-        $responsedetails = $curl->get_info('http_code');
-        unset($responsedetails['certinfo']);
+        $responsecode = $curl->get_info('http_code');
+
+        // Remove certinfo b/c it too much info and we do not need it for debugging.
+        unset($response['certinfo']);
         $debug && Logger::log($fxn .
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
-                        '; $responsedetails=' . ($responsedetails ? ia_u::var_dump($responsedetails, true) : '') .
+                        '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
                         '; $response=' . ia_u::var_dump($response, true) .
                         '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : ia_u::var_dump($responseparsed, true)));
+
+        $success = in_array(intval($responsecode), self::HTTP_SUCCESS_CODE);
+        if (!$success) {
+            $msg = $fxn . '::Request to the IA server failed: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            Logger::log($msg);
+            throw new \Exception($msg);
+        }
 
         if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
             $msg = 'Error: json_decode found no results: ' . json_last_error_msg();
@@ -1329,17 +1345,22 @@ class Api {
         $debug && Logger::log($fxn . "::Built params=" . var_export($params_body, true));
 
         $response = $curl->patch($requesturi, json_encode($params_body));
+        $responsecode = $curl->get_info('http_code');
+        $success = in_array(intval($responsecode), self::HTTP_SUCCESS_CODE);
+        if (!$success) {
+            $msg = $fxn . '::Request to the IA server failed: PATCH url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            Logger::log($msg);
+        }
 
         $responseparsed = json_decode($response);
-        $responsedetails = $curl->get_info('http_code');
-        unset($responsedetails['certinfo']);
+        unset($responsecode['certinfo']);
         $debug && Logger::log($fxn .
                         '::Sent url=' . var_export($requesturi, true) . '; err_no=' . $curl->get_errno() .
-                        '; $responsedetails=' . ($responsedetails ? var_export($responsedetails, true) : '') .
+                        '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
                         '; $response=' . var_export($response, true) .
                         '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
 
-        return isset($responsedetails['http_code']) && ($responsedetails['http_code'] == 200);
+        return isset($responsecode['http_code']) && ($responsecode['http_code'] == 200);
     }
 
     /**
