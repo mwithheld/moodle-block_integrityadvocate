@@ -24,8 +24,13 @@
 
 namespace block_integrityadvocate;
 
+// Needed so we can choose to log from methods in this class.
+require_once(dirname(__DIR__) . '/externallib.php');
+
 use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\MoodleUtility as ia_mu;
+
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Determines where to send error logs.
@@ -256,15 +261,35 @@ class Logger {
         return \core_text::substr(trim(preg_replace('/[^0-9a-z_\-.]+/i', '-', clean_param($key, PARAM_TEXT))), 0, $maxlength);
     }
 
+    /**
+     * Build an array of namespaced functionnames to log for.
+     * Names come from __METHOD__.
+     * Examples:
+     *   - non-namespaced class method: classname::functionname
+     *   - non-namespaced standalone function: functionname
+     *   - namespaced class method: namespace\classname::functionname
+     *   - namespaced standalone function: namespace\functionname.
+     * @return <String> Array of namespaced functionnames to log for.
+     */
     public static function get_functions_for_logging(): array {
+        $debug = /* Do not make this true except in unusual circumstances */ false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && error_log($fxn . '::Started');
+
         $classesToLog = [
+            '\block_integrityadvocate_external',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Api',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Output',
         ];
         $classfunctionstolog = [];
-        foreach ($classesToLog as $class) {
-            $reflection = new \ReflectionClass($class);
+        foreach ($classesToLog as $classname) {
+            $reflection = new \ReflectionClass($classname);
             foreach ($reflection->getMethods() as $method) {
+                // Remove methods from parent etc.
+                $debug && error_log($fxn . "::Looking at \$method->class={$method->class} vs \$classname={$classname}");
+                if (trim($method->class, '\\') !== trim($classname, '\\')) {
+                    continue;
+                }
                 $val = $method->class . '::' . $method->name;
                 $classfunctionstolog[] = $val;
             }
