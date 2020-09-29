@@ -24,6 +24,8 @@
 
 namespace block_integrityadvocate;
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Feature control: Enable/disable features easily.
  */
@@ -36,7 +38,7 @@ class FeatureControl {
     const MODULE_LIST = true;
 
     /** @var bool True to allow showing the overview_module content. */
-    const OVERVIEW_MODULE = true;
+    const OVERVIEW_MODULE = false;
 
     /** @var bool True to allow instructors to override the IA session status. */
     const SESSION_STATUS_OVERRIDE = true;
