@@ -3,6 +3,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
             return {
                 init: function() {
                     var debug = true;
+                    window.block_integrityadvocate = {};
                     switch (true) {
                         case($('body').hasClass('block_integrityadvocate-overview-course')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participants_table - DataTables adds the filter capability');
@@ -26,7 +27,8 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                         case($('body').hasClass('block_integrityadvocate-overview-user') || $('body').hasClass('block_integrityadvocate-overview-module')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participant_table - DataTables is the wholeUI');
                             // Re-usable reference to the holder of the DataTable.
-                            var eltDt = $('#block_integrityadvocate_participant_table');
+                            window.block_integrityadvocate.eltDt = $('#block_integrityadvocate_participant_table');
+                            window.block_integrityadvocate.isOverviewUserPage = $('body').hasClass('block_integrityadvocate-overview-user');
 
                             // Ref https://stackoverflow.com/a/30503848.
                             /**
@@ -292,7 +294,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
                             // Paging options ref https://datatables.net/reference/option/paging.
-                            eltDt.dataTable({
+                            window.block_integrityadvocate.eltDt.dataTable({
                                 'autoWidth': true,
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'ordering': true,
@@ -312,6 +314,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                     }],
                                 'initComplete': function() {
                                     debug && window.console.log('M.block_integrityadvocate.init.js::DataTables.initComplete:fired');
+                                    var eltDt = window.block_integrityadvocate.eltDt;
                                     // Re-usable reference to the DataTable.
                                     var dt = eltDt.dataTable();
                                     // Hide the override columns.
