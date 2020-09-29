@@ -306,6 +306,13 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 /* Paging options: */
                                 'paging': true,
                                 'lengthChange': false, /*Do not allow end users to change the number of records to be shown per page; default=true. */
+//                                /* For overview-module, do not allow end users to change the number of records to be shown per page; default=true. */
+//                                /* For overview-page, the data is delivered via HTML, so allow changing it. */
+//                                'lengthChange': (window.block_integrityadvocate.isOverviewUserPage ? true : false),
+//                                'pagelength': (window.block_integrityadvocate.isOverviewUserPage ? 10 : 1), /* Default is 10 */
+//                                'deferLoading': (window.block_integrityadvocate.isOverviewUserPage ? null : 11),
+//                                'serverSide': (window.block_integrityadvocate.isOverviewUserPage ? false : true),
+//                                'ajax': (window.block_integrityadvocate.isOverviewUserPage ? null : 'scripts/server_processing.php'),
 
                                 'columnDefs': [{
                                         'targets': [4],
