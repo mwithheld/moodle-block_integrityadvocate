@@ -66,6 +66,14 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     throw new \Exception('No capabilities to view this course user');
 }
 
+// Get list of modules that use IA block so we can omit displaying those without.
+$coursemodules = \block_integrityadvocate_get_course_ia_modules($course, array('configured' => 1));
+if (!is_array($coursemodules)) {
+    $msg = 'No activites in this course have block_integrityadvocate configured';
+    ia_mu::log($fxn . '::' . $msg);
+    throw new \Exception($msg);
+}
+
 $user = ia_mu::get_user_as_obj($userid);
 $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $userid);
 $debug && Logger::log(__FILE__ . "::For \$blockinstanct->config->apikey={$blockinstance->config->apikey}; \$blockinstance->config->appid={$blockinstance->config->appid}; \$courseid={$courseid}; \$userid={$userid}, got participant=" . ia_u::var_dump($participant));
@@ -174,6 +182,9 @@ if ($continue) {
             case(!($courseid = ia_mu::get_courseid_from_cmid($cmid)) || intval($courseid) !== intval($session->participant->courseid)):
                 $debug && Logger::log(__FILE__ . "::This session belongs to courseid={$courseid} not matching participant->courseid={$session->participant->courseid}");
                 continue 2;
+//            case(!in_array(intval($cmid), array_keys($coursemodules), true)):
+//                $debug && Logger::log(__FILE__ . "::This session module (cmid={$cmid}) does not have the IA block attached, so skip it");
+//                continue 2;
         }
 
         // Column=session_start.
