@@ -40,6 +40,9 @@ class FeatureControl {
     /** @var bool True to allow showing the overview_module content. */
     const OVERVIEW_MODULE = false;
 
+    /** @var bool True to allow showing the overview_course content. */
+    const OVERVIEW_COURSE = true;
+
     /** @var bool True to allow instructors to override the IA session status. */
     const SESSION_STATUS_OVERRIDE = true;
 

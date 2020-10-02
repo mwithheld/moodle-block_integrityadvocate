@@ -33,19 +33,24 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
-// Sanity checks.
-if (empty($blockinstanceid)) {
-    throw new \InvalidArgumentException('$blockinstanceid is required');
-}
-if (empty($courseid) || ia_u::is_empty($course)) {
-    throw new \InvalidArgumentException('$courseid and $course are required');
-}
-
 $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
 $debug && Logger::log(basename(__FILE__) . '::Started');
 
-// Must be teacher to see this page.
-\require_capability('block/integrityadvocate:overview', $coursecontext);
+// Check all requirements.
+switch (true) {
+    case (!FeatureControl::OVERVIEW_COURSE):
+        throw new Exception('This feature is disabled');
+    case (empty($blockinstanceid)):
+        throw new \InvalidArgumentException('$blockinstanceid is required');
+    case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) :
+        throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
+    case(!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
+        // The above line throws an error if the current user is not a teacher, so we should never get here.
+        $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
+        break;
+    default:
+        $debug && Logger::log(__FILE__ . '::All requirements are met');
+}
 
 // Output roles selector.
 echo $OUTPUT->container_start('progressoverviewmenus');

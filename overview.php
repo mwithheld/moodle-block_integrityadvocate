@@ -84,7 +84,7 @@ switch (true) {
             'moduleid' => $moduleid,
         ];
         break;
-    default:
+    case ($courseid && FeatureControl::OVERVIEW_COURSE):
         $requestedpage = 'overview-course';
 
         // The Moodle Participants table wants lots of params.
@@ -98,6 +98,9 @@ switch (true) {
             'perpage' => $perpage,
             'role' => $roleid,
         ];
+        break;
+    default:
+        throw new \InvalidArgumentException('Failed to figure out which overview to show');
 }
 
 // Determine course and course context.
