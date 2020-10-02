@@ -157,6 +157,16 @@ class Logger {
     }
 
     /**
+     * Should we log for this IP?
+     *
+     * @return bool True if we should log for this IP.
+     */
+    public static function do_log_for_ip(): bool {
+        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
+        return isset($blockconfig->config_logforip) && !empty($blockconfig->config_logforip) && remoteip_in_list($blockconfig->config_logforip);
+    }
+
+    /**
      * Log $message to HTML output, mlog, stdout, or error log.
      *
      * @param string $message Message to log.
@@ -184,7 +194,7 @@ class Logger {
             return false;
         }
         $debug && error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
-        if (!isset($blockconfig->config_logforip) || empty($blockconfig->config_logforip) || !remoteip_in_list($blockconfig->config_logforip)) {
+        if (!self::do_log_for_ip()) {
             $debug && error_log($fxn . '::Skipping - logforip');
             return false;
         }
