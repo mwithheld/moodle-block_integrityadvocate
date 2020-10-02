@@ -62,7 +62,7 @@ class block_integrityadvocate extends block_base {
      * @return boolean
      */
     public function instance_create() {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
 
@@ -170,7 +170,7 @@ class block_integrityadvocate extends block_base {
      * @return array<string> Array of error messages from lang file: error_*.
      */
     public function get_apikey_appid_errors(): array {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
 
         $errors = [];
@@ -251,7 +251,7 @@ class block_integrityadvocate extends block_base {
      * @param bool $hidemodulecontent True to hide the module content by adding a style tag to the block output.
      */
     private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         global $OUTPUT;
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Add the proctoring JS');
 
@@ -278,7 +278,7 @@ class block_integrityadvocate extends block_base {
      */
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
         if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {

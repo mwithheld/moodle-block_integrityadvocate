@@ -82,7 +82,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $unused): array {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
 

@@ -63,7 +63,7 @@ class block_integrityadvocate_external extends \external_api {
 
     private static function session_function_validate_params(string $appid, int $courseid, int $moduleid, int $userid): array {
         global $USER;
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
@@ -155,7 +155,7 @@ class block_integrityadvocate_external extends \external_api {
     }
 
     public static function session_close(string $appid, int $courseid, int $moduleid, int $userid): array {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
@@ -202,7 +202,7 @@ class block_integrityadvocate_external extends \external_api {
 
     public static function session_open(string $appid, int $courseid, int $moduleid, int $userid): array {
         global $USER;
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
@@ -250,7 +250,7 @@ class block_integrityadvocate_external extends \external_api {
      * @return array Build result array that sent back as the AJAX result.
      */
     public static function set_override(int $status, string $reason, int $targetuserid, int $overrideuserid, int $blockinstance_requesting_id, int $moduleid): array {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$status={$status}; \$reason={$reason}; \$targetuserid={$targetuserid}; \$overrideuserid={$overrideuserid}, \$blockinstance_requesting_id={$blockinstance_requesting_id}, \$moduleid={$moduleid}";
         $debug && Logger::log($debugvars);

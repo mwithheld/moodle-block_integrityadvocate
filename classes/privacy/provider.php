@@ -58,7 +58,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return collection The metadata.
      */
     public static function get_metadata(collection $collection): collection {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $collection=' . var_export($collection, true), \block_integrityadvocate\Logger::HTML);
 
@@ -104,7 +104,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param   \userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
 
@@ -126,7 +126,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
 
@@ -156,7 +156,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param context $context Context to delete data from.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $context=' . var_export($context, true));
 
@@ -186,7 +186,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param   approved_contextlist $contextlist    The approved contexts and user information to delete information for.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $contextlist=' . var_export($contextlist, true));
 
@@ -289,7 +289,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return array<int> Array of unique IA participant Ids and overrider Ids from the remote API.
      */
     public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
 

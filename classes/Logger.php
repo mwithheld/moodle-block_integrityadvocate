@@ -116,7 +116,7 @@ class Logger {
      * @param string $classname Namespaced functionname.
      * @return bool True if the namespaced functionname is in the self::$logForFunction array.
      */
-    public static function doLogForFunction(string $functionname): bool {
+    public static function do_log_for_function(string $functionname): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $functionname=' . $functionname);
@@ -131,7 +131,7 @@ class Logger {
         return in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
     }
 
-    private static function isWithinLogTime(): bool {
+    private static function is_within_log_time(): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started');
@@ -188,7 +188,7 @@ class Logger {
             $debug && error_log($fxn . '::Skipping - logforip');
             return false;
         }
-        if (!self::isWithinLogTime()) {
+        if (!self::is_within_log_time()) {
             $debug && error_log($fxn . '::Skipping - not isWithinLogTime()');
             return false;
         }

@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
-$debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
 $debug && Logger::log(basename(__FILE__) . '::Started');
 
 // Check all requirements.
@@ -54,34 +54,39 @@ switch (true) {
 
 // Output roles selector.
 echo $OUTPUT->container_start('progressoverviewmenus');
-
 echo '&nbsp;' . \get_string('role') . '&nbsp;';
 echo $OUTPUT->single_select($PAGE->url, 'role', ia_mu::get_roles_for_select($coursecontext), $roleid);
 echo $OUTPUT->container_end();
 $debug && Logger::log(basename(__FILE__) . '::Done outputting roles');
 
+// Moodle core: Notes, messages and bulk operations.
 $notesallowed = !empty($CFG->enablenotes) && \has_capability('moodle/notes:manage', $coursecontext);
 $messagingallowed = !empty($CFG->messaging) && \has_capability('moodle/site:sendmessage', $coursecontext);
 $bulkoperations = \has_capability('moodle/course:bulkmessaging', $coursecontext) && ($notesallowed || $messagingallowed);
 
-// Setup the ParticipantsTable instance.
-require_once(__DIR__ . '/classes/ParticipantsTable.php');
-$participanttable = new ParticipantsTable(
-        $courseid, $groupid, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1, $searchkeywords = [], $bulkoperations,
-        $selectall = \optional_param('selectall', false, \PARAM_BOOL)
-);
-$participanttable->define_baseurl($baseurl);
+if (false) {
 
-// Populate the ParticipantsTable instance with user rows from Moodle core info.
-$participanttable->setup_and_populate($perpage);
+} else {
+    // OLD Participants table UI.
+    // Setup the ParticipantsTable instance.
+    require_once(__DIR__ . '/classes/ParticipantsTable.php');
+    $participanttable = new ParticipantsTable(
+            $courseid, $groupid, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1, $searchkeywords = [], $bulkoperations,
+            $selectall = \optional_param('selectall', false, \PARAM_BOOL)
+    );
+    $participanttable->define_baseurl($baseurl);
 
-$debug && Logger::log(basename(__FILE__) . '::About to populate_from_blockinstance()');
-// Populate the ParticipantsTable instance user rows with blockinstance-specific IA participant info.
-// No return value.
-$participanttable->populate_from_blockinstance($blockinstance);
+    // Populate the ParticipantsTable instance with user rows from Moodle core info.
+    $participanttable->setup_and_populate($perpage);
 
-// Output the table.
-$participanttable->out_end();
+    $debug && Logger::log(basename(__FILE__) . '::About to populate_from_blockinstance()');
+    // Populate the ParticipantsTable instance user rows with blockinstance-specific IA participant info.
+    // No return value.
+    $participanttable->populate_from_blockinstance($blockinstance);
+
+    // Output the table.
+    $participanttable->out_end();
+}
 
 if ($bulkoperations) {
     echo '<br />';

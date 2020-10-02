@@ -44,7 +44,7 @@ class MoodleUtility {
      */
     public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
@@ -109,7 +109,7 @@ class MoodleUtility {
      * @return array where key=block_instances.id; val=block_instance object.
      */
     public static function get_all_course_blocks(int $courseid, string $blockname): array {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started');
 
@@ -185,7 +185,7 @@ class MoodleUtility {
      * @return array<roleid=role name>.
      */
     public static function get_roles_for_select(\context $context): array {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with \$context->id={$context->id}");
 
@@ -320,7 +320,7 @@ class MoodleUtility {
      */
     public static function get_block_visibility(int $parentcontextid, int $blockinstanceid): bool {
         global $DB;
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
 
         $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid), 'id,visible', IGNORE_MULTIPLE);
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
@@ -365,7 +365,7 @@ class MoodleUtility {
      * @return int The courseid if found, else -1.
      */
     public static function get_courseid_from_cmid(int $cmid): int {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with $cmid={$cmid}");
 
@@ -407,7 +407,7 @@ class MoodleUtility {
      * @return bool false if no course found; else Moodle course object.
      */
     public static function get_course_as_obj($course) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         if (is_numeric($course)) {
@@ -464,7 +464,7 @@ class MoodleUtility {
      * @return int the role id that is for student archetype in this course
      */
     public static function get_default_course_role(\context $coursecontext): int {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with $coursecontext={$coursecontext->instanceid}");
 
@@ -503,7 +503,7 @@ class MoodleUtility {
      * @return bool|\block_integrityadvocate bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
@@ -554,7 +554,7 @@ class MoodleUtility {
      * @return null|\stdClass Null if no user found; else moodle user object.
      */
     public static function get_user_as_obj($user) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $user=' . ia_u::var_dump($user, true));
 
 
@@ -596,7 +596,7 @@ class MoodleUtility {
      * @return string HTML for displaying user info.
      */
     public static function get_user_picture(\stdClass $user, array $params = array()): string {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$user->id={$user->id}; \$params=" . serialize($params);
         $debug && Logger::log($debugvars);
@@ -681,7 +681,7 @@ class MoodleUtility {
      */
     public static function nonce_set(string $key): int {
         global $SESSION;
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with \$key={$key}");
 
@@ -701,7 +701,7 @@ class MoodleUtility {
      */
     public static function nonce_validate(string $key, bool $returntrueifexists = false): bool {
         global $SESSION;
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with \$key={$key}");
 

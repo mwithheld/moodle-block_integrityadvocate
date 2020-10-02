@@ -296,7 +296,7 @@ class Status {
      * @return bool True if the status integer is one of the ones defined in this class.
      */
     public static function is_status_int(int $statusint): bool {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with \$statusint={$statusint}");
         $statusints = array_keys(self::get_statuses());

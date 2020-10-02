@@ -139,7 +139,7 @@ class ParticipantsTable extends \core_user\participants_table {
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      */
     public function populate_from_blockinstance(\block_integrityadvocate $blockinstance) {
-        $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $blockinstance->instance->id=' . $blockinstance->instance->id);
 

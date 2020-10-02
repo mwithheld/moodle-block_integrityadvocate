@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
-$debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
+$debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
 $debug && Logger::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER;
