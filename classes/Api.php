@@ -111,10 +111,15 @@ class Api {
                 '&courseid=' . $courseid .
                 '&activityid=' . $moduleid;
         $response = $curl->get($requesturi);
-        $responsecode = $curl->get_info('http_code');
+
+        $responseinfo = $curl->get_info();
+        $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
+        $responsecode = $responseinfo['http_code'];
+        // Remove certinfo b/c it too much info and we do not need it for debugging.
+        unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
-        $success = in_array(intval($responsecode), self::HTTP_SUCCESS_CODE);
+        $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
@@ -197,17 +202,19 @@ class Api {
         $response = $curl->get($requesturi);
 
         $responseparsed = json_decode($response);
-        $responsecode = $curl->get_info('http_code');
+        $responseinfo = $curl->get_info();
+        $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
+        $responsecode = $responseinfo['http_code'];
 
         // Remove certinfo b/c it too much info and we do not need it for debugging.
-        unset($response['certinfo']);
+        unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn .
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
                         '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
                         '; $response=' . ia_u::var_dump($response, true) .
                         '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : ia_u::var_dump($responseparsed, true)));
 
-        $success = in_array(intval($responsecode), self::HTTP_SUCCESS_CODE);
+        $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
@@ -1345,15 +1352,21 @@ class Api {
         $debug && Logger::log($fxn . "::Built params=" . var_export($params_body, true));
 
         $response = $curl->patch($requesturi, json_encode($params_body));
-        $responsecode = $curl->get_info('http_code');
-        $success = in_array(intval($responsecode), self::HTTP_SUCCESS_CODE);
+
+        $responseinfo = $curl->get_info();
+        $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
+        $responsecode = $responseinfo['http_code'];
+        $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
+
+        $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: PATCH url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
         }
 
         $responseparsed = json_decode($response);
-        unset($responsecode['certinfo']);
+        // Remove certinfo b/c it too much info and we do not need it for debugging.
+        unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn .
                         '::Sent url=' . var_export($requesturi, true) . '; err_no=' . $curl->get_errno() .
                         '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
