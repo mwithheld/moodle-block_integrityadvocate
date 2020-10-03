@@ -66,6 +66,15 @@ $params = [
     'courseid' => $courseid,
 ];
 
+// Determine course and course context.
+$course = \get_course($courseid);
+if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
+    throw new \InvalidArgumentException('Invalid $courseid specified');
+}
+
+// Check the current USER is logged in *to the course*.
+\require_login($course, false);
+
 // Set up which overview page we should produce: -user, -module, or -course.
 switch (true) {
     case ($userid):
@@ -84,48 +93,30 @@ switch (true) {
             'moduleid' => $moduleid,
         ];
         break;
-    case ($courseid && FeatureControl::OVERVIEW_COURSE):
+    case ($courseid && (FeatureControl::OVERVIEW_COURSE || FeatureControl::OVERVIEW_COURSE_V2)):
         $requestedpage = 'overview-course';
 
         // The Moodle Participants table wants lots of params.
         $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
         $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, PARAM_INT);
-        // Find the role to display, defaulting to students.
+        // Find the role to display, defaulting to students.  0 means all enrolled users.
         // To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
-        $roleid = \optional_param('role', 0, PARAM_INT);
-        $params += [
-            'group' => $groupid,
-            'perpage' => $perpage,
-            'role' => $roleid,
-        ];
-        break;
-    case ($courseid && FeatureControl::OVERVIEW_COURSE_V2):
-        $requestedpage = 'overview-course';
-
-        // The Moodle Participants table wants lots of params.
-        $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
-        $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, PARAM_INT);
+        $roleid = \optional_param('role', ia_mu::get_default_course_role($coursecontext), PARAM_INT);
         $currpage = \optional_param('currpage', 0, PARAM_INT);
+
+        // We will add these params to the URL later.
         $params += [
             'group' => $groupid,
             'perpage' => $perpage,
             'currpage' => $perpage,
+            'role' => $roleid,
         ];
         break;
     default:
         throw new \InvalidArgumentException('Failed to figure out which overview to show');
 }
 
-// Determine course and course context.
-$course = \get_course($courseid);
-if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
-    throw new \InvalidArgumentException('Invalid $courseid specified');
-}
-
-// Check the current USER is logged in *to the course*.
-\require_login($course, false);
-
-// Both overview pages require the blockinstance.
+// All overview pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
