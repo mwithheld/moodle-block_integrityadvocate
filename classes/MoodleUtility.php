@@ -440,11 +440,11 @@ class MoodleUtility {
     }
 
     /**
-     * Finds gradebook exclusions for students in a course
+     * Finds gradebook exclusions for students in a course.
      *
-     * @param \moodle_database $db Moodle DB object
-     * @param int $courseid The ID of the course containing grade items
-     * @return array of exclusions as module-user pairs
+     * @param \moodle_database $db Moodle DB object.
+     * @param int $courseid The ID of the course containing grade items.
+     * @return array of exclusions as module-user pairs.
      */
     public static function get_gradebook_exclusions(\moodle_database $db, int $courseid): array {
         $query = "SELECT g.id, " . $db->sql_concat('i.itemmodule', "'-'", 'i.iteminstance', "'-'", 'g.userid') . " as exclusion
@@ -465,7 +465,7 @@ class MoodleUtility {
      * Get the student role (in the course) to show by default e.g. on the course-overview page dropdown box.
      *
      * @param \context $coursecontext Course context in which to get the default role.
-     * @return int the role id that is for student archetype in this course
+     * @return int the role id that is for student archetype in this course.
      */
     public static function get_default_course_role(\context $coursecontext): int {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
