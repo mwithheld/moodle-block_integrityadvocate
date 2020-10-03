@@ -44,8 +44,9 @@ class MoodleUtility {
      */
     public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . "::Started with \$blockname={$blockname}; \$visibleonly={$visibleonly}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname);
@@ -109,9 +110,9 @@ class MoodleUtility {
      * @return array where key=block_instances.id; val=block_instance object.
      */
     public static function get_all_course_blocks(int $courseid, string $blockname): array {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started');
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . "::Started with courseid={$courseid}; \$blockname={$blockname}");
 
         $coursecontext = \context_course::instance($courseid, MUST_EXIST);
 
@@ -185,8 +186,8 @@ class MoodleUtility {
      * @return array<roleid=role name>.
      */
     public static function get_roles_for_select(\context $context): array {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . "::Started with \$context->id={$context->id}");
 
         // Cache so multiple calls don't repeat the same work.
@@ -320,10 +321,12 @@ class MoodleUtility {
      */
     public static function get_block_visibility(int $parentcontextid, int $blockinstanceid): bool {
         global $DB;
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . "::Started with \$parentcontextid={$parentcontextid}; \$blockinstanceid={$blockinstanceid}");
 
         $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid), 'id,visible', IGNORE_MULTIPLE);
-        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
+        $debug && Logger::log($fxn . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
             // There is no block_positions record, and the default is visible.
             return true;
@@ -365,8 +368,8 @@ class MoodleUtility {
      * @return int The courseid if found, else -1.
      */
     public static function get_courseid_from_cmid(int $cmid): int {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . "::Started with $cmid={$cmid}");
 
         // Cache so multiple calls don't repeat the same work.
@@ -407,13 +410,14 @@ class MoodleUtility {
      * @return bool false if no course found; else Moodle course object.
      */
     public static function get_course_as_obj($course) {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . '::Started with type(\$course)=' . gettype($course));
 
         if (is_numeric($course)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
-            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($course, JSON_PARTIAL_OUTPUT_ON_ERROR));
+            $cachekey = self::get_cache_key($fxn . '_' . json_encode($course, JSON_PARTIAL_OUTPUT_ON_ERROR));
             if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && Logger::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
@@ -464,9 +468,9 @@ class MoodleUtility {
      * @return int the role id that is for student archetype in this course
      */
     public static function get_default_course_role(\context $coursecontext): int {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . "::Started with $coursecontext={$coursecontext->instanceid}");
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . "::Started with \$coursecontext={$coursecontext->instanceid}");
 
         // Sanity check.
         if (ia_u::is_empty($coursecontext) || ($coursecontext->contextlevel !== \CONTEXT_COURSE)) {
@@ -503,8 +507,9 @@ class MoodleUtility {
      * @return bool|\block_integrityadvocate bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; \$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
@@ -554,14 +559,15 @@ class MoodleUtility {
      * @return null|\stdClass Null if no user found; else moodle user object.
      */
     public static function get_user_as_obj($user) {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
-        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with $user=' . ia_u::var_dump($user, true));
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . '::Started with type($user)=' . gettype($user));
 
 
         if (is_numeric($user)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
-            $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR));
+            $cachekey = self::get_cache_key($fxn . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR));
             if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && Logger::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
@@ -596,15 +602,13 @@ class MoodleUtility {
      * @return string HTML for displaying user info.
      */
     public static function get_user_picture(\stdClass $user, array $params = array()): string {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$user->id={$user->id}; \$params=" . serialize($params);
-        $debug && Logger::log($debugvars);
-
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . "::Started with \$user->id={$user->id}; \$params=" . serialize($params));
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = self::get_cache_key($fxn . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -681,8 +685,8 @@ class MoodleUtility {
      */
     public static function nonce_set(string $key): int {
         global $SESSION;
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . "::Started with \$key={$key}");
 
         // Make sure $key is a safe cache key.
@@ -701,9 +705,9 @@ class MoodleUtility {
      */
     public static function nonce_validate(string $key, bool $returntrueifexists = false): bool {
         global $SESSION;
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . "::Started with \$key={$key}");
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . "::Started with \$key={$key}; \$returntrueifexists={$returntrueifexists}");
 
         // Clean up $contextname so it is a safe cache key.
         $sessionkey = self::get_cache_key($key);
