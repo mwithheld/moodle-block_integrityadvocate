@@ -41,7 +41,7 @@ require_once($CFG->dirroot . '/notes/lib.php');
 require_once($CFG->libdir . '/tablelib.php');
 
 /** @var int How many users per page to show by default. */
-const DEFAULT_PAGE_SIZE = 20;
+const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 
 /** bool Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
@@ -89,7 +89,7 @@ switch (true) {
 
         // The Moodle Participants table wants lots of params.
         $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
-        $perpage = \optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT);
+        $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, PARAM_INT);
         // Find the role to display, defaulting to students.
         // To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
         $roleid = \optional_param('role', 0, PARAM_INT);
@@ -97,6 +97,19 @@ switch (true) {
             'group' => $groupid,
             'perpage' => $perpage,
             'role' => $roleid,
+        ];
+        break;
+    case ($courseid && FeatureControl::OVERVIEW_COURSE_V2):
+        $requestedpage = 'overview-course';
+
+        // The Moodle Participants table wants lots of params.
+        $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
+        $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, PARAM_INT);
+        $currpage = \optional_param('currpage', 0, PARAM_INT);
+        $params += [
+            'group' => $groupid,
+            'perpage' => $perpage,
+            'currpage' => $perpage,
         ];
         break;
     default:

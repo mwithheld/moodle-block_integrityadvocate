@@ -38,8 +38,8 @@ $debug && Logger::log(basename(__FILE__) . '::Started');
 
 // Check all requirements.
 switch (true) {
-    case (!FeatureControl::OVERVIEW_COURSE):
-        throw new Exception('This feature is disabled');
+    case (!FeatureControl::OVERVIEW_COURSE && !FeatureControl::OVERVIEW_COURSE_V2):
+        throw new \Exception('This feature is disabled');
     case (empty($blockinstanceid)):
         throw new \InvalidArgumentException('$blockinstanceid is required');
     case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) :
@@ -52,20 +52,20 @@ switch (true) {
         $debug && Logger::log(__FILE__ . '::All requirements are met');
 }
 
-// Output roles selector.
-echo $OUTPUT->container_start('progressoverviewmenus');
-echo '&nbsp;' . \get_string('role') . '&nbsp;';
-echo $OUTPUT->single_select($PAGE->url, 'role', ia_mu::get_roles_for_select($coursecontext), $roleid);
-echo $OUTPUT->container_end();
-$debug && Logger::log(basename(__FILE__) . '::Done outputting roles');
-
 // Moodle core: Notes, messages and bulk operations.
 $notesallowed = !empty($CFG->enablenotes) && \has_capability('moodle/notes:manage', $coursecontext);
 $messagingallowed = !empty($CFG->messaging) && \has_capability('moodle/site:sendmessage', $coursecontext);
 $bulkoperations = \has_capability('moodle/course:bulkmessaging', $coursecontext) && ($notesallowed || $messagingallowed);
 
-if (false) {
-
+if (true) {
+    // Get list of students in the course.
+    //$students = get_enrolled_users($coursecontext, $withcapability, null, null, $orderby = null, $limitfrom = 0, $limitnum = 10, false);
+    //get_role_users($roleid, $context, $parent, $fields, $sort, $all, $group, $limitfrom, $limitnum)
+    $students = get_role_users(ia_mu::get_default_course_role($coursecontext), $coursecontext, false, 'u.id, ra.id, u.firstname, u.lastname, u.email, u.lastaccess', null, true, $groupid, $currpage * $perpage, $perpage);
+    //$participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
+    // Display the first 10.
+    echo '<PRE>' . ia_u::var_dump($students) . '</PRE>';
+    // For each student, get their IA data.
 } else {
     // OLD Participants table UI.
     // Setup the ParticipantsTable instance.
