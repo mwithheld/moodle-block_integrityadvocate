@@ -140,7 +140,7 @@ if ($participantsessions) {
         //echo '<PRE>' . ia_u::var_dump($p) . '</PRE><hr>' . ia_output::BRNL;
         // Column=User.
         $user = ia_mu::get_user_as_obj($p->participantidentifier);
-        echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-sort' => fullname($user), 'class' => "{$prefix}_session_start"]);
+        echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
 
         $session = $p->get_latest_module_session($moduleid);
 
