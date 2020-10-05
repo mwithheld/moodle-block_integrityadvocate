@@ -128,7 +128,9 @@ class Logger {
         $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
 //        $debug && error_log($fxn . '::Got self::$logForFunction=' . ia_u::var_dump(self::$logForFunction));
 //        $debug && error_log($fxn . '::Got merged=' . ia_u::var_dump(array_merge((is_array($blockconfig->config_logforfunction) ?: []), self::$logForFunction)));
-        return in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
+        $result = in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
+        $debug && error_log($fxn . "::About to return \$result={$result}");
+        return $result;
     }
 
     private static function is_within_log_time(): bool {
@@ -162,8 +164,14 @@ class Logger {
      * @return bool True if we should log for this IP.
      */
     public static function do_log_for_ip(): bool {
+        $debug = /* Do not make this true except in unusual circumstances */ false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
         $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
-        return isset($blockconfig->config_logforip) && !empty($blockconfig->config_logforip) && remoteip_in_list($blockconfig->config_logforip);
+        $debug && error_log($fxn . "::Started with \$blockconfig->config_logforip={$blockconfig->config_logforip}; remoteip_in_list(\$blockconfig->config_logforip)=" . remoteip_in_list($blockconfig->config_logforip));
+
+        $result = isset($blockconfig->config_logforip) && !empty($blockconfig->config_logforip) && remoteip_in_list($blockconfig->config_logforip);
+        $debug && error_log($fxn . "::About to return result={$result}");
+        return $result;
     }
 
     /**
