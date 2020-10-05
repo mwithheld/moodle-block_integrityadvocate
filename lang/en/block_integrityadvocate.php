@@ -30,6 +30,7 @@ $string['cachedef_persession'] = 'Remember values during the user session';
 
 $string['column_iadata'] = 'Integrity Advocate data';
 $string['column_iaphoto'] = 'Integrity Advocate photo';
+$string['column_latestparticipantleveldata'] = 'Latest Integrity Advocate data';
 $string['completion_not_enabled'] = 'Completion tracking is not enabled on this site.';
 $string['completion_not_enabled_course'] = 'Completion tracking is not enabled in this course.';
 
