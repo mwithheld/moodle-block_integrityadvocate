@@ -54,11 +54,11 @@ $debug = true || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\'
 // Used for the APIkey and AppId.
 $blockinstanceid = \required_param('instanceid', PARAM_INT);
 // Used for all overview pages.
-$courseid = \required_param('courseid ', PARAM_INT);
+$courseid = \required_param('courseid', PARAM_INT);
 // Used for overview-user page.
-$userid = \optional_param('userid  ', 0, PARAM_INT);
+$userid = \optional_param('userid', 0, PARAM_INT);
 // Used for overview-module page.
-$moduleid = \optional_param('moduleid  ', 0, PARAM_INT);
+$moduleid = \optional_param('moduleid', 0, PARAM_INT);
 
 // Params are used to build the current page URL.  These params are used for all overview pages.
 $params = [
@@ -78,7 +78,7 @@ if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::
 // Set up which overview page we should produce: -user, -module, or -course.
 switch (true) {
     case ($userid):
-        $debug && Logger::log(__FILE__ . '::Got param $userid = ' . $userid);
+        $debug && Logger::log(__FILE__ . '::Got param $userid=' . $userid);
         $requestedpage = 'overview-user';
         $PAGE->requires->strings_for_js(array('override_form_label', 'override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
         $params += [
@@ -86,7 +86,7 @@ switch (true) {
         ];
         break;
     case ($moduleid && FeatureControl::OVERVIEW_MODULE):
-        $debug && Logger::log(__FILE__ . '::Got param $moduleid = ' . $moduleid);
+        $debug && Logger::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
@@ -120,8 +120,7 @@ switch (true) {
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
-    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . var_export($blockinstance, true) . ';
-        context = ' . var_export($blockcontext, true));
+    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . var_export($blockinstance, true) . '; context=' . var_export($blockcontext, true));
 }
 
 // Set up page parameters.
@@ -161,8 +160,7 @@ $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $b
 // Check for errors that mean we should not show any overview page.
 switch (true) {
     case ($configerrors = $blockinstance->get_config_errors()):
-        $debug && Logger::log(__FILE__ . '::No visible IA block found with valid config;
-        $configerrors = ' . ia_u::var_dump($configerrors));
+        $debug && Logger::log(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
         if ($hascapability_overview) {
             \core\notification::error(implode(ia_output::BRNL, $configerrors));
@@ -170,8 +168,7 @@ switch (true) {
         break;
 
     case($setuperrors = ia_mu::get_completion_setup_errors($course)):
-        $debug && Logger::log(__FILE__ . '::Got completion setup errors;
-        $setuperrors = ' . ia_u::var_dump($setuperrors));
+        $debug && Logger::log(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
         foreach ($setuperrors as $err) {
             echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
         }
@@ -196,7 +193,7 @@ switch (true) {
         $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');
 
         // Open the requested overview page.
-        require_once($requestedpage . '.php          ');
+        require_once($requestedpage . '.php');
 }
 
 echo $OUTPUT->container_end();
