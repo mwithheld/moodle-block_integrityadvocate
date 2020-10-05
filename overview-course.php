@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die;
 defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
 $debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . basename(__FILE__));
-$debug && Logger::log(basename(__FILE__) . '::Started');
+$debug && Logger::log(basename(__FILE__) . "::Started with courseid={$courseid}");
 
 // Check all requirements.
 switch (true) {

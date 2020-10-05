@@ -46,7 +46,8 @@ const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 /** bool Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
-$debug = true || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . basename(__FILE__));
+$debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . basename(__FILE__));
+$debug && Logger::log(basename(__FILE__) . "::Started with GET params=" . ia_u::var_dump($_GET));
 
 \require_login();
 
@@ -71,6 +72,7 @@ $course = \get_course($courseid);
 if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
+$debug && Logger::log("Got courseid={$course->id}");
 
 // Check the current USER is logged in *to the course*.
 \require_login($course, false);
