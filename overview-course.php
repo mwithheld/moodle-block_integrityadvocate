@@ -53,15 +53,17 @@ switch (true) {
 }
 
 if (FeatureControl::OVERVIEW_COURSE_V2) {
+    $debug && Logger::log(__FILE__ . '::Request is for overview_course_v2');
     $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
 
     // Output roles selector.
-    echo $OUTPUT->container_start('progressoverviewmenus', "{$prefix}_roleid");
+    echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME . '_roleid_select', "{$prefix}_roleid");
     echo $OUTPUT->single_select($PAGE->url, 'role', ia_mu::get_roles_for_select($coursecontext), $roleid);
     echo $OUTPUT->container_end();
 
     // Get list of students in the course.
     // Usage: get_role_users($roleid, $context, $parent, $fields, $sort, $all, $group, $limitfrom, $limitnum).
+    $debug && Logger::log(__FILE__ . "::About to get_role_users(\$roleid={$roleid}, \$context={$coursecontext->id}, \$parent=false, \$fields='ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), \$sort=null, \$all=true, \$group=$groupid, \$limitfrom=($currpage * $perpage), \$limitnum=$perpage)");
     $enrolledusers = get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), null, true, $groupid, ($currpage * $perpage), $perpage);
     $debug && Logger::log(__FILE__ . '::Got count($enrolledusers)=' . ia_u::count_if_countable($enrolledusers));
 
