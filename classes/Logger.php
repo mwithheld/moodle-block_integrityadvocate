@@ -80,8 +80,8 @@ class Logger {
     public static $logForFunction = [
 //        INTEGRITYADVOCATE_BLOCK_NAME.'\Api::get_participant',
 //        INTEGRITYADVOCATE_BLOCK_NAME.'\Api::get_participants_data',
-        INTEGRITYADVOCATE_BLOCK_NAME . '\Api::get_participantsessions',
-        INTEGRITYADVOCATE_BLOCK_NAME . '\Api::get_participantsessions_data',
+//        INTEGRITYADVOCATE_BLOCK_NAME . '\Api::get_participantsessions',
+//        INTEGRITYADVOCATE_BLOCK_NAME . '\Api::get_participantsessions_data',
     ];
 
     /** @var string Determines where to send error logs. For values, see self::log()'s switch statement. */
@@ -286,13 +286,21 @@ class Logger {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started');
 
-        $classesToLog = [
+        $classestolog = [
             '\block_integrityadvocate_external',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Api',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Output',
         ];
-        $classfunctionstolog = [];
-        foreach ($classesToLog as $classname) {
+
+        // These ones are not classes but we want to be able to log them anyway.
+        $classfunctionstolog = [
+            INTEGRITYADVOCATE_BLOCK_NAME . '\overview.php',
+            INTEGRITYADVOCATE_BLOCK_NAME . '\overview-course.php',
+            INTEGRITYADVOCATE_BLOCK_NAME . '\overview-user.php',
+            INTEGRITYADVOCATE_BLOCK_NAME . '\overview-module.php',
+        ];
+
+        foreach ($classestolog as $classname) {
             $reflection = new \ReflectionClass($classname);
             foreach ($reflection->getMethods() as $method) {
                 // Remove methods from parent etc.
