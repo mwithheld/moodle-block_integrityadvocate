@@ -52,24 +52,73 @@ switch (true) {
         $debug && Logger::log(__FILE__ . '::All requirements are met');
 }
 
-// Moodle core: Notes, messages and bulk operations.
-$notesallowed = !empty($CFG->enablenotes) && \has_capability('moodle/notes:manage', $coursecontext);
-$messagingallowed = !empty($CFG->messaging) && \has_capability('moodle/site:sendmessage', $coursecontext);
-$bulkoperations = \has_capability('moodle/course:bulkmessaging', $coursecontext) && ($notesallowed || $messagingallowed);
+if (FeatureControl::OVERVIEW_COURSE_V2) {
+    $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
 
-if (true) {
+    // Output roles selector.
+    echo $OUTPUT->container_start('progressoverviewmenus', "{$prefix}_roleid");
+    echo $OUTPUT->single_select($PAGE->url, 'role', ia_mu::get_roles_for_select($coursecontext), $roleid);
+    echo $OUTPUT->container_end();
+
     // Get list of students in the course.
-    //$students = get_enrolled_users($coursecontext, $withcapability, null, null, $orderby = null, $limitfrom = 0, $limitnum = 10, false);
-    //get_role_users($roleid, $context, $parent, $fields, $sort, $all, $group, $limitfrom, $limitnum)
-    $students = get_role_users(ia_mu::get_default_course_role($coursecontext), $coursecontext, false, 'u.id, ra.id, u.firstname, u.lastname, u.email, u.lastaccess', null, true, $groupid, $currpage * $perpage, $perpage);
+    // Usage: get_role_users($roleid, $context, $parent, $fields, $sort, $all, $group, $limitfrom, $limitnum).
+    $enrolledusers = get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), null, true, $groupid, ($currpage * $perpage), $perpage);
+    $debug && Logger::log(__FILE__ . '::Got count($enrolledusers)=' . ia_u::count_if_countable($enrolledusers));
+
+    if (!$enrolledusers) {
+        echo get_string('nousersfound');
+    } else {
+        // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
+        echo '<table id="' . $prefix . '_table" class="stripe order-column hover display">';
+        $tr = '<tr>';
+        $tr_end = '</tr>';
+        echo '<thead>';
+
+        $tr_header = $tr;
+        $tr_header .= \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_user"]);
+        $tr_header .= \html_writer::tag('th', \get_string('email'), ['class' => "{$prefix}_email"]);
+        $tr_header .= \html_writer::tag('th', \get_string('lastcourseaccess'), ['class' => "{$prefix}_lastcourseaccess"]);
+        $tr_header .= \html_writer::tag('th', \get_string('column_latestparticipantleveldata', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iadata"]);
+        $tr_header .= \html_writer::tag('th', \get_string('column_iaphoto', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iaphoto"]);
+        $tr_header .= $tr_end;
+        echo "{$tr_header}</thead><tbody>";
+
+        echo $tr;
+        $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
+        foreach ($enrolledusers as $user) {
+            $debuginfo = "userid={$user->id}";
+            //echo '<PRE>' . ia_u::var_dump($user) . '</PRE><hr>' . ia_output::BRNL;
+            // Column=User.
+            echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
+
+            echo \html_writer::tag('td', $user->email, ['class' => "{$prefix}_email"]);
+            echo \html_writer::tag('td', ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')), ['class' => "{$prefix}_lastcourseaccess"]);
+            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iadata"]);
+            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iaphoto"]);
+            echo $tr_end;
+        }
+
+        echo '</tbody>';
+        echo "<tfoot>{$tr_header}</tfoot>";
+        echo '</table>';
+        // Used as a JQueryUI popup to show the user picture.
+        echo '<div id="dialog"></div>';
+    }
+
+    // Get IA data for this first set.
     //$participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
-    // Display the first 10.
-    echo '<PRE>' . ia_u::var_dump($students) . '</PRE>';
+    // Display the first 10.\
     // For each student, get their IA data.
-} else {
+} else if (FeatureControl::OVERVIEW_COURSE && !FeatureControl::OVERVIEW_COURSE_V2) {
     // OLD Participants table UI.
+    // Moodle core: Notes, messages and bulk operations.
+    $notesallowed = !empty($CFG->enablenotes) && \has_capability('moodle/notes:manage', $coursecontext);
+    $messagingallowed = !empty($CFG->messaging) && \has_capability('moodle/site:sendmessage', $coursecontext);
+    $bulkoperations = \has_capability('moodle/course:bulkmessaging', $coursecontext) && ($notesallowed || $messagingallowed);
+
     // Setup the ParticipantsTable instance.
     require_once(__DIR__ . '/classes/ParticipantsTable.php');
+    $roleid = \optional_param('role', 0, PARAM_INT);
     $participanttable = new ParticipantsTable(
             $courseid, $groupid, $lastaccess = 0, $roleid, $enrolid = 0, $status = -1, $searchkeywords = [], $bulkoperations,
             $selectall = \optional_param('selectall', false, \PARAM_BOOL)
@@ -86,36 +135,37 @@ if (true) {
 
     // Output the table.
     $participanttable->out_end();
-}
 
-if ($bulkoperations) {
-    echo '<br />';
-    echo \html_writer::start_tag('div', array('class' => 'buttons'));
+    if ($bulkoperations) {
+        echo '<br />';
+        echo \html_writer::start_tag('div', array('class' => 'buttons'));
 
-    echo \html_writer::start_tag('div', array('class' => 'btn-group'));
-    echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checkallonpage', 'class' => 'btn btn-secondary',
-        'value' => \get_string('selectall')));
-    echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checknone', 'class' => 'btn btn-secondary',
-        'value' => \get_string('deselectall')));
-    echo \html_writer::end_tag('div');
-    $displaylist = [];
-    if ($messagingallowed) {
-        $displaylist['#messageselect'] = \get_string('messageselectadd');
+        echo \html_writer::start_tag('div', array('class' => 'btn-group'));
+        echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checkallonpage', 'class' => 'btn btn-secondary',
+            'value' => \get_string('selectall')));
+        echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checknone', 'class' => 'btn btn-secondary',
+            'value' => \get_string('deselectall')));
+        echo \html_writer::end_tag('div');
+        $displaylist = [];
+        if ($messagingallowed) {
+            $displaylist['#messageselect'] = \get_string('messageselectadd');
+        }
+
+        echo \html_writer::tag('label', \get_string('withselectedusers'), array('for' => 'formactionid'));
+        echo \html_writer::select($displaylist, 'formaction', '', array('' => 'choosedots'), array('id' => 'formactionid'));
+
+        echo '<input type="hidden" name="id" value="' . $courseid . '" />';
+        echo '<noscript style="display:inline">';
+        echo '<div><input type="submit" value="' . get_string('ok') . '" /></div>';
+        echo '</noscript>';
+        echo \html_writer::end_tag('div');
+
+        $options = new \stdClass();
+        $options->courseid = $courseid;
+        $options->noteStateNames = \note_get_state_names();
+        $options->stateHelpIcon = $OUTPUT->help_icon('publishstate', 'notes');
+        $PAGE->requires->js_call_amd('core_user/participants', 'init', array($options));
     }
-
-    echo \html_writer::tag('label', \get_string('withselectedusers'), array('for' => 'formactionid'));
-    echo \html_writer::select($displaylist, 'formaction', '', array('' => 'choosedots'), array('id' => 'formactionid'));
-
-    echo '<input type="hidden" name="id" value="' . $courseid . '" />';
-    echo '<noscript style="display:inline">';
-    echo '<div><input type="submit" value="' . get_string('ok') . '" /></div>';
-    echo '</noscript>';
-    echo \html_writer::end_tag('div');
-
-    $options = new \stdClass();
-    $options->courseid = $courseid;
-    $options->noteStateNames = \note_get_state_names();
-    $options->stateHelpIcon = $OUTPUT->help_icon('publishstate', 'notes');
-    $PAGE->requires->js_call_amd('core_user/participants', 'init', array($options));
 }
+
 echo \html_writer::end_tag('form');

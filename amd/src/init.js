@@ -5,19 +5,38 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                     var debug = true;
                     window.block_integrityadvocate = {};
                     switch (true) {
+                        case((typeof OVERVIEW_COURSE_V2 !== 'undefined') && $('body').hasClass('block_integrityadvocate-overview-course')):
+                            debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_course_v2');
+                            // Configure element matched by selector as a DataTable, adding params to the default options.
+                            // DataTable options ref https://datatables.net/reference/option/.
+                            // Language options ref https://datatables.net/reference/option/language.
+                            // Paging options ref https://datatables.net/reference/option/paging.
+                            $('#block_integrityadvocate_overviewcourse_table').DataTable({
+                                'autoWidth': false,
+                                //'columnDefs': [{'orderable': false, 'targets': [4, 5]}],
+                                /*'info': true, // Show information about the table including information about filtered data; default=true. */
+                                'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
+                                'order': [], // Disable initial sort.
+                                'ordering': true,
+                                'paginate': false,
+                                'paging': false,
+                                'searching': true
+                            });
+                            break;
+
                         case($('body').hasClass('block_integrityadvocate-overview-course')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participants_table - DataTables adds the filter capability');
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
                             // Paging options ref https://datatables.net/reference/option/paging.
-                            $('#participants').DataTable({
+                            $('#block_integrityadvocate_overviewcourse_table').DataTable({
                                 'autoWidth': false,
                                 'columnDefs': [{'orderable': false, 'targets': [4, 5]}],
                                 /*'info': true, // Show information about the table including information about filtered data; default=true. */
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'order': [], // Disable initial sort.
-                                'ordering': false,
+                                'ordering': true,
                                 'paginate': false,
                                 'paging': false,
                                 'searching': true
