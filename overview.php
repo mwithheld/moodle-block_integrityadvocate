@@ -47,7 +47,14 @@ const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . basename(__FILE__));
-$debug && Logger::log(basename(__FILE__) . "::Started with GET params=" . ia_u::var_dump($_GET));
+
+if ($debug) {
+    // Suppress debug notice that we have not done PAGE->set_url().
+    $debugbackup = $CFG->debug;
+    unset($CFG->debug);
+    Logger::log(basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
+    $CFG->debug = $debugbackup;
+}
 
 \require_login();
 
@@ -80,7 +87,7 @@ $debug && Logger::log("Got courseid={$course->id}");
 // Set up which overview page we should produce: -user, -module, or -course.
 switch (true) {
     case ($userid):
-        $debug && Logger::log(__FILE__ . '::Got param $userid=' . $userid);
+        $debug && Logger::log(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
         $requestedpage = 'overview-user';
         $PAGE->requires->strings_for_js(array('override_form_label', 'override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
         $params += [
@@ -88,7 +95,7 @@ switch (true) {
         ];
         break;
     case ($moduleid && FeatureControl::OVERVIEW_MODULE):
-        $debug && Logger::log(__FILE__ . '::Got param $moduleid=' . $moduleid);
+        $debug && Logger::log(__FILE__ . '::Request is for overview_module page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
@@ -96,27 +103,36 @@ switch (true) {
         ];
         break;
     case ($courseid && (FeatureControl::OVERVIEW_COURSE || FeatureControl::OVERVIEW_COURSE_V2)):
+        $debug && Logger::log(__FILE__ . '::Request is for overview_course page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-course';
 
         // The Moodle Participants table wants lots of params.
         $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
+        $currpage = \optional_param('currpage', 0, PARAM_INT);
         $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, PARAM_INT);
+
+        // To prevent two role= params in the querystring, only set it if not specified.
         // Find the role to display, defaulting to students.  0 means all enrolled users.
         // To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
-        $roleid = \optional_param('role', ia_mu::get_default_course_role($coursecontext), PARAM_INT);
-        $currpage = \optional_param('currpage', 0, PARAM_INT);
+        $roleid = \optional_param('role', -1, PARAM_INT);
+        if ($roleid < 0) {
+            $roleid = ia_mu::get_default_course_role($coursecontext);
+            $params += [
+                'role' => $roleid,
+            ];
+        }
 
         // We will add these params to the URL later.
         $params += [
             'group' => $groupid,
             'perpage' => $perpage,
-            'currpage' => $perpage,
-            'role' => $roleid,
+            'currpage' => $currpage,
         ];
         break;
     default:
         throw new \InvalidArgumentException('Failed to figure out which overview to show');
 }
+$debug && Logger::log('Build params=' . ia_u::var_dump($params));
 
 // All overview pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
@@ -131,6 +147,13 @@ $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css
 // Used to build the page URL and in the overview-course page, the Participants table URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
+if ($debug) {
+    // Suppress debug notice that we have not done PAGE->set_url().
+    $debugbackup = $CFG->debug;
+    unset($CFG->debug);
+    Logger::log(basename(__FILE__) . "::After set_url, \$PAGE->url={$PAGE->url}");
+    $CFG->debug = $debugbackup;
+}
 $PAGE->set_context($coursecontext);
 $title = \get_string(str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
