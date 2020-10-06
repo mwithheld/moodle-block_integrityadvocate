@@ -165,7 +165,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $endpoint . $appid . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $endpoint, $appid]) . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -212,7 +212,7 @@ class Api {
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
                         '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
                         '; $response=' . ia_u::var_dump($response, true) .
-                        '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : ia_u::var_dump($responseparsed, true)));
+                        '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
         $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
         if (!$success) {
@@ -317,14 +317,14 @@ class Api {
 
         // This gets a json-decoded object of the IA API curl result.
         $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
-        $debug && Logger::log($fxn . '::Got API result=' . (ia_u::is_empty($participantraw) ? '' : ia_u::var_dump($participantraw, true)));
+        $debug && Logger::log($fxn . '::Got API result=' . ia_u::var_dump($participantraw, true));
         if (ia_u::is_empty($participantraw)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return null;
         }
 
         $participant = self::parse_participant($participantraw);
-        $debug && Logger::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
+        $debug && Logger::log($fxn . '::Built $participant=' . ia_u::var_dump($participant, true));
 
         return $participant;
     }
@@ -352,41 +352,66 @@ class Api {
         }
 
         raise_memory_limit(MEMORY_EXTRA);
+        $params = ['courseid' => $courseid];
+
+        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
+        $participantscached = new ParticipantsCache($courseid);
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $debugvars]));
+        if (FeatureControl::CACHE && $participantscached = $cache->get($cachekey) && isset($participantscached->modified) && $participantscached->modified > 0) {
+            // We have a cached participants set, so get only those modified after the modified timestamp.
+            $params += ['lastmodified' => $participantscached->modified];
+            $debug && Logger::log($fxn . '::Got some $participantscached=' . ia_u::var_dump($participantscached));
+        }
 
         // This gets a json-decoded object of the IA API curl result.
-        $participantsraw = self::get_participants_data($apikey, $appid, ['courseid' => $courseid]);
-        $debug && Logger::log($fxn . '::Got ' . ia_u::count_if_countable($participantsraw) . ' API result=' . (ia_u::is_empty($participantsraw) ? '' : ia_u::var_dump($participantsraw, true)));
+        $participantscached->participantsraw = array_merge($participantscached->participantsraw, self::get_participants_data($apikey, $appid, $params));
+        $debug && Logger::log($fxn . '::After get_participants_data() and merge, count($participantscached)=' . ia_u::count_if_countable($participantscached->participantsraw) . '; API result=' . ia_u::var_dump($participantscached->participantsraw, true));
 
-        if (ia_u::is_empty($participantsraw)) {
+        if (ia_u::is_empty($participantscached->participantsraw)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
+            FeatureControl::CACHE && $cache->delete($cachekey);
             return [];
         }
 
         $debug && Logger::log($fxn . '::About to process the participants returned');
-        $participantsholder = new Participants($courseid);
-        foreach ($participantsraw as $pr) {
-            $debug && Logger::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
+        $participantsparsed = [];
+        foreach ($participantscached->participantsraw as $pr) {
+            $debug && Logger::log($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
             if (ia_u::is_empty($pr)) {
-                $debug && Logger::log($fxn . '::Skip: This $participantsraw entry is empty');
+                $debug && Logger::log($fxn . '::Skip: This $pr entry is empty');
                 continue;
             }
 
             // Parse the participants returned.
             $participant = self::parse_participant($pr);
-            $debug && Logger::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
+            $debug && Logger::log($fxn . '::Built $participant=' . ia_u::var_dump($participant, true));
 
             // Skip if parsing failed.
             if (ia_u::is_empty(($participant))) {
-                $debug && Logger::log($fxn . '::Skip: The $participantsraw failed to parse');
+                $debug && Logger::log($fxn . '::Skip: The $pr failed to parse');
                 continue;
             }
 
-            $debug && Logger::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($participantsholder->participants) . ' participants');
-            $participantsholder->participants[$participant->participantidentifier] = $participant;
+            $debug && Logger::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($participantsparsed) . ' participants');
+            $participantsparsed[$participant->participantidentifier] = $participant;
+
+            // Update the participants list lastmodified if needed.
+            if ($participant->modified > $participantscached->modified) {
+                $debug && Logger::log($fxn . "::Updated \$participantscached->modified={$participantscached->modified}");
+                $participantscached->modified = $participant->modified;
+            }
         }
 
-        $debug && Logger::log($fxn . '::About to return count($participantsholder->participants)=' . ia_u::count_if_countable($participantsholder->participants));
-        return $participantsholder->participants;
+        // Cache the participants list so we can just get the "modified since x time" ones next time.
+        if (FeatureControl::CACHE && !ia_u::is_empty($participantscached->participantsraw) && !$cache->set($cachekey, $participantscached)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+        if ($debug) {
+            Logger::log($fxn . "::Cached the participants list with \$participantscached->modified={$participantscached->modified}");
+            Logger::log($fxn . '::About to return count($participantsparsed)=' . ia_u::count_if_countable($participantsparsed));
+        }
+        return $participantsparsed;
     }
 
     /**
@@ -425,9 +450,9 @@ class Api {
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
-        // The only valid param at the moment is externaluserid.
+        // Make sure $params contains only valid parameters.
         foreach (array_keys($params) as $key) {
-            if (!in_array($key, array('externaluserid'))) {
+            if (!in_array($key, array('courseid', 'externaluserid', 'lastmodified'))) {
                 $msg = 'Input params are invalid';
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -440,11 +465,11 @@ class Api {
 
         // The $result is a array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
-        $debug && Logger::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
+        $debug && Logger::log($fxn . '::Got API result=' . ia_u::var_dump($result, true));
 
 //        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
 //        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-//        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($result, JSON_PARTIAL_OUTPUT_ON_ERROR));
+//        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__]) . json_encode($result, JSON_PARTIAL_OUTPUT_ON_ERROR));
 //        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
 //            $debug && Logger::log($fxn . '::Found a cached value, so return that');
 //            return $cachedvalue;
@@ -511,7 +536,7 @@ class Api {
 
         // This gets a json-decoded object of the IA API curl result.
         $participantsessionsraw = self::get_participantsessions_data($apikey, $appid, $params);
-        $debug && Logger::log($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API results= ' . (ia_u::is_empty($participantsessionsraw) ? '' : ia_u::var_dump($participantsessionsraw, true)));
+        $debug && Logger::log($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API results= ' . ia_u::var_dump($participantsessionsraw, true));
 
         if (ia_u::is_empty($participantsessionsraw)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -525,7 +550,7 @@ class Api {
         $debug && Logger::log($fxn . '::About to process the participantsessions returned');
         $parsedparticipantsessions = [];
         foreach ($participantsessionsraw as $pr) {
-            $debug && Logger::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
+            $debug && Logger::log($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
             if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !is_numeric($participantidentifier = $pr->ParticipantIdentifier)) {
                 $debug && Logger::log($fxn . '::Skip: This $participantsessionsraw entry is empty or invalid');
                 continue;
@@ -570,7 +595,7 @@ class Api {
 
             // Parse the participant session returned.
             $participantsession = self::parse_session($pr, $participant);
-            $debug && Logger::log($fxn . '::Built $participantsession=' . (ia_u::is_empty($participantsession) ? '' : ia_u::var_dump($participantsession, true)));
+            $debug && Logger::log($fxn . '::Built $participantsession=' . ia_u::var_dump($participantsession, true));
 
             // Skip if parsing failed.
             if (ia_u::is_empty(($participantsession))) {
@@ -640,7 +665,7 @@ class Api {
 
         // The $result is a array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTSESSIONS, $apikey, $appid, $params);
-        $debug && Logger::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
+        $debug && Logger::log($fxn . '::Got API result=' . ia_u::var_dump($result, true));
 
         if (ia_u::is_empty($result)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -894,7 +919,7 @@ class Api {
     private static function parse_flag(\stdClass $input) {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $f=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
+        $debug && Logger::log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
 
         if (ia_u::is_empty($input)) {
             $debug && Logger::log($fxn . '::Empty object found, so return false');
@@ -903,7 +928,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__]) . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -961,7 +986,7 @@ class Api {
     private static function parse_session(\stdClass $input, Participant $participant) {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
+        $debug && Logger::log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -971,7 +996,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__]) . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -1075,7 +1100,7 @@ class Api {
     public static function parse_participant(\stdClass $input) {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $input=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
+        $debug && Logger::log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -1327,7 +1352,7 @@ class Api {
                         '::Sent url=' . var_export($requesturi, true) . '; err_no=' . $curl->get_errno() .
                         '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
                         '; $response=' . var_export($response, true) .
-                        '; $responseparsed=' . (ia_u::is_empty($responseparsed) ? '' : var_export($responseparsed, true)));
+                        '; $responseparsed=' . ia_u::var_dump($responseparsed));
 
         return isset($responsecode['http_code']) && ($responsecode['http_code'] == 200);
     }
