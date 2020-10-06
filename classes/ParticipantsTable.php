@@ -227,8 +227,7 @@ class ParticipantsTable extends \core_user\participants_table {
                     return;
                 }
                 // The getMessage() includes url, response code, and body.
-                Logger::log($fxn . '::Got a Guzzle exception=' . str_replace(array("\n", "\r"), '', $e->getMessage())
-                );
+                Logger::log($fxn . '::Got a Guzzle exception=' . str_replace(array("\n", "\r"), '', $e->getMessage()));
             }
             );
             $promises[] = $promise;
