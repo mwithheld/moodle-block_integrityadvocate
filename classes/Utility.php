@@ -135,6 +135,10 @@ class Utility {
      * @return mixed <p>If given a <code>string</code>, <code>integer</code> or <code>float</code>, the value itself will be printed. If given an <code>array</code>, values will be presented in a format that shows keys and elements. Similar notation is used for <code>object</code>s.</p><p>When the <code>return</code> parameter is <b><code>TRUE</code></b>, this function will return a <code>string</code>. Otherwise, the return value is <b><code>TRUE</code></b>.</p>
      */
     public static function var_dump($expression, bool $return = true) {
+        if (self::is_empty($expression)) {
+            return print_r('', $return);
+        }
+
         // Avoid OOM errors.
         raise_memory_limit(MEMORY_HUGE);
 
