@@ -147,13 +147,6 @@ $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css
 // Used to build the page URL and in the overview-course page, the Participants table URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
-if ($debug) {
-    // Suppress debug notice that we have not done PAGE->set_url().
-    $debugbackup = $CFG->debug;
-    unset($CFG->debug);
-    Logger::log(basename(__FILE__) . "::After set_url, \$PAGE->url={$PAGE->url}");
-    $CFG->debug = $debugbackup;
-}
 $PAGE->set_context($coursecontext);
 $title = \get_string(str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
