@@ -381,12 +381,6 @@ class Api {
                 continue;
             }
 
-            // Filter for the input userid.
-            if (is_number($userid) && ($participant->participantidentifier) !== intval($userid)) {
-                $debug && Logger::log($fxn . "::Skip: \$participant->participantidentifier={$participant->participantidentifier} !== \$userid={$userid}");
-                continue;
-            }
-
             $debug && Logger::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($participantsholder->participants) . ' participants');
             $participantsholder->participants[$participant->participantidentifier] = $participant;
         }
