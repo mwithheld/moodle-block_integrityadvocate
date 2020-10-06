@@ -28,7 +28,7 @@ use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
 
-class Participants {
+class ParticipantsCache {
 
     /** @var int Course ID. */
     public $courseid;
@@ -37,7 +37,7 @@ class Participants {
     public $modified = -1;
 
     /** @var array<Participant> Array of participant objects attached to this course. */
-    public $participants = [];
+    public $participantsraw = [];
 
     public function __construct(int $courseid) {
         $this->courseid = $courseid;
