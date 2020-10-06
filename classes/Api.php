@@ -336,17 +336,16 @@ class Api {
      * @param string $apikey The API Key to get data for.
      * @param string $appid The AppId to get data for.
      * @param int $courseid Get info for this course.
-     * @param int $userid Optionally filter for this user.
      * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
-    public static function get_participants(string $apikey, string $appid, int $courseid, $userid = null): array {
+    public static function get_participants(string $apikey, string $appid, int $courseid): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
+        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || (!is_null($userid) && !is_number($userid))) {
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
