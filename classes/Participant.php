@@ -28,6 +28,23 @@ use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
 
+class Participants {
+
+    /** @var int Course ID. */
+    public $courseid;
+
+    /** @var int Unix timestamp when this was modified. */
+    public $modified = -1;
+
+    /** @var array<Participant> Array of participant objects attached to this course. */
+    public $participants = [];
+
+    public function __construct(int $courseid) {
+        $this->courseid = $courseid;
+    }
+
+}
+
 /**
  * Class to represent a single IA participant.
  */

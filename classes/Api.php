@@ -316,9 +316,10 @@ class Api {
         }
 
         // This gets a json-decoded object of the IA API curl result.
-        $participantraw = self::get_participant_data($apikey, $appid, $courseid, $userid);
-        $debug && Logger::log($fxn . '::Got $participantraw=' . (ia_u::is_empty($participantraw) ? '' : ia_u::var_dump($participantraw, true)));
+        $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
+        $debug && Logger::log($fxn . '::Got API result=' . (ia_u::is_empty($participantraw) ? '' : ia_u::var_dump($participantraw, true)));
         if (ia_u::is_empty($participantraw)) {
+            $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return null;
         }
 
@@ -326,40 +327,6 @@ class Api {
         $debug && Logger::log($fxn . '::Built $participant=' . (ia_u::is_empty($participant) ? '' : ia_u::var_dump($participant, true)));
 
         return $participant;
-    }
-
-    /**
-     * Get IA participant data for a single course-user.
-     *
-     * @param string $apikey The API key.
-     * @param string $appid The app id.
-     * @param int $courseid The course id to get info for.
-     * @param int $userid The user id to get info for.
-     * @return \stdClass Empty stdClass if nothing found; else Json-decoded stdClass which needs to be parsed into a single Participant object.
-     */
-    private static function get_participant_data(string $apikey, string $appid, int $courseid, int $userid): \stdClass {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}, \$userid={$userid}";
-        $debug && Logger::log($debugvars);
-
-        // Sanity check.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
-            $msg = 'Input params are invalid';
-            Logger::log($fxn . '::' . $msg . '::' . $debugvars);
-            throw new \InvalidArgumentException($msg);
-        }
-
-        // The $result is a json-decoded array.
-        $result = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
-        $debug && Logger::log($fxn . '::Got API result=' . (ia_u::is_empty($result) ? '' : ia_u::var_dump($result, true)));
-
-        if (ia_u::is_empty($result) || !is_object($result)) {
-            $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
-            return new \stdClass();
-        }
-
-        return $result;
     }
 
     /**
@@ -397,7 +364,7 @@ class Api {
         }
 
         $debug && Logger::log($fxn . '::About to process the participants returned');
-        $parsedparticipants = [];
+        $participantsholder = new Participants($courseid);
         foreach ($participantsraw as $pr) {
             $debug && Logger::log($fxn . '::Looking at $pr=' . (ia_u::is_empty($pr) ? '' : ia_u::var_dump($pr, true)));
             if (ia_u::is_empty($pr)) {
@@ -415,22 +382,18 @@ class Api {
                 continue;
             }
 
-            // Filter for the input courseid and userid.
-            if (is_number($courseid) && intval($participant->courseid) !== intval($courseid)) {
-                $debug && Logger::log($fxn . "::Skip: \$participant->courseid={$participant->courseid} !== \$courseid={$courseid}");
-                continue;
-            }
+            // Filter for the input userid.
             if (is_number($userid) && ($participant->participantidentifier) !== intval($userid)) {
                 $debug && Logger::log($fxn . "::Skip: \$participant->participantidentifier={$participant->participantidentifier} !== \$userid={$userid}");
                 continue;
             }
 
-            $debug && Logger::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($parsedparticipants) . ' participants');
-            $parsedparticipants[$participant->participantidentifier] = $participant;
+            $debug && Logger::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($participantsholder->participants) . ' participants');
+            $participantsholder->participants[$participant->participantidentifier] = $participant;
         }
 
-        $debug && Logger::log($fxn . '::About to return count($parsedparticipants)=' . ia_u::count_if_countable($parsedparticipants));
-        return $parsedparticipants;
+        $debug && Logger::log($fxn . '::About to return count($participantsholder->participants)=' . ia_u::count_if_countable($participantsholder->participants));
+        return $participantsholder->participants;
     }
 
     /**
