@@ -355,13 +355,14 @@ class Api {
         $params = ['courseid' => $courseid];
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
-        $participantscached = new ParticipantsCache($courseid);
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $debugvars]));
         if (FeatureControl::CACHE && $participantscached = $cache->get($cachekey) && isset($participantscached->modified) && $participantscached->modified > 0) {
             // We have a cached participants set, so get only those modified after the modified timestamp.
             $params += ['lastmodified' => $participantscached->modified];
             $debug && Logger::log($fxn . '::Got some $participantscached=' . ia_u::var_dump($participantscached));
+        } else {
+            $participantscached = new ParticipantsCache($courseid);
         }
 
         // This gets a json-decoded object of the IA API curl result.
@@ -445,7 +446,7 @@ class Api {
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !isser($params['courseid']) || !is_number($params['courseid'])) {
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !isset($params['courseid']) || !is_number($params['courseid'])) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -1147,7 +1148,7 @@ class Api {
                     $debug && Logger::log($fxn . "::Invalid \$courseid={$courseid} specified or course context not found");
                     return null;
                 case(!\is_enrolled($coursecontext, $user /* Include inactive enrolments. */)) :
-                    $debug && Logger::log($fxn . "::Course id={$courseid} does not have targetuserid={$targetuserid} enrolled");
+                    $debug && Logger::log($fxn . "::User {$user->id} is not enrolled in courseid={$courseid}");
                     return null;
             }
 
@@ -1227,15 +1228,7 @@ class Api {
         } else {
             $debug && Logger::log($fxn . '::No sessions found');
         }
-        $debug && Logger::log($fxn . '::Done sessions fields');
-
-        // A participant is valid only if they have sessions.
-        if (empty($output->sessions)) {
-            $debug && Logger::log($fxn . '::No sessions found, so return null');
-            return null;
-        }
-
-        $debug && Logger::log($fxn . '::About to return $participant= ' . ia_u::var_dump($output, true));
+        $debug && Logger::log($fxn . '::Done sessions fields. About to return $participant=' . ia_u::var_dump($output, true));
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
