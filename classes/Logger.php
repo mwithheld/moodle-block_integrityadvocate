@@ -27,6 +27,8 @@ namespace block_integrityadvocate;
 // Needed so we can choose to log from methods in this class.
 require_once(dirname(__DIR__) . '/externallib.php');
 
+//require_once(__DIR__ . '/ParticipantsTable.php');
+
 use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
@@ -298,6 +300,8 @@ class Logger {
             '\block_integrityadvocate_external',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Api',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Output',
+                // This one causes OOM errors in session.
+//            INTEGRITYADVOCATE_BLOCK_NAME . '\ParticipantsTable',
         ];
 
         // These ones are not classes but we want to be able to log them anyway.
@@ -308,7 +312,11 @@ class Logger {
             INTEGRITYADVOCATE_BLOCK_NAME . '\overview-module.php',
         ];
 
+        \core_php_time_limit::raise();
         foreach ($classestolog as $classname) {
+            if (!class_exists($classname)) {
+                continue;
+            }
             $reflection = new \ReflectionClass($classname);
             foreach ($reflection->getMethods() as $method) {
                 // Remove methods from parent etc.
