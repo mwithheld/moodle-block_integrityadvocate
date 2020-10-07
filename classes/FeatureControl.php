@@ -46,8 +46,8 @@ class FeatureControl {
     /** @var bool True to use Guzzle to get participant info: one API request per Moodle user. False to get all participants from the API in one large request. */
     const OVERVIEW_COURSE_USE_GUZZLE = false;
 
-    /** @var bool True to use the Datatables-driven UI.  False to use the Moodle ParticipantsTable. */
-    const OVERVIEW_COURSE_V2 = false;
+    /** @var bool True to use the DataTables-driven UI.  False to use the Moodle ParticipantsTable. */
+    const OVERVIEW_COURSE_V2 = true;
 
     /** @var bool True to allow instructors to override the IA session status. */
     const SESSION_STATUS_OVERRIDE = true;

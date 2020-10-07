@@ -152,6 +152,7 @@ class ParticipantsTable extends \core_user\participants_table {
         }
 
         if (FeatureControl::OVERVIEW_COURSE_USE_GUZZLE) {
+            $debug && Logger::log($fxn . '::Using Guzzle');
             // I am choosing to *not* get participants from the IA API/participants endpoint because...
             // We only get max 10 results per query in an order that does not match the $this->rawdata list.
             // And unenrolled users remain in the IA-side participants list, so...
@@ -246,6 +247,8 @@ class ParticipantsTable extends \core_user\participants_table {
                 }
             }
         } else {
+            // We do not need the session data, only participant-level data.
+            // Get all the participant data in one big /participants request (in pages of 10) instead of hundreds of smaller separate GuzzleHTTP /participant ones (each with all session data).
             $debug && Logger::log($fxn . '::Not using Guzzle; use Api::get_participants()');
             $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
             $debug && Logger::log($fxn . '::Got participants=' . ia_u::var_dump($participants));

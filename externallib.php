@@ -52,6 +52,11 @@ class block_integrityadvocate_external extends \external_api {
         );
     }
 
+    /**
+     * Describes the session_* return value.
+     *
+     * @return external_single_structure
+     */
     private static function session_function_returns(): \external_single_structure {
         return new \external_single_structure(
                 [
@@ -61,6 +66,16 @@ class block_integrityadvocate_external extends \external_api {
         );
     }
 
+    /**
+     * Calls self::validate_params() and check for things that should make a session_* request fail.
+     *
+     * @param string $appid The AppId of the attached block.
+     * @param int $courseid The courseid the user is working in.
+     * @param int $moduleid The moduleid the user is working in.
+     * @param int $userid The user's userid.
+     * @param int $moduleid CMID for the module.
+     * @return array Build result array that sent back as the AJAX result.
+     */
     private static function session_function_validate_params(string $appid, int $courseid, int $moduleid, int $userid): array {
         global $USER;
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -154,6 +169,16 @@ class block_integrityadvocate_external extends \external_api {
         return self::session_function_params();
     }
 
+    /**
+     * Close the remote IA session and clear the session flag that tracks that it was opened.
+     *
+     * @param string $appid The AppId of the attached block.
+     * @param int $courseid The courseid the user is working in.
+     * @param int $moduleid The moduleid the user is working in.
+     * @param int $userid The user's userid.
+     * @param int $moduleid CMID for the module.
+     * @return array Build result array that sent back as the AJAX result.
+     */
     public static function session_close(string $appid, int $courseid, int $moduleid, int $userid): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -200,6 +225,16 @@ class block_integrityadvocate_external extends \external_api {
         return self::session_function_params();
     }
 
+    /**
+     * Remember that we have started an IA session by storing a flag in the user session.
+     *
+     * @param string $appid The AppId of the attached block.
+     * @param int $courseid The courseid the user is working in.
+     * @param int $moduleid The moduleid the user is working in.
+     * @param int $userid The user's userid.
+     * @param int $moduleid CMID for the module.
+     * @return array Build result array that sent back as the AJAX result.
+     */
     public static function session_open(string $appid, int $courseid, int $moduleid, int $userid): array {
         global $USER;
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
