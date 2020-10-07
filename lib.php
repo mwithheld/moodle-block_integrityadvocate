@@ -42,6 +42,7 @@ require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/classes/polyfills.php');
 require_once(__DIR__ . '/classes/Utility.php');
 require_once(__DIR__ . '/classes/MoodleUtility.php');
+require_once(__DIR__ . '/classes/HTTPException.php');
 require_once(__DIR__ . '/classes/Output.php');
 require_once(__DIR__ . '/classes/Status.php');
 require_once(__DIR__ . '/classes/Api.php');
