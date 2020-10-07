@@ -216,9 +216,9 @@ class Api {
 
         $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
         if (!$success) {
-            $msg = $fxn . '::Request to the IA server failed: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            $msg = $fxn . '::Request to the IA server failed on: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
-            throw new \Exception($msg);
+            throw new HttpException($msg, $responsecode, $requesturi);
         }
 
         if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
@@ -409,7 +409,7 @@ class Api {
             throw new \Exception('Failed to set value in the cache');
         }
         if ($debug) {
-            Logger::log($fxn . "::Cached the participants list with \$participantscached->modified={$participantscached->modified}");
+            FeatureControl::CACHE && Logger::log($fxn . "::Cached the participants list with \$participantscached->modified={$participantscached->modified}");
             Logger::log($fxn . '::About to return count($participantsparsed)=' . ia_u::count_if_countable($participantsparsed));
         }
         return $participantsparsed;
@@ -1131,9 +1131,12 @@ class Api {
         if (true) {
             isset($input->ParticipantIdentifier) && ($output->participantidentifier = \clean_param($input->ParticipantIdentifier, PARAM_INT));
             isset($input->Course_Id) && ($output->courseid = \clean_param($input->Course_Id, PARAM_INT));
+            if (isset($input->Email) && !empty(($val = \clean_param($input->Email, PARAM_EMAIL)))) {
+                $output->email = $val;
+            }
 
             // Check for minimally-required data.
-            if (!isset($output->participantidentifier) || !isset($output->courseid)) {
+            if (!isset($output->participantidentifier) || !isset($output->courseid) || !isset($output->email)) {
                 $debug && Logger::log($fxn . '::Minimally-required fields not found');
                 return null;
             }
@@ -1164,10 +1167,6 @@ class Api {
         if (true) {
             isset($input->FirstName) && ($output->firstname = \clean_param($input->FirstName, PARAM_TEXT));
             isset($input->LastName) && ($output->lastname = \clean_param($input->LastName, PARAM_TEXT));
-
-            if (isset($input->Email) && !empty(($val = \clean_param($input->Email, PARAM_EMAIL)))) {
-                $output->email = $val;
-            }
 
             isset($input->Override_LMSUser_FirstName) && ($output->overridelmsuserfirstname = \clean_param($input->Override_LMSUser_FirstName, PARAM_TEXT));
             isset($input->Override_LMSUser_LastName) && ($output->overridelmsuserlastname = \clean_param($input->Override_LMSUser_LastName, PARAM_TEXT));
