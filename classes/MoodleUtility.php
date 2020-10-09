@@ -123,7 +123,7 @@ class MoodleUtility {
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
             $debug && Logger::log($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
-            if (intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
+            if (\intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
                 continue;
             }
 
@@ -231,7 +231,7 @@ class MoodleUtility {
         foreach ($modinfo->instances as $module => $instances) {
             $modulename = \get_string('pluginname', $module);
             foreach ($instances as $cm) {
-                if ($cm->completion != COMPLETION_TRACKING_NONE) {
+                if ($cm->completion != \COMPLETION_TRACKING_NONE) {
                     $modules[] = array(
                         'type' => $module,
                         'modulename' => $modulename,
@@ -241,8 +241,8 @@ class MoodleUtility {
                         'expected' => $cm->completionexpected,
                         'section' => $cm->sectionnum,
                         // Used for sorting.
-                        'position' => array_search($cm->id, $sections[$cm->sectionnum]),
-                        'url' => method_exists($cm->url, 'out') ? $cm->url->out() : '',
+                        'position' => \array_search($cm->id, $sections[$cm->sectionnum]),
+                        'url' => \method_exists($cm->url, 'out') ? $cm->url->out() : '',
                         'context' => $cm->context,
                         // Removed b/c it caused error with developer debug display on: 'icon' => $cm->get_icon_url().
                         'available' => $cm->available,
@@ -302,7 +302,7 @@ class MoodleUtility {
             }
 
             // Check for exclusions.
-            if (in_array($m['type'] . '-' . $m['instance'] . '-' . $userid, $exclusions)) {
+            if (\in_array($m['type'] . '-' . $m['instance'] . '-' . $userid, $exclusions)) {
                 continue;
             }
 

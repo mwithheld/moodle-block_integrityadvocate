@@ -453,7 +453,7 @@ class Api {
         }
         // Make sure $params contains only valid parameters.
         foreach (array_keys($params) as $key) {
-            if (!in_array($key, array('courseid', 'externaluserid', 'lastmodified'))) {
+            if (!\in_array($key, array('courseid', 'externaluserid', 'lastmodified'))) {
                 $msg = 'Input params are invalid';
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -568,9 +568,9 @@ class Api {
                 switch (true) {
                     case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
                         continue 2;
-                    case(!isset($pr->Course_Id) || intval($pr->Course_Id) !== intval($courseid)):
+                    case(!isset($pr->Course_Id) || \intval($pr->Course_Id) !== intval($courseid)):
                         continue 2;
-                    case(!isset($pr->Activity_Id) || intval($pr->Activity_Id) !== intval($moduleid)):
+                    case(!isset($pr->Activity_Id) || \intval($pr->Activity_Id) !== intval($moduleid)):
                         continue 2;
                     case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
                         continue 2;
@@ -652,7 +652,7 @@ class Api {
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
-        foreach (array_keys($params) as $key) {
+        foreach (\array_keys($params) as $key) {
             if (!in_array($key, array('courseid', 'activityid', 'participantidentifier', 'limit', 'backwardsearch'))) {
                 $msg = "Input param {$key} is invalid";
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
@@ -777,7 +777,7 @@ class Api {
         foreach (self::get_module_user_sessions($modulecontext, $userid, 1) as $s) {
             $debug && Logger::log($fxn . "::Looking at \$s->id={$s->id}");
             // Only match the module's activity id.
-            if (intval($modulecontext->instanceid) !== intval($s->activityid)) {
+            if (\intval($modulecontext->instanceid) !== \intval($s->activityid)) {
                 continue;
             }
             if (($s->end > $latestsession->end) || ($s->start > $latestsession->start)) {
@@ -1210,9 +1210,9 @@ class Api {
                 if (!ia_u::is_empty($session = self::parse_session($s, $output))) {
                     $debug && Logger::log($fxn . '::Got a valid session back, so add it to the participant');
                     if (isset($session->end) && ia_u::is_unixtime_past($session->end)) {
-                        $end = filter_var($session->end, FILTER_SANITIZE_NUMBER_INT);
+                        $end = \filter_var($session->end, \FILTER_SANITIZE_NUMBER_INT);
                     } else {
-                        $end = time();
+                        $end = \time();
                     }
                     $output->sessions[] = $session;
                 } else {
@@ -1430,14 +1430,14 @@ class Api {
                 switch ($argname) {
                     case 'backwardsearch':
                         if (!in_array($argval, ['true', 'false'])) {
-                            throw new invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
+                            throw new \invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
                         }
                         break;
                     case 'statuses':
                         $remotestatuses = ia_status::get_statuses();
                         unset($remotestatuses[ia_status::NOTSTARTED_INT]);
-                        if (!in_array($argval, $remotestatuses)) {
-                            throw new invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
+                        if (!\in_array($argval, $remotestatuses)) {
+                            throw new \invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
                         }
                         break;
                 }
