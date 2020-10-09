@@ -148,7 +148,7 @@ if ($continue) {
     }
 
     // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
-    echo '<table id="' . $prefix . '_table" class="stripe order-column hover display">';
+    echo '<table id="', $prefix, '_table" class="stripe order-column hover display">';
     $tr = '<tr>';
     $tr_end = '</tr>';
     echo '<thead>';
@@ -169,7 +169,7 @@ if ($continue) {
         $tr_header[] = \html_writer::tag('th', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridereason"]);
     }
     $tr_header[] = $tr_end;
-    echo implode('', $tr_header) . '</thead><tbody>';
+    echo implode('', $tr_header), '</thead><tbody>';
     echo $tr;
 
     foreach ($sessions as $session) {

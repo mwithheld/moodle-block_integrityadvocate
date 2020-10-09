@@ -189,7 +189,7 @@ switch (true) {
     case($setuperrors = ia_mu::get_completion_setup_errors($course)):
         $debug && Logger::log(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
         foreach ($setuperrors as $err) {
-            echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
+            echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
         }
         break;
 

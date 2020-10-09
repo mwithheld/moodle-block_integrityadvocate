@@ -59,7 +59,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Do any additional initialization you may need at the time a new block instance is created.
      *
-     * @return boolean
+     * @return bool
      */
     public function instance_create() {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);

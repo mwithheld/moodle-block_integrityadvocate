@@ -71,7 +71,7 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
         echo get_string('nousersfound');
     } else {
         // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
-        echo '<table id="' . $prefix . '_table" class="stripe order-column hover display">';
+        echo '<table id="', $prefix, '_table" class="stripe order-column hover display">';
         $tr = '<tr>';
         $tr_end = '</tr>';
         echo '<thead>';
@@ -84,7 +84,7 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
         $tr_header[] = \html_writer::tag('th', \get_string('column_latestparticipantleveldata', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iadata"]);
         $tr_header[] = \html_writer::tag('th', \get_string('column_iaphoto', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iaphoto"]);
         $tr_header[] = $tr_end;
-        echo implode('', $tr_header) . '</thead><tbody>';
+        echo implode('', $tr_header), '</thead><tbody>';
 
         echo $tr;
         $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
@@ -145,10 +145,8 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
         echo \html_writer::start_tag('div', array('class' => 'buttons'));
 
         echo \html_writer::start_tag('div', array('class' => 'btn-group'));
-        echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checkallonpage', 'class' => 'btn btn-secondary',
-            'value' => \get_string('selectall')));
-        echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checknone', 'class' => 'btn btn-secondary',
-            'value' => \get_string('deselectall')));
+        echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checkallonpage', 'class' => 'btn btn-secondary', 'value' => \get_string('selectall')));
+        echo \html_writer::tag('input', '', array('type' => 'button', 'id' => 'checknone', 'class' => 'btn btn-secondary', 'value' => \get_string('deselectall')));
         echo \html_writer::end_tag('div');
         $displaylist = [];
         if ($messagingallowed) {
@@ -158,9 +156,9 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
         echo \html_writer::tag('label', \get_string('withselectedusers'), array('for' => 'formactionid'));
         echo \html_writer::select($displaylist, 'formaction', '', array('' => 'choosedots'), array('id' => 'formactionid'));
 
-        echo '<input type="hidden" name="id" value="' . $courseid . '" />';
+        echo '<input type="hidden" name="id" value="', $courseid, '" />';
         echo '<noscript style="display:inline">';
-        echo '<div><input type="submit" value="' . get_string('ok') . '" /></div>';
+        echo '<div><input type="submit" value="', get_string('ok'), '" /></div>';
         echo '</noscript>';
         echo \html_writer::end_tag('div');
 

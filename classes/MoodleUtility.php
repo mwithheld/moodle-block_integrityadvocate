@@ -89,7 +89,7 @@ class MoodleUtility {
      * @param string $blockname Name of the block to get instances for.
      * @return array where key=block_instances.id; val=block_instance object.
      */
-    private static function get_blocks_in_context(int $contextid, string $blockname) {
+    private static function get_blocks_in_context(int $contextid, string $blockname): array {
         global $DB;
 
         $blockinstances = [];
@@ -556,7 +556,7 @@ class MoodleUtility {
      * Convert userid to moodle user object into if needed.
      *
      * @param int|\stdClass $user The user object or id to convert
-     * @return null|\stdClass Null if no user found; else moodle user object.
+     * @return false|\stdClass False if no user found; else moodle user object.
      */
     public static function get_user_as_obj($user) {
         $fxn = __CLASS__ . '::' . __FUNCTION__;

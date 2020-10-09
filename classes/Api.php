@@ -302,7 +302,7 @@ class Api {
      * @param int $userid The user id
      * @return null|Participant Null if nothing found; else the parsed Participant object.
      */
-    public static function get_participant(string $apikey, string $appid, int $courseid, int $userid) {
+    public static function get_participant(string $apikey, string $appid, int $courseid, int $userid): ?Participant {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
@@ -754,7 +754,7 @@ class Api {
      * @param int $userid The userid to get participant info for.
      * @return null|Session Null if nothing found; else the most recent session for that user in that activity.
      */
-    public static function get_module_session_latest(\context $modulecontext, int $userid) {
+    public static function get_module_session_latest(\context $modulecontext, int $userid): ?Session {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
@@ -917,7 +917,7 @@ class Api {
      * @param \stdClass $input API flag data
      * @return null|Flag Null if failed to parse; otherwise a Flag object.
      */
-    private static function parse_flag(\stdClass $input) {
+    private static function parse_flag(\stdClass $input): ?Flag {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
@@ -984,7 +984,7 @@ class Api {
      * @param Participant $participant Parent object
      * @return null|Session Null if failed to parse, otherwise a parsed Session object.
      */
-    private static function parse_session(\stdClass $input, Participant $participant) {
+    private static function parse_session(\stdClass $input, Participant $participant): Session {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
@@ -1098,7 +1098,7 @@ class Api {
      * @param \stdClass $input API participant data
      * @return null|Participant Null if failed to parse, otherwise the parsed Participant object.
      */
-    public static function parse_participant(\stdClass $input) {
+    public static function parse_participant(\stdClass $input): ?Participant {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
