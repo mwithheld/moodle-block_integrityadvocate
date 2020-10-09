@@ -76,14 +76,15 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
         $tr_end = '</tr>';
         echo '<thead>';
 
-        $tr_header = $tr;
-        $tr_header .= \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_user"]);
-        $tr_header .= \html_writer::tag('th', \get_string('email'), ['class' => "{$prefix}_email"]);
-        $tr_header .= \html_writer::tag('th', \get_string('lastcourseaccess'), ['class' => "{$prefix}_lastcourseaccess"]);
-        $tr_header .= \html_writer::tag('th', \get_string('column_latestparticipantleveldata', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iadata"]);
-        $tr_header .= \html_writer::tag('th', \get_string('column_iaphoto', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iaphoto"]);
-        $tr_header .= $tr_end;
-        echo "{$tr_header}</thead><tbody>";
+        $tr_header = [$tr];
+        $tr_header[] = \html_writer::tag('th', 'id', ['class' => "{$prefix}_id"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_user"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('email'), ['class' => "{$prefix}_email"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('lastcourseaccess'), ['class' => "{$prefix}_lastcourseaccess"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('column_latestparticipantleveldata', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iadata"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('column_iaphoto', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iaphoto"]);
+        $tr_header[] = $tr_end;
+        echo implode('', $tr_header) . '</thead><tbody>';
 
         echo $tr;
         $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
@@ -91,7 +92,8 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
             $debuginfo = "userid={$user->id}";
             //echo '<PRE>' . ia_u::var_dump($user) . '</PRE><hr>' . ia_output::BRNL;
             // Column=User.
-            echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
+            echo \html_writer::tag('td', $user->id, ['class' => "{$prefix}_id"]);
+            echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-id' => $user->id, 'data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
 
             echo \html_writer::tag('td', $user->email, ['class' => "{$prefix}_email"]);
             echo \html_writer::tag('td', ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')), ['class' => "{$prefix}_lastcourseaccess"]);
