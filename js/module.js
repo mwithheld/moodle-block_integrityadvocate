@@ -20,8 +20,11 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+if (typeof M.block_integrityadvocate === 'undefinedd') {
+    M.block_integrityadvocate_data = {};
+}
 M.block_integrityadvocate = {
-
+    ...M.block_integrityadvocate_data,
     /**
      * Decode HTMLEntities.
      *
