@@ -229,7 +229,7 @@ class Logger {
                 mtrace(html_to_text($cleanedmsg, 0, false));
                 break;
             case Logger::STDOUT:
-                print(htmlentities($cleanedmsg, 0, false)) . "\n";
+                print(htmlentities($cleanedmsg, 0, 'UTF-8')) . "\n";
                 break;
             case Logger::LOGGLY:
                 if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1])) {

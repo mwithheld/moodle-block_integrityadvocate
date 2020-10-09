@@ -232,7 +232,7 @@ if ($continue) {
             $flagoutput = [];
             foreach ($session->flags as $f) {
                 // Omit b/c this is not very useful: $flagoutput .= htmlentities($f->flagtypename) . Output::BRNL;.
-                $flagoutput[] = htmlentities($f->comment) . Output::BRNL;
+                $flagoutput[] = htmlentities($f->comment, ENT_QUOTES, 'UTF-8') . Output::BRNL;
                 $capturedate = (isset($f->capturedate) ?: '');
                 if (isset($f->capturedata) && ($f->capturedata != $session->participantphoto)) {
                     $flagoutput[] = \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
