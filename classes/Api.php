@@ -550,6 +550,7 @@ class Api {
 
         $debug && Logger::log($fxn . '::About to process the participantsessions returned');
         $parsedparticipantsessions = [];
+        $newparticipant = new ia_participant();
         foreach ($participantsessionsraw as $pr) {
             $debug && Logger::log($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
             if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !is_numeric($participantidentifier = $pr->ParticipantIdentifier)) {
@@ -581,7 +582,7 @@ class Api {
                         continue 2;
                 }
 
-                $participant = new ia_participant();
+                $participant = clone $newparticipant;
                 $participant->courseid = $courseid;
                 $participant->participantidentifier = (int) $participantidentifier;
                 $participant->firstname = $user->firstname;

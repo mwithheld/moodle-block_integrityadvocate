@@ -169,7 +169,8 @@ if ($continue) {
         $tr_header[] = \html_writer::tag('th', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridereason"]);
     }
     $tr_header[] = $tr_end;
-    echo implode('', $tr_header), '</thead><tbody>';
+    $tr_header = implode('', $tr_header);
+    echo "{$tr_header}</thead><tbody>";
     echo $tr;
 
     foreach ($sessions as $session) {

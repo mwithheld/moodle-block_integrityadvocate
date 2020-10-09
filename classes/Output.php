@@ -271,7 +271,7 @@ class Output {
             default:
                 $msg = 'Unrecognized parent context';
                 $debug && Logger::log($fxn . '::' . $msg);
-                throw new Exception($msg);
+                throw new \Exception($msg);
         }
     }
 
@@ -566,7 +566,7 @@ class Output {
                 default:
                     $msg = 'Unrecognized parent context';
                     $debug && Logger::log($fxn . '::' . $msg);
-                    throw new Exception($msg);
+                    throw new \Exception($msg);
             }
         } catch (\block_integrityadvocate\HttpException $e) {
             Logger::log($fxn . "::{$debugvars}::Ignoring an HttpException so the page display is not broken");

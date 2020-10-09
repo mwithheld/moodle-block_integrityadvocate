@@ -391,7 +391,7 @@ class block_integrityadvocate extends block_base {
                                 $formstart .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
                                 $formstart .= '<input type="hidden" name="edit" value="on">';
 
-                                foreach ($iamodules as $key => $m) {
+                                foreach ($iamodules as $m) {
                                     // Output a link to the module.
                                     $this->content->text .= \html_writer::link($m['url'], $m['name']);
                                     if (has_capability('moodle/block:edit', $m['block_integrityadvocate_instance']['instance']->context)) {

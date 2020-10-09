@@ -84,7 +84,8 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
         $tr_header[] = \html_writer::tag('th', \get_string('column_latestparticipantleveldata', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iadata"]);
         $tr_header[] = \html_writer::tag('th', \get_string('column_iaphoto', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iaphoto"]);
         $tr_header[] = $tr_end;
-        echo implode('', $tr_header), '</thead><tbody>';
+        $tr_header = implode('', $tr_header);
+        echo "{$tr_header}</thead><tbody>";
 
         echo $tr;
         $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];

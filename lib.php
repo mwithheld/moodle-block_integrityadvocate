@@ -200,8 +200,8 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         }
 
         // Add the blockinstance data to the $amodules array to be returned.
-        $modules[$key]['block_integrityadvocate_instance']['id'] = $blockinstanceid;
-        $modules[$key]['block_integrityadvocate_instance']['instance'] = $blockinstance;
+        $m['block_integrityadvocate_instance']['id'] = $blockinstanceid;
+        $m['block_integrityadvocate_instance']['instance'] = $blockinstance;
     }
 
     return $modules;
