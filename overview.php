@@ -51,7 +51,7 @@ $debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\
 if ($debug) {
     // Suppress debug notice that we have not done PAGE->set_url().
     $debugbackup = $CFG->debug;
-    unset($CFG->debug);
+    $CFG->debug = null;
     Logger::log(basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
     $CFG->debug = $debugbackup;
 }

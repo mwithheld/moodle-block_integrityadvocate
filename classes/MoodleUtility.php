@@ -720,7 +720,7 @@ class MoodleUtility {
         $debug && Logger::log($fxn . "::\Found nonce={$nonce}");
 
         // Delete it since it should only be used once.
-        unset($SESSION->$sessionkey);
+        $SESSION->$sessionkey = null;
 
         if ($returntrueifexists) {
             return true;
