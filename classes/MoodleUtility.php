@@ -118,7 +118,7 @@ class MoodleUtility {
 
         // Get course-level instances.
         $blockinstances = self::get_blocks_in_context($coursecontext->id, $blockname);
-        $debug && Logger::log($fxn . '::Found course level block count=' . count($blockinstances));
+        $debug && Logger::log($fxn . '::Found course level block count=' . ia_u::count_if_countable($blockinstances));
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
@@ -128,7 +128,7 @@ class MoodleUtility {
             }
 
             $blocksinmodule = self::get_blocks_in_context($c->id, $blockname);
-            $debug && Logger::log($fxn . '::Found module level block count=' . count($blocksinmodule));
+            $debug && Logger::log($fxn . '::Found module level block count=' . ia_u::count_if_countable($blocksinmodule));
             $blockinstances += $blocksinmodule;
         }
 

@@ -604,7 +604,7 @@ class Api {
                 continue;
             }
 
-            $debug && Logger::log($fxn . '::About to add $participantsession with $participantsession->id=' . $participantsession->id . ' to the list of ' . count($parsedparticipantsessions) . ' participantsessions');
+            $debug && Logger::log($fxn . '::About to add $participantsession with $participantsession->id=' . $participantsession->id . ' to the list of ' . ia_u::count_if_countable($parsedparticipantsessions) . ' participantsessions');
             $parsedparticipantsessions[$participantsession->id] = $participantsession;
         }
 
@@ -674,7 +674,7 @@ class Api {
         }
 
         $participantsessions = $result->ParticipantSessions;
-        $debug && Logger::log($fxn . '::count($participantsessions)=' . count($participantsessions) . '; isset($params[\'limit\'])=' . isset($params['limit']));
+        $debug && Logger::log($fxn . '::count($participantsessions)=' . ia_u::count_if_countable($participantsessions) . '; isset($params[\'limit\'])=' . isset($params['limit']));
 
         if (isset($params['limit']) && ia_u::count_if_countable($participantsessions) >= $params['limit']) {
             $debug && Logger::log($fxn . '::We have a limit set and we have reached it');
