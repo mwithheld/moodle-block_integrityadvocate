@@ -158,7 +158,8 @@ if (FeatureControl::OVERVIEW_COURSE_V2 || in_array($requestedpage, ['overview-us
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
     $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
     $PAGE->requires->jquery_plugin('ui-css');
-    $PAGE->requires->data_for_js('OVERVIEW_COURSE_V2', true, true);
+    // Usage data_for_js($variable, $data, $inhead=false).
+    $PAGE->requires->data_for_js('M.block_integrityadvocate', (object) ['OVERVIEW_COURSE_V2' => true, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
 }
 $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
