@@ -207,7 +207,7 @@ if ($participantsessions) {
             // Column=session_overridename.
             echo \html_writer::tag('td', ($hasoverride ? $overrideusername : ''), ['class' => "{$prefix}_session_overridename"]);
             // Column=session_overridereason.
-            echo \html_writer::tag('td', ($hasoverride ? htmlspecialchars($session->overridereason) : ''), ['class' => "{$prefix}_session_overridereason"]);
+            echo \html_writer::tag('td', ($hasoverride ? htmlspecialchars($session->overridereason, ENT_QUOTES, 'UTF-8') : ''), ['class' => "{$prefix}_session_overridereason"]);
 
             echo $tr_end;
         }
