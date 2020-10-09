@@ -114,24 +114,24 @@ if ($participantsessions) {
     $tr = '<tr>';
     $tr_end = '</tr>';
     echo '<thead>';
-    $tr_header = $tr;
-    $tr_header .= \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_session_activitymodule"]);
-    $tr_header .= \html_writer::tag('th', \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_start"]);
-    $tr_header .= \html_writer::tag('th', \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_end"]);
+    $tr_header = [$tr];
+    $tr_header[] = \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_session_activitymodule"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_start"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_end"]);
 
-    $tr_header .= \html_writer::tag('th', \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status"]);
-    $tr_header .= \html_writer::tag('th', \get_string('photo', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_photo"]);
-    $tr_header .= \html_writer::tag('th', \get_string('flags', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_flags"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('photo', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_photo"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('flags', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_flags"]);
 
     if ($showoverride) {
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridedate"]);
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridestatus"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridedate"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridestatus"]);
 
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridename', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridename"]);
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridereason"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridename', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridename"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridereason"]);
     }
-    $tr_header .= $tr_end;
-    echo "{$tr_header}</thead><tbody>";
+    $tr_header[] = $tr_end;
+    echo implode('', $tr_header) . '</thead><tbody>';
     echo $tr;
 
     $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
@@ -177,17 +177,17 @@ if ($participantsessions) {
         } else {
             $flags = array_values($session->flags);
             usort($flags, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_created_desc'));
-            $flagoutput = '';
+            $flagoutput = [];
             foreach ($session->flags as $f) {
                 // Omit b/c this is not very useful: $flagoutput .= htmlentities($f->flagtypename) . Output::BRNL;.
-                $flagoutput .= htmlentities($f->comment) . Output::BRNL;
+                $flagoutput[] = htmlentities($f->comment) . Output::BRNL;
                 $capturedate = (isset($f->capturedate) ?: '');
                 if (isset($f->capturedata) && ($f->capturedata != $session->participantphoto)) {
-                    $flagoutput .= \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
+                    $flagoutput[] = \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
                 }
             }
             // Column=session_flags.
-            echo \html_writer::tag('td', $flagoutput, ['class' => "{$prefix}_session_flags"]);
+            echo \html_writer::tag('td', implode('', $flagoutput), ['class' => "{$prefix}_session_flags"]);
         }
 
         // Instructor: If overridden, show the override info.

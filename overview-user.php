@@ -116,9 +116,10 @@ if ($continue) {
     if ($showoverride) {
         $prefix_overrideform = INTEGRITYADVOCATE_BLOCK_NAME . '_override';
         // Create a form for the override UI.
-        $overrideform = \html_writer::start_tag('form', array('class' => $prefix_overrideform . '_form', 'style' => 'display:none'));
+        $overrideform = [];
+        $overrideform[] = \html_writer::start_tag('form', array('class' => $prefix_overrideform . '_form', 'style' => 'display:none'));
         // Add the override status dropdown.
-        $overrideform .= \html_writer::select(
+        $overrideform[] = \html_writer::select(
                         ia_status::get_overrides(),
                         ' ' . $prefix_overrideform . '_select ' . $prefix_overrideform . '_status_select',
                         null,
@@ -126,24 +127,24 @@ if ($continue) {
                         array('class' => $prefix_overrideform . '_status_select', 'required' => true)
         );
         // Add the override reason textbox.
-        $overrideform .= \html_writer::tag('input', '',
+        $overrideform[] = \html_writer::tag('input', '',
                         array('class' => $prefix_overrideform . '_reason',
                             'name' => $prefix_overrideform . '_reason',
                             'maxlength' => 32,
                             'required' => true
         ));
         // Add hidden fields needed for the AJAX call.
-        $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));
-        $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_overrideuserid', 'name' => $prefix_overrideform . '_overrideuserid', 'value' => $USER->id));
-        $overrideform .= \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_sesskey', 'name' => 'sesskey', 'value' => sesskey()));
+        $overrideform[] = \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_targetuserid', 'name' => $prefix_overrideform . '_targetuserid', 'value' => $participant->participantidentifier));
+        $overrideform[] = \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_overrideuserid', 'name' => $prefix_overrideform . '_overrideuserid', 'value' => $USER->id));
+        $overrideform[] = \html_writer::tag('input', '', array('type' => 'hidden', 'class' => $prefix_overrideform . '_sesskey', 'name' => 'sesskey', 'value' => sesskey()));
         // Add icons.
-        $overrideform .= Output::add_icon('e/save', $prefix_overrideform, 'save');
-        $overrideform .= Output::add_icon('i/loading', $prefix_overrideform, 'loading');
-        $overrideform .= Output::add_icon('e/cancel', $prefix_overrideform, 'cancel');
+        $overrideform[] = Output::add_icon('e/save', $prefix_overrideform, 'save');
+        $overrideform[] = Output::add_icon('i/loading', $prefix_overrideform, 'loading');
+        $overrideform[] = Output::add_icon('e/cancel', $prefix_overrideform, 'cancel');
         // Close the form.
-        $overrideform .= \html_writer::end_tag('form');
+        $overrideform[] = \html_writer::end_tag('form');
         // Output the form we just built.
-        echo $overrideform;
+        echo implode('', $overrideform);
     }
 
     // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
@@ -151,24 +152,24 @@ if ($continue) {
     $tr = '<tr>';
     $tr_end = '</tr>';
     echo '<thead>';
-    $tr_header = $tr;
-    $tr_header .= \html_writer::tag('th', \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_start"]);
-    $tr_header .= \html_writer::tag('th', \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_end"]);
-    $tr_header .= \html_writer::tag('th', \get_string('activitymodule'), ['class' => "{$prefix}_session_activitymodule"]);
+    $tr_header = [$tr];
+    $tr_header[] = \html_writer::tag('th', \get_string('session_start', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_start"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('session_end', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_end"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('activitymodule'), ['class' => "{$prefix}_session_activitymodule"]);
 
-    $tr_header .= \html_writer::tag('th', \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status"]);
-    $tr_header .= \html_writer::tag('th', \get_string('photo', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_photo"]);
-    $tr_header .= \html_writer::tag('th', \get_string('flags', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_flags"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('session_status', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_status"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('photo', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_photo"]);
+    $tr_header[] = \html_writer::tag('th', \get_string('flags', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_flags"]);
 
     if ($showoverride) {
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridedate"]);
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridestatus"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridedate', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridedate"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridestatus', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridestatus"]);
 
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridename', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridename"]);
-        $tr_header .= \html_writer::tag('th', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridereason"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridename', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridename"]);
+        $tr_header[] = \html_writer::tag('th', \get_string('session_overridereason', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_session_overridereason"]);
     }
-    $tr_header .= $tr_end;
-    echo "{$tr_header}</thead><tbody>";
+    $tr_header[] = $tr_end;
+    echo implode('', $tr_header) . '</thead><tbody>';
     echo $tr;
 
     foreach ($sessions as $session) {
@@ -228,17 +229,17 @@ if ($continue) {
         } else {
             $flags = array_values($session->flags);
             usort($flags, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_created_desc'));
-            $flagoutput = '';
+            $flagoutput = [];
             foreach ($session->flags as $f) {
                 // Omit b/c this is not very useful: $flagoutput .= htmlentities($f->flagtypename) . Output::BRNL;.
-                $flagoutput .= htmlentities($f->comment) . Output::BRNL;
+                $flagoutput[] = htmlentities($f->comment) . Output::BRNL;
                 $capturedate = (isset($f->capturedate) ?: '');
                 if (isset($f->capturedata) && ($f->capturedata != $session->participantphoto)) {
-                    $flagoutput .= \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
+                    $flagoutput[] = \html_writer::img($f->capturedata, $capturedate, ['width' => 85, 'class' => "{$prefix}_session_jquimodal"]);
                 }
             }
             // Column=session_flags.
-            echo \html_writer::tag('td', $flagoutput, ['class' => "{$prefix}_session_flags"]);
+            echo \html_writer::tag('td', implode('', $flagoutput), ['class' => "{$prefix}_session_flags"]);
         }
 
         // Instructor: If overridden, show the override info.

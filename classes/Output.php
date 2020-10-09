@@ -27,7 +27,6 @@ namespace block_integrityadvocate;
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
-use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -433,45 +432,46 @@ class Output {
         $debug && Logger::log($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
-        $out = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
-        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
+        $outarr = [];
+        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
+        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
 
         if ($showstatus) {
-            $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
+            $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
                     \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                     self::get_status_html($status, $prefix) .
                     \html_writer::end_tag('div');
         }
 
-        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_start')) .
+        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_start')) .
                 \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                 date('Y-m-d H:i', $start) .
                 \html_writer::end_tag('div');
 
-        $out .= \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_end')) .
+        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_end')) .
                 \html_writer::span(\get_string('last_modified', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                 date('Y-m-d H:i', $end) .
                 \html_writer::end_tag('div');
 
         if ($overviewbuttonhtml) {
-            $out .= $overviewbuttonhtml;
+            $outarr[] = $overviewbuttonhtml;
         }
 
         // Close .block_integrityadvocate_overview_participant_summary_text.
-        $out .= \html_writer::end_tag('div');
+        $outarr[] = \html_writer::end_tag('div');
 
         $debug && Logger::log($fxn . '::About to check if should include photo=' . ($photohtml ? 1 : 0));
         if ($photohtml) {
-            $out .= $photohtml;
+            $outarr[] = $photohtml;
         }
 
         // Close .block_integrityadvocate_overview_participant_summary_div.
-        $out .= \html_writer::end_tag('div');
+        $outarr[] = \html_writer::end_tag('div');
 
         // Start next section on a new line.
-        $out .= '<div style="clear:both"></div>';
+        $outarr[] = '<div style="clear:both"></div>';
 
-        return $out;
+        return implode('', $outarr);
     }
 
     /**
@@ -488,9 +488,10 @@ class Output {
         $debug && Logger::log($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant';
-        $out = \html_writer::start_tag('div', array('class' => $prefix . '_summary_img_div'));
+        $outarr = [];
+        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_summary_img_div'));
         if ($photo) {
-            $out .= \html_writer::start_tag('span',
+            $outarr[] = \html_writer::start_tag('span',
                             array('class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' .
                                 ($status === ia_status::VALID_INT ? '' : 'in') . 'valid')
                     ) .
@@ -498,9 +499,9 @@ class Output {
                     \html_writer::end_tag('span');
         }
         // Close .block_integrityadvocate_overview_participant_summary_img_div.
-        $out .= \html_writer::end_tag('div');
+        $outarr[] = \html_writer::end_tag('div');
 
-        return $out;
+        return implode('', $outarr);
     }
 
     /**
