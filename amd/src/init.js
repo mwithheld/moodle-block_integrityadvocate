@@ -1,19 +1,23 @@
-define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
-        function($, jqui, datatables) {
+define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core/ajax'],
+        function($, jqui, datatables, ajax) {
             return {
                 init: function() {
                     var debug = true;
-                    window.block_integrityadvocate = {};
+                    if (typeof M.block_integrityadvocate === 'undefined') {
+                        M.block_integrityadvocate = {};
+                    }
+                    M.block_integrityadvocate = {...M.block_integrityadvocate};
                     switch (true) {
-                        case((typeof OVERVIEW_COURSE_V2 !== 'undefined') && $('body').hasClass('block_integrityadvocate-overview-course')):
+                        case((typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 !== 'undefined') && $('body').hasClass('block_integrityadvocate-overview-course')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_course_v2');
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
                             // Paging options ref https://datatables.net/reference/option/paging.
-                            $('#block_integrityadvocate_overviewcourse_table').DataTable({
+                            M.block_integrityadvocate.eltDt = eltDt = $('#block_integrityadvocate_overviewcourse_table').DataTable({
                                 'autoWidth': false,
-                                //'columnDefs': [{'orderable': false, 'targets': [4, 5]}],
+                                // Hide the user id column
+                                "columnDefs": [{'visible': false, 'targets': 0}],
                                 /*'info': true, // Show information about the table including information about filtered data; default=true. */
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'order': [], // Disable initial sort.
@@ -21,6 +25,30 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 'paginate': false,
                                 'paging': false,
                                 'searching': true
+                            });
+                            $(eltDt).ready(function() {
+                                window.console.log('ready')
+                            });
+                            eltDt.on('init.dt', function() {
+                                window.console.log('M.block_integrityadvocate.init.js::overview-course.dataTable.on(draw.dt): eltDt redrawn');
+                                ajax.call([{
+                                        methodname: 'block_integrityadvocate_get_participants',
+                                        args: {
+                                            appid: 'self.appid',
+                                            courseid: self.courseid,
+                                            moduleid: self.activityid,
+                                            userid: [8, 7, 4]
+                                        },
+                                        done: function() {
+                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.done');
+                                        },
+                                        fail: function(xhr_unused, textStatus, errorThrown) {
+                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.fail');
+                                            console.log('textStatus', textStatus);
+                                            console.log('errorThrown', errorThrown);
+                                            alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.get_participants::ajax.fail');
+                                        }
+                                    }]);
                             });
                             break;
 
@@ -46,8 +74,8 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                         case($('body').hasClass('block_integrityadvocate-overview-user') || $('body').hasClass('block_integrityadvocate-overview-module')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participant_table - DataTables is the wholeUI');
                             // Re-usable reference to the holder of the DataTable.
-                            window.block_integrityadvocate.eltDt = $('#block_integrityadvocate_participant_table');
-                            window.block_integrityadvocate.isOverviewUserPage = $('body').hasClass('block_integrityadvocate-overview-user');
+                            M.block_integrityadvocate.eltDt = $('#block_integrityadvocate_participant_table');
+                            M.block_integrityadvocate.isOverviewUserPage = $('body').hasClass('block_integrityadvocate-overview-user');
 
                             // Ref https://stackoverflow.com/a/30503848.
                             /**
@@ -313,7 +341,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
                             // Paging options ref https://datatables.net/reference/option/paging.
-                            window.block_integrityadvocate.eltDt.dataTable({
+                            M.block_integrityadvocate.eltDt.dataTable({
                                 'autoWidth': true,
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'ordering': true,
@@ -327,11 +355,11 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                 'lengthChange': false, /*Do not allow end users to change the number of records to be shown per page; default=true. */
 //                                /* For overview-module, do not allow end users to change the number of records to be shown per page; default=true. */
 //                                /* For overview-page, the data is delivered via HTML, so allow changing it. */
-//                                'lengthChange': (window.block_integrityadvocate.isOverviewUserPage ? true : false),
-//                                'pagelength': (window.block_integrityadvocate.isOverviewUserPage ? 10 : 1), /* Default is 10 */
-//                                'deferLoading': (window.block_integrityadvocate.isOverviewUserPage ? null : 11),
-//                                'serverSide': (window.block_integrityadvocate.isOverviewUserPage ? false : true),
-//                                'ajax': (window.block_integrityadvocate.isOverviewUserPage ? null : 'scripts/server_processing.php'),
+//                                'lengthChange': (M.block_integrityadvocate.isOverviewUserPage ? true : false),
+//                                'pagelength': (M.block_integrityadvocate.isOverviewUserPage ? 10 : 1), /* Default is 10 */
+//                                'deferLoading': (M.block_integrityadvocate.isOverviewUserPage ? null : 11),
+//                                'serverSide': (M.block_integrityadvocate.isOverviewUserPage ? false : true),
+//                                'ajax': (M.block_integrityadvocate.isOverviewUserPage ? null : 'scripts/server_processing.php'),
 
                                 'columnDefs': [{
                                         'targets': [4],
@@ -340,7 +368,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                                     }],
                                 'initComplete': function() {
                                     debug && window.console.log('M.block_integrityadvocate.init.js::DataTables.initComplete:fired');
-                                    var eltDt = window.block_integrityadvocate.eltDt;
+                                    M.block_integrityadvocate.eltDt = eltDt = M.block_integrityadvocate.eltDt;
                                     // Re-usable reference to the DataTable.
                                     var dt = eltDt.dataTable();
                                     // Hide the override columns.
