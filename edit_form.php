@@ -42,7 +42,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *
      * @param \stdClass|MoodleQuickForm $mform the form being built.
      */
-    protected function specific_definition($mform) {
+    protected function specific_definition(MoodleQuickForm $mform) {
         // Start block specific section in config form.
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
@@ -81,7 +81,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * @return object[] of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
-    public function validation($data, $unused): array {
+    public function validation(array $data, $unused): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));

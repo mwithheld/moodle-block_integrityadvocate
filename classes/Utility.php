@@ -105,7 +105,7 @@ class Utility {
      * @param object $b
      * @return int 0 if the same; -1 if $a->created exceeds $b->created; else 1.
      */
-    public static function sort_by_created_desc($a, $b): int {
+    public static function sort_by_created_desc(object $a, object $b): int {
         if ($a->created == $b->created) {
             return 0;
         }
@@ -120,7 +120,7 @@ class Utility {
      * @param object $b
      * @return int 0 if the same; -1 if $a->start exceeds $b->start; else 1.
      */
-    public static function sort_by_start_desc($a, $b): int {
+    public static function sort_by_start_desc(object $a, object $b): int {
         if ($a->start == $b->start) {
             return 0;
         }

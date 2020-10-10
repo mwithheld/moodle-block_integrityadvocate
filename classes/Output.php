@@ -338,7 +338,7 @@ class Output {
                         $prefix . '_resubmit_link');
     }
 
-    public static function get_status_html($status, string $prefix): string {
+    public static function get_status_html(int $status, string $prefix): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$status={$status}; \$prefix={$prefix}";
