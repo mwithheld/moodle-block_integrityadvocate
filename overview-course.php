@@ -103,9 +103,7 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
             echo $tr_end;
         }
 
-        echo '</tbody>';
-        echo "<tfoot>{$tr_header}</tfoot>";
-        echo '</table>';
+        echo "</tbody><tfoot>{$tr_header}</tfoot></table>";
         // Used as a JQueryUI popup to show the user picture.
         echo '<div id="dialog"></div>';
     }

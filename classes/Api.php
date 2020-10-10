@@ -1205,6 +1205,7 @@ class Api {
 
         // Handle sessions data.
         $output->sessions = [];
+        $time = \time();
         if (isset($input->Sessions) && is_array($input->Sessions)) {
             $debug && Logger::log($fxn . '::Found some sessions to look at');
             foreach ($input->Sessions as $s) {
@@ -1213,7 +1214,7 @@ class Api {
                     if (isset($session->end) && ia_u::is_unixtime_past($session->end)) {
                         $end = \filter_var($session->end, \FILTER_SANITIZE_NUMBER_INT);
                     } else {
-                        $end = \time();
+                        $end = $time;
                     }
                     $output->sessions[] = $session;
                 } else {
@@ -1423,20 +1424,20 @@ class Api {
 
         // Check each of the param types matches what is specified in $validparams[] for that param.
         // Throws an exception if there is a mismatch.
-
+        $remotestatuses = ia_status::get_statuses();
+        unset($remotestatuses[ia_status::NOTSTARTED_INT]);
+        $truefalse = ['true', 'false'];
         foreach ($params as $argname => $argval) {
             try {
                 $debug && Logger::log($fxn . "::For \$argname={$argname}, about to validate_param(\$argval={$argval}, \$validparams[\$argname]=$validparams[$argname])");
                 \validate_param($argval, $validparams[$argname]);
                 switch ($argname) {
                     case 'backwardsearch':
-                        if (!in_array($argval, ['true', 'false'])) {
+                        if (!in_array($argval, $truefalse)) {
                             throw new \invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
                         }
                         break;
                     case 'statuses':
-                        $remotestatuses = ia_status::get_statuses();
-                        unset($remotestatuses[ia_status::NOTSTARTED_INT]);
                         if (!\in_array($argval, $remotestatuses)) {
                             throw new \invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
                         }

@@ -270,19 +270,20 @@ class MoodleUtility {
         $filteredmodules = [];
         $modinfo = \get_fast_modinfo($courseid, $userid);
         $coursecontext = \CONTEXT_COURSE::instance($courseid);
+        $$hascapability_viewhiddenactivities = \has_capability('moodle/course:viewhiddenactivities', $coursecontext, $userid);
 
         // Keep only modules that are visible.
         foreach ($modules as $m) {
             $coursemodule = $modinfo->cms[$m['id']];
 
             // Check visibility in course.
-            if (!$coursemodule->visible && !\has_capability('moodle/course:viewhiddenactivities', $coursecontext, $userid)) {
+            if (!$coursemodule->visible && !$$hascapability_viewhiddenactivities) {
                 continue;
             }
 
             // Check availability, allowing for visible, but not accessible items.
             if (!empty($cfg->enableavailability)) {
-                if (\has_capability('moodle/course:viewhiddenactivities', $coursecontext, $userid)) {
+                if ($$hascapability_viewhiddenactivities) {
                     $m['available'] = true;
                 } else {
                     if (isset($coursemodule->available) && !$coursemodule->available && empty($coursemodule->availableinfo)) {
