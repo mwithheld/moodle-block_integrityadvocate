@@ -61,6 +61,7 @@ class Logger {
 
     /** @var string Store logged messages to STDOUT through htmlentities. */
     const STDOUT = 'STDOUT';
+    const NONAMESPACE_FUNCTION_PREFIX = \INTEGRITYADVOCATE_BLOCK_NAME . '\\';
 
     /** @var string Even if the local debug flag is false, this enables debug logging for these classnames (including namespace).
      * Names come from __CLASS__.
@@ -124,12 +125,11 @@ class Logger {
         $debug && error_log($fxn . '::Started with $functionname=' . $functionname);
 
         if (empty($functionname)) {
+            $debug && error_log($fxn . '::$functionname is empty so return false');
             return false;
         }
         $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
-//        $debug && error_log($fxn . '::Got self::$logForFunction=' . ia_u::var_dump(self::$logForFunction));
-//        $debug && error_log($fxn . '::Got merged=' . ia_u::var_dump(array_merge((is_array($blockconfig->config_logforfunction) ?: []), self::$logForFunction)));
         $result = in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
         $debug && error_log($fxn . "::About to return \$result={$result}");
         return $result;
@@ -282,6 +282,62 @@ class Logger {
     }
 
     /**
+     * Return true if a file has been included.
+     * @url https://stackoverflow.com/a/52467334
+     * @param type $f
+     * @return bool
+     */
+    private static function file_has_been_included(string $filepath): bool {
+        $fixpaths = function(string $f): string {
+            return str_replace(array('\\'), '/', $f);
+        };
+        return in_array($fixpaths($filepath), array_map($fixpaths, get_included_files()));
+    }
+
+    private static function get_defined_functions_in_file(string $filePath, bool $sort = false): array {
+        $file = file(str_replace(array('\\'), '/', $filePath));
+        $functions = [];
+
+        foreach ($file as $line) {
+            $line = trim($line);
+            if (strpos($line, '//')) {
+                continue;
+            }
+
+            if (stripos($line, 'function ') !== false) {
+                $function_name = trim(str_ireplace([
+                    'public',
+                    'private',
+                    'protected',
+                    'static'
+                                ], '', $line));
+
+                $function_name = trim(substr($function_name, 9, strpos($function_name, '(') - 9));
+
+                if (!in_array($function_name, ['__construct', '__destruct', '__get', '__set', '__isset', '__unset'])) {
+                    $functions[] = $function_name;
+                }
+            }
+        }
+
+        if ($sort) {
+            asort($functions);
+            $functions = array_values($functions);
+        }
+
+        return $functions;
+    }
+
+    /**
+     *
+     * @param string $filepath
+     * @return string
+     */
+    public static function filepath_relative_to_plugin(string $filepath): string {
+        return ltrim(str_replace(dirname(__DIR__), '', $filepath), '/');
+    }
+
+    /**
      * Build an array of namespaced functionnames to log for.
      * Names come from __METHOD__.
      * Examples:
@@ -296,16 +352,30 @@ class Logger {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started');
 
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__);
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
+            return $cachedvalue;
+        }
+
         $classestolog = [
             '\block_integrityadvocate_external',
+            '\block_integrityadvocate',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Api',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Output',
                 // This one causes OOM errors in session.
 //            INTEGRITYADVOCATE_BLOCK_NAME . '\ParticipantsTable',
         ];
 
-        // These ones are not classes but we want to be able to log them anyway.
-        $classfunctionstolog = [
+        // These ones are not classes but files with functions.
+        $fileswithfunctionstolog = [
+            dirname(__DIR__) . '\lib.php',
+        ];
+
+        // These ones are not classes and don't have functions but we want to be able to log them anyway.
+        $thingstolog = [
             INTEGRITYADVOCATE_BLOCK_NAME . '\overview.php',
             INTEGRITYADVOCATE_BLOCK_NAME . '\overview-course.php',
             INTEGRITYADVOCATE_BLOCK_NAME . '\overview-user.php',
@@ -325,11 +395,27 @@ class Logger {
                     continue;
                 }
                 $val = $method->class . '::' . $method->name;
-                $classfunctionstolog[] = $val;
+                $thingstolog[] = $val;
             }
         }
-        sort($classfunctionstolog);
-        return $classfunctionstolog;
+
+        foreach ($fileswithfunctionstolog as $filename) {
+            if (self::file_has_been_included($filename) && !ia_u::is_empty($functionsarr = self::get_defined_functions_in_file($filename))) {
+                foreach ($functionsarr as $functionname) {
+                    $functionreflection = new \ReflectionFunction($functionname);
+                    $val = self::NONAMESPACE_FUNCTION_PREFIX . self::filepath_relative_to_plugin($functionreflection->getFileName()) . '::' . $functionreflection->getName();
+                    $thingstolog[] = $val;
+                }
+            }
+        }
+
+        sort($thingstolog);
+
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $thingstolog)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $thingstolog;
     }
 
 }
