@@ -392,6 +392,11 @@ class block_integrityadvocate extends block_base {
                                 $formstart .= '<input type="hidden" name="edit" value="on">';
 
                                 foreach ($iamodules as $m) {
+                                    $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $m=' . ia_u::var_dump($m));
+                                    if (!isset($m['block_integrityadvocate_instance']['instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']['instance'])) {
+                                        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Skipping this module b/c it is missing pieces');
+                                        continue;
+                                    }
                                     // Output a link to the module.
                                     $this->content->text .= \html_writer::link($m['url'], $m['name']);
                                     if (has_capability('moodle/block:edit', $m['block_integrityadvocate_instance']['instance']->context)) {
