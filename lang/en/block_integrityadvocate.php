@@ -53,7 +53,7 @@ $string['disabled_editingmode'] = 'Course editing mode is enabled, so video moni
 $string['disabled_haseditcap'] = 'Disabled for non-students';
 $string['disabled_notenrolled'] = 'Not available - you are not enrolled in this course';
 
-$string['modulelist_title'] = 'Blocks in this course ({$a})';
+$string['modulelist_title'] = 'Module blocks in this course ({$a})';
 
 $string['error_curlcloseia'] = 'Curl error closing the IA session';
 $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info - check the API key and app id are valid';
