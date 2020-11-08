@@ -41,11 +41,11 @@ $string['config_default_title'] = 'Integrity Advocate';
 $string['config_logdestination'] = 'Log destination';
 $string['config_logdestination_help'] = 'When logging, log to this destination.  WARNING: The Loggly option sends user info to loggly.com.  NONE disables this block\'s logging';
 $string['config_logforfunction'] = 'Log these functions';
-$string['config_logforfunction_help'] = 'Enable debug logging for these functions named per __METHOD__.  This will slow down pages that use this plugin slightly.';
+$string['config_logforfunction_help'] = 'Enable debug logging for these functions/files.  This will slow down pages that use this plugin slightly.';
 $string['config_logforip'] = 'Log for this IP range';
 $string['config_logforip_help'] = 'Enable debug logging only if the user is in this IP range.  Put every entry on one line. Valid entries are either full IP address (such as 192.168.10.1) which matches a single host; or partial address (such as 192.168) which matches any address starting with those numbers; or CIDR notation (such as 231.54.211.0/20); or a range of IP addresses (such as 231.3.56.10-20) where the range applies to the last part of the address. Text domain names (like \'example.com\') are not supported. Blank lines, and text following a "#" character are ignored.';
 $string['config_logfromtime'] = 'Log if within 24 hrs of';
-$string['config_logfromtime_help'] = 'Log only if within 24 hours of this unx timestamp.';
+$string['config_logfromtime_help'] = 'Log only if within 24 hours of this unx timestamp.  The default shown is the time now.';
 $string['config_proctorquizinfopage'] = 'Show students proctoring on the quiz info page';
 
 $string['created'] = 'First seen';
