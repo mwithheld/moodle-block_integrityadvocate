@@ -354,8 +354,8 @@ class Api {
         raise_memory_limit(MEMORY_EXTRA);
         $params = ['courseid' => $courseid];
 
-        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $debugvars]));
         if (FeatureControl::CACHE && $participantscached = $cache->get($cachekey) && isset($participantscached->modified) && $participantscached->modified > 0) {
             // We have a cached participants set, so get only those modified after the modified timestamp.
