@@ -40,9 +40,16 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * Overridden to create any form fields specific to this type of block.
      * We can't add a type check here without causing a warning b/c the parent class does not have the type check.
      *
+     * Note: Do not add a type declaration MoodleQuickForm $mform b/c it causes a...
+     *       "Warning: Declaration of block_integrityadvocate_edit_form::specific_definition(MoodleQuickForm $mform) should be compatible with block_edit_form::specific_definition($mform)"
+     *
      * @param \stdClass|MoodleQuickForm $mform the form being built.
      */
-    protected function specific_definition(MoodleQuickForm $mform) {
+    protected function specific_definition($mform) {
+        if (!($mform instanceof MoodleQuickForm)) {
+            throw new InvalidArgumentException('$mform must be an instance of MoodleQuickForm and it appears to be a ' . gettype($mform));
+        }
+
         // Start block specific section in config form.
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
@@ -76,12 +83,19 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *
      * Server side rules do not work for uploaded files, implement serverside rules here if needed.
      *
+     * Note: Do not add a type declaration MoodleQuickForm $mform b/c it causes a...
+     *       "Warning: Declaration of block_integrityadvocate_edit_form::validation(array $data, $unused): array should be compatible with moodleform::validation($data, $files)
+     *
      * @param object[] $data array of ("fieldname"=>value) of submitted data
      * @param object[] $unused Unused array of uploaded files "element_name"=>tmp_file_path
      * @return object[] of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
-    public function validation(array $data, $unused): array {
+    public function validation($data, $unused): array {
+        if (!is_array($data)) {
+            throw new InvalidArgumentException('$data must be an array and it appears to be a ' . gettype($data));
+        }
+
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
