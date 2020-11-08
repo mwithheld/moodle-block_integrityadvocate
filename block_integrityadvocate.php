@@ -273,6 +273,54 @@ class block_integrityadvocate extends block_base {
         ia_output::add_block_js($this, ia_output::get_proctor_js_url($this, $user));
     }
 
+    function populate_course_modulelist() {
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
+
+        global $CFG, $COURSE;
+
+        $prefix = 'integrityadvocate_modulelist';
+        $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
+        $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());
+        $iamodulesexist = ia_u::count_if_countable($iamodules) > 0;
+        $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, (($count = ia_u::count_if_countable($iamodules)) > 0 ? $count : 0)), array('class' => "{$prefix}_div_title"));
+        if ($iamodulesexist && $this->page->user_allowed_editing()) {
+            // The start of the form is the same for each module, so just build it once.
+            $formstart = '&nbsp;<form class="' . $prefix . '_form" method="post" action="' . $CFG->wwwroot . '/course/view.php">';
+            $formstart .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
+            $formstart .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+            $formstart .= '<input type="hidden" name="edit" value="on">';
+
+            $user_is_editing = $this->page->user_is_editing();
+            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Course editing mode=' . ($user_is_editing ? 1 : 0));
+            foreach ($iamodules as $m) {
+                // Disabled due to huge output: $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $m=' . ia_u::var_dump($m));.
+                if (!isset($m['block_integrityadvocate_instance']['instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']['instance'])) {
+                    $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Skipping this module b/c it is missing pieces');
+                    continue;
+                }
+                // Output a link to the module.
+                $this->content->text .= \html_writer::link($m['url'], $m['name']);
+                if (has_capability('moodle/block:edit', $m['block_integrityadvocate_instance']['instance']->context)) {
+                    if ($user_is_editing) {
+                        // Output a link to module's block config.
+                        $blocktitle = get_string('configureblock', 'block', $m['block_integrityadvocate_instance']['instance']->title);
+                        $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                    } else {
+                        // We need a form to turn course editing on; then go to block config.
+                        $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">';
+                        $blocktitle = get_string('configureblock', 'block', $m['block_integrityadvocate_instance']['instance']->title);
+                        $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();e.preventDefault();return false;"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                        $this->content->text .= '</form>';
+                    }
+                }
+                $this->content->text .= ia_output::BRNL;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Creates the blocks main content.
      */
@@ -376,39 +424,8 @@ class block_integrityadvocate extends block_base {
                             $this->content->text .= ia_output::get_button_overview_course($this);
                         }
                         if (block_integrityadvocate\FeatureControl::MODULE_LIST) {
-                            $prefix = 'integrityadvocate_modulelist';
-                            $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
-                            $iamodules = block_integrityadvocate_get_course_ia_modules($this->get_course());
-                            $iamodulesexist = ia_u::count_if_countable($iamodules) > 0;
-                            $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, (($count = ia_u::count_if_countable($iamodules)) > 0 ? $count : 0)), array('class' => "{$prefix}_div_title"));
-                            if ($iamodulesexist && $this->page->user_allowed_editing()) {
-                                $this->content->footer .= "<script type=\"text/javascript\">document.addEventListener('DOMContentLoaded', function(event) {require(['jquery'], function($) {";
-                                $this->content->footer .= "$('.integrityadvocate_modulelist_blockconfig').click(function() { $(this).closest('form').submit();return false; });});});</script>";
-
-                                // The start of the form is the same for each module, so just build it once.
-                                $formstart = '&nbsp;<form class="' . $prefix . '_form" method="post" action="' . $CFG->wwwroot . '/course/view.php">';
-                                $formstart .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
-                                $formstart .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
-                                $formstart .= '<input type="hidden" name="edit" value="on">';
-
-                                foreach ($iamodules as $m) {
-                                    $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $m=' . ia_u::var_dump($m));
-                                    if (!isset($m['block_integrityadvocate_instance']['instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']['instance'])) {
-                                        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Skipping this module b/c it is missing pieces');
-                                        continue;
-                                    }
-                                    // Output a link to the module.
-                                    $this->content->text .= \html_writer::link($m['url'], $m['name']);
-                                    if (has_capability('moodle/block:edit', $m['block_integrityadvocate_instance']['instance']->context)) {
-                                        // Output a button to block config.
-                                        $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">';
-                                        $blocktitle = get_string('configureblock', 'block', $m['block_integrityadvocate_instance']['instance']->title);
-                                        $this->content->text .= '<a href="#"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
-                                        $this->content->text .= '</form>';
-                                    }
-                                    $this->content->text .= ia_output::BRNL;
-                                }
-                            }
+                            // Adds to $this->context->text and $this->context->footer.
+                            $this->populate_course_modulelist();
                         }
                         $this->content->text .= \html_writer::end_tag('div');
                         break;
