@@ -71,7 +71,7 @@ class Api {
     /**
      * Make sure we can reach the IA API.
      *
-     * @return [$responseinfo['primary_ip'], intval($responsecode), $response, $responseinfo['total_time']].
+     * @return [remote ip, http response code, response body, total time]. Numeric values are cleaned but the response body is unchanged.
      */
     public static function ping(): array {
         $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -96,7 +96,7 @@ class Api {
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
-        return [$responseinfo['primary_ip'], intval($responsecode), $response, $responseinfo['total_time']];
+        return [cleanremoteaddr($responseinfo['primary_ip']), intval($responsecode), trim($response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
     }
 
     /**
