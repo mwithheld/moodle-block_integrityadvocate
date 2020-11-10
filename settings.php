@@ -75,15 +75,18 @@ if ($ADMIN->fulltree) {
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
                 'PHP version' => phpversion(),
                 'Moodle version' => moodle_major_version(),
-                //'block_integrityadvocate version' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version')
-                'IA ping' => "IA IP={$remote_ip}; Response={$total_time}s {$http_reponsecode} <PRE>{$http_responsebody}</PRE>",
+                'IA ping' => "IA IP={$remote_ip}; Response={$total_time}s {$http_reponsecode} " . htmlentities(strip_tags($http_responsebody)),
                 INTEGRITYADVOCATE_BLOCK_NAME . ' config' => ''
             ];
-            foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => &$val) {
+            foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => $val) {
                 if (str_ends_with($key, '_locked')) {
                     continue;
                 }
-                $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= str_replace('[config_', '', $key) . '=>' . '<PRE>' . $val . '</PRE>';
+                if ($key === 'config_logforfunction') {
+                    $val = str_replace(',', "\n", $val);
+                }
+
+                $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= preg_replace('/^config_/', '', $key) . '=>' . '<PRE>' . $val . '</PRE>';
             }
 
             // Format the site info into a pretty table.
@@ -101,6 +104,6 @@ if ($ADMIN->fulltree) {
 
     }
 
-    $setting = new admin_setting_description(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo', 'Site info', block_integrityadvocate_get_siteinfo());
+    $setting = new admin_setting_description(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo', get_string('config_debuginfo', INTEGRITYADVOCATE_BLOCK_NAME), block_integrityadvocate_get_siteinfo());
     $settings->add($setting);
 }
