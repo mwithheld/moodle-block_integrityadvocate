@@ -38,6 +38,9 @@ defined('MOODLE_INTERNAL') || die;
 class Api {
     // API ref https://integrityadvocate.com/Developers#aEndpointMethods
 
+    /** @var string URI to ping IA and see if there is a good response */
+    const ENDPOINT_PING = '/ping';
+
     /** @var string URI to close the remote IA session */
     const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
 
@@ -64,6 +67,37 @@ class Api {
 
     /** @var int Accept these HTTP response codes as successful */
     const HTTP_SUCCESS_CODE = [200, 201, 202];
+
+    /**
+     * Make sure we can reach the IA API.
+     *
+     * @return [$responseinfo['primary_ip'], intval($responsecode), $response, $responseinfo['total_time']].
+     */
+    public static function ping(): array {
+        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . '::Started';
+        $debug && Logger::log($debugvars);
+
+        $curl = new \curl();
+        $curl->setopt(array(
+            'CURLOPT_CERTINFO' => 1,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_MAXREDIRS' => 5,
+            'CURLOPT_HEADER' => 0
+        ));
+        $requesturi = INTEGRITYADVOCATE_BASEURL . self::ENDPOINT_PING;
+        $response = $curl->get($requesturi);
+
+        $responseinfo = $curl->get_info();
+        $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
+        $responsecode = $responseinfo['http_code'];
+        // Remove certinfo b/c it too much info and we do not need it for debugging.
+        unset($responseinfo['certinfo']);
+        $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
+
+        return [$responseinfo['primary_ip'], intval($responsecode), $response, $responseinfo['total_time']];
+    }
 
     /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
