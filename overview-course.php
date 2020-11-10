@@ -24,6 +24,7 @@
 
 namespace block_integrityadvocate;
 
+use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
@@ -87,31 +88,31 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
         $tr_header = implode('', $tr_header);
         echo "{$tr_header}</thead><tbody>";
 
-        echo $tr;
-        $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
-        foreach ($enrolledusers as $user) {
-            $debuginfo = "userid={$user->id}";
-            //echo '<PRE>' . ia_u::var_dump($user) . '</PRE><hr>' . ia_output::BRNL;
-            // Column=User.
-            echo \html_writer::tag('td', $user->id, ['class' => "{$prefix}_id"]);
-            echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-id' => $user->id, 'data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
-
-            echo \html_writer::tag('td', $user->email, ['class' => "{$prefix}_email"]);
-            echo \html_writer::tag('td', ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')), ['class' => "{$prefix}_lastcourseaccess"]);
-            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iadata"]);
-            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iaphoto"]);
-            echo $tr_end;
-        }
+//        echo $tr;
+//        $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
+//        foreach ($enrolledusers as $user) {
+//            $debuginfo = "userid={$user->id}";
+//            //echo '<PRE>' . ia_u::var_dump($user) . '</PRE><hr>' . ia_output::BRNL;
+//            // Column=User.
+//            echo \html_writer::tag('td', $user->id, ['class' => "{$prefix}_id"]);
+//            echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-id' => $user->id, 'data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
+//            echo \html_writer::tag('td', $user->email, ['class' => "{$prefix}_email"]);
+//            echo \html_writer::tag('td', ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')), ['class' => "{$prefix}_lastcourseaccess"]);
+//            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iadata"]);
+//            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iaphoto"]);
+//            echo $tr_end;
+//        }
 
         echo "</tbody><tfoot>{$tr_header}</tfoot></table>";
         // Used as a JQueryUI popup to show the user picture.
         echo '<div id="dialog"></div>';
     }
 
-    // Get IA data for this first set.
-    //$participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
-    // Display the first 10.\
-    // For each student, get their IA data.
+    // Get IA data for this first set.  We want participant-level data b/c we want the latest photo and status.
+//    $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
+//    $debug && Logger::log(__FILE__ . '::Got participants=' . ia_u::var_dump($participants));
+    // Display the first 10.
+    // ??For each student, get their IA data??
 } else if (FeatureControl::OVERVIEW_COURSE && !FeatureControl::OVERVIEW_COURSE_V2) {
     // OLD Participants table UI.
     // Moodle core: Notes, messages and bulk operations.

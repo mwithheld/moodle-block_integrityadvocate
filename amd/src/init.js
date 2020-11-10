@@ -3,6 +3,8 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
             return {
                 init: function() {
                     var debug = true;
+                    var self = this;
+
                     if (typeof M.block_integrityadvocate === 'undefined') {
                         M.block_integrityadvocate = {};
                     }
@@ -17,39 +19,89 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                             M.block_integrityadvocate.eltDt = eltDt = $('#block_integrityadvocate_overviewcourse_table').DataTable({
                                 'autoWidth': false,
                                 // Hide the user id column
-                                "columnDefs": [{'visible': false, 'targets': 0}],
-                                /*'info': true, // Show information about the table including information about filtered data; default=true. */
+                                'columnDefs': [
+                                    {'targets': 0, 'name': 'rownum', 'visible': false},
+                                    {'targets': 1, 'name': 'userid'},
+                                    {'targets': 2, 'name': 'email'},
+                                    {'targets': 3, 'name': 'lastcourseaccess'},
+                                    {'targets': 4, 'name': 'ia-data'},
+                                    {'targets': 5, 'name': 'ia-photo', 'searchable': false}
+                                ],
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'order': [], // Disable initial sort.
                                 'ordering': true,
                                 'paginate': false,
                                 'paging': false,
-                                'searching': true
+                                'searching': true,
+                                'processing': true,
+                                'serverSide': true,
+                                'ajax': function(dtQueryData, theCallbackToExec, settings) {
+                                    // Ref http://mail.datatables.net/forums/discussion/57460/how-do-i-properly-use-ajax-function-to-get-data-in-my-circumstance.
+                                    console.log('DT: Started the DataTables ajax call with data=', dtQueryData);
+                                    console.log('DT: theCallbackToExec=', theCallbackToExec);
+                                    console.log('DT: settings=', settings);
+
+                                    ajax.call([{
+                                            methodname: 'block_integrityadvocate_datatables_participants',
+                                            args: {
+                                                appid: M.block_integrityadvocate.appid,
+                                                courseid: M.block_integrityadvocate.courseid,
+                                                // DataTables params ref https://datatables.net/manual/server-side.
+                                                draw: dtQueryData.draw,
+                                                start: dtQueryData.start,
+                                                length: dtQueryData.length,
+                                                tblsearch: (dtQueryData.search.value.length ? $.makeArray(dtQueryData.search.value) : []),
+                                                order: dtQueryData.order,
+                                                columns: dtQueryData.columns
+                                            },
+                                            done: function() {
+                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done');
+                                            },
+                                            fail: function(xhr_unused, textStatus, errorThrown) {
+                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.fail', xhr_unused);
+                                                console.log('textStatus', textStatus);
+                                                console.log('errorThrown', errorThrown);
+                                                alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.datatables_participants::ajax.fail');
+                                            }
+                                        }]);
+                                }
+//                                'ajax': {
+//                                    'url': '/~markv/ac/m38/blocks/integrityadvocate/apitest.php',
+//                                    'type': 'POST'
+//                                    data: function(d) {
+//                                        console.log('d', d);
+//                                        d.columns.every(function(item) {
+//                                            delete item.search;
+//                                            delete item.searchable;
+//                                            console.log('d', d);
+//                                        });
+//                                    }
+//                            }
                             });
-                            $(eltDt).ready(function() {
-                                window.console.log('ready')
-                            });
-                            eltDt.on('init.dt', function() {
-                                window.console.log('M.block_integrityadvocate.init.js::overview-course.dataTable.on(draw.dt): eltDt redrawn');
-                                ajax.call([{
-                                        methodname: 'block_integrityadvocate_get_participants',
-                                        args: {
-                                            appid: 'self.appid',
-                                            courseid: self.courseid,
-                                            moduleid: self.activityid,
-                                            userid: [8, 7, 4]
-                                        },
-                                        done: function() {
-                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.done');
-                                        },
-                                        fail: function(xhr_unused, textStatus, errorThrown) {
-                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.fail');
-                                            console.log('textStatus', textStatus);
-                                            console.log('errorThrown', errorThrown);
-                                            alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.get_participants::ajax.fail');
-                                        }
-                                    }]);
-                            });
+//                            $(eltDt).ready(function() {
+//                                window.console.log('DataTable is ready')
+//                            });
+//                            eltDt.on('init.dt', function() {
+//                                window.console.log('M.block_integrityadvocate.init.js::overview-course.dataTable.on(draw.dt): eltDt redrawn');
+//                                ajax.call([{
+//                                        methodname: 'block_integrityadvocate_get_participants',
+//                                        args: {
+//                                            appid: 'self.appid',
+//                                            courseid: self.courseid,
+//                                            moduleid: self.activityid,
+//                                            userid: [8, 7, 4]
+//                                        },
+//                                        done: function() {
+//                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.done');
+//                                        },
+//                                        fail: function(xhr_unused, textStatus, errorThrown) {
+//                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.fail');
+//                                            console.log('textStatus', textStatus);
+//                                            console.log('errorThrown', errorThrown);
+//                                            alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.get_participants::ajax.fail');
+//                                        }
+//                                    }]);
+//                            });
                             break;
 
                         case($('body').hasClass('block_integrityadvocate-overview-course')):
