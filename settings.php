@@ -76,7 +76,7 @@ if ($ADMIN->fulltree) {
                 'PHP version' => phpversion(),
                 'Moodle version' => moodle_major_version(),
                 //'block_integrityadvocate version' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version')
-                $siteinfo['IA ping'] = "IA IP={$remote_ip}; Response={$http_reponsecode} <PRE>{$http_responsebody}</PRE> {$total_time}s",
+                'IA ping' => "IA IP={$remote_ip}; Response={$total_time}s {$http_reponsecode} <PRE>{$http_responsebody}</PRE>",
                 INTEGRITYADVOCATE_BLOCK_NAME . ' config' => ''
             ];
             foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => &$val) {
