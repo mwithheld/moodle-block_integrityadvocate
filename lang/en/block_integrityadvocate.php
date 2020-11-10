@@ -37,6 +37,7 @@ $string['completion_not_enabled_course'] = 'Completion tracking is not enabled i
 $string['config_apikey'] = 'Api Key';
 $string['config_appid'] = 'Application Id';
 $string['config_blockversion'] = 'Version';
+$string['config_debuginfo'] = 'Debug info';
 $string['config_default_title'] = 'Integrity Advocate';
 $string['config_logdestination'] = 'Log destination';
 $string['config_logdestination_help'] = 'When logging, log to this destination.  WARNING: The Loggly option sends user info to loggly.com.  NONE disables this block\'s logging';
