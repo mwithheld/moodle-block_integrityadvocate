@@ -40,8 +40,15 @@ class Output {
     /** @var string Path to this block JS relative to the moodle root - Requires leading slash but no trailing slash. */
     const BLOCK_JS_PATH = '/blocks/integrityadvocate/js';
 
+    /** @var string newline */
+    const NL = "\n";
+
     /** @var string HTML linebreak */
-    const BRNL = "<br />\n";
+    const BRNL = "<br />" . self::NL;
+
+    public static function pre(string $str) {
+        return '<PRE>' . $str . '</PRE>';
+    }
 
     /**
      * Add the block's module.js to the current $blockinstance page.
