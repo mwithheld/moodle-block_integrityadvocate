@@ -128,12 +128,12 @@ class Logger {
             $debug && error_log($fxn . '::$functionname is empty so return false');
             return false;
         }
-        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
-        $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
 
+        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         if (!isset($blockconfig->config_logforfunction)) {
             return false;
         }
+        $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
         $result = in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
         $debug && error_log($fxn . "::About to return \$result={$result}");
         return $result;
