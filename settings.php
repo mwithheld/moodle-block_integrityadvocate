@@ -71,7 +71,12 @@ if ($ADMIN->fulltree) {
             // [$responseinfo['primary_ip'], intval($responsecode), $response, $responseinfo['total_time']]
             list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
 
+            $micro_date = microtime();
+            $date_array = explode(" ", $micro_date);
+            $date = date("Y-m-d H:i:s", $date_array[1]);
+
             $siteinfo = [
+                'Timestamp' => "{$date}.{$date_array[0]}",
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
                 'PHP version' => phpversion(),
                 'Moodle version' => moodle_major_version(),
