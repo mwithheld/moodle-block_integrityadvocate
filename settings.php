@@ -87,16 +87,21 @@ if ($ADMIN->fulltree) {
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
                 'PHP version' => phpversion(),
                 'Moodle version' => moodle_major_version(),
-                'IA ping' => "IA IP={$remote_ip}; Response={$total_time}s {$http_reponsecode} " . htmlentities(strip_tags($http_responsebody)),
+                'IA ping' => implode(ia_output::BRNL, ["ip=$remote_ip", "total time={$total_time}s", "response code={$http_reponsecode}", 'body=' . htmlentities(strip_tags($http_responsebody))]),
                 INTEGRITYADVOCATE_BLOCK_NAME . ' config' => '',
                 'Bad folders' => implode(ia_output::BRNL, $badfolders),
             ];
             foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => $val) {
-                if (str_ends_with($key, '_locked')) {
-                    continue;
-                }
-                if ($key === 'config_logforfunction') {
-                    $val = str_replace(',', ia_output::NL, $val);
+                switch (true) {
+                    case str_ends_with($key, '_locked'):
+                        // Do not bother outputting these - they are not useful.
+                        continue 2;
+                    case ($key === 'config_logforfunction'):
+                        $val = str_replace(',', ia_output::NL, $val);
+                        break;
+                    case ($key === 'config_logfromtime'):
+                        $val = "$val (" . date("Y-m-d H:i:s", $val) . ')';
+                        break;
                 }
 
                 $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= preg_replace('/^config_/', '', $key) . '=>' . ia_output::pre($val);
