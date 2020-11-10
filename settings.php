@@ -68,6 +68,7 @@ if ($ADMIN->fulltree) {
     if (!function_exists('block_integrityadvocate_get_siteinfo')) {
 
         function block_integrityadvocate_get_siteinfo(): string {
+            $debug = false;
             list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
 
             $micro_date = microtime();
@@ -76,7 +77,7 @@ if ($ADMIN->fulltree) {
 
             $badfolders = ['/vendor/bin', '/.git'];
             foreach ($badfolders as $key => $folder) {
-                error_log('Looking at file_exists(' . __DIR__ . $folder . ')=' . file_exists(__DIR__ . $folder));
+                $debug && error_log('Looking at file_exists(' . __DIR__ . $folder . ')=' . file_exists(__DIR__ . $folder));
                 if (!file_exists(__DIR__ . $folder)) {
                     unset($badfolders[$key]);
                 }
