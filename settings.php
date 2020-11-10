@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use block_integrityadvocate\Logger as Logger;
-use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\Output as ia_output;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -68,30 +68,38 @@ if ($ADMIN->fulltree) {
     if (!function_exists('block_integrityadvocate_get_siteinfo')) {
 
         function block_integrityadvocate_get_siteinfo(): string {
-            // [$responseinfo['primary_ip'], intval($responsecode), $response, $responseinfo['total_time']]
             list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
 
             $micro_date = microtime();
             $date_array = explode(" ", $micro_date);
             $date = date("Y-m-d H:i:s", $date_array[1]);
 
+            $badfolders = ['/vendor/bin', '/.git'];
+            foreach ($badfolders as $key => $folder) {
+                error_log('Looking at file_exists(' . __DIR__ . $folder . ')=' . file_exists(__DIR__ . $folder));
+                if (!file_exists(__DIR__ . $folder)) {
+                    unset($badfolders[$key]);
+                }
+            }
+
             $siteinfo = [
-                'Timestamp' => "{$date}.{$date_array[0]}",
+                'Timestamp' => "{$date}:{$date_array[0]}",
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
                 'PHP version' => phpversion(),
                 'Moodle version' => moodle_major_version(),
                 'IA ping' => "IA IP={$remote_ip}; Response={$total_time}s {$http_reponsecode} " . htmlentities(strip_tags($http_responsebody)),
-                INTEGRITYADVOCATE_BLOCK_NAME . ' config' => ''
+                INTEGRITYADVOCATE_BLOCK_NAME . ' config' => '',
+                'Bad folders' => implode(ia_output::BRNL, $badfolders),
             ];
             foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => $val) {
                 if (str_ends_with($key, '_locked')) {
                     continue;
                 }
                 if ($key === 'config_logforfunction') {
-                    $val = str_replace(',', "\n", $val);
+                    $val = str_replace(',', ia_output::NL, $val);
                 }
 
-                $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= preg_replace('/^config_/', '', $key) . '=>' . '<PRE>' . $val . '</PRE>';
+                $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= preg_replace('/^config_/', '', $key) . '=>' . ia_output::pre($val);
             }
 
             // Format the site info into a pretty table.
