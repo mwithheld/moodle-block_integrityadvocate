@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use block_integrityadvocate\Logger as Logger;
+use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -62,5 +63,44 @@ if ($ADMIN->fulltree) {
             get_string('config_logfromtime', INTEGRITYADVOCATE_BLOCK_NAME),
             get_string('config_logfromtime_help', INTEGRITYADVOCATE_BLOCK_NAME),
             time(), '/^[1-9][0-9]{9}$/');
+    $settings->add($setting);
+
+    if (!function_exists('block_integrityadvocate_get_siteinfo')) {
+
+        function block_integrityadvocate_get_siteinfo(): string {
+            // [$responseinfo['primary_ip'], intval($responsecode), $response, $responseinfo['total_time']]
+            list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
+
+            $siteinfo = [
+                'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
+                'PHP version' => phpversion(),
+                'Moodle version' => moodle_major_version(),
+                //'block_integrityadvocate version' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version')
+                $siteinfo['IA ping'] = "IA IP={$remote_ip}; Response={$http_reponsecode} <PRE>{$http_responsebody}</PRE> {$total_time}s",
+                INTEGRITYADVOCATE_BLOCK_NAME . ' config' => ''
+            ];
+            foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => &$val) {
+                if (str_ends_with($key, '_locked')) {
+                    continue;
+                }
+                $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= str_replace('[config_', '', $key) . '=>' . '<PRE>' . $val . '</PRE>';
+            }
+
+            // Format the site info into a pretty table.
+            $table = new html_table();
+            $table->head = ['Item', 'Value'];
+            //$table->colclasses = array ('leftalign', 'leftalign', 'centeralign', 'leftalign', 'leftalign', 'leftalign');
+            $table->attributes['class'] = 'admintable generaltable';
+            $table->id = INTEGRITYADVOCATE_BLOCK_NAME . '_siteinfo';
+            $table->data = array(); //array_values($siteinfo);
+            foreach ($siteinfo as $key => &$val) {
+                $table->data[] = [$key, $val];
+            }
+            return html_writer::table($table);
+        }
+
+    }
+
+    $setting = new admin_setting_description(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo', 'Site info', block_integrityadvocate_get_siteinfo());
     $settings->add($setting);
 }
