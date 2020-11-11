@@ -70,7 +70,7 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
 $coursemodules = \block_integrityadvocate_get_course_ia_modules($course, array('configured' => 1));
 if (!is_array($coursemodules)) {
     $msg = 'No activites in this course have block_integrityadvocate configured';
-    ia_mu::log($fxn . '::' . $msg);
+    Logger::log($fxn . '::' . $msg);
     throw new \Exception($msg);
 }
 
