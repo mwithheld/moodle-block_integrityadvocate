@@ -27,15 +27,15 @@ use block_integrityadvocate\Output as ia_output;
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
+    $setting = new admin_setting_description(INTEGRITYADVOCATE_BLOCK_NAME . '/config_loggingnote', get_string('config_loggingnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_loggingnote_help', INTEGRITYADVOCATE_BLOCK_NAME));
+    $settings->add($setting);
+
     // Debug logging: Log destination.
     $logdestinationoptions = Logger::get_log_destinations();
     foreach ($logdestinationoptions as $key => $val) {
         unset($logdestinationoptions[$key]);
         $logdestinationoptions[$val] = $val;
     }
-    $setting = new admin_setting_description(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo', get_string('config_debuginfo', INTEGRITYADVOCATE_BLOCK_NAME), block_integrityadvocate_get_siteinfo());
-    $settings->add($setting);
-
     $setting = new admin_setting_configselect(INTEGRITYADVOCATE_BLOCK_NAME . '/config_logdestination',
             get_string('config_logdestination', INTEGRITYADVOCATE_BLOCK_NAME),
             get_string('config_logdestination_help', INTEGRITYADVOCATE_BLOCK_NAME),
