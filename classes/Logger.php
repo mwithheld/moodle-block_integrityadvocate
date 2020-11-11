@@ -71,6 +71,10 @@ class Logger {
      */
     // Unused: public static $logForClass = [];.
 
+    public static function get_log_destinations() {
+        return array(Logger::NONE, Logger::ERRORLOG, Logger::HTML, Logger::LOGGLY, Logger::MLOG, Logger::STDOUT);
+    }
+
     /** @var string Even if the local debug flag is false, this enables debug logging for these functions.
      * Names come from __METHOD__.
      * Examples:
@@ -129,6 +133,14 @@ class Logger {
             return false;
         }
 
+        // Cache so multiple calls don't repeat the same work.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . $functionname);
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
+            return ($cachedvalue === 'y') ? 1 : 0;
+        }
+
         $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         if (!isset($blockconfig->config_logforfunction)) {
             return false;
@@ -136,6 +148,10 @@ class Logger {
         $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
         $result = in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
         $debug && error_log($fxn . "::About to return \$result={$result}");
+
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $result ? 'y' : 'n')) {
+            throw new \Exception('Failed to set value in the cache');
+        }
         return $result;
     }
 

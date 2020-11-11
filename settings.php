@@ -28,11 +28,14 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
     // Debug logging: Log destination.
-    $logdestinationoptions = array(Logger::NONE, Logger::ERRORLOG, Logger::HTML, Logger::LOGGLY, Logger::MLOG, Logger::STDOUT);
+    $logdestinationoptions = Logger::get_log_destinations();
     foreach ($logdestinationoptions as $key => $val) {
         unset($logdestinationoptions[$key]);
         $logdestinationoptions[$val] = $val;
     }
+    $setting = new admin_setting_description(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo', get_string('config_debuginfo', INTEGRITYADVOCATE_BLOCK_NAME), block_integrityadvocate_get_siteinfo());
+    $settings->add($setting);
+
     $setting = new admin_setting_configselect(INTEGRITYADVOCATE_BLOCK_NAME . '/config_logdestination',
             get_string('config_logdestination', INTEGRITYADVOCATE_BLOCK_NAME),
             get_string('config_logdestination_help', INTEGRITYADVOCATE_BLOCK_NAME),
