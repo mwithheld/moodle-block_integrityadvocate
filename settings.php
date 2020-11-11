@@ -27,7 +27,7 @@ use block_integrityadvocate\Output as ia_output;
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    $setting = new admin_setting_description(INTEGRITYADVOCATE_BLOCK_NAME . '/config_loggingnote', get_string('config_loggingnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_loggingnote_help', INTEGRITYADVOCATE_BLOCK_NAME));
+    $setting = new admin_setting_heading(INTEGRITYADVOCATE_BLOCK_NAME . '/config_loggingnote_heading', get_string('config_loggingnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_loggingnote_help', INTEGRITYADVOCATE_BLOCK_NAME));
     $settings->add($setting);
 
     // Debug logging: Log destination.
@@ -66,6 +66,9 @@ if ($ADMIN->fulltree) {
             get_string('config_logfromtime', INTEGRITYADVOCATE_BLOCK_NAME),
             get_string('config_logfromtime_help', INTEGRITYADVOCATE_BLOCK_NAME),
             time(), '/^[1-9][0-9]{9}$/');
+    $settings->add($setting);
+
+    $setting = new admin_setting_heading(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo_heading', get_string('config_siteinfo', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_siteinfo_help', INTEGRITYADVOCATE_BLOCK_NAME));
     $settings->add($setting);
 
     if (!function_exists('block_integrityadvocate_get_siteinfo')) {
