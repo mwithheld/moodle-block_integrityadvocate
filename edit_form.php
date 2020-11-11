@@ -62,6 +62,11 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * @param MoodleQuickForm $mform the form being built.
      */
     protected function specific_definition_ia(MoodleQuickForm $mform) {
+        $data = $this->get_data();
+        if (empty($data) || !isset($data['config_apikey']) || !isset($data['config_appid']) || !ia_u::is_base64($data['config_apikey']) || !ia_u::is_guid($data['config_appid'])) {
+            $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME));
+        }
+
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 39));
         $mform->setType('config_appid', PARAM_ALPHANUMEXT);
 

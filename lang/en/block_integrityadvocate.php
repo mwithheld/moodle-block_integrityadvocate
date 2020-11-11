@@ -50,6 +50,8 @@ $string['config_logfromtime_help'] = 'Log only if within 24 hours of this unx ti
 $string['config_loggingnote'] = 'Note for logging';
 $string['config_loggingnote_help'] = 'For logs to show up you need to configure *all* logging fields';
 $string['config_proctorquizinfopage'] = 'Show students proctoring on the quiz info page';
+$string['config_topnote'] = 'Config note';
+$string['config_topnote_help'] = 'Use of this plugin requires purchasing a paid service - please visit <a href="https://integrityadvocate.com/" target="_blank">IntegrityAdvocate</a> to get the credentials needed to be able to use this plugin.';
 
 $string['created'] = 'First seen';
 $string['disabled_editingmode'] = 'Course editing mode is enabled, so video monitoring is disabled';
