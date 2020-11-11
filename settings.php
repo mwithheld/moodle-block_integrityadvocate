@@ -89,6 +89,13 @@ if ($ADMIN->fulltree) {
                 }
             }
 
+            $badplugins = ['block_massactions'];
+            foreach ($badplugins as $key => $plugin) {
+                if (!empty(core_plugin_manager::instance()->get_plugin_info($plugin))) {
+                    unset($badplugins[$key]);
+                }
+            }
+
             $siteinfo = [
                 'Timestamp' => "{$date}:{$date_array[0]}",
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
@@ -97,6 +104,7 @@ if ($ADMIN->fulltree) {
                 'IA ping' => implode(ia_output::BRNL, ["ip=$remote_ip", "total time={$total_time}s", "response code={$http_reponsecode}", 'body=' . htmlentities(strip_tags($http_responsebody))]),
                 INTEGRITYADVOCATE_BLOCK_NAME . ' config' => '',
                 'Bad folders' => implode(ia_output::BRNL, $badfolders),
+                'Bad plugins' => implode(ia_output::BRNL, $badplugins),
             ];
             foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => $val) {
                 switch (true) {
