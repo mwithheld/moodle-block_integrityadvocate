@@ -167,7 +167,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Check of errors in the APIKey and AppId.
      *
-     * @return array<string> Array of error messages from lang file: error_*.
+     * @return array<string> Array of error messages from lang file: error_*.  Empty array if no errors.
      */
     public function get_apikey_appid_errors(): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
