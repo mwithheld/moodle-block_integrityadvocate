@@ -4,7 +4,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                 init: function() {
                     var debug = true;
                     var self = this;
-
                     if (typeof M.block_integrityadvocate === 'undefined') {
                         M.block_integrityadvocate = {};
                     }
@@ -30,28 +29,36 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
                                 'order': [], // Disable initial sort.
                                 'ordering': true,
-                                'paginate': false,
-                                'paging': false,
+                                'paging': true,
+                                'pageLength': 25,
+                                'lengthMenu': [10, 25, 50, 75, 100, 125, 150, 200, 250],
                                 'searching': true,
                                 'processing': true,
                                 'serverSide': true,
                                 'ajax': function(dtQueryData, theCallbackToExec, settings) {
-                                    // Ref http://mail.datatables.net/forums/discussion/57460/how-do-i-properly-use-ajax-function-to-get-data-in-my-circumstance.
+                                    // Ref http://mail.datatables.net/forums/discussion/57460/how-do-i-properly-use-ajax-function-to-get-data-in-my-circumstance .
+                                    // Ref https://datatables.net/reference/option/ajax .
                                     console.log('DT: Started the DataTables ajax call with data=', dtQueryData);
                                     console.log('DT: theCallbackToExec=', theCallbackToExec);
                                     console.log('DT: settings=', settings);
+
+                                    $(dtQueryData.columns).each(function(index) {
+                                        delete dtQueryData.columns[index].search;
+                                    });
 
                                     ajax.call([{
                                             methodname: 'block_integrityadvocate_datatables_participants',
                                             args: {
                                                 appid: M.block_integrityadvocate.appid,
                                                 courseid: M.block_integrityadvocate.courseid,
-                                                // DataTables params ref https://datatables.net/manual/server-side.
+                                                // DataTables params ref https://datatables.net/manual/server-side .
                                                 draw: dtQueryData.draw,
                                                 start: dtQueryData.start,
                                                 length: dtQueryData.length,
-                                                tblsearch: (dtQueryData.search.value.length ? $.makeArray(dtQueryData.search.value) : []),
+                                                // In a departure from the DataTables docs, I've modded the JS to submit the filter field as only the search.value string here (not an array, and no regex).
+                                                tblsearch: (dtQueryData.search.value.length ? dtQueryData.search.value : ''),
                                                 order: dtQueryData.order,
+                                                // We do not allow per-column search, so remove this data.
                                                 columns: dtQueryData.columns
                                             },
                                             done: function() {
@@ -103,7 +110,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
 //                                    }]);
 //                            });
                             break;
-
                         case($('body').hasClass('block_integrityadvocate-overview-course')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participants_table - DataTables adds the filter capability');
                             // Configure element matched by selector as a DataTable, adding params to the default options.
@@ -122,13 +128,11 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 'searching': true
                             });
                             break;
-
                         case($('body').hasClass('block_integrityadvocate-overview-user') || $('body').hasClass('block_integrityadvocate-overview-module')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participant_table - DataTables is the wholeUI');
                             // Re-usable reference to the holder of the DataTable.
                             M.block_integrityadvocate.eltDt = $('#block_integrityadvocate_participant_table');
                             M.block_integrityadvocate.isOverviewUserPage = $('body').hasClass('block_integrityadvocate-overview-user');
-
                             // Ref https://stackoverflow.com/a/30503848.
                             /**
                              * Delay the callback until time has elapsed.
@@ -164,7 +168,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 debug && window.console.log('M.block_integrityadvocate.init.js::Built childrow=', childrow);
                                 return childrow;
                             };
-
                             // Override UI ----------------------------------------
                             class OverrideUi {
                                 constructor() {
@@ -186,12 +189,10 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 overrideuiSetup(elt) {
                                     debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::overrideuiSetup::Started');
                                     var self = this;
-
                                     // Make easy-to-read refs to the form elements.
                                     this.frm = elt.find('.' + this.prefix + '_form');
                                     // The edit icon is outside the form.
                                     this.frm.eltEdit = elt.find('.' + this.prefix + '_edit');
-
                                     this.frm.eltStatus = this.frm.find('.' + this.prefix + '_status_select');
                                     this.frm.eltReason = this.frm.find('.' + this.prefix + '_reason');
                                     this.frm.arrUserinputs = [this.frm.eltStatus, this.frm.eltReason];
@@ -200,7 +201,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                     this.frm.eltSave = this.frm.find('.' + this.prefix + '_save');
                                     this.frm.eltLoading = this.frm.find('.' + this.prefix + '_loading');
                                     this.frm.eltCancel = this.frm.find('.' + this.prefix + '_cancel');
-
                                     this.frm.eltReason
                                             .attr('placeholder', M.util.get_string('override_reason_label', 'block_integrityadvocate'))
                                             .attr('pattern', '^[a-zA-Z0-9\ .,_-]{0,32}')
@@ -209,18 +209,14 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                                 debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::overrideuiSetup::Enter pressed');
                                                 if (keyCode === 13) {
                                                     self.frm.eltSave.click();
-
                                                     e.preventDefault();
                                                     return false;
                                                 }
                                             });
-
                                     debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::overrideuiSetup::Built frm', this.frm);
-
                                     this.frm.eltLoading.hide();
                                     this.saveSetStatus(false);
                                     this.frm.trigger('reset');
-
                                     this.frm.eltSave.on('click', function(e) {
                                         debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::overrideuiSetup::eltSave.on.click()::Started');
                                         if (self.validateAll()) {
@@ -245,12 +241,10 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             delayMethod('validate_and_toggle_save_button', function() {
                                                 self.saveSetStatus(self.validateAll());
                                             }, 600);
-
                                             e.preventDefault();
                                             return false;
                                         });
                                     });
-
                                     return this;
                                 }
 
@@ -266,9 +260,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                     var self = this;
                                     this.inputsDisable();
                                     debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::saveClick::Started with frm=', this.frm);
-
                                     var url = new URL(window.location.href);
-
                                     require(['core/ajax'], function(ajax) {
                                         ajax.call([{
                                                 methodname: 'block_integrityadvocate_set_override',
@@ -300,7 +292,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                                 }
                                             }]);
                                     });
-
                                     debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::saveClick::Done');
                                 }
 
@@ -308,14 +299,12 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                     // We explicity want to run through both validators to trigger the validators, so don't just AND them.
                                     var isValidReason = this.validateReason();
                                     var isValidStatus = this.validateStatus();
-
                                     return isValidReason && isValidStatus;
                                 }
 
                                 validateStatus() {
                                     var elt = this.frm.eltStatus;
                                     var val = elt.val();
-
                                     // Only values 0 and 3 are acceptable ATM.
                                     return elt[0].checkValidity() || val === 0 || val === 3;
                                 }
@@ -324,12 +313,9 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                     var elt = this.frm.eltReason;
                                     debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::validateReason::Started with frm=', this.frm);
                                     debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::validateReason::Started with elt=', elt);
-
                                     elt.val(elt.val().trim());
-
                                     // Clear the custom validity message b/c having it there cause checkValidity() to return false.
                                     elt[0].setCustomValidity('');
-
                                     if (elt[0].checkValidity()) {
                                         return true;
                                     } else {
@@ -401,7 +387,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 'row-border': true,
                                 'searching': true,
                                 'scrollX': true,
-
                                 /* Paging options: */
                                 'paging': true,
                                 'lengthChange': false, /*Do not allow end users to change the number of records to be shown per page; default=true. */
@@ -425,7 +410,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                     var dt = eltDt.dataTable();
                                     // Hide the override columns.
                                     dt.api().columns([6, 7, 8, 9]).visible(false);
-
                                     // If overridden, show more info in child row.
                                     eltDt.find('.block_integrityadvocate_participant_session_overridden').each(function() {
                                         $(this).append('<i class="fa fa-chevron-circle-down block_integrityadvocate_overriden_icon" aria-hidden="true" title="' + M.util.get_string('viewhide_overrides', 'block_integrityadvocate') + '"></i>');
@@ -433,7 +417,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             debug && window.console.log('M.block_integrityadvocate.init.js::overridden_icon.click fired');
                                             var tr = $(this).parents('tr');
                                             var row = dt.api().row(tr);
-
                                             if (row.child.isShown()) {
                                                 debug && window.console.log('M.block_integrityadvocate.init.js::overridden_icon.click:This row is already open - close it');
                                                 row.child.hide();
@@ -453,7 +436,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             }
                                         });
                                     });
-
                                     // If can override, show the edit icon and add click event.
                                     eltDt.find('.block_integrityadvocate_participant_session_overrideui').each(function() {
                                         var elt = $(this);
@@ -461,7 +443,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                         var oldvalue = elt.contents().filter((_, el) => el.nodeType === 3);
                                         elt.prepend('<div class="oldstatusinfo">' + oldvalue.text() + '</div>');
                                         oldvalue.remove();
-
                                         elt.append('<i class="fa fa-pencil-square-o block_integrityadvocate_override_edit" aria-hidden="true" title="' + M.util.get_string('override_form_label', 'block_integrityadvocate') + '"></i>');
                                         var o = new OverrideUi();
                                         elt.find('i.block_integrityadvocate_override_edit').click(function() {
@@ -470,14 +451,11 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             var selectorOverrideform = '.block_integrityadvocate_override_form';
                                             debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::add_override_click::No existing form found');
                                             elt.find('.oldstatusinfo').hide();
-
                                             // Add the editing form and init it.
                                             if (elt.find(selectorOverrideform).length < 1) {
                                                 debug && window.console.log('M.block_integrityadvocate.init.js::overrideui::add_override_click::Add the editing form and init it');
-
                                                 // Copies the form into elt.
                                                 elt.append($(selectorOverrideform).first().clone());
-
                                                 elt.find(selectorOverrideform).show();
                                                 eltOverrideui = o.overrideuiSetup(elt);
                                             } else {
@@ -491,7 +469,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             o.overrideuiShow();
                                         });
                                     });
-
                                     // Show user picture full size in modal.
                                     eltDt.find('.block_integrityadvocate_participant_session_jquimodal').on('click.modalpic', function() {
                                         debug && window.console.log('M.block_integrityadvocate.init.js::jquimodal.click.modalpic fired');
