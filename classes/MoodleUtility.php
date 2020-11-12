@@ -615,14 +615,28 @@ class MoodleUtility {
             return $cachedvalue;
         }
 
-        global $OUTPUT;
-        $user_picture = $OUTPUT->user_picture($user, $params);
-
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $user_picture)) {
-            throw new \Exception('Failed to set value in the cache');
+        $user_picture = new \user_picture($user);
+        foreach ($params as $key => $val) {
+            if (object_property_exists($user_picture, $key)) {
+                $user_picture->$key = $val;
+            }
         }
 
-        return $user_picture;
+        $page = new \moodle_page();
+        $page->set_url('/user/profile.php');
+        if (!ia_u::is_empty($user_picture->courseid)) {
+            $page->set_context(\context_course::instance($user_picture->courseid));
+        } else {
+            $page->set_context(\context_system::instance());
+        }
+        $renderer = $page->get_renderer('core');
+
+        $picture = $user_picture->get_url($page, $renderer)->out(false);
+
+        if (FeatureControl::CACHE && !$cache->set($cachekey, $picture)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+        return $picture;
     }
 
     /**
