@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die;
 /**
  * Use a modified Course Participants table to show IntegrityAdvocate summary data b/c we want all the functionality but slightly different columns.
  */
-class ParticipantsTable extends \core_user\participants_table {
+class ParticipantsTable extends \core_user\table\participants {
 
     /**
      * Set up the table object from the provided data.
