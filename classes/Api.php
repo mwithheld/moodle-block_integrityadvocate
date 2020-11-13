@@ -65,8 +65,14 @@ class Api {
     /** @var int Consider recursion failed after this time.  In seconds = 10 minutes. */
     const RECURSION_TIMEOUT = 10 * 60;
 
-    /** @var int Accept these HTTP response codes as successful */
-    const HTTP_SUCCESS_CODE = [200, 201, 202];
+    /** @var int Accept these HTTP success response codes as successful */
+    const HTTP_CODE_SUCCESS = [200, 201, 202, 204, 205];
+
+    /** @var int Accept these HTTP success response codes as successful */
+    const HTTP_CODE_REDIRECT = [303, 304];
+
+    /** @var int Accept these HTTP success response codes as successful */
+    const HTTP_CODE_CLIENTERROR = [404, 410];
 
     /**
      * Make sure we can reach the IA API.
@@ -153,7 +159,7 @@ class Api {
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
-        $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
+        $success = in_array($responsecode, array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
@@ -248,7 +254,7 @@ class Api {
                         '; $response=' . ia_u::var_dump($response, true) .
                         '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
-        $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
+        $success = in_array($responsecode, array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed on: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
@@ -1367,7 +1373,7 @@ class Api {
         $responsecode = $responseinfo['http_code'];
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
-        $success = in_array($responsecode, self::HTTP_SUCCESS_CODE);
+        $success = in_array($responsecode, self::HTTP_CODE_SUCCESS);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: PATCH url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
