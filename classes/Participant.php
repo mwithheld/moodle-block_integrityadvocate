@@ -125,11 +125,11 @@ class Participant {
      * The most recent is defined in order of [end || start time].
      *
      * @param int $activityid The activityid to search for.
-     * @return mixed bool false if not found; else The newest session matching the activity.
+     * @return mixed Null if not found; else The newest Session matching the activity.
      */
-    public function get_latest_module_session(int $activityid) {
+    public function get_latest_module_session(int $activityid): ?Session {
         if (!is_array($this->sessions) || empty($this->sessions) || $activityid < 0) {
-            return false;
+            return null;
         }
 
         // Setup an empty object for comparing the start and end times.
@@ -151,7 +151,7 @@ class Participant {
 
         // If $latestsession is empty or is just the comparison object, we didn't find anything.
         if (ia_u::is_empty($latestsession) || !isset($latestsession->id)) {
-            return false;
+            return null;
         }
 
         return $latestsession;
@@ -163,7 +163,7 @@ class Participant {
      *
      * @return string representation of this object.
      */
-    public function __toString() {
+    public function __toString(): string {
         $self = clone($this);
         foreach ($self->sessions as $key => $s) {
             $self->sessions[$key] = $s->__toString();
