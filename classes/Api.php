@@ -358,7 +358,7 @@ class Api {
         // This gets a json-decoded object of the IA API curl result.
         $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
         $debug && Logger::log($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
-        if (ia_u::is_empty($participantraw)) {
+        if (ia_u::is_empty($participantraw) || !($participantraw instanceof Participant)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return null;
         }
@@ -419,7 +419,7 @@ class Api {
         $participantsparsed = [];
         foreach ($participantscached->participantsraw as $pr) {
             $debug && Logger::log($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
-            if (ia_u::is_empty($pr)) {
+            if (ia_u::is_empty($pr) || !($pr instanceof Participant)) {
                 $debug && Logger::log($fxn . '::Skip: This $pr entry is empty');
                 continue;
             }
