@@ -479,12 +479,12 @@ class Output {
 
         $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_start')) .
                 \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                date('Y-m-d H:i', $start) .
+                ($start ? \userdate($start) : '') .
                 \html_writer::end_tag('div');
 
         $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_end')) .
                 \html_writer::span(\get_string('last_modified', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                date('Y-m-d H:i', $end) .
+                ($end ? \userdate($end) : '') .
                 \html_writer::end_tag('div');
 
         if ($overviewbuttonhtml) {
