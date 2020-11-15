@@ -25,11 +25,6 @@ defined('MOODLE_INTERNAL') || die;
 require_once(__DIR__ . '/lib.php');
 require_once($CFG->libdir . '/externallib.php');
 
-use block_integrityadvocate\Api as ia_api;
-use block_integrityadvocate\Logger as Logger;
-use block_integrityadvocate\MoodleUtility as ia_mu;
-use block_integrityadvocate\Utility as ia_u;
-
 /**
  * Answers AJAX calls for this block.
  */
