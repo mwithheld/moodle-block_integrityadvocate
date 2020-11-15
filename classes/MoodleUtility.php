@@ -333,7 +333,7 @@ class MoodleUtility {
             return true;
         }
 
-        return $record->visible;
+        return (bool) $record->visible;
     }
 
     /**
@@ -505,9 +505,9 @@ class MoodleUtility {
      * @param string $blockname Block shortname e.g. for block_html it would be html.
      * @param bool $visibleonly Return only visible instances.
      * @param bool $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
-     * @return bool|\block_integrityadvocate bool False if none found or if no visible instances found; else an instance of block_integrityadvocate.
+     * @return \block_integrityadvocate Null if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
-    public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false) {
+    public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false): ?\block_integrityadvocate {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; \$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
@@ -524,7 +524,7 @@ class MoodleUtility {
         $debug && Logger::log($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
             $debug && Logger::log($fxn . "::No instances of block_{$blockname} is associated with this context");
-            return false;
+            return null;
         }
 
         // If there are multiple blocks in this context just return the first valid one.
@@ -543,7 +543,7 @@ class MoodleUtility {
         }
         if (empty($blockrecord)) {
             $debug && Logger::log($fxn . "::No valid blockrecord found, so return false");
-            return false;
+            return null;
         }
 
         if ($rownotinstance) {
@@ -559,7 +559,7 @@ class MoodleUtility {
      * @param int|\stdClass $user The user object or id to convert
      * @return false|\stdClass False if no user found; else moodle user object.
      */
-    public static function get_user_as_obj($user) {
+    public static function get_user_as_obj($user): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . '::Started with type($user)=' . gettype($user));
@@ -576,12 +576,12 @@ class MoodleUtility {
 
             $userarr = user_get_users_by_id(array(intval($user)));
             if (empty($userarr)) {
-                return false;
+                return null;
             }
             $user = array_pop($userarr);
 
             if (isset($user->deleted) && $user->deleted) {
-                return false;
+                return null;
             }
 
             if (FeatureControl::CACHE && !$cache->set($cachekey, $user)) {
