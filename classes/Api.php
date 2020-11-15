@@ -77,7 +77,7 @@ class Api {
     /**
      * Make sure we can reach the IA API.
      *
-     * @return [remote ip, http response code, response body, total time]. Numeric values are cleaned but the response body is unchanged.
+     * @return array<int remote_ip, int http_response_code, string response_body, int total_time]. Numeric values are cleaned but the response body is unchanged.
      */
     public static function ping(): array {
         $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -258,7 +258,7 @@ class Api {
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed on: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
-            throw new \HttpException($msg, $responsecode, $requesturi);
+            throw new HttpException($msg, $responsecode, $requesturi);
         }
 
         if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
@@ -518,7 +518,7 @@ class Api {
 
         if (ia_u::is_empty($result)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
-            return new \stdClass();
+            return [];
         }
 
         $participants = $result->Participants;
@@ -640,7 +640,7 @@ class Api {
             $debug && Logger::log($fxn . '::Built $participantsession=' . ia_u::var_dump($participantsession, true));
 
             // Skip if parsing failed.
-            if (ia_u::is_empty(($participantsession))) {
+            if (ia_u::is_empty(($participantsession)) || !isset($participantsession->id)) {
                 $debug && Logger::log($fxn . '::Skip: The $participantsession failed to parse');
                 continue;
             }
@@ -711,7 +711,7 @@ class Api {
 
         if (ia_u::is_empty($result)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
-            return new \stdClass();
+            return [];
         }
 
         $participantsessions = $result->ParticipantSessions;
@@ -1050,7 +1050,7 @@ class Api {
         // Check required field #1.
         if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
             $debug && Logger::log($fxn . '::Minimally-required fields not found: Id');
-            return [];
+            return null;
         }
         $output->id = $input->Id;
         $debug && Logger::log($fxn . '::Got $session->id=' . $output->id);
@@ -1058,7 +1058,7 @@ class Api {
         // Check required field #2.
         if (!isset($input->Status) || !is_string($input->Status) || strlen($input->Status) < 5) {
             $debug && Logger::log($fxn . '::Minimally-required fields not found: Status');
-            return [];
+            return null;
         }
         // This function throws an error if the status is invalid.
         $output->status = ia_status::parse_status_string($input->Status);
@@ -1074,7 +1074,7 @@ class Api {
                 $output->activityid = \clean_param($input->Activity_Id, PARAM_INT);
                 if (!($courseid = ia_mu::get_courseid_from_cmid($output->activityid)) || $courseid !== $participant->courseid) {
                     $debug && Logger::log($fxn . "::This session activity_id={$output->activityid} belongs to courseid={$courseid} vs participant->courseid={$participant->courseid}, so return empty");
-                    return [];
+                    return null;
                 }
             }
             isset($input->Click_IAmHere_Count) && ($output->clickiamherecount = \clean_param($input->Click_IAmHere_Count, PARAM_INT));
