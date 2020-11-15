@@ -148,7 +148,7 @@ class block_integrityadvocate_observer {
      * @param \core\event\base $event Event to maybe act on
      * @return bool True if attempted to close the remote IA session; else false.
      */
-    protected static function close_module_user_session(\core\event\base $event) {
+    protected static function close_module_user_session(\core\event\base $event): bool {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
@@ -166,9 +166,9 @@ class block_integrityadvocate_observer {
      * Checks the user is enrolled and the block is visible.
      *
      * @param \core\event\base $event Triggered event.
-     * @return bool|\block_base False if should not close the remote IA session; else returns the $blockinstance.
+     * @return block_integrityadvocate Null if should not close the remote IA session; else returns the $blockinstance.
      */
-    protected static function check_should_close_user_ia(\core\event\base $event) {
+    protected static function check_should_close_user_ia(\core\event\base $event): \block_integrityadvocate {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
 
         $modulecontext = $event->get_context();
@@ -180,7 +180,7 @@ class block_integrityadvocate_observer {
 
         if (!\is_enrolled($modulecontext, $event->userid, null, true)) {
             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has no active enrolment in this course-module so skip it');
-            return false;
+            return null;
         }
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
 
@@ -196,13 +196,13 @@ class block_integrityadvocate_observer {
         $blockinstance = ia_mu::get_first_block($modulecontext, \INTEGRITYADVOCATE_SHORTNAME);
         if (!$blockinstance || $blockinstance->get_config_errors()) {
             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::The block is not present or not visible, or has config errors, so skip it');
-            return false;
+            return null;
         }
 
         // Instructors do not get the proctoring UI so never need to close the session.
         $hascapability_overview = \has_capability('block/integrityadvocate:overview', $modulecontext);
         if ($hascapability_overview) {
-            return false;
+            return null;
         }
 
         return $blockinstance;
