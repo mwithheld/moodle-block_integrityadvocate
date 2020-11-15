@@ -40,13 +40,13 @@ class Participant {
     public $created = -1;
 
     /** @var string The user email */
-    public $email;
+    public $email = '';
 
     /** @var string The user firstname */
-    public $firstname;
+    public $firstname = '';
 
     /** @var string The user lastname */
-    public $lastname;
+    public $lastname = '';
 
     /** @var int Unix timestamp when this was modified. */
     public $modified = -1;
@@ -55,33 +55,33 @@ class Participant {
     public $overridedate = -1;
 
     /**  @var string Override user first name. */
-    public $overridelmsuserfirstname;
+    public $overridelmsuserfirstname = '';
 
     /** @var int Moodle user id of the overriding user. */
     public $overridelmsuserid;
 
     /** @var string Override user last name. */
-    public $overridelmsuserlastname;
+    public $overridelmsuserlastname = '';
 
     /** @var string Reason for override. */
-    public $overridereason;
+    public $overridereason = '';
 
-    /** @var int Participant Status value applied by the overrider. */
+    /** @var int Status value applied by the overrider. */
     public $overridestatus;
 
     /** @var int Unique id (Moodle user id) assigned to this participant */
     public $participantidentifier;
 
     /** @var string Base64-encoded image. */
-    public $participantphoto;
+    public $participantphoto = '';
 
     /** @var string URL the user can re-submit their ID to (if ID check failed and IA-side allows it). */
-    public $resubmiturl;
+    public $resubmiturl = '';
 
     /** @var array<Session> Array of session objects attached to this participant */
     public $sessions = [];
 
-    /** @var int Participant Status value. */
+    /** @var int Status value. */
     public $status;
 
     /**
@@ -152,9 +152,9 @@ class Participant {
             $self->sessions[$key] = $s->__toString();
         }
         if (isset($self->participantphoto) && !empty($self->participantphoto)) {
-            $self->participantphoto = preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', $self->participantphoto);
+            $self->participantphoto = \preg_replace(\INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', $self->participantphoto);
         }
-        return json_encode($self, JSON_PARTIAL_OUTPUT_ON_ERROR);
+        return \json_encode($self, \JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
 
 }
