@@ -15,6 +15,7 @@ To update the Javascript files:
     - Extensions = <none>
     - Choose the Download tab and click the "Download files" button at the bottom.
 
+- Copy the contents of DataTables-1.10.xx/js/jquery.dataTables.js into amd/src/jquery.dataTables.js
 - Update thirdpartylibs.xml with the correct DataTables version
 - Upload to the server and make sure you purge caches or set $CFG->cachejs=false in config.php
 
@@ -32,9 +33,8 @@ pushed to the far right of the page.
 Build the JS
 ------
 Ref https://developerck.com/javascript-in-moodle/
-But it's a real PITA to set up.  
+But it's a real PITA to set up.
 Just minify amd/src/init.js with https://jscompress.com/ and paste it into amd/build/init.min.js
-
 
 
 ------
