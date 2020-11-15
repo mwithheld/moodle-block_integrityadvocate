@@ -61,7 +61,7 @@ class Session {
     /** @var string Reason for override. */
     public $overridereason;
 
-    /** @var int Participant Status value applied by the overrider. */
+    /** @var int Status value applied by the overrider. */
     public $overridestatus;
 
     /** @var string Base64-encoded image. */
@@ -73,7 +73,7 @@ class Session {
     /** @var int Unix timestamp when this was started. */
     public $start;
 
-    /** @var int Participant Status value. */
+    /** @var int Status value. */
     public $status;
 
     /** @var Participant parent of this session. */
