@@ -27,9 +27,9 @@ namespace block_integrityadvocate;
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
-use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\Participant as ia_participant;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -386,7 +386,7 @@ class Output {
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output.
      */
-    public static function get_participant_summary_output(\block_integrityadvocate $blockinstance, Participant $participant, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
+    public static function get_participant_summary_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
@@ -415,7 +415,7 @@ class Output {
 
         $out = self::get_summary_html(
                         $participant->participantidentifier, $status, $participant->created, $participant->modified,
-                        ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, $participant->participantphoto, $participant->status, $participant->email) : ''),
+                        ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, ($participant->participantphoto ?: ''), $participant->status, $participant->email) : ''),
                         ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
                         $showstatus
         );
@@ -477,7 +477,9 @@ class Output {
     /**
      * Get the HTML used to display the participant photo in the IA summary output
      *
-     * @param \Participant $participant An IA participant object to pull info from.
+     * @param int $userid The user id.
+     * @param string $photo The user photo base64 string.
+     * @param $email The user email.
      * @return string HTML to output
      */
     public static function get_participant_photo_output(int $userid, string $photo, int $status, string $email): string {
@@ -554,7 +556,7 @@ class Output {
                 //get_summary_html(int $userid, int $status, int $start, int $end, string $photohtml = '', string $overviewbuttonhtml = '', bool $showstatus = false)
                 return self::get_summary_html(
                                 $participant->participantidentifier, $latestsession->status, $latestsession->start, $latestsession->end,
-                                ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, $latestsession->participantphoto, $latestsession->status, $participant->email) : ''),
+                                ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, ($latestsession->participantphoto ?: ''), $latestsession->status, $participant->email) : ''),
                                 ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
                                 $showstatus
                 );
