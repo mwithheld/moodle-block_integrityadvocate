@@ -75,7 +75,7 @@ const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
  * Returns empty array if not a block context, if the block is missing APIKey/AppId, or if no participants found.
  *
  * @param \context $blockcontext Block context to get IA Participants data for.
- * @return array<\Participant> Array of Participant objects.
+ * @return array<Participant> Array of Participant objects.
  */
 function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
     $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
