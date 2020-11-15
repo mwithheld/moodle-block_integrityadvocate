@@ -42,26 +42,28 @@ defined('MOODLE_INTERNAL') || die;
 class Logger {
 
     /** @var string Do not store logged messages. */
-    const NONE = 'NONE';
+    public const NONE = 'NONE';
 
     /** @var string Store logged messages to the standard PHP error log. */
-    const ERRORLOG = 'ERRORLOG';
+    public const ERRORLOG = 'ERRORLOG';
 
     /** @var string Send logged messages to standard HTML output, adding a <br> tag and a newline. */
-    const HTML = 'HTML';
+    public const HTML = 'HTML';
 
     /** @var string Store logged messages to STDOUT through htmlentities. */
-    const LOGGLY = 'LOGGLY';
+    public const LOGGLY = 'LOGGLY';
 
     /** @var string Required for Loggly logging */
-    const LOGGLY_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
+    public const LOGGLY_TOKEN = 'fab8d2aa-69a0-4b03-8063-b41b215f2e32';
 
     /** @var string Store logged messages to the moodle log handler plain-textified. */
-    const MLOG = 'MLOG';
+    public const MLOG = 'MLOG';
 
     /** @var string Store logged messages to STDOUT through htmlentities. */
-    const STDOUT = 'STDOUT';
-    const NONAMESPACE_FUNCTION_PREFIX = \INTEGRITYADVOCATE_BLOCK_NAME . '\\';
+    public const STDOUT = 'STDOUT';
+
+    /** @var string Prefix to use when a function has no namespace */
+    public const NONAMESPACE_FUNCTION_PREFIX = \INTEGRITYADVOCATE_BLOCK_NAME . '\\';
 
     /** @var string Even if the local debug flag is false, this enables debug logging for these classnames (including namespace).
      * Names come from __CLASS__.
@@ -210,7 +212,7 @@ class Logger {
 
         $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         if (ia_u::is_empty($dest)) {
-            if (!ia_u::is_empty($blockconfig->config_logdestination)) {
+            if (!ia_u::is_empty($blockconfig) && isset($blockconfig->config_logdestination) && !ia_u::is_empty($blockconfig->config_logdestination)) {
                 $dest = $blockconfig->config_logdestination;
             } else {
                 $dest = Logger::$default;
