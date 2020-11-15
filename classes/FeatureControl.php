@@ -47,7 +47,7 @@ class FeatureControl {
     public const OVERVIEW_COURSE_USE_GUZZLE = false;
 
     /** @var bool True to use the DataTables-driven UI.  False to use the Moodle ParticipantsTable. */
-    public const OVERVIEW_COURSE_V2 = true;
+    public const OVERVIEW_COURSE_V2 = false;
 
     /** @var bool True to allow instructors to override the IA session status. */
     public const SESSION_STATUS_OVERRIDE = true;
