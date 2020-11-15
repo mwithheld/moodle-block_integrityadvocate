@@ -71,7 +71,7 @@ class Logger {
      */
     // Unused: public static $logForClass = [];.
 
-    public static function get_log_destinations() {
+    public static function get_log_destinations(): array {
         return array(Logger::NONE, Logger::ERRORLOG, Logger::HTML, Logger::LOGGLY, Logger::MLOG, Logger::STDOUT);
     }
 
@@ -304,8 +304,8 @@ class Logger {
     /**
      * Return true if a file has been included.
      * @url https://stackoverflow.com/a/52467334
-     * @param type $f
-     * @return bool
+     * @param String $f file path.     * @param String $f file path.
+     * @return bool true if a file has been included.
      */
     private static function file_has_been_included(string $filepath): bool {
         $fixpaths = function(string $f): string {
@@ -314,6 +314,12 @@ class Logger {
         return in_array($fixpaths($filepath), array_map($fixpaths, get_included_files()));
     }
 
+    /**
+     * Get list of functions defined in a PHP file.
+     * @param string $filePath File path.
+     * @param bool $sort True to sort.
+     * @return array<string> List of functions defined in a PHP file.
+     */
     private static function get_defined_functions_in_file(string $filePath, bool $sort = false): array {
         $file = file(str_replace(array('\\'), '/', $filePath));
         $functions = [];
@@ -349,9 +355,10 @@ class Logger {
     }
 
     /**
+     * Get the file path relative to this plugin.
      *
-     * @param string $filepath
-     * @return string
+     * @param string $filepath File path.
+     * @return string File path relative to this plugin.
      */
     public static function filepath_relative_to_plugin(string $filepath): string {
         return ltrim(str_replace(dirname(__DIR__), '', $filepath), '/');
