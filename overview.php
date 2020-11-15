@@ -128,11 +128,11 @@ $PAGE->set_title($title);
 $PAGE->set_pagelayout('report');
 // Used for JS-driven filter of table data on all overview pages.
 $PAGE->requires->string_for_js('filter', 'moodle');
+// Include JS and CSS for DataTables.
+$PAGE->requires->jquery_plugin('ui-css');
+$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
+$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
 if (in_array($requestedpage, ['overview-user', 'overview-module'], true)) {
-    // Include JS and CSS for DataTables.
-    $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
-    $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
-    $PAGE->requires->jquery_plugin('ui-css');
     $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
 }
 $PAGE->set_heading($title);
