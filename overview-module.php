@@ -138,12 +138,16 @@ if ($participantsessions) {
     $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
     foreach ($participants as $p) {
         $debuginfo = "participantidentifier={$p->participantidentifier}";
-        //echo '<PRE>' . ia_u::var_dump($p) . '</PRE><hr>' . ia_output::BRNL;
+
+        $session = $p->get_latest_module_session($moduleid);
+        if (ia_u::is_empty($session)) {
+            $debug && Logger::log(__FILE__ . '::Skipping empty latest session for participant->id=' . $p->participantidentifier . '; moduleid=' . $moduleid);
+            continue;
+        }
+
         // Column=User.
         $user = ia_mu::get_user_as_obj($p->participantidentifier);
         echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
-
-        $session = $p->get_latest_module_session($moduleid);
 
         // Column=session_start.
         $sessionstart = ia_u::is_unixtime_past($session->start) ? $session->start : '';
@@ -157,7 +161,6 @@ if ($participantsessions) {
         $debug && Logger::log(__FILE__ . "::{$debuginfo}:Got \$hasoverride={$hasoverride}");
 
         // Column=session_status.
-        $latestmodulesession = $p->get_latest_module_session($moduleid);
         $canoverride = false;
         $debug && Logger::log(__FILE__ . "::{$debuginfo}:Got \$canoverride={$canoverride}");
         $overrideclass = $canoverride ? " {$prefix}_session_overrideui" : '';
