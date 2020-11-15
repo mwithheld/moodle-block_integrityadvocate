@@ -26,9 +26,9 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
-use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\Participant as ia_participant;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -422,10 +422,6 @@ class Api {
             }
 
             // Filter for the input courseid and userid.
-            if (is_number($courseid) && intval($participant->courseid) !== intval($courseid)) {
-                $debug && Logger::log($fxn . "::Skip: \$participant->courseid={$participant->courseid} !== \$courseid={$courseid}");
-                continue;
-            }
             if (is_number($userid) && ($participant->participantidentifier) !== intval($userid)) {
                 $debug && Logger::log($fxn . "::Skip: \$participant->participantidentifier={$participant->participantidentifier} !== \$userid={$userid}");
                 continue;
@@ -470,14 +466,15 @@ class Api {
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !isser($params['courseid']) || !is_number($params['courseid'])) {
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !isset($params['courseid']) || !is_number($params['courseid'])) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
-        // The only valid param at the moment is externaluserid.
+
+        // Valid param: courseid, externaluserid.
         foreach (array_keys($params) as $key) {
-            if (!in_array($key, array('externaluserid'))) {
+            if (!in_array($key, array('courseid', 'externaluserid'))) {
                 $msg = 'Input params are invalid';
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -1008,7 +1005,7 @@ class Api {
      * @param Participant $participant Parent object
      * @return null|Session Null if failed to parse, otherwise a parsed Session object.
      */
-    private static function parse_session(\stdClass $input, Participant $participant) {
+    private static function parse_session(\stdClass $input, ia_participant $participant) {
         $debug = false || Logger::doLogForFunction(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $s=' . (ia_u::is_empty($input) ? '' : ia_u::var_dump($input, true)));
@@ -1149,7 +1146,7 @@ class Api {
         }
         $debug && Logger::log($fxn . '::Not a cached value; build a Participant');
 
-        $output = new Participant();
+        $output = new ia_participant();
 
         // Clean int fields.
         if (true) {
@@ -1253,13 +1250,6 @@ class Api {
             $debug && Logger::log($fxn . '::No sessions found');
         }
         $debug && Logger::log($fxn . '::Done sessions fields');
-
-        // A participant is valid only if they have sessions.
-        if (empty($output->sessions)) {
-            $debug && Logger::log($fxn . '::No sessions found, so return null');
-            return null;
-        }
-
         $debug && Logger::log($fxn . '::About to return $participant= ' . ia_u::var_dump($output, true));
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
