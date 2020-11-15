@@ -39,40 +39,40 @@ class Api {
     // API ref https://integrityadvocate.com/Developers#aEndpointMethods
 
     /** @var string URI to ping IA and see if there is a good response */
-    const ENDPOINT_PING = '/ping';
+    private const ENDPOINT_PING = '/ping';
 
     /** @var string URI to close the remote IA session */
-    const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
+    private const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
 
     /** @var string URI to get participant info */
-    const ENDPOINT_PARTICIPANT = '/participant';
+    private const ENDPOINT_PARTICIPANT = '/participant';
 
     /** @var string URI to get course info */
-    const ENDPOINT_PARTICIPANTS = '/course/courseid/participants';
+    private const ENDPOINT_PARTICIPANTS = '/course/courseid/participants';
 
     /** @var string URI to get course info */
-    const ENDPOINT_PARTICIPANTSESSIONS = '/course/courseid/participantsessions';
+    private const ENDPOINT_PARTICIPANTSESSIONS = '/course/courseid/participantsessions';
 
     /** @var [string] List of valid endpoints so we can validate calls. */
-    const ENDPOINTS = array(self::ENDPOINT_PARTICIPANT, self::ENDPOINT_PARTICIPANTS, self::ENDPOINT_PARTICIPANTSESSIONS);
+    private const ENDPOINTS = array(self::ENDPOINT_PARTICIPANT, self::ENDPOINT_PARTICIPANTS, self::ENDPOINT_PARTICIPANTSESSIONS);
 
     /** @var int The API returns 10 results max per call by default, but our UI shows 20 users per page.  Set the number we want per UI page here. Ref https://integrityadvocate.com/developers. */
     // Unused at the moment: const RESULTS_PERPAGE = 20;.
 
     /** @var int In case of errors, this limits recursion to some reasonable maximum. */
-    const RECURSEMAX = 250;
+    private const RECURSEMAX = 250;
 
     /** @var int Consider recursion failed after this time.  In seconds = 10 minutes. */
-    const RECURSION_TIMEOUT = 10 * 60;
+    private const RECURSION_TIMEOUT = 10 * 60;
 
     /** @var int Accept these HTTP success response codes as successful */
-    const HTTP_CODE_SUCCESS = [200, 201, 202, 204, 205];
+    private const HTTP_CODE_SUCCESS = [200, 201, 202, 204, 205];
 
     /** @var int Accept these HTTP success response codes as successful */
-    const HTTP_CODE_REDIRECT = [303, 304];
+    private const HTTP_CODE_REDIRECT = [303, 304];
 
     /** @var int Accept these HTTP success response codes as successful */
-    const HTTP_CODE_CLIENTERROR = [404, 410];
+    private const HTTP_CODE_CLIENTERROR = [404, 410];
 
     /**
      * Make sure we can reach the IA API.

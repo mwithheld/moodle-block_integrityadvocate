@@ -32,27 +32,27 @@ defined('MOODLE_INTERNAL') || die;
 class FeatureControl {
 
     /** @var bool True to allow caching using MUC. */
-    const CACHE = true;
+    public const CACHE = true;
 
     /** @var bool True to show a list of IA-enabled modules on the course-level block. */
-    const MODULE_LIST = true;
+    public const MODULE_LIST = true;
 
     /** @var bool True to allow showing the overview_module content. */
-    const OVERVIEW_MODULE = false;
+    public const OVERVIEW_MODULE = false;
 
     /** @var bool True to allow showing the overview_course content. */
-    const OVERVIEW_COURSE = true;
+    public const OVERVIEW_COURSE = true;
 
     /** @var bool True to use Guzzle to get participant info: one API request per Moodle user. False to get all participants from the API in one large request. */
-    const OVERVIEW_COURSE_USE_GUZZLE = false;
+    public const OVERVIEW_COURSE_USE_GUZZLE = false;
 
     /** @var bool True to use the DataTables-driven UI.  False to use the Moodle ParticipantsTable. */
-    const OVERVIEW_COURSE_V2 = true;
+    public const OVERVIEW_COURSE_V2 = true;
 
     /** @var bool True to allow instructors to override the IA session status. */
-    const SESSION_STATUS_OVERRIDE = true;
+    public const SESSION_STATUS_OVERRIDE = true;
 
     /** @var bool True to keep track of when session are started. */
-    const SESSION_STARTED_TRACKING = true;
+    public const SESSION_STARTED_TRACKING = true;
 
 }

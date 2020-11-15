@@ -39,15 +39,15 @@ defined('MOODLE_INTERNAL') || die;
 class Output {
 
     /** @var string Path to this block JS relative to the moodle root - Requires leading slash but no trailing slash. */
-    const BLOCK_JS_PATH = '/blocks/integrityadvocate/js';
+    private const BLOCK_JS_PATH = '/blocks/integrityadvocate/js';
 
     /** @var string newline */
-    const NL = "\n";
+    public const NL = "\n";
 
     /** @var string HTML linebreak */
-    const BRNL = "<br />" . self::NL;
+    public const BRNL = "<br />" . self::NL;
 
-    public static function pre(string $str) {
+    public static function pre(string $str): string {
         return '<PRE>' . $str . '</PRE>';
     }
 
