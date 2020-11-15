@@ -11,14 +11,12 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables'],
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
                             // Paging options ref https://datatables.net/reference/option/paging.
-                            $('#participants').DataTable({
-                                'autoWidth': false,
-                                'columnDefs': [{'orderable': false, 'targets': [4, 5]}],
-                                /*'info': true, // Show information about the table including information about filtered data; default=true. */
+                            $('#block_integrityadvocate_overview-course').DataTable({
+                                'columnDefs': [{'orderable': false, 'targets': [3, 4]}],
+//                                /*'info': true, // Show information about the table including information about filtered data; default=true. */
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
-                                'order': [], // Disable initial sort.
-                                'ordering': false,
-                                'paginate': false,
+//                                'ordering': false,
+//                                'paginate': false,
                                 'paging': false,
                                 'searching': true
                             });
