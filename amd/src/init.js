@@ -9,8 +9,8 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                     }
                     M.block_integrityadvocate = {...M.block_integrityadvocate};
                     switch (true) {
-                        case((typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 !== 'undefined') && $('body').hasClass('block_integrityadvocate-overview-course')):
-                            debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_course_v2');
+                        case((typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 == 'boolean') && (typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 == true) && $('body').hasClass('block_integrityadvocate-overview-course')):
+                            debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_course_v2', M.block_integrityadvocate.overview_course_v2);
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
