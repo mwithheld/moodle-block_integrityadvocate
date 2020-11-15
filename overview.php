@@ -153,13 +153,15 @@ $PAGE->set_title($title);
 $PAGE->set_pagelayout('report');
 // Used for JS-driven filter of table data on all overview pages.
 $PAGE->requires->string_for_js('filter', 'moodle');
-if (FeatureControl::OVERVIEW_COURSE_V2 || in_array($requestedpage, ['overview-user', 'overview-module'], true)) {
-    // Include JS and CSS for DataTables.
-    $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
-    $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
-    $PAGE->requires->jquery_plugin('ui-css');
-    // Usage data_for_js($variable, $data, $inhead=false).
-    $PAGE->requires->data_for_js('M.block_integrityadvocate', (object) ['OVERVIEW_COURSE_V2' => true, 'appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
+// Include JS and CSS for DataTables.
+$PAGE->requires->jquery_plugin('ui-css');
+$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
+$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
+$PAGE->requires->data_for_js('M.block_integrityadvocate', (object) ['OVERVIEW_COURSE_V2' => true, 'appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
+
+// We do not allow overrides on the overview-course page.
+if (in_array($requestedpage, ['overview-user', 'overview-module'], true)) {
+    $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
 }
 $PAGE->set_heading($title);
 $PAGE->navbar->add($title);

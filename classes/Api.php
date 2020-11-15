@@ -26,9 +26,9 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
-use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\Participant as ia_participant;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -258,7 +258,7 @@ class Api {
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed on: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
-            throw new HttpException($msg, $responsecode, $requesturi);
+            throw new \HttpException($msg, $responsecode, $requesturi);
         }
 
         if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
@@ -357,7 +357,7 @@ class Api {
 
         // This gets a json-decoded object of the IA API curl result.
         $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
-        $debug && Logger::log($fxn . '::Got API result=' . ia_u::var_dump($participantraw, true));
+        $debug && Logger::log($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
         if (ia_u::is_empty($participantraw)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return null;
@@ -1025,7 +1025,7 @@ class Api {
      * @param Participant $participant Parent object
      * @return null|Session Null if failed to parse, otherwise a parsed Session object.
      */
-    private static function parse_session(\stdClass $input, Participant $participant): Session {
+    private static function parse_session(\stdClass $input, ia_participant $participant): ?Session {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
@@ -1033,7 +1033,7 @@ class Api {
         // Sanity check.
         if (ia_u::is_empty($input)) {
             $debug && Logger::log($fxn . '::Empty object found, so return false');
-            return [];
+            return null;
         }
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
@@ -1166,7 +1166,7 @@ class Api {
         }
         $debug && Logger::log($fxn . '::Not a cached value; build a Participant');
 
-        $output = new Participant();
+        $output = new ia_participant();
 
         // Clean int fields.
         if (true) {
@@ -1269,11 +1269,11 @@ class Api {
         } else {
             $debug && Logger::log($fxn . '::No sessions found');
         }
-        $debug && Logger::log($fxn . '::Done sessions fields. About to return $participant=' . ia_u::var_dump($output, true));
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
+        $debug && Logger::log($fxn . '::Done sessions fields. About to return $participant=' . ia_u::var_dump($output, true));
         return $output;
     }
 

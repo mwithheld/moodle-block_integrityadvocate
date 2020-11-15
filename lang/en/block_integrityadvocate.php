@@ -67,6 +67,7 @@ $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info - 
 $string['error_invalidappid'] = "Invalid Application Id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538";
 $string['error_noapikey'] = "No Api key is set";
 $string['error_noappid'] = "No Application Id is set";
+$string['error_nousers'] = "No users found";
 $string['error_notenrolled'] = "You are not enrolled in this course";
 $string['error_quiz_showblocks'] = "This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...";
 

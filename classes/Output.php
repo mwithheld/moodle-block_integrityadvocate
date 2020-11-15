@@ -29,6 +29,7 @@ use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\Participant as ia_participant;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -392,7 +393,7 @@ class Output {
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output.
      */
-    public static function get_participant_summary_output(\block_integrityadvocate $blockinstance, Participant $participant, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
+    public static function get_participant_summary_output(\block_integrityadvocate $blockinstance, ia_participant $participant, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatus={$showstatus}; \$participant->status={$participant->status}";
@@ -421,7 +422,7 @@ class Output {
 
         $out = self::get_summary_html(
                         $participant->participantidentifier, $status, $participant->created, $participant->modified,
-                        ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, $participant->participantphoto, $participant->status, $participant->email) : ''),
+                        ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, ($participant->participantphoto ?: ''), $participant->status, $participant->email) : ''),
                         ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
                         $showstatus
         );
@@ -484,7 +485,9 @@ class Output {
     /**
      * Get the HTML used to display the participant photo in the IA summary output
      *
-     * @param \Participant $participant An IA participant object to pull info from.
+     * @param int $userid The user id.
+     * @param string $photo The user photo base64 string.
+     * @param $email The user email.
      * @return string HTML to output
      */
     public static function get_participant_photo_output(int $userid, string $photo, int $status, string $email): string {
@@ -525,8 +528,7 @@ class Output {
     public static function get_user_summary_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus);
-        $debug && Logger::log($debugvars);
+        $debug && Logger::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
@@ -540,40 +542,40 @@ class Output {
 
         try {
             switch (intval($parentcontext->contextlevel)) {
-                case (intval(\CONTEXT_COURSE)):
-                    // If the block is in a course, show the participant-level latest status, photo, last seen, etc.
-                    $debug && Logger::log($fxn . '::Am in a module context');
-                    $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid);
+            case (intval(\CONTEXT_COURSE)):
+                // If the block is in a course, show the participant-level latest status, photo, last seen, etc.
+                $debug && Logger::log($fxn . '::Am in a module context');
+                $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid);
 
-                    if (ia_u::is_empty($participant)) {
-                        $debug && Logger::log($fxn . '::Got empty participant, so return empty result');
-                        return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
-                    }
+                if (ia_u::is_empty($participant)) {
+                    $debug && Logger::log($fxn . '::Got empty participant, so return empty result');
+                    return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                }
 
-                    return self::get_participant_summary_output($blockinstance, $participant, $showphoto, $showoverviewbutton, $showstatus);
+                return self::get_participant_summary_output($blockinstance, $participant, $showphoto, $showoverviewbutton, $showstatus);
 
-                case (intval(\CONTEXT_MODULE)):
-                    // If block is in a module, show the module's latest status, photo, start, end.
-                    $debug && Logger::log($fxn . '::Am in a module context');
-                    $latestsession = ia_api::get_module_session_latest($parentcontext, $userid);
-                    $debug && Logger::log($fxn . '::Got $latestsession=' . $latestsession->__toString());
-                    if (ia_u::is_empty($latestsession)) {
-                        $debug && Logger::log($fxn . '::Got empty $latestsession, so return empty result');
-                        return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
-                    }
-                    $participant = $latestsession->participant;
-                    //get_summary_html(int $userid, int $status, int $start, int $end, string $photohtml = '', string $overviewbuttonhtml = '', bool $showstatus = false)
-                    return self::get_summary_html(
-                                    $participant->participantidentifier, $latestsession->status, $latestsession->start, $latestsession->end,
-                                    ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, $latestsession->participantphoto, $latestsession->status, $participant->email) : ''),
-                                    ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
-                                    $showstatus
-                    );
+            case (intval(\CONTEXT_MODULE)):
+                // If block is in a module, show the module's latest status, photo, start, end.
+                $debug && Logger::log($fxn . '::Am in a module context');
+                $latestsession = ia_api::get_module_session_latest($parentcontext, $userid);
+                $debug && Logger::log($fxn . '::Got $latestsession=' . $latestsession->__toString());
+                if (ia_u::is_empty($latestsession)) {
+                    $debug && Logger::log($fxn . '::Got empty $latestsession, so return empty result');
+                    return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                }
+                $participant = $latestsession->participant;
+                //get_summary_html(int $userid, int $status, int $start, int $end, string $photohtml = '', string $overviewbuttonhtml = '', bool $showstatus = false)
+                return self::get_summary_html(
+                                $participant->participantidentifier, $latestsession->status, $latestsession->start, $latestsession->end,
+                                ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, ($latestsession->participantphoto ?: ''), $latestsession->status, $participant->email) : ''),
+                                ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
+                                $showstatus
+                );
 
-                default:
-                    $msg = 'Unrecognized parent context';
-                    $debug && Logger::log($fxn . '::' . $msg);
-                    throw new \Exception($msg);
+            default:
+                $msg = 'Unrecognized parent context';
+                $debug && Logger::log($fxn . '::' . $msg);
+                throw new \Exception($msg);
             }
         } catch (\block_integrityadvocate\HttpException $e) {
             Logger::log($fxn . "::{$debugvars}::Ignoring an HttpException so the page display is not broken");

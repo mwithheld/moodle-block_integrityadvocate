@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die;
 class FeatureControl {
 
     /** @var bool True to allow caching using MUC. */
-    const CACHE = true;
+    const CACHE = false;
 
     /** @var bool True to show a list of IA-enabled modules on the course-level block. */
     const MODULE_LIST = true;
