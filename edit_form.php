@@ -23,6 +23,7 @@
  */
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\Utility as ia_u;
+use block_integrityadvocate\MoodleUtility as ia_mu;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -62,10 +63,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * @param MoodleQuickForm $mform the form being built.
      */
     protected function specific_definition_ia(MoodleQuickForm $mform) {
-        $data = $this->get_data();
-        if (empty($data) || !isset($data['config_apikey']) || !isset($data['config_appid']) || !ia_u::is_base64($data['config_apikey']) || !ia_u::is_guid($data['config_appid'])) {
-            $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME));
-        }
+        $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME), ['hidden' => true]);
 
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), array('size' => 39));
         $mform->setType('config_appid', PARAM_ALPHANUMEXT);
@@ -79,6 +77,23 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         }
 
         $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
+    }
+
+    /**
+     * Setup the form depending on current
+     * values. This method is called after definition(), data submission and set_data().
+     * All form setup that is dependent on form values should go in here.
+     */
+    public function definition_after_data() {
+        parent::definition_after_data();
+        $mform = & $this->_form;
+
+        $appid = $mform->getElementValue('config_appid');
+        $apikey = $mform->getElementValue('config_apikey');
+
+        if (ia_mu::is_base64($apikey) && ia_u::is_guid($appid)) {
+            $mform->getElement('topnote')->setAttributes(['class' => 'hidden']);
+        }
     }
 
     /**
