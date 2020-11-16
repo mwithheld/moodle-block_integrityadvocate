@@ -358,12 +358,15 @@ class Api {
         // This gets a json-decoded object of the IA API curl result.
         $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
         $debug && Logger::log($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
-        if (ia_u::is_empty($participantraw) || !($participantraw instanceof Participant)) {
+        if (ia_u::is_empty($participantraw) || !($participantraw instanceof \stdClass)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return null;
         }
 
         $participant = self::parse_participant($participantraw);
+        if (!($participant instanceof Participant)) {
+            return null;
+        }
         $debug && Logger::log($fxn . '::Built $participant=' . ia_u::var_dump($participant, true));
 
         return $participant;
@@ -406,7 +409,7 @@ class Api {
         }
 
         // This gets a json-decoded object of the IA API curl result.
-        $participantscached->participantsraw = array_merge($participantscached->participantsraw, self::get_participants_data($apikey, $appid, $params));
+        $participantscached->participantsraw = \array_merge($participantscached->participantsraw, self::get_participants_data($apikey, $appid, $params));
         $debug && Logger::log($fxn . '::After get_participants_data() and merge, count($participantscached)=' . ia_u::count_if_countable($participantscached->participantsraw) . '; API result=' . ia_u::var_dump($participantscached->participantsraw, true));
 
         if (ia_u::is_empty($participantscached->participantsraw)) {
@@ -419,13 +422,16 @@ class Api {
         $participantsparsed = [];
         foreach ($participantscached->participantsraw as $pr) {
             $debug && Logger::log($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
-            if (ia_u::is_empty($pr) || !($pr instanceof Participant)) {
+            if (ia_u::is_empty($pr) || !($pr instanceof \stdClass)) {
                 $debug && Logger::log($fxn . '::Skip: This $pr entry is empty');
                 continue;
             }
 
             // Parse the participants returned.
             $participant = self::parse_participant($pr);
+            if (!($participant instanceof Participant)) {
+                continue;
+            }
             $debug && Logger::log($fxn . '::Built $participant=' . ia_u::var_dump($participant, true));
 
             // Skip if parsing failed.
