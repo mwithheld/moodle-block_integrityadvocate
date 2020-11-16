@@ -97,12 +97,12 @@ class Api {
 
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = $responseinfo['http_code'];
+        $responsecode = intval($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
-        return [cleanremoteaddr($responseinfo['primary_ip']), intval($responsecode), trim($response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
+        return [cleanremoteaddr($responseinfo['primary_ip']), $responsecode, trim($response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
     }
 
     /**
@@ -154,7 +154,7 @@ class Api {
 
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = $responseinfo['http_code'];
+        $responsecode = intval($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
@@ -244,7 +244,7 @@ class Api {
         $responseparsed = json_decode($response);
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = $responseinfo['http_code'];
+        $responsecode = intval($responseinfo['http_code']);
 
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
@@ -1376,7 +1376,7 @@ class Api {
 
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = $responseinfo['http_code'];
+        $responsecode = intval($responseinfo['http_code']);
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
 
         $success = in_array($responsecode, self::HTTP_CODE_SUCCESS);
@@ -1394,7 +1394,7 @@ class Api {
                         '; $response=' . var_export($response, true) .
                         '; $responseparsed=' . ia_u::var_dump($responseparsed));
 
-        return isset($responsecode['http_code']) && ($responsecode['http_code'] == 200);
+        return $responsecode == 200;
     }
 
     /**
