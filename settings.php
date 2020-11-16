@@ -23,6 +23,7 @@
  */
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\Output as ia_output;
+use block_integrityadvocate\MoodleUtility as ia_mu;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -80,11 +81,12 @@ if ($ADMIN->fulltree) {
          */
         function block_integrityadvocate_get_siteinfo(): string {
             $debug = false;
+            $fxn = __FILE__ . '::' . __FUNCTION__;
 
             // Cache so multiple calls don't repeat the same work.
-            $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+            $cache = \cache::make(INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
             $cachekey = ia_mu::get_cache_key(implode('_', [__FILE__, __FUNCTION__]));
-            if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            if (block_integrityadvocate\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && Logger::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
@@ -148,7 +150,7 @@ if ($ADMIN->fulltree) {
             }
 
             $returnThis = html_writer::table($table);
-            if (FeatureControl::CACHE && !$cache->set($cachekey, $returnThis)) {
+            if (block_integrityadvocate\FeatureControl::CACHE && !$cache->set($cachekey, $returnThis)) {
                 throw new \Exception('Failed to set value in the cache');
             }
 
