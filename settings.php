@@ -66,7 +66,7 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configtext(INTEGRITYADVOCATE_BLOCK_NAME . '/config_logfromtime',
             get_string('config_logfromtime', INTEGRITYADVOCATE_BLOCK_NAME),
             get_string('config_logfromtime_help', INTEGRITYADVOCATE_BLOCK_NAME),
-            time(), '/^[1-9][0-9]{9}$/');
+            time(), '/^0|([1-9][0-9]{9})$/');
     $settings->add($setting);
 
     $setting = new admin_setting_heading(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo_heading', get_string('config_siteinfo', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_siteinfo_help', INTEGRITYADVOCATE_BLOCK_NAME));
