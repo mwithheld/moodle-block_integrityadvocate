@@ -107,7 +107,7 @@ if ($ADMIN->fulltree) {
 
             $badplugins = ['block_massactions'];
             foreach ($badplugins as $key => $plugin) {
-                if (!empty(core_plugin_manager::instance()->get_plugin_info($plugin))) {
+                if (empty(core_plugin_manager::instance()->get_plugin_info($plugin))) {
                     unset($badplugins[$key]);
                 }
             }
