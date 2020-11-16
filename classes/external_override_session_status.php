@@ -75,57 +75,57 @@ trait external_override_session_status {
         // Check for things that should make this fail.
         switch (true) {
             case(!\confirm_sesskey()):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => get_string('confirmsesskeybad'));
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => get_string('confirmsesskeybad'));
                 break;
             case(!\block_integrityadvocate\FeatureControl::SESSION_STATUS_OVERRIDE) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => 'This feature is disabled');
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'This feature is disabled');
                 break;
             case(!ia_mu::nonce_validate(INTEGRITYADVOCATE_BLOCK_NAME . "_override_{$blockinstance_requesting_id}_{$targetuserid}")):
                 // This nonce should be put into the server-side user session (ia_mu::nonce_set($noncekey)) when the form is generated.
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => 'Nonce not found');
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'Nonce not found');
                 break;
             case(!ia_status::is_override_status($status)) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Status={$status} not an value that can be set as an override");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Status={$status} not an value that can be set as an override");
                 break;
             case(ia_u::is_empty($blockinstance_requesting = \block_instance_by_id($blockinstance_requesting_id))) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Blockinstance not found for blockinstanceid={$blockinstance_requesting_id}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstance not found for blockinstanceid={$blockinstance_requesting_id}");
                 break;
             case(!($blockinstance_requesting instanceof block_integrityadvocate)) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Blockinstanceid={$blockinstance_requesting_id} is not an instance of block_integrityadvocate");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstanceid={$blockinstance_requesting_id} is not an instance of block_integrityadvocate");
                 break;
             case($configerrors = $blockinstance_requesting->get_config_errors()) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Blockinstanceid={$blockinstance_requesting_id} has config errors: <br />\n" . implode("<br />\n", $configerrors));
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstanceid={$blockinstance_requesting_id} has config errors: <br />\n" . implode("<br />\n", $configerrors));
                 break;
             case(!$blockinstance_requesting->is_visible()) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Blockinstanceid={$blockinstance_requesting_id} is hidden");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstanceid={$blockinstance_requesting_id} is hidden");
                 break;
             case(!($coursecontext = $blockinstance_requesting->context->get_course_context())) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Course context not found for blockinstanceid={$blockinstance_requesting_id}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course context not found for blockinstanceid={$blockinstance_requesting_id}");
                 break;
             case(!($courseid = $coursecontext->instanceid)) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Course not found from contextid={$coursecontext->id}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course not found from contextid={$coursecontext->id}");
                 break;
             case(!($targetuser = ia_mu::get_user_as_obj($targetuserid))) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Target user not found for targetuserid={$targetuserid}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Target user not found for targetuserid={$targetuserid}");
                 break;
             case(!\is_enrolled($coursecontext, $targetuser /* Include inactive enrolments. */)) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Course id={$courseid} does not have targetuserid={$targetuserid} enrolled");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have targetuserid={$targetuserid} enrolled");
                 break;
             case(!($overrideuser = ia_mu::get_user_as_obj($overrideuserid))) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Overriding user not found for overrideuserid={$overrideuserid}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Overriding user not found for overrideuserid={$overrideuserid}");
                 break;
             case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
                 break;
             case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $overrideuserid)[1]) || !($blockinstance_target = ia_mu::get_first_block($cm->context, INTEGRITYADVOCATE_SHORTNAME, false))):
                 // The above line also throws an error if $overrideuserid cannot access the module.
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => 'The target module must have an instance of ' . INTEGRITYADVOCATE_SHORTNAME . ' attached');
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The target module must have an instance of ' . INTEGRITYADVOCATE_SHORTNAME . ' attached');
                 break;
             case(!\is_enrolled(($modulecontext = $cm->context), $targetuser /* Include inactive enrolments. */)) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "The targetuserid={$targetuserid} is not enrolled in the target module cmid={$moduleid}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "The targetuserid={$targetuserid} is not enrolled in the target module cmid={$moduleid}");
                 break;
             case(!($hascapability_override = \has_capability(($overridepermission = 'block/integrityadvocate:override'), $modulecontext, $overrideuser))):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Course id={$courseid} does not have overrideuserid={$overrideuserid} active with the permission {$overridepermission}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have overrideuserid={$overrideuserid} active with the permission {$overridepermission}");
                 break;
         }
         $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));

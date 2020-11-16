@@ -80,38 +80,38 @@ trait external_datatables {
         // Check for things that should make this fail.
         switch (true) {
             case(!\confirm_sesskey()):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => get_string('confirmsesskeybad'));
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => get_string('confirmsesskeybad'));
                 break;
             case(!\block_integrityadvocate\FeatureControl::OVERVIEW_COURSE_V2) :
                 error_log($fxn . '::This feature is disabled');
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => 'This feature is disabled');
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'This feature is disabled');
                 break;
             case(!ia_u::is_guid($appid)):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => 'The input appid is an invalid GUID');
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The input appid is an invalid GUID');
                 break;
             case(!($course = ia_mu::get_course_as_obj($courseid))):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => 'The input courseid is an invalid course id');
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The input courseid is an invalid course id');
                 break;
             case(!($coursecontext = \context_course::instance($courseid))):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => 'The course context is invalid');
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The course context is invalid');
                 break;
             case(!\is_enrolled($coursecontext, $USER->id, 'block/integrityadvocate:overview', true /* Only active users */)) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Course id={$courseid} does not have userid={$USER->id} enrolled with overview privs");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have userid={$USER->id} enrolled with overview privs");
                 break;
             case(!$modinfo = \get_fast_modinfo($course)) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Course id={$courseid} has no modinfo");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} has no modinfo");
                 break;
             case($draw < 1) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Invalid draw {$draw} requested");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Invalid draw {$draw} requested");
                 break;
             case($start < 0) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Invalid start {$start} requested");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Invalid start {$start} requested");
                 break;
             case($length < 1) :
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Invalid length {$length} requested");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Invalid length {$length} requested");
                 break;
             case(ia_u::is_empty($activities = \block_integrityadvocate_get_course_ia_modules($course, array('visible' => 1, 'configured' => 1, 'appid' => $appid))) || !is_array($activities)):
-                $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "No activities in this course (id={$courseid}) use the specified appid={$appid}");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "No activities in this course (id={$courseid}) use the specified appid={$appid}");
                 break;
         }
 
@@ -153,7 +153,7 @@ trait external_datatables {
             }
         }
         if (!$hascapability_overview || ia_u::is_empty($activity)) {
-            $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Module id={$cm->id} does not have userid={$USER->id} enrolled with overview privs");
+            $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Module id={$cm->id} does not have userid={$USER->id} enrolled with overview privs");
             $result['success'] = false;
             Logger::log($fxn . '::' . serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
@@ -193,7 +193,7 @@ trait external_datatables {
                 $colitem_cleaned['data'] = $colitem['data'];
                 if (empty($colitem['name']) || !in_array($colitem['name'], $valid_columns)) {
                     $debug && Logger::log($fxn . '::Built $order_cleaned=' . ia_u::var_dump($order_cleaned));
-                    $result['warnings'][] = array('warningcode' => implode('-', $blockversion, __LINE__), 'message' => "Invalid column {$colitem['name']}");
+                    $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Invalid column {$colitem['name']}");
                     // Don't bother processing any more - we will just return an error.
                     break;
                 }
