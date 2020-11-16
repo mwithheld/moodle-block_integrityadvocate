@@ -90,8 +90,9 @@ trait external_override_session_status {
             case(ia_u::is_empty($blockinstance_requesting = \block_instance_by_id($blockinstance_requesting_id))) :
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstance not found for blockinstanceid={$blockinstance_requesting_id}");
                 break;
-            case(!($blockinstance_requesting instanceof block_integrityadvocate)) :
-                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstanceid={$blockinstance_requesting_id} is not an instance of block_integrityadvocate");
+            case(!($blockinstance_requesting instanceof \block_integrityadvocate)) :
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstanceid={$blockinstance_requesting_id} is not an instance of block_integrityadvocate; type=" . gettype($blockinstance_requesting));
+                $debug && Logger::log($fxn . '::$blockinstance_requesting=' . ia_u::var_dump($blockinstance_requesting));
                 break;
             case($configerrors = $blockinstance_requesting->get_config_errors()) :
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Blockinstanceid={$blockinstance_requesting_id} has config errors: <br />\n" . implode("<br />\n", $configerrors));
