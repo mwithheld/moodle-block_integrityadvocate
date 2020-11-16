@@ -73,8 +73,22 @@ if ($ADMIN->fulltree) {
 
     if (!function_exists('block_integrityadvocate_get_siteinfo')) {
 
+        /**
+         * Get site info.  Use caching b/c Moodle will call this function twice per page display.
+         *
+         * @return string HTML site info
+         */
         function block_integrityadvocate_get_siteinfo(): string {
             $debug = false;
+
+            // Cache so multiple calls don't repeat the same work.
+            $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+            $cachekey = ia_mu::get_cache_key(implode('_', [__FILE__, __FUNCTION__]));
+            if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+                $debug && Logger::log($fxn . '::Found a cached value, so return that');
+                return $cachedvalue;
+            }
+
             list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
 
             $micro_date = microtime();
@@ -132,7 +146,14 @@ if ($ADMIN->fulltree) {
             foreach ($siteinfo as $key => &$val) {
                 $table->data[] = [$key, $val];
             }
-            return html_writer::table($table);
+
+            $returnThis = html_writer::table($table);
+            if (FeatureControl::CACHE && !$cache->set($cachekey, $returnThis)) {
+                throw new \Exception('Failed to set value in the cache');
+            }
+
+
+            return $returnThis;
         }
 
     }
