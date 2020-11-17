@@ -292,24 +292,25 @@ class block_integrityadvocate extends block_base {
             $formstart .= '<input type="hidden" name="edit" value="on">';
 
             $user_is_editing = $this->page->user_is_editing();
-            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Course editing mode=' . ($user_is_editing ? 1 : 0));
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Course editing mode=' . ($user_is_editing ? 1 : 0));
             foreach ($iamodules as $m) {
-                // Disabled due to huge output: $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $m=' . ia_u::var_dump($m));.
-                if (!isset($m['block_integrityadvocate_instance']['instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']) || ia_u::is_empty($m['block_integrityadvocate_instance']['instance'])) {
-                    $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Skipping this module b/c it is missing pieces');
+                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $m=' . ia_u::var_dump($m));
+                if (!isset($m['block_integrityadvocate_instance']['instance']) || ia_u::is_empty($blockinstance = $m['block_integrityadvocate_instance']['instance'])) {
+                    $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Skipping this module b/c it is missing pieces');
                     continue;
                 }
+                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $blockinstance=' . ia_u::var_dump($blockinstance));
                 // Output a link to the module.
                 $this->content->text .= \html_writer::link($m['url'], $m['name']);
-                if (has_capability('moodle/block:edit', $m['block_integrityadvocate_instance']['instance']->context)) {
+                if (\block_integrityadvocate\FeatureControl::MODULE_LIST_CONFIGLINK && has_capability('moodle/block:edit', $blockinstance->context)) {
                     if ($user_is_editing) {
                         // Output a link to module's block config.
-                        $blocktitle = get_string('configureblock', 'block', $m['block_integrityadvocate_instance']['instance']->title);
-                        $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                        $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
+                        $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
                     } else {
                         // We need a form to turn course editing on; then go to block config.
-                        $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $m['block_integrityadvocate_instance']['id'] . '">';
-                        $blocktitle = get_string('configureblock', 'block', $m['block_integrityadvocate_instance']['instance']->title);
+                        $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
+                        $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
                         $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();e.preventDefault();return false;"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
                         $this->content->text .= '</form>';
                     }
@@ -535,7 +536,7 @@ class block_integrityadvocate extends block_base {
      *
      * @return \stdClass The $COURSE.
      */
-    public function get_course() {
+    public function get_course(): \stdClass {
         global $COURSE;
         return $COURSE;
     }
@@ -545,7 +546,7 @@ class block_integrityadvocate extends block_base {
      *
      * @return \stdClass The $USER.
      */
-    public function get_user() {
+    public function get_user(): stdClass {
         global $USER;
         return $USER;
     }
@@ -555,8 +556,17 @@ class block_integrityadvocate extends block_base {
      *
      * @return block_integrityadvocate Block instance.
      */
-    public function get_instance() {
+    public function get_instance(): \block_integrityadvocate {
         return $this->instance;
+    }
+
+    /**
+     * Get the current block instance id.
+     *
+     * @return int Block instance id.
+     */
+    public function get_id(): int {
+        return $this->instance->id;
     }
 
     /**
