@@ -142,8 +142,21 @@ class Utility {
         // Avoid OOM errors.
         raise_memory_limit(MEMORY_HUGE);
 
-        if (is_object($expression) && method_exists(get_class($expression), '__toString')) {
-            $expression = $expression->__toString();
+        if (is_object($expression)) {
+            //error_log(__FUNCTION__ . '::Found a page property?=' . property_exists($expression, 'page'));
+            //if (isset($expression->page)) {
+            //    error_log(__FUNCTION__ . '::Type of page property stdClass?=' . $expression->page instanceof \stdClass);
+            //}
+            if (property_exists($expression, 'page') && (gettype($expression->page) == 'object')) {
+                unset($expression->page);
+            }
+            if (method_exists(get_class($expression), '__toString')) {
+                $expression = $expression->__toString();
+            }
+        }
+
+        if (is_array($expression) && isset($expression['page']) && ($expression['page'] instanceof Object)) {
+            unset($expression['page']);
         }
 
         // Preg_replace prevents dying on base64-encoded images.
