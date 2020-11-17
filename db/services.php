@@ -96,7 +96,7 @@ $functions = array(
         // Services created manually via the Moodle interface are not supported.
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
         // Capabilities required by the function.
-        'capabilities' => array('block/integrityadvocate:override'),
+        'capabilities' => 'block/integrityadvocate:override',
     ),
     'block_integrityadvocate_session_close' => array(
         // Class containing the external function OR namespaced class in classes/external/XXXX.php.
@@ -117,7 +117,7 @@ $functions = array(
         // Services created manually via the Moodle interface are not supported.
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
         // Capabilities required by the function.
-        'capabilities' => array('block/integrityadvocate:view'),
+        'capabilities' => 'block/integrityadvocate:view',
     ),
     'block_integrityadvocate_session_open' => array(
         // Class containing the external function OR namespaced class in classes/external/XXXX.php.
@@ -138,7 +138,7 @@ $functions = array(
         // Services created manually via the Moodle interface are not supported.
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
         // Capabilities required by the function.
-        'capabilities' => array('block/integrityadvocate:view'),
+        'capabilities' => 'block/integrityadvocate:view',
     ),
     'block_integrityadvocate_datatables_participants' => array(
         // Class containing the external function OR namespaced class in classes/external/XXXX.php.
@@ -159,6 +159,6 @@ $functions = array(
         // Services created manually via the Moodle interface are not supported.
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
         // Capabilities required by the function.
-        'capabilities' => array('block/integrityadvocate:overview'),
+        'capabilities' => 'block/integrityadvocate:overview',
     ),
 );
