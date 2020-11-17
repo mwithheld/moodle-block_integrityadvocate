@@ -158,7 +158,7 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
 
     // Since we update the modules in this loop, the $m is purposely by reference.
     foreach ($modules as $key => &$m) {
-        // Disabled on purpose: $debug &&Logger::log($fxn . '::Looking at module with url=' . $a->url);.
+        $debug && Logger::log($fxn . '::Looking at module=' . ia_u::var_dump($m));
         $modulecontext = $m['context'];
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, isset($filter['visible']) && (bool) $filter['visible']);
 
