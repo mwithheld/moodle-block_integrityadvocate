@@ -91,7 +91,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $appid = $mform->getElementValue('config_appid');
         $apikey = $mform->getElementValue('config_apikey');
 
-        if (ia_mu::is_base64($apikey) && ia_u::is_guid($appid)) {
+        if (!empty($apikey) && ia_mu::is_base64($apikey) && !empty($appid) && ia_u::is_guid($appid)) {
             $mform->getElement('topnote')->setAttributes(['class' => 'hidden']);
         }
     }
