@@ -89,15 +89,19 @@ class MoodleUtility {
      * @param string $blockname Name of the block to get instances for.
      * @return array where key=block_instances.id; val=block_instance object.
      */
-    private static function get_blocks_in_context(int $contextid, string $blockname): array {
+    private static function get_blocks_in_context(int $contextid, string $blockname, bool $visibleonly = false): array {
         global $DB;
 
         $blockinstances = [];
-        $recordset = $DB->get_recordset('block_instances', array('parentcontextid' => $contextid, 'blockname' => $blockname));
-        foreach ($recordset as $r) {
+        $records = $DB->get_records('block_instances', array('parentcontextid' => $contextid, 'blockname' => $blockname));
+        foreach ($records as $r) {
+            // Check if it is visible.
+            if ($visibleonly && !self::get_block_visibility($r->parentcontextid, $r->id)) {
+                continue;
+            }
+
             $blockinstances[$r->id] = \block_instance_by_id($r->id);
         }
-        $recordset->close();
 
         return $blockinstances;
     }
@@ -109,7 +113,7 @@ class MoodleUtility {
      * @param string $blockname Name of the block to get instances for.
      * @return array where key=block_instances.id; val=block_instance object.
      */
-    public static function get_all_course_blocks(int $courseid, string $blockname): array {
+    public static function get_all_course_blocks(int $courseid, string $blockname, bool $visibleonly = false): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . "::Started with courseid={$courseid}; \$blockname={$blockname}");
@@ -117,7 +121,7 @@ class MoodleUtility {
         $coursecontext = \context_course::instance($courseid, MUST_EXIST);
 
         // Get course-level instances.
-        $blockinstances = self::get_blocks_in_context($coursecontext->id, $blockname);
+        $blockinstances = self::get_blocks_in_context($coursecontext->id, $blockname, $visibleonly);
         $debug && Logger::log($fxn . '::Found course level block count=' . ia_u::count_if_countable($blockinstances));
 
         // Look in modules for more blocks instances.
@@ -127,7 +131,7 @@ class MoodleUtility {
                 continue;
             }
 
-            $blocksinmodule = self::get_blocks_in_context($c->id, $blockname);
+            $blocksinmodule = self::get_blocks_in_context($c->id, $blockname, $visibleonly);
             $debug && Logger::log($fxn . '::Found module level block count=' . ia_u::count_if_countable($blocksinmodule));
             $blockinstances += $blocksinmodule;
         }
@@ -516,9 +520,9 @@ class MoodleUtility {
         $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
         $debug && Logger::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
-        //Z--.
+        // Z--.
         // Danger: Caching the resulting $record in the perrequest cache didn't work - we get an invalid stdClass back out.
-        //Z--.
+        // Z--.
         global $DB;
         $records = $DB->get_records('block_instances', $params);
         $debug && Logger::log($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));

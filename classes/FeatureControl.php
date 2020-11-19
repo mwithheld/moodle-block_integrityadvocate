@@ -38,6 +38,7 @@ class FeatureControl {
     public const MODULE_LIST = true;
 
     /** @var bool True to show the gear icon to configure the module-level blocks. */
+    // This feature is not ready yet!!
     public const MODULE_LIST_CONFIGLINK = false;
 
     /** @var bool True to allow showing the overview_module content. */
