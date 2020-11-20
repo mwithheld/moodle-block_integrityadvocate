@@ -9,7 +9,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                     }
                     M.block_integrityadvocate = {...M.block_integrityadvocate};
                     switch (true) {
-                        case((typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 == 'boolean') && (typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 == true) && $('body').hasClass('block_integrityadvocate-overview-course')):
+                        case((typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 === 'boolean') && (M.block_integrityadvocate.OVERVIEW_COURSE_V2 === true) && $('body').hasClass('block_integrityadvocate-overview-course')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_course_v2', M.block_integrityadvocate.overview_course_v2);
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
@@ -61,8 +61,9 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                                 // We do not allow per-column search, so remove this data.
                                                 columns: dtQueryData.columns
                                             },
-                                            done: function() {
-                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done');
+                                            done: function(response) {
+                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done; response=', response);
+                                                theCallbackToExec(JSON.parse(response.values));
                                             },
                                             fail: function(xhr_unused, textStatus, errorThrown) {
                                                 debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.fail', xhr_unused);
@@ -111,7 +112,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
 //                            });
                             break;
                         case($('body').hasClass('block_integrityadvocate-overview-course')):
-                            debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participants_table - DataTables adds the filter capability');
+                            debug && window.console.log('M.block_integrityadvocate.init.js::overview-course: Found overview_participants_table - DataTables adds the filter capability');
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
@@ -127,7 +128,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                             });
                             break;
                         case($('body').hasClass('block_integrityadvocate-overview-user') || $('body').hasClass('block_integrityadvocate-overview-module')):
-                            debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_participant_table - DataTables is the wholeUI');
+                            debug && window.console.log('M.block_integrityadvocate.init.js::overview-user:Found overview_participant_table - DataTables is the wholeUI');
                             // Re-usable reference to the holder of the DataTable.
                             M.block_integrityadvocate.eltDt = $('#block_integrityadvocate_participant_table');
                             M.block_integrityadvocate.isOverviewUserPage = $('body').hasClass('block_integrityadvocate-overview-user');
