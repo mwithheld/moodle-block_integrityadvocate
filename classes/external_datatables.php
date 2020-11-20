@@ -299,7 +299,7 @@ trait external_datatables {
                     new \external_single_structure([
                         'data' => new \external_value(\PARAM_INT),
                         'name' => new \external_value(\PARAM_ALPHAEXT),
-                        'orderable' => new \external_value(\PARAM_BOOL, null, \VALUE_OPTIONAL, true, true),
+                        'orderable' => new \external_value(\PARAM_BOOL, null, null, true, true),
                         'searchable' => new \external_value(\PARAM_BOOL),
                             // The 'search' param is totally ignored b/c we do not support per-column searches.
                             ])
