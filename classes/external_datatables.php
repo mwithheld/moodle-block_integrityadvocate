@@ -218,6 +218,16 @@ trait external_datatables {
                 return $result;
             }
         }
+        $result['submitted'] = true;
+
+        // Set default to to empty data.
+        $dataToReturn = [
+            'draw' => $draw,
+            'recordsTotal' => 0,
+            'recordsFiltered' => 0,
+            'data' => [],
+        ];
+        $result['values'] = json_encode($dataToReturn, JSON_INVALID_UTF8_IGNORE);
 
         // Get list of Moodle course participants.
         $roleid = ia_mu::get_default_course_role($coursecontext);
@@ -225,34 +235,34 @@ trait external_datatables {
         $enrolledusers = get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), null, true, $groupid, null, null);
         $debug && Logger::log($fxn . '::Got count($enrolledusers)=' . ia_u::count_if_countable($enrolledusers));
         if (ia_u::is_empty($enrolledusers)) {
-            $result['submitted'] = true;
             $debug && Logger::log($fxn . "::No users enrolled in this courseid={$courseid}");
+            return $result;
+        }
+        $dataToReturn['recordsTotal'] = ia_u::count_if_countable($enrolledusers);
+
+        // Get list of IA participants.
+        $participants = ia_api::get_participants($blockinstance->config->apikey, $appid, $courseid);
+        $debug && Logger::log($fxn . '::Got $participants=' . ia_u::var_dump($participants));
+        if (ia_u::is_empty($participants)) {
+            $debug && Logger::log($fxn . "::No IA participants found for this courseid={$courseid}");
             return $result;
         }
 
         // Return values are described at https://datatables.net/manual/server-side#Returned-data .
         $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
         //$prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
-        $rows = [
-            'draw' => $draw,
-            'recordsTotal' => ia_u::count_if_countable($enrolledusers),
-            'recordsFiltered' => ia_u::count_if_countable($enrolledusers),
-            'data' => [],
-        ];
         $canviewfullnames = has_capability('moodle/site:viewfullnames', $cm->context);
+        $rows = [];
         foreach ($enrolledusers as $user) {
-            $rowvals = [
+            $rows[$user->id] = [
                 $user->id,
                 array('picture' => ia_mu::get_user_picture($user, $pictureparams), 'name' => fullname($user, $canviewfullnames)),
                 $user->email,
                 ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')),
-                'ia-data here',
-                'ia-photo here',
+                '',
+                '',
             ];
-            $rows['data'][] = $rowvals;
         }
-        $debug && Logger::log($fxn . "::Built returnthis=" . ia_u::var_dump($rows));
-        $result['values'] = json_encode($rows, JSON_INVALID_UTF8_IGNORE);
 
 //        foreach ($enrolledusers as $user) {
 //            //echo '<PRE>' . ia_u::var_dump($user) . '</PRE><hr>' . ia_output::BRNL;
@@ -265,12 +275,22 @@ trait external_datatables {
 //            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iaphoto"]);
 //        }
         //
-        // Get list of IA participants.
-        //
         // Reconcile the list of Moodle participants and IA participants.
-        //
+        foreach ($participants as $p) {
+            if (!isset($rows[$p->participantidentifier])) {
+                unset($rows[$p->participantidentifier]);
+            }
+            $rows[$p->participantidentifier][4] = 'ia data here';
+            $rows[$p->participantidentifier][5] = $p->participantphoto;
+        }
 
-        $result['submitted'] = true;
+        $dataToReturn['recordsFiltered'] = ia_u::count_if_countable($rows);
+        $dataToReturn['data'] = array_values($rows);
+        $debug && Logger::log($fxn . "::Built \$dataToReturn=" . ia_u::var_dump($dataToReturn));
+
+        // This holds the DataTables return data.
+        $result['values'] = json_encode($dataToReturn, JSON_INVALID_UTF8_IGNORE);
+
         $debug && Logger::log($fxn . '::No warnings; About to return $result=' . ia_u::var_dump($result));
         return $result;
     }
