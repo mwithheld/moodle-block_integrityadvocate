@@ -80,7 +80,7 @@ class Api {
      * @return array<int remote_ip, int http_response_code, string response_body, int total_time]. Numeric values are cleaned but the response body is unchanged.
      */
     public static function ping(): array {
-        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . '::Started';
         $debug && Logger::log($debugvars);
@@ -115,7 +115,7 @@ class Api {
      * @return bool true if the remote API close says it succeeded; else false
      */
     public static function close_remote_session(string $appid, int $courseid, int $moduleid, int $userid): bool {
-        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
