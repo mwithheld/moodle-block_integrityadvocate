@@ -605,8 +605,8 @@ class MoodleUtility {
      * Build the formatted Moodle user info HTML with optional params.
      *
      * @param \stdClass $user Moodle User object.
-     * @param array $params Optional e.g ['size' => 35, 'courseid' => $courseid, 'includefullname' => true].
-     * @return string HTML for displaying user info.
+     * @param array $params Optional e.g ['courseid' => $courseid].
+     * @return string User picture URL - it will not include fullname, size, img tag, or anything else.
      */
     public static function get_user_picture(\stdClass $user, array $params = array()): string {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -627,17 +627,19 @@ class MoodleUtility {
                 $user_picture->$key = $val;
             }
         }
+        $debug && Logger::log($fxn . '::Built user_picture=' . ia_u::var_dump(user_picture));
 
         $page = new \moodle_page();
         $page->set_url('/user/profile.php');
-        if (!ia_u::is_empty($user_picture->courseid)) {
+        if (!ia_u::is_empty($params->courseid)) {
+            $page->set_context(\context_course::instance($params->courseid));
+        } elseif (!ia_u::is_empty($user_picture->courseid)) {
             $page->set_context(\context_course::instance($user_picture->courseid));
         } else {
             $page->set_context(\context_system::instance());
         }
-        $renderer = $page->get_renderer('core');
+        $picture = $user_picture->get_url($page, $page->get_renderer('core'))->out(false);
 
-        $picture = $user_picture->get_url($page, $renderer)->out(false);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $picture)) {
             throw new \Exception('Failed to set value in the cache');
