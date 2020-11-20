@@ -239,10 +239,11 @@ trait external_datatables {
             'recordsFiltered' => ia_u::count_if_countable($enrolledusers),
             'data' => [],
         ];
+        $canviewfullnames = has_capability('moodle/site:viewfullnames', $cm->context);
         foreach ($enrolledusers as $user) {
             $rowvals = [
                 $user->id,
-                ia_mu::get_user_picture($user, $pictureparams),
+                array('picture' => ia_mu::get_user_picture($user, $pictureparams), 'name' => fullname($user, $canviewfullnames)),
                 $user->email,
                 ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')),
                 'ia-data here',
