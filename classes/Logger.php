@@ -394,6 +394,7 @@ class Logger {
             '\block_integrityadvocate',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Api',
             INTEGRITYADVOCATE_BLOCK_NAME . '\Output',
+            INTEGRITYADVOCATE_BLOCK_NAME . '\MoodleUtility',
                 // This one causes OOM errors in session.
 //            INTEGRITYADVOCATE_BLOCK_NAME . '\ParticipantsTable',
         ];
