@@ -64,16 +64,13 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             done: function(response) {
                                                 debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done; response=', response);
                                                 var response_parsed = JSON.parse(response.values);
-                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done; response_parsed=', response_parsed);
 
                                                 // Format the User column.
                                                 response_parsed.data.forEach(userrow => {
-                                                    userrow[1] = $('<img class="userpicture defaultuserpic" width="35" height="35"/>', {
-                                                        src: userrow[1]['picture'],
-                                                        alt: M.util.get_string('pictureof', 'moodle') + userrow[1]['name']
-                                                    }).wrap(`<a href="${M.cfg.wwwroot}/user/view.php?id=${userrow[0]}&course=${M.block_integrityadvocate.courseid}" />`).html();
+                                                    var pictureof = M.util.get_string('pictureof', 'moodle') + userrow[1]['name'];
+                                                    var html = $(`<a href="${M.cfg.wwwroot}/user/view.php?id=${userrow[0]}&course=${M.block_integrityadvocate.courseid}"><img src="${userrow[1]['picture']}" class="userpicture defaultuserpic" width="35" height="35" alt="${pictureof}" title="${pictureof}" />${userrow[1]['name']}</a>`).get(0).outerHTML;
+                                                    userrow[1] = html;
                                                 });
-                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done::After altering, response_parsed=', response_parsed);
 
                                                 theCallbackToExec(response_parsed);
                                             },
@@ -85,43 +82,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             }
                                         }]);
                                 }
-//                                'ajax': {
-//                                    'url': '/~markv/ac/m38/blocks/integrityadvocate/apitest.php',
-//                                    'type': 'POST'
-//                                    data: function(d) {
-//                                        console.log('d', d);
-//                                        d.columns.every(function(item) {
-//                                            delete item.search;
-//                                            delete item.searchable;
-//                                            console.log('d', d);
-//                                        });
-//                                    }
-//                            }
                             });
-//                            $(eltDt).ready(function() {
-//                                window.console.log('DataTable is ready')
-//                            });
-//                            eltDt.on('init.dt', function() {
-//                                window.console.log('M.block_integrityadvocate.init.js::overview-course.dataTable.on(draw.dt): eltDt redrawn');
-//                                ajax.call([{
-//                                        methodname: 'block_integrityadvocate_get_participants',
-//                                        args: {
-//                                            appid: 'self.appid',
-//                                            courseid: self.courseid,
-//                                            moduleid: self.activityid,
-//                                            userid: [8, 7, 4]
-//                                        },
-//                                        done: function() {
-//                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.done');
-//                                        },
-//                                        fail: function(xhr_unused, textStatus, errorThrown) {
-//                                            debug && window.console.log('M.block_integrityadvocate.get_participants::ajax.fail');
-//                                            console.log('textStatus', textStatus);
-//                                            console.log('errorThrown', errorThrown);
-//                                            alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.get_participants::ajax.fail');
-//                                        }
-//                                    }]);
-//                            });
                             break;
                         case($('body').hasClass('block_integrityadvocate-overview-course')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::overview-course: Found overview_participants_table - DataTables adds the filter capability');
@@ -133,8 +94,6 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 'columnDefs': [{'orderable': false, 'targets': [3, 4]}],
 //                                /*'info': true, // Show information about the table including information about filtered data; default=true. */
                                 'language': {'search': M.util.get_string('filter', 'moodle') + '&nbsp;'},
-//                                'ordering': false,
-//                                'paginate': false,
                                 'paging': false,
                                 'searching': true
                             });
