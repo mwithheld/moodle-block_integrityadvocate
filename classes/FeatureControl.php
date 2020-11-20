@@ -41,9 +41,6 @@ class FeatureControl {
     // This feature is not ready yet!!
     public const MODULE_LIST_CONFIGLINK = false;
 
-    /** @var bool True to allow showing the overview_module content. */
-    public const OVERVIEW_MODULE = false;
-
     /** @var bool True to allow showing the overview_course content. */
     public const OVERVIEW_COURSE = true;
 
@@ -52,6 +49,9 @@ class FeatureControl {
 
     /** @var bool True to use the DataTables-driven UI.  False to use the Moodle ParticipantsTable. */
     public const OVERVIEW_COURSE_V2 = false;
+
+    /** @var bool True to allow showing the overview_module content. */
+    public const OVERVIEW_MODULE = false;
 
     /** @var bool True to allow instructors to override the IA session status. */
     public const SESSION_STATUS_OVERRIDE = true;
