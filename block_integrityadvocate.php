@@ -288,13 +288,14 @@ class block_integrityadvocate extends block_base {
         }
 
         $prefix = 'integrityadvocate_modulelist';
-        $iablocksinthiscourse = ia_mu::get_all_course_blocks($this->get_course(), INTEGRITYADVOCATE_BLOCK_NAME);
+        $iablocksinthiscourse = ia_mu::get_all_course_blocks($this->get_course()->id, INTEGRITYADVOCATE_SHORTNAME);
         $iamodulesexist = ($blockcount = ia_u::count_if_countable($iablocksinthiscourse)) > 0;
 
         $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
-        $this->content->text .= \html_writer::tag('h6', \get_string('modulelist_title', INTEGRITYADVOCATE_BLOCK_NAME, $blockcount), array('class' => "{$prefix}_div_title"));
+        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME, $blockcount), array('class' => "{$prefix}_div_title"));
 
         if (!$iamodulesexist) {
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::No modules exist');
             $this->content->text .= \html_writer::end_tag('div');
             return true;
         }
@@ -313,48 +314,44 @@ class block_integrityadvocate extends block_base {
         /**
          * TODO: Replicate the commented-out foreach loop using the block instances.  Need different links for course vs quiz vs etc.
          */
-        foreach ($iablocksinthiscourse as $b) {
-            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $b=' . ia_u::var_dump($b));
+        foreach ($iablocksinthiscourse as $blockinstance) {
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at block $b=' . ia_u::var_dump($blockinstance));
 
             $courseiablock = null;
 
             // Get the parent module.
-            $parentcontext = $b->context->get_parent_context();
-            if ($parentcontext->contextlevel == CONTEXT_COURSE) {
-                $courseid = $this->context->get_course_context()->instanceid;
-                //Somehow output this: https://web.uvic.ca/~markv/ac/m38/course/view.php?id=2&bui_editid=20
-                //$blockinstance
-                continue;
+            $parentcontext = $blockinstance->context->get_parent_context();
+            switch (true) {
+                case($parentcontext->contextlevel == CONTEXT_COURSE) :
+                    $course = \context_course::instance($parentcontext->instanceid);
+                    $this->content->text .= \html_writer::link('', get_string('course'));
+                    //TODO: Somehow output the block edit link: https://web.uvic.ca/~markv/ac/m38/course/view.php?id=2&bui_editid=20
+                    break;
+                case($parentcontext->contextlevel == CONTEXT_MODULE) :
+                    // Output a link to the module.
+                    $module = \context_module::instance($parentcontext->instanceid);
+                    $this->content->text .= \html_writer::link($module->get_url(), $module->get_context_name(false));
+
+                    if (\block_integrityadvocate\FeatureControl::MODULE_LIST_CONFIGLINK && has_capability('moodle/block:edit', $blockinstance->context)) {
+                        $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
+                        if ($user_is_editing) {
+                            // Output a link to module's block config.
+                            $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                        } else {
+                            // We need a form to turn course editing on; then go to block config.
+                            $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
+                            $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();e.preventDefault();return false;"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                            $this->content->text .= '</form>';
+                        }
+                    }
+                    break;
+                default:
+                    $msg = __CLASS__ . '::' . __FUNCTION__ . '::Found unexpected contextlevel=' . $parentcontext->contextlevel;
+                    Logger::log($msg);
+                    throw new \Exception($msg);
             }
-
-            // Output a link to the module.
-            //$this->content->text .= \html_writer::link(, $m['name']);
+            $this->content->text .= ia_output::BRNL;
         }
-
-//        foreach ($moduleswithiablock as $m) {
-//            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $m=' . ia_u::var_dump($m));
-//            if (!isset($m['block_integrityadvocate_instance']['instance']) || ia_u::is_empty($blockinstance = $m['block_integrityadvocate_instance']['instance'])) {
-//                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Skipping this module b/c it is missing pieces');
-//                continue;
-//            }
-//            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at $blockinstance=' . ia_u::var_dump($blockinstance));
-//            // Output a link to the module.
-//            $this->content->text .= \html_writer::link($m['url'], $m['name']);
-//            if (\block_integrityadvocate\FeatureControl::MODULE_LIST_CONFIGLINK && has_capability('moodle/block:edit', $blockinstance->context)) {
-//                if ($user_is_editing) {
-//                    // Output a link to module's block config.
-//                    $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
-//                    $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
-//                } else {
-//                    // We need a form to turn course editing on; then go to block config.
-//                    $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
-//                    $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
-//                    $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();e.preventDefault();return false;"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
-//                    $this->content->text .= '</form>';
-//                }
-//            }
-//            $this->content->text .= ia_output::BRNL;
-//        }
 
         $this->content->text .= \html_writer::end_tag('div');
         return true;
