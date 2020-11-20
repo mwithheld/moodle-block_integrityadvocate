@@ -158,6 +158,7 @@ $PAGE->requires->jquery_plugin('ui-css');
 $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
 $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
 $PAGE->requires->data_for_js('M.block_integrityadvocate', (object) ['OVERVIEW_COURSE_V2' => FeatureControl::OVERVIEW_COURSE_V2, 'appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
+$PAGE->requires->string_for_js('pictureof', 'moodle', '&nbsp;');
 
 // We do not allow overrides on the overview-course page.
 if (in_array($requestedpage, ['overview-user', 'overview-module'], true)) {
