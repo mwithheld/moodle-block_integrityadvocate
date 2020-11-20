@@ -63,7 +63,19 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                             },
                                             done: function(response) {
                                                 debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done; response=', response);
-                                                theCallbackToExec(JSON.parse(response.values));
+                                                var response_parsed = JSON.parse(response.values);
+                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done; response_parsed=', response_parsed);
+
+                                                // Format the User column.
+                                                response_parsed.data.forEach(userrow => {
+                                                    userrow[1] = $('<img class="userpicture defaultuserpic" width="35" height="35"/>', {
+                                                        src: userrow[1]['picture'],
+                                                        alt: M.util.get_string('pictureof', 'moodle') + userrow[1]['name']
+                                                    }).wrap(`<a href="${M.cfg.wwwroot}/user/view.php?id=${userrow[0]}&course=${M.block_integrityadvocate.courseid}" />`).html();
+                                                });
+                                                debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done::After altering, response_parsed=', response_parsed);
+
+                                                theCallbackToExec(response_parsed);
                                             },
                                             fail: function(xhr_unused, textStatus, errorThrown) {
                                                 debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.fail', xhr_unused);
