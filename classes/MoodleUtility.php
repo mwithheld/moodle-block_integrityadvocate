@@ -49,8 +49,9 @@ class MoodleUtility {
         $debug && Logger::log($fxn . "::Started with \$blockname={$blockname}; \$visibleonly={$visibleonly}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
-        $params = array('blockname' => $blockname);
+        $params = array('blockname' => preg_replace('/^block_/', '', $blockname));
         $debug && Logger::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
+
         $records = $DB->get_records('block_instances', $params);
         $debug && Logger::log($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
@@ -93,7 +94,7 @@ class MoodleUtility {
         global $DB;
 
         $blockinstances = [];
-        $records = $DB->get_records('block_instances', array('parentcontextid' => $contextid, 'blockname' => $blockname));
+        $records = $DB->get_records('block_instances', array('parentcontextid' => $contextid, 'blockname' => preg_replace('/^block_/', '', $blockname)));
         foreach ($records as $r) {
             // Check if it is visible.
             if ($visibleonly && !self::get_block_visibility($r->parentcontextid, $r->id)) {
@@ -116,7 +117,7 @@ class MoodleUtility {
     public static function get_all_course_blocks(int $courseid, string $blockname, bool $visibleonly = false): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with courseid={$courseid}; \$blockname={$blockname}");
+        $debug && Logger::log($fxn . "::Started with courseid={$courseid}; \$blockname={$blockname}; \$visibleonly={$visibleonly}");
 
         $coursecontext = \context_course::instance($courseid, MUST_EXIST);
 
@@ -136,6 +137,7 @@ class MoodleUtility {
             $blockinstances += $blocksinmodule;
         }
 
+        $debug && Logger::log($fxn . '::About to return blockinstances count=' . ia_u::count_if_countable(ia_u::var_dump($blockinstances)));
         return $blockinstances;
     }
 
@@ -517,7 +519,7 @@ class MoodleUtility {
         $debug && Logger::log($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; \$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
-        $params = array('blockname' => $blockname, 'parentcontextid' => $modulecontext->id);
+        $params = array('blockname' => preg_replace('/^block_/', '', $blockname), 'parentcontextid' => $modulecontext->id);
         $debug && Logger::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
         // Z--.
