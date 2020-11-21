@@ -241,6 +241,7 @@ trait external_datatables {
         $dataToReturn['recordsTotal'] = ia_u::count_if_countable($enrolledusers);
 
         // Get list of IA participants.
+        $debug && Logger::log($fxn . '::About to fetch participants with apikey=' . $blockinstance->config->apikey . '; appid=' . $appid . '; courseid=' . $courseid);
         $participants = ia_api::get_participants($blockinstance->config->apikey, $appid, $courseid);
         $debug && Logger::log($fxn . '::Got $participants=' . ia_u::var_dump($participants));
         if (ia_u::is_empty($participants)) {
@@ -309,7 +310,7 @@ trait external_datatables {
             'length' => new \external_value(\PARAM_INT),
             // In a departure from the DataTables docs, I've modded the JS to submit the filter field as only the search.value string here (not an array, and no regex).
             // I use PARAM_FILE b/c "all dangerous chars are stripped, protects against XSS, SQL injections and directory traversals".
-            'tblsearch' => new \external_value(\PARAM_FILE, null, \VALUE_OPTIONAL, '', true),
+            'tblsearch' => new \external_value(\PARAM_FILE, null, null, '', true),
             'order' => new \external_multiple_structure(
                     new \external_single_structure([
                         'column' => new \external_value(\PARAM_INT),
@@ -320,9 +321,9 @@ trait external_datatables {
                     new \external_single_structure([
                         'data' => new \external_value(\PARAM_INT),
                         'name' => new \external_value(\PARAM_ALPHAEXT),
-                        'orderable' => new \external_value(\PARAM_BOOL, null, null, true, true),
-                        'searchable' => new \external_value(\PARAM_BOOL),
-                            // The 'search' param is totally ignored b/c we do not support per-column searches.
+                        'orderable' => new \external_value(\PARAM_BOOL),
+                        'searchable' => new \external_value(\PARAM_BOOL)
+                            /* The 'search' param is totally ignored b/c we do not support per-column searches. */
                             ])
             ),
         ]);
@@ -338,7 +339,7 @@ trait external_datatables {
             'submitted' => new \external_value(\PARAM_BOOL, 'submitted', true, false, false),
             'warnings' => new \external_warnings(),
             // Array of key-value.
-            'values' => new \external_value(\PARAM_RAW_TRIMMED, 'Some return gobbledygook', \VALUE_OPTIONAL, 'returned value', true),
+            'values' => new \external_value(\PARAM_RAW_TRIMMED, 'Moodle structure including DataTables data', null, 'returned value', true),
 //            new \external_multiple_structure(
 //                    new \external_single_structure(
 //                            [
