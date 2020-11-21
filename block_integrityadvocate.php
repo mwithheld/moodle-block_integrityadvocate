@@ -357,6 +357,10 @@ class block_integrityadvocate extends block_base {
         return true;
     }
 
+    public function get_context(): \context_block {
+        return $this->context;
+    }
+
     /**
      * Creates the blocks main content.
      */
