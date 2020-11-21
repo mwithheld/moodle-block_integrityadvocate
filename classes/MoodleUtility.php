@@ -632,7 +632,7 @@ class MoodleUtility {
         $page = new \moodle_page();
         $page->set_url('/user/profile.php');
         if (isset($params['courseid']) && !ia_u::is_empty($params['courseid'])) {
-            $page->set_context(\context_course::instance($params->courseid));
+            $page->set_context(\context_course::instance($params['courseid']));
         } elseif (!ia_u::is_empty($user_picture->courseid)) {
             $page->set_context(\context_course::instance($user_picture->courseid));
         } else {
