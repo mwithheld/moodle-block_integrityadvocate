@@ -31,6 +31,7 @@ require_once($CFG->libdir . '/externallib.php');
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
 trait external_datatables {
@@ -124,6 +125,9 @@ trait external_datatables {
 
         // Security: Does the $USER have block/integrityadvocate:overview privs in that module context?
         {
+            // Makes sure the current user may execute functions in this context.
+            self::validate_context($coursecontext);
+
             $hascapability_overview = false;
             // If the user has overview privs, they can access overview info for all activities in the course.
             // So check we have at least one properly ia-activated activity the user can access using the tests in this for loop.
@@ -221,6 +225,7 @@ trait external_datatables {
         $result['submitted'] = true;
 
         // Set default to to empty data.
+        // Return values in the data param are described at https://datatables.net/manual/server-side#Returned-data .
         $dataToReturn = [
             'draw' => $draw,
             'recordsTotal' => 0,
@@ -249,7 +254,6 @@ trait external_datatables {
             return $result;
         }
 
-        // Return values are described at https://datatables.net/manual/server-side#Returned-data .
         $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
         //$prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
         $canviewfullnames = has_capability('moodle/site:viewfullnames', $cm->context);
@@ -260,28 +264,19 @@ trait external_datatables {
                 array('picture' => ia_mu::get_user_picture($user, $pictureparams), 'name' => fullname($user, $canviewfullnames)),
                 $user->email,
                 ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')),
+                // IA info - this is set later.
                 '',
+                // IA photo - this is set later.
                 '',
             ];
         }
 
-//        foreach ($enrolledusers as $user) {
-//            //echo '<PRE>' . ia_u::var_dump($user) . '</PRE><hr>' . ia_output::BRNL;
-//            // Column=User.
-//            echo \html_writer::tag('td', $user->id, ['class' => "{$prefix}_id"]);
-//            echo \html_writer::tag('td', ia_mu::get_user_picture($user, $pictureparams), ['data-id' => $user->id, 'data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
-//            echo \html_writer::tag('td', $user->email, ['class' => "{$prefix}_email"]);
-//            echo \html_writer::tag('td', ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')), ['class' => "{$prefix}_lastcourseaccess"]);
-//            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iadata"]);
-//            echo \html_writer::tag('td', '', ['class' => "{$prefix}_column_iaphoto"]);
-//        }
-        //
         // Reconcile the list of Moodle participants and IA participants.
         foreach ($participants as $p) {
             if (!isset($rows[$p->participantidentifier])) {
                 unset($rows[$p->participantidentifier]);
             }
-            $rows[$p->participantidentifier][4] = 'ia data here';
+            $rows[$p->participantidentifier][4] = ia_output::get_participant_summary_output($blockinstance, $p, true, true, false);
             $rows[$p->participantidentifier][5] = $p->participantphoto;
         }
 
