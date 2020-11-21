@@ -23,6 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+// Ref https://docs.moodle.org/dev/Cache_API_-_Quick_reference#Invalidating_keys_from_a_cache .
 $definitions = array(
     'perrequest' => array(
         'mode' => cache_store::MODE_REQUEST,
@@ -37,5 +38,13 @@ $definitions = array(
         'simpledata' => true,
         'staticacceleration' => true,
         'canuselocalstore' => true,
+    ),
+    'untilcourseenrolmentchanges' => array(
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => true,
+        'canuselocalstore' => true,
+        'invalidationevents' => ['\core\event\enrol_instance_updated', '\core\event\user_enrolment_updated'],
     ),
 );
