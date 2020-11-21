@@ -203,9 +203,10 @@ class Logger {
      *
      * @param string $message Message to log.
      * @param string $dest One of the LogDestination::* constants.
+     * @param bool $force Ignore IP and time restrictions and log anyway, but only if destination=ERRORLOG.  This is meant to be used for errors that should be logged.
      * @return bool True on completion.
      */
-    public static function log(string $message, string $dest = ''): bool {
+    public static function log(string $message, string $dest = '', bool $force = false): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $dest=' . $dest);
@@ -225,14 +226,17 @@ class Logger {
             $debug && error_log($fxn . '::Skipping - $dest=NONE');
             return false;
         }
-        $debug && error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
-        if (!self::do_log_for_ip()) {
-            $debug && error_log($fxn . '::Skipping - logforip');
-            return false;
-        }
-        if (!self::is_within_log_time()) {
-            $debug && error_log($fxn . '::Skipping - not isWithinLogTime()');
-            return false;
+        if (!($force && $dest === Logger::ERRORLOG)) {
+
+            $debug && error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
+            if (!self::do_log_for_ip()) {
+                $debug && error_log($fxn . '::Skipping - logforip');
+                return false;
+            }
+            if (!self::is_within_log_time()) {
+                $debug && error_log($fxn . '::Skipping - not isWithinLogTime()');
+                return false;
+            }
         }
 
         global $CFG;
