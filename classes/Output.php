@@ -236,7 +236,7 @@ class Output {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR)]));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if (false && FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -244,8 +244,12 @@ class Output {
         $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $params);
         $options = array('class' => 'block_integrityadvocate_overview_btn_overview_user');
 
-        global $OUTPUT;
-        $output = $OUTPUT->single_button($url, $label, 'get', $options);
+        $page = new \moodle_page();
+        $page->set_url('/user/profile.php');
+        $page->set_context($blockcontext);
+        $output = $page->get_renderer('core', 'course');
+        $button = new \single_button($url, $label, 'get', false, $options);
+        $output = $output->render($button);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
