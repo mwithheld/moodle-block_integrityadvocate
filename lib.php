@@ -66,7 +66,7 @@ const INTEGRITYADVOCATE_API_PATH = '/api';
 const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 
 /** @var string Regex to check a string is a Data URI ref ref https://css-tricks.com/data-uris/. */
-const INTEGRITYADVOCATE_REGEX_DATAURI = '#data:image\/[a-zA-z-]*;base64,\s*[^"\s$]*#';
+const INTEGRITYADVOCATE_REGEX_DATAURI = '#data:image\\?\/[a-zA-z-]*;base64,\s*[^"\s$]*#';
 
 /** @var string String part to denote a session started key */
 const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
