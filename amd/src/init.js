@@ -8,14 +8,39 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                         M.block_integrityadvocate = {};
                     }
                     M.block_integrityadvocate = {...M.block_integrityadvocate};
+
+                    var showPicturesBig = function(elt) {
+                        debug && window.console.log('M.block_integrityadvocate.init.js::showPicturesBig::Started with elt=', elt);
+                        $(elt).find('.block_integrityadvocate_picture_jquimodal').on('click.modalpic', function() {
+                            debug && window.console.log('M.block_integrityadvocate.init.js::jquimodal.click.modalpic fired');
+                            $('#dialog')
+                                    .html('<div id="dialog" title="image"><img src="' + $(this).attr('src') + '" width="500" /></div>')
+                                    .dialog({
+                                        modal: true,
+                                        width: 'auto',
+                                        open: function() {
+                                            $('.ui-widget-overlay').bind('click', function() {
+                                                $("#dialog").dialog('close');
+                                            });
+                                        }
+                                    });
+                        });
+                    };
+
                     switch (true) {
                         case((typeof M.block_integrityadvocate.OVERVIEW_COURSE_V2 === 'boolean') && (M.block_integrityadvocate.OVERVIEW_COURSE_V2 === true) && $('body').hasClass('block_integrityadvocate-overview-course')):
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_course_v2', M.block_integrityadvocate.overview_course_v2);
+
+                            var imgFromUrl = function(url, title = '') {
+                                return `<img src="${url}" class="userpicture defaultuserpic" width="35" height="35" alt="${title}" title="${title}" />`;
+                            };
+
                             // Configure element matched by selector as a DataTable, adding params to the default options.
                             // DataTable options ref https://datatables.net/reference/option/.
                             // Language options ref https://datatables.net/reference/option/language.
                             // Paging options ref https://datatables.net/reference/option/paging.
-                            M.block_integrityadvocate.eltDt = eltDt = $('#block_integrityadvocate_overviewcourse_table').DataTable({
+                            var eltDtHolder = $('#block_integrityadvocate_overviewcourse_table');
+                            M.block_integrityadvocate.eltDt = eltDt = eltDtHolder.DataTable({
                                 'autoWidth': false,
                                 // Hide the user id column
                                 'columnDefs': [
@@ -65,13 +90,16 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                                 debug && window.console.log('M.block_integrityadvocate.datatables_participants::ajax.done; response=', response);
                                                 var response_parsed = JSON.parse(response.values);
 
-                                                // Format the User column.
+                                                // Format the row data.
                                                 response_parsed.data.forEach(userrow => {
-                                                    var pictureof = M.util.get_string('pictureof', 'moodle') + userrow[1]['name'];
-                                                    var html = $(`<a href="${M.cfg.wwwroot}/user/view.php?id=${userrow[0]}&course=${M.block_integrityadvocate.courseid}"><img src="${userrow[1]['picture']}" class="userpicture defaultuserpic" width="35" height="35" alt="${pictureof}" title="${pictureof}" />${userrow[1]['name']}</a>`).get(0).outerHTML;
-                                                    userrow[1] = html;
-                                                });
+                                                    // User column: Convert the object(pictureurl, fullname) to a picture + name link.
+                                                    var fullname = userrow[1]['name'];
+                                                    var pictureoffullname = (M.util.get_string('pictureof', 'moodle') + fullname).replace(/\s\s+/g, ' ');
+                                                    userrow[1] = $(`<a href="${M.cfg.wwwroot}/user/view.php?id=${userrow[0]}&course=${M.block_integrityadvocate.courseid}">` + imgFromUrl(userrow[1]['picture'], pictureoffullname) + `${fullname}</a>`).get(0).outerHTML;
 
+                                                    // IA Photo column: Convert the base64 picture to a picture.
+                                                    userrow[5] = $(imgFromUrl(userrow[5], pictureoffullname)).addClass('block_integrityadvocate_picture_jquimodal').get(0).outerHTML;
+                                                });
                                                 theCallbackToExec(response_parsed);
                                             },
                                             fail: function(xhr_unused, textStatus, errorThrown) {
@@ -81,6 +109,10 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                                 alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.datatables_participants::ajax.fail');
                                             }
                                         }]);
+                                },
+                                'initComplete': function(settings, json) {
+                                    debug && window.console.log('M.block_integrityadvocate.datatables_participants::initComplete');
+                                    showPicturesBig(eltDtHolder);
                                 }
                             });
                             break;
@@ -440,20 +472,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                         });
                                     });
                                     // Show user picture full size in modal.
-                                    eltDt.find('.block_integrityadvocate_participant_session_jquimodal').on('click.modalpic', function() {
-                                        debug && window.console.log('M.block_integrityadvocate.init.js::jquimodal.click.modalpic fired');
-                                        $('#dialog')
-                                                .html('<div id="dialog" title="image"><img src="' + $(this).attr('src') + '" width="500" /></div>')
-                                                .dialog({
-                                                    modal: true,
-                                                    width: 'auto',
-                                                    open: function() {
-                                                        $('.ui-widget-overlay').bind('click', function() {
-                                                            $("#dialog").dialog('close');
-                                                        });
-                                                    }
-                                                });
-                                    });
+                                    showPicturesBig(eltDt);
                                 }
                             });
                             break;
