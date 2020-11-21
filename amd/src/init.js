@@ -58,6 +58,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 'pageLength': 25,
                                 'lengthMenu': [10, 25, 50, 75, 100, 125, 150, 200, 250],
                                 'searching': true,
+                                searchDelay: 1200,
                                 'processing': true,
                                 'serverSide': true,
                                 'ajax': function(dtQueryData, theCallbackToExec, settings) {
