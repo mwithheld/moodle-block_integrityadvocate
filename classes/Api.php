@@ -389,8 +389,8 @@ class Api {
 
         // Sanity check.
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
-            $msg = 'Input params are invalid';
-            Logger::log($fxn . '::' . $msg . '::' . $debugvars);
+            $msg = 'Input params are invalid - both these must be true: ia_mu::is_base64($apikey)=' . ia_mu::is_base64($apikey) . '; ia_u::is_guid($appid)=' . ia_u::is_guid($appid);
+            Logger::log($fxn . '::' . $msg . '::' . $debugvars, null, true);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -1234,9 +1234,11 @@ class Api {
                 case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
                     $output->participantphoto = $matches[0];
                     break;
-                case (validate_param($input->Participant_Photo, PARAM_URL)):
+                case (!ia_u::is_empty(clean_param($input->Participant_Photo, PARAM_URL))):
                     $output->participantphoto = $input->Participant_Photo;
                     break;
+                default:
+                    $debug && Logger::log($fxn . '::No valid photo found');
             }
         }
 
