@@ -519,7 +519,6 @@ class Output {
     public static function get_participant_photo_output(int $userid, string $photo, int $status, string $email): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-//        $debugvars = $fxn . "::Started with \$participant->participantidentifier={$participant->participantidentifier}; \$participant->status={$participant->status}";
         $debugvars = $fxn . "::Started with \$userid={$userid}; md5(\$photo)=" . md5($photo) . "\$status={$status}, \$email={$email}";
         $debug && Logger::log($debugvars);
 
