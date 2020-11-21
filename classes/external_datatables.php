@@ -276,7 +276,7 @@ trait external_datatables {
             if (!isset($rows[$p->participantidentifier])) {
                 unset($rows[$p->participantidentifier]);
             }
-            $rows[$p->participantidentifier][4] = ia_output::get_participant_summary_output($blockinstance, $p, true, true, false);
+            $rows[$p->participantidentifier][4] = ia_output::get_participant_summary_output($blockinstance, $p, false, true, true);
             $rows[$p->participantidentifier][5] = $p->participantphoto;
         }
 
