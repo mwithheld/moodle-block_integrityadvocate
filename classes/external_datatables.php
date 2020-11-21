@@ -53,7 +53,7 @@ trait external_datatables {
     public static function get_datatables_participants(string $appid, int $courseid, int $draw, int $start, int $length, string $tblsearch, array $order, array $columns): array {
         global $USER;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true || Logger::do_log_for_function($fxn);
+        $debug = false || Logger::do_log_for_function($fxn);
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$draw={$draw}; \$start={$start}; \$length={$length}; \$tblsearch=" . $tblsearch . '; $order=' . ia_u::var_dump($order) . '; $columns=' . ia_u::var_dump($columns, true);
         $debug && Logger::log($debugvars);
 
@@ -134,7 +134,7 @@ trait external_datatables {
             // Remember this activity, and for later access to the IA API, we assume that its apikey is the same used everywhere in this course.
             $activity = null;
             foreach ($activities as $cm) {
-                Logger::log($fxn . '::Looking at cm type=' . gettype($cm) . '; block instanceid' . $cm['block_integrityadvocate_instance']['id']);
+                $debug && Logger::log($fxn . '::Looking at cm type=' . gettype($cm) . '; block instanceid=' . $cm['block_integrityadvocate_instance']['id']);
                 $blockinstance = $cm['block_integrityadvocate_instance']['instance'];
 
                 if (gettype($cm) !== 'cm_info') {
@@ -165,7 +165,9 @@ trait external_datatables {
 
         // Sanitize.
         {
-            $tblsearch_cleaned = $tblsearch;
+            // Slightly modified from PARAM_FILE ("all dangerous chars are stripped, protects against XSS, SQL injections and directory traversals").
+            // Modified to accept : as a character.
+            $tblsearch_cleaned = preg_replace('~[[:cntrl:]]|[&<>"`\|\'\\\\/]~u', '', $tblsearch);
             $debug && Logger::log($fxn . '::Built $tblsearch_cleaned=' . ia_u::var_dump($tblsearch_cleaned));
 
             $order_cleaned = [];
@@ -271,13 +273,62 @@ trait external_datatables {
             ];
         }
 
-        // Reconcile the list of Moodle participants and IA participants.
+        // Populate IA data into the list of Moodle users, and apply the incoming filter.
+        // Any IA participants no longer enrolled will not be shown.
         foreach ($participants as $p) {
-            if (!isset($rows[$p->participantidentifier])) {
-                unset($rows[$p->participantidentifier]);
-            }
             $rows[$p->participantidentifier][4] = ia_output::get_participant_summary_output($blockinstance, $p, false, true, true);
             $rows[$p->participantidentifier][5] = $p->participantphoto;
+        }
+
+        // Apply the incoming filter.
+        if ($tblsearch_cleaned) {
+            $debug && Logger::log($fxn . '::About to filter row data for $tblsearch_cleaned=' . $tblsearch_cleaned);
+            foreach ($rows as $key => $row) {
+                $debug && Logger::log($fxn . '::Looking at row with $key=' . $key);
+                $searchmatch = false;
+                foreach ($row as $colnumber => $colvalue) {
+                    $debug && Logger::log($fxn . '::Looking at column with $colnumber=' . $colnumber);
+                    switch ($colnumber) {
+                        case 0:
+                            // Do not search the userid column.
+                            continue;
+                        case 1:
+                            // Search the fullname plaintext only.
+                            $plaintext = \clean_param($colvalue['name'], \PARAM_TEXT);
+                            $debug && Logger::log($fxn . '::Searching in column value $plaintext=' . $plaintext);
+                            if (stripos($plaintext, $tblsearch_cleaned) !== false) {
+                                $searchmatch = true;
+                                break 2;
+                            }
+                            break;
+                        case 2:
+                        case 3:
+                        case 4:
+                            // Search the plaintext.
+                            $plaintext = \clean_param($colvalue, \PARAM_TEXT);
+                            $debug && Logger::log($fxn . '::Searching in column value $plaintext=' . $plaintext);
+                            if (stripos($plaintext, $tblsearch_cleaned) !== false) {
+                                $debug && Logger::log($fxn . '::Search found a match');
+                                $searchmatch = true;
+                                // Break out of the select and the foreach(column).
+                                break 2;
+                            }
+                            $debug && Logger::log($fxn . '::Search found no match');
+                            break;
+                        case 5:
+                            // Do not search the base64 IA participant photo.
+                            continue;
+                    }
+                    if ($searchmatch) {
+                        $debug && Logger::log($fxn . '::We have a match, so go to the next row');
+                        break;
+                    }
+                }
+                // Remove rows with no match.
+                if (!$searchmatch) {
+                    unset($rows[$key]);
+                }
+            }
         }
 
         $dataToReturn['recordsFiltered'] = ia_u::count_if_countable($rows);
@@ -304,8 +355,8 @@ trait external_datatables {
             'start' => new \external_value(\PARAM_INT),
             'length' => new \external_value(\PARAM_INT),
             // In a departure from the DataTables docs, I've modded the JS to submit the filter field as only the search.value string here (not an array, and no regex).
-            // I use PARAM_FILE b/c "all dangerous chars are stripped, protects against XSS, SQL injections and directory traversals".
-            'tblsearch' => new \external_value(\PARAM_FILE, null, null, '', true),
+            // This value should be further sanitized before use.
+            'tblsearch' => new \external_value(\PARAM_TEXT, null, null, '', true),
             'order' => new \external_multiple_structure(
                     new \external_single_structure([
                         'column' => new \external_value(\PARAM_INT),
