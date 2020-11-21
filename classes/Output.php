@@ -435,7 +435,7 @@ class Output {
 
         $status = Status::NOTSTARTED_INT;
         if ($showstatus && ($blockcontext = $blockinstance->context) && ($modulecontext = $blockcontext->get_parent_context()) && ($modulecontext->contextlevel == CONTEXT_MODULE)) {
-            $status = self::get_module_status_html($modulecontext, $blockinstance->get_user()->id, INTEGRITYADVOCATE_BLOCK_NAME);
+            $status = ia_api::get_module_status($modulecontext, $blockinstance->get_user()->id);
         }
 
         $out = self::get_summary_html(
