@@ -182,7 +182,7 @@ trait external_datatables {
                         Logger::log($fxn . '::Skipping invalid order=' . ia_u::var_dump($order, true));
                         continue;
                     }
-                    $order_cleaned[] = [
+                    $order_cleaned[$val['column']] = [
                         'column' => $val['column'],
                         'dir' => ($val['dir'] === 'desc') ? 'desc' : 'asc'
                     ];
@@ -193,12 +193,12 @@ trait external_datatables {
             $columns_cleaned = [];
             $valid_columns = array('rownum', 'userid', 'email', 'lastcourseaccess', 'ia-data', 'ia-photo');
             foreach ($columns as $colitem) {
-                $debug && Logger::log($fxn . '::Looking at $col=' . ia_u::var_dump($colitem));
+                // Disabled on purpose: $debug && Logger::log($fxn . '::Looking at $col=' . ia_u::var_dump($colitem)); .
 
                 $colitem_cleaned = [];
                 $colitem_cleaned['data'] = $colitem['data'];
                 if (empty($colitem['name']) || !in_array($colitem['name'], $valid_columns)) {
-                    $debug && Logger::log($fxn . '::Built $order_cleaned=' . ia_u::var_dump($order_cleaned));
+                    $debug && Logger::log($fxn . '::Skipping invalid column name=' . ia_u::var_dump($colitem['name']));
                     $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Invalid column {$colitem['name']}");
                     // Don't bother processing any more - we will just return an error.
                     break;
@@ -214,7 +214,7 @@ trait external_datatables {
                 }
                 // We do not support per-columns searches, so this is always empty.
                 $colitem_cleaned['search'] = null;
-                $columns_cleaned[] = $colitem_cleaned;
+                $columns_cleaned[$colitem['data']] = $colitem_cleaned;
             }
             $debug && Logger::log($fxn . '::Built $columns_cleaned=' . ia_u::var_dump($columns_cleaned));
 
@@ -236,10 +236,40 @@ trait external_datatables {
         ];
         $result['values'] = json_encode($dataToReturn, JSON_INVALID_UTF8_IGNORE);
 
+        // Set up the column sorting variable that is passed to get_role_users().
+        // We will still need to sort by fullanme and IA status data later, but this at least defers some of the sorting work to the DB.
+        $sort = [];
+        foreach ($columns_cleaned as $key => $col) {
+            if (!$col['orderable'] || isset($order_cleaned[$key]['dir'])) {
+                $debug && Logger::log($fxn . "::Column {$col} is not orderable or a dir is not set");
+                continue;
+            }
+            switch ($key) {
+                case 0:
+                    // Column=rownum: Do not sort by this column.
+                    continue;
+                case 1:
+                    // Column=userid: Sort by fullname later if permitted, but by firstname and lastname for now.
+                    $sort[] = "u.firstname {$order_cleaned[$key]['dir']}, u.lastname {$order_cleaned[$key]['dir']}";
+                    continue;
+                case 2:
+                    $sort[] = "u.email {$order_cleaned[$key]['dir']}";
+                    break;
+                case 3:
+                    $sort[] = "u.lastaccess {$order_cleaned[$key]['dir']}";
+                    break;
+                default:
+                    // Do not sort by other columns.
+                    continue;
+            }
+        }
+        $debug && Logger::log($fxn . '::Built $sort=' . ia_u::var_dump($sort));
+
         // Get list of Moodle course participants.
         $roleid = ia_mu::get_default_course_role($coursecontext);
         $groupid = 0;
-        $enrolledusers = get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), null, true, $groupid, null, null);
+        // We can't apply search filters here b/c we need to include results from fullname and IA info.
+        $enrolledusers = \get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), implode(', ', $sort), true, $groupid, null, null);
         $debug && Logger::log($fxn . '::Got count($enrolledusers)=' . ia_u::count_if_countable($enrolledusers));
         if (ia_u::is_empty($enrolledusers)) {
             $debug && Logger::log($fxn . "::No users enrolled in this courseid={$courseid}");
@@ -288,6 +318,10 @@ trait external_datatables {
                 $searchmatch = false;
                 foreach ($row as $colnumber => $colvalue) {
                     $debug && Logger::log($fxn . '::Looking at column with $colnumber=' . $colnumber);
+                    // Skip columns DataTables has marked as non-searchable.
+                    if (!$columns_cleaned[$key]['searchable']) {
+                        continue;
+                    }
                     switch ($colnumber) {
                         case 0:
                             // Do not search the userid column.
