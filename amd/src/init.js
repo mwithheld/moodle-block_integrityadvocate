@@ -32,7 +32,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                             debug && window.console.log('M.block_integrityadvocate.init.js::Found overview_course_v2', M.block_integrityadvocate.overview_course_v2);
 
                             var imgFromUrl = function(url, title = '') {
-                                return `<img src="${url}" class="userpicture defaultuserpic" width="35" height="35" alt="${title}" title="${title}" />`;
+                                return `<img src="${url}" width="85" alt="${title}" title="${title}" />`;
                             };
 
                             // Configure element matched by selector as a DataTable, adding params to the default options.
