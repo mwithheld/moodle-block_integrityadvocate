@@ -241,15 +241,7 @@ class Output {
             return $cachedvalue;
         }
 
-        $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $params);
-        $options = array('class' => 'block_integrityadvocate_overview_btn_overview_user');
-
-        $page = new \moodle_page();
-        $page->set_url('/user/profile.php');
-        $page->set_context($blockcontext);
-        $output = $page->get_renderer('core', 'course');
-        $button = new \single_button($url, $label, 'get', false, $options);
-        $output = $output->render($button);
+        $output = ia_mu::get_button_html($blockcontext, $label, new \moodle_url('/blocks/integrityadvocate/overview.php', $params), ['class' => 'block_integrityadvocate_overview_btn_overview_user']);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
