@@ -53,7 +53,7 @@ trait external_datatables {
     public static function get_datatables_participants(string $appid, int $courseid, int $draw, int $start, int $length, string $tblsearch, array $order, array $columns): array {
         global $USER;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
+        $debug = true || Logger::do_log_for_function($fxn);
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$draw={$draw}; \$start={$start}; \$length={$length}; \$tblsearch=" . $tblsearch . '; $order=' . ia_u::var_dump($order) . '; $columns=' . ia_u::var_dump($columns, true);
         $debug && Logger::log($debugvars);
 
@@ -83,7 +83,7 @@ trait external_datatables {
             case(!\confirm_sesskey()):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => get_string('confirmsesskeybad'));
                 break;
-            case(!\block_integrityadvocate\FeatureControl::OVERVIEW_COURSE_V2) :
+            case(!FeatureControl::OVERVIEW_COURSE_V2) :
                 error_log($fxn . '::This feature is disabled');
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'This feature is disabled');
                 break;
@@ -140,14 +140,10 @@ trait external_datatables {
                 if (gettype($cm) !== 'cm_info') {
                     $cm = $modinfo->get_cm($cm['context']->instanceid);
                 }
-                if ($cm->deletioninprogress) {
-                    continue;
-                }
                 // Only allow properly configured instances.
-                if (ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_apikey_appid_errors())) {
+                if ($cm->deletioninprogress || ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_apikey_appid_errors())) {
                     continue;
                 }
-
                 if (!$hascapability_overview = \has_capability('block/integrityadvocate:overview', $cm->context)) {
                     continue;
                 }
@@ -166,7 +162,7 @@ trait external_datatables {
         // Sanitize.
         {
             // Slightly modified from PARAM_FILE ("all dangerous chars are stripped, protects against XSS, SQL injections and directory traversals").
-            // Modified to accept : as a character.
+            // The Moodle regex for PARAM_FILE is modified to accept : as a character.
             $tblsearch_cleaned = preg_replace('~[[:cntrl:]]|[&<>"`\|\'\\\\/]~u', '', $tblsearch);
             $debug && Logger::log($fxn . '::Built $tblsearch_cleaned=' . ia_u::var_dump($tblsearch_cleaned));
 
@@ -174,7 +170,7 @@ trait external_datatables {
             if (!ia_u::is_empty($order)) {
                 $debug && Logger::log($fxn . '::About to clean $order=' . ia_u::var_dump($order, true));
                 foreach ($order as $val) {
-                    $debug && Logger::log($fxn . '::Looking at order val=' . ia_u::var_dump($val, true));
+                    // Disabled on purposeL $debug && Logger::log($fxn . '::Looking at order val=' . ia_u::var_dump($val, true)); .
                     if (empty($val) ||
                             !isset($val['column']) || empty($val['column']) || !is_int($val['column']) ||
                             !isset($val['dir']) || empty($val['dir'])
@@ -236,40 +232,27 @@ trait external_datatables {
         ];
         $result['values'] = json_encode($dataToReturn, JSON_INVALID_UTF8_IGNORE);
 
-        // Set up the column sorting variable that is passed to get_role_users().
-        // We will still need to sort by fullanme and IA status data later, but this at least defers some of the sorting work to the DB.
-        $sort = [];
-        foreach ($columns_cleaned as $key => $col) {
-            if (!$col['orderable'] || isset($order_cleaned[$key]['dir'])) {
-                $debug && Logger::log($fxn . "::Column {$col} is not orderable or a dir is not set");
-                continue;
-            }
-            switch ($key) {
-                case 0:
-                    // Column=rownum: Do not sort by this column.
-                    continue;
-                case 1:
-                    // Column=userid: Sort by fullname later if permitted, but by firstname and lastname for now.
-                    $sort[] = "u.firstname {$order_cleaned[$key]['dir']}, u.lastname {$order_cleaned[$key]['dir']}";
-                    continue;
-                case 2:
-                    $sort[] = "u.email {$order_cleaned[$key]['dir']}";
-                    break;
-                case 3:
-                    $sort[] = "u.lastaccess {$order_cleaned[$key]['dir']}";
-                    break;
-                default:
-                    // Do not sort by other columns.
-                    continue;
-            }
-        }
-        $debug && Logger::log($fxn . '::Built $sort=' . ia_u::var_dump($sort));
-
         // Get list of Moodle course participants.
         $roleid = ia_mu::get_default_course_role($coursecontext);
+        // We are not supporting groups ATM.
         $groupid = 0;
-        // We can't apply search filters here b/c we need to include results from fullname and IA info.
-        $enrolledusers = \get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), implode(', ', $sort), true, $groupid, null, null);
+
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'untilcourseenrolmentchanges');
+        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $roleid, $coursecontext->id, $groupid]));
+        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debug && Logger::log($fxn . '::Using cached course enrolment data');
+            $enrolledusers = $cachedvalue;
+        } else {
+            $debug && Logger::log($fxn . '::Found no cached course enrolment data');
+            // We can't apply ordering/sorting or search/filters here b/c we need to include results from fullname and IA info.
+            // Use a default sort for now - we will sort the columns once we have IA data.
+            $sortstr = 'u.firstname, u.lastname, u.email, u.lastaccess';
+            $enrolledusers = \get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), $sortstr, true, $groupid, null, null);
+            if (FeatureControl::CACHE && !$cache->set($cachekey, $enrolledusers)) {
+                throw new \Exception('Failed to set value in the cache');
+            }
+        }
+
         $debug && Logger::log($fxn . '::Got count($enrolledusers)=' . ia_u::count_if_countable($enrolledusers));
         if (ia_u::is_empty($enrolledusers)) {
             $debug && Logger::log($fxn . "::No users enrolled in this courseid={$courseid}");
@@ -287,7 +270,6 @@ trait external_datatables {
         }
 
         $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
-        //$prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
         $canviewfullnames = has_capability('moodle/site:viewfullnames', $cm->context);
         $rows = [];
         foreach ($enrolledusers as $user) {
@@ -325,14 +307,14 @@ trait external_datatables {
                     switch ($colnumber) {
                         case 0:
                             // Do not search the userid column.
-                            continue;
+                            continue 2;
                         case 1:
                             // Search the fullname plaintext only.
                             $plaintext = \clean_param($colvalue['name'], \PARAM_TEXT);
                             $debug && Logger::log($fxn . '::Searching in column value $plaintext=' . $plaintext);
                             if (stripos($plaintext, $tblsearch_cleaned) !== false) {
                                 $searchmatch = true;
-                                break 2;
+                                break;
                             }
                             break;
                         case 2:
@@ -345,13 +327,13 @@ trait external_datatables {
                                 $debug && Logger::log($fxn . '::Search found a match');
                                 $searchmatch = true;
                                 // Break out of the select and the foreach(column).
-                                break 2;
+                                break;
                             }
                             $debug && Logger::log($fxn . '::Search found no match');
                             break;
                         case 5:
                             // Do not search the base64 IA participant photo.
-                            continue;
+                            continue 2;
                     }
                     if ($searchmatch) {
                         $debug && Logger::log($fxn . '::We have a match, so go to the next row');
@@ -364,6 +346,39 @@ trait external_datatables {
                 }
             }
         }
+
+        // Set up column sorting/ordering.
+        $sortarr = [];
+        if (!ia_u::is_empty($order_cleaned)) {
+            foreach ($columns_cleaned as $key => $col) {
+                if (!$col['orderable'] || !isset($order_cleaned[$key]['dir'])) {
+                    $debug && Logger::log($fxn . "::Column {$key} is not orderable or a dir is not set");
+                    continue;
+                }
+                switch ($key) {
+                    case 0:
+                        // Column=rownum: Do not sort by this column.
+                        continue 2;
+                    case 1:
+                        // Column=userid: Sort by fullname later if permitted, but by firstname and lastname for now.
+                        $sortarr[] = "u.firstname {$order_cleaned[$key]['dir']}, u.lastname {$order_cleaned[$key]['dir']}";
+                        break;
+                    case 2:
+                        $sortarr[] = "u.email {$order_cleaned[$key]['dir']}";
+                        break;
+                    case 3:
+                        $sortarr[] = "u.lastaccess {$order_cleaned[$key]['dir']}";
+                        break;
+                    default:
+                        // Do not sort by other columns.
+                        continue 2;
+                }
+            }
+        }
+        $sortstr = implode(', ', $sortarr);
+        $debug && Logger::log($fxn . '::Built $sort=' . ia_u::var_dump($sortarr));
+
+        //TODO: Sort the columns.
 
         $dataToReturn['recordsFiltered'] = ia_u::count_if_countable($rows);
         $dataToReturn['data'] = array_values($rows);
