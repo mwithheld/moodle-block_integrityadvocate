@@ -58,7 +58,7 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                 'pageLength': 25,
                                 'lengthMenu': [10, 25, 50, 75, 100, 125, 150, 200, 250],
                                 'searching': true,
-                                searchDelay: 1200,
+                                'searchDelay': 1200,
                                 'processing': true,
                                 'serverSide': true,
                                 'ajax': function(dtQueryData, theCallbackToExec, settings) {
@@ -94,12 +94,12 @@ define(['jquery', 'jqueryui', 'block_integrityadvocate/jquery.dataTables', 'core
                                                 // Format the row data.
                                                 response_parsed.data.forEach(userrow => {
                                                     // User column: Convert the object(pictureurl, fullname) to a picture + name link.
-                                                    var fullname = userrow[1]['name'];
+                                                    var fullname = userrow[0]['name'];
                                                     var pictureoffullname = (M.util.get_string('pictureof', 'moodle') + fullname).replace(/\s\s+/g, ' ');
-                                                    userrow[1] = $(`<a href="${M.cfg.wwwroot}/user/view.php?id=${userrow[0]}&course=${M.block_integrityadvocate.courseid}">` + imgFromUrl(userrow[1]['picture'], pictureoffullname) + `${fullname}</a>`).get(0).outerHTML;
+                                                    userrow[0] = $(`<a href="${M.cfg.wwwroot}/user/view.php?id=${userrow[0]['id']}&course=${M.block_integrityadvocate.courseid}">` + imgFromUrl(userrow[0]['picture'], pictureoffullname) + `${fullname}</a>`).get(0).outerHTML;
 
                                                     // IA Photo column: Convert the base64 picture to a picture.
-                                                    userrow[5] = $(imgFromUrl(userrow[5], pictureoffullname)).addClass('block_integrityadvocate_picture_jquimodal').get(0).outerHTML;
+                                                    userrow[4] = $(imgFromUrl(userrow[4], pictureoffullname)).addClass('block_integrityadvocate_picture_jquimodal').get(0).outerHTML;
                                                 });
                                                 theCallbackToExec(response_parsed);
                                             },
