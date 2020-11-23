@@ -106,12 +106,78 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
 }
 
 /**
- * Get the modules in this course that have a configured IA block attached
- * optionally filtered to IA blocks having a matching apikey and appid or visible
+ * Get all IA sessions for all participants in the course.
  *
- * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up
- * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
- * @return string|array Array of modules that match; else string error identifier
+ * @param string $apikey
+ * @param string $appid
+ * @param int $courseid
+ * @return array, e.g.
+ * (
+ *    [<session_id>=04fda967-25df-4ce0-945f-72a244b862de] => block_integrityadvocate\Session Object (
+ *            [activityid] => 2
+ *            [clickiamherecount] =>
+ *            [end] => 1605913685
+ *            [exitfullscreencount] =>
+ *            [id] => 04fda967-25df-4ce0-945f-72a244b862de
+ *            [overridedate] => -1
+ *            [overridelmsuserfirstname] =>
+ *            [overridelmsuserid] =>
+ *            [overridelmsuserlastname] =>
+ *            [overridereason] =>
+ *            [overridestatus] =>
+ *            [participantphoto] => redacted_base64_image
+ *            [resubmiturl] =>
+ *            [start] => 1605913620
+ *            [status] => 0
+ *            [participant] => block_integrityadvocate\Participant Object (
+ *                    [courseid] => 2
+ *                    [created] => -1
+ *                    [email] => vhmark@gmail.com
+ *                    [firstname] => Mark
+ *                    [lastname] => van Hoek
+ *                    [modified] => -1
+ *                    [overridedate] => -1
+ *                    [overridelmsuserfirstname] =>
+ *                    [overridelmsuserid] =>
+ *                    [overridelmsuserlastname] =>
+ *                    [overridereason] =>
+ *                    [overridestatus] =>
+ *                    [participantidentifier] => 3
+ *                    [participantphoto] =>
+ *                    [resubmiturl] =>
+ *                    [sessions] => Array()
+ *                    [status] =>
+ *                )
+ *            [flags] => Array()
+ *        ), ...
+ * )
+ */
+function block_integrityadvocate_get_course_sessions(string $apikey, string $appid, int $courseid) {
+    $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+    $fxn = __CLASS__ . '::' . __FUNCTION__;
+    $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
+    $debug && Logger::log($debugvars);
+
+    $modules = block_integrityadvocate_get_course_ia_modules($courseid, ['configured' => 1, 'appid' => $appid]);
+    $participantdata = [];
+    foreach ($modules as $key => $m) {
+        $debug && Logger::log($fxn . '::Looking at moduleid=' . $key);
+        // Disabled on purpose: $debug && Logger::log($fxn . '::Looking at module=' . ia_u::var_dump($m));
+        // Get participant sessions for all users.
+        array_push($participantdata, ia_api::get_participantsessions($apikey, $appid, $courseid, $m['id']));
+        $debug && Logger::log($fxn . '::Got $participantdata=' . ia_u::var_dump($participantdata));
+    }
+
+    return $participantdata;
+}
+
+/**
+ * Get the modules in this course that have a configured IA block attached...
+ * Optionally filtered to IA blocks having a matching apikey and appid or visible.
+ *
+ * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up.
+ * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @return string|array Array of modules that match; else string error identifier.
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
     $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
@@ -147,9 +213,56 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
 /**
  * Filter the input Moodle modules array for ones that use an IA block.
  *
- * @param array<\stdClass> $modules Course modules to check
- * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo')
- * @return array<\stdClass> of course modules.
+ * @param array<\stdClass> $modules Course modules to check.
+ * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @return array<\Arrays> of course modules, e.g. each entry is like this:
+ *  (
+ *   [type] => quiz
+ *   [modulename] => Quiz
+ *   [id] => 2
+ *   [instance] => 1
+ *   [name] => My Quiz
+ *   [expected] => 0
+ *   [section] => 0
+ *   [position] => 1
+ *   [url] => https://moodle_wwwroot/mod/quiz/view.php?id=2
+ *   [context] => context_module Object
+ *       (
+ *           [_id:protected] => 29
+ *           [_contextlevel:protected] => 70
+ *           [_instanceid:protected] => 2
+ *           [_path:protected] => /1/3/25/29
+ *           [_depth:protected] => 4
+ *           [_locked:protected] => 0
+ *       )
+ *   [available] =>
+ *   [block_integrityadvocate_instance] => Array
+ *       (
+ *           [id] => 23
+ *           [instance] => block_integrityadvocate Object
+ *               (
+ *                   [str] =>
+ *                   [title] => Integrity Advocate
+ *                   [arialabel] =>
+ *                   [content_type] => 2
+ *                   [content] =>
+ *                   [instance] => stdClass Object
+ *                       (
+ *                           [id] => 23
+ *                           [blockname] => integrityadvocate
+ *                           [parentcontextid] => 29
+ *                           [showinsubcontexts] => 0
+ *                           [requiredbytheme] => 0
+ *                           [pagetypepattern] => mod-quiz-*
+ *                           [subpagepattern] =>
+ *                           [defaultregion] => side-pre
+ *                           [defaultweight] => 0
+ *                           [configdata] => ...=
+ *                           [timecreated] => 1605749308
+ *                           [timemodified] => 1605749308
+ *                       )
+ *                   [page] => ...
+ *  )
  */
 function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array {
     $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
