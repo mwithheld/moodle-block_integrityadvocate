@@ -39,7 +39,7 @@ class MoodleUtility {
         $page->set_url('/user/profile.php');
         $page->set_context($context->get_course_context());
         $output = $page->get_renderer('core', 'course');
-        $button = new \single_button($url, $label, 'get', false, $options);
+        $button = new \single_button(new \moodle_url($url), $label, 'get', false, $options);
         return $output->render($button);
     }
 
