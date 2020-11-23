@@ -558,25 +558,29 @@ class Api {
      * @param int $courseid Get info for this course.
      * @param int $moduleid Get info for this course module.
      * @param int $userid Optionally get info for this user.
+     * @param int $limit Optionally limit to this number of results.  Min 0; max 10; default=IA API default (10).
      * @return array<Session> Empty array if nothing found; Else array of Session objects.
      */
-    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, $userid = null, int $limit = 0): array {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, int $userid = 0, int $limit = 0): array {
+        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}; \$limit={$limit}";
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || (isset($userid) && !is_number($userid))) {
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || $courseid < 1 || $moduleid < 1) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
         // Build the parameters array to pass to the API data getter.
-        $params = ['courseid' => $courseid, 'activityid' => $moduleid];
-        $userid && ($params['participantidentifier'] = $userid);
-        if ($limit > 0 && $limit <= 10) {
+        $params = [
+            'courseid' => $courseid,
+            'activityid' => $moduleid
+        ];
+        ($userid > 0) && ($params['participantidentifier'] = $userid);
+        if ($limit > 0 && $limit < 100) {
             $params['limit'] = $limit;
             $params['backwardsearch'] = 'true';
         }
@@ -1427,6 +1431,7 @@ class Api {
                 break;
             case self::ENDPOINT_PARTICIPANTS:
                 $validparams = array(
+                    // PARAM_ALPHA b/c we need to send the string "true" or "false".
                     'backwardsearch' => \PARAM_ALPHA,
                     'courseid' => \PARAM_INT,
                     'lastmodified' => \PARAM_INT,
@@ -1440,6 +1445,7 @@ class Api {
             case self::ENDPOINT_PARTICIPANTSESSIONS:
                 $validparams = array(
                     'activityid' => \PARAM_INT,
+                    // PARAM_ALPHA b/c we need to send the string "true" or "false".
                     'backwardsearch' => \PARAM_ALPHA,
                     'courseid' => \PARAM_INT,
                     'lastmodified' => \PARAM_INT,
