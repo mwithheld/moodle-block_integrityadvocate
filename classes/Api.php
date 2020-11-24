@@ -562,7 +562,7 @@ class Api {
      * @return array<Session> Empty array if nothing found; Else array of Session objects.
      */
     public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, int $userid = 0, int $limit = 0): array {
-        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}; \$limit={$limit}";
         $debug && Logger::log($debugvars);
@@ -660,6 +660,7 @@ class Api {
         }
 
         $debug && Logger::log($fxn . '::About to return count($parsedparticipantsessions)=' . ia_u::count_if_countable($parsedparticipantsessions));
+        $debug && Logger::log($fxn . '::About to return $parsedparticipantsessions=' . ia_u::var_dump($parsedparticipantsessions));
         return $parsedparticipantsessions;
     }
 
