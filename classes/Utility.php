@@ -113,8 +113,7 @@ class Utility {
     }
 
     /**
-     * Sort the object by the start property in descending order
-     * E.g. an IA Session object.
+     * Sort the object by the start property in descending order.
      *
      * @param object $a
      * @param object $b
