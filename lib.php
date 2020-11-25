@@ -111,7 +111,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * @param string $apikey
  * @param string $appid
  * @param int $courseid
- * @return array, e.g.
+ * @return array<Session>, e.g.
  * (
  *    [<session_id>=04fda967-25df-4ce0-945f-72a244b862de] => block_integrityadvocate\Session Object (
  *            [activityid] => 2
@@ -153,22 +153,72 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * )
  */
 function block_integrityadvocate_get_course_sessions(string $apikey, string $appid, int $courseid) {
-    $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
-    $fxn = __CLASS__ . '::' . __FUNCTION__;
+    $debug = false || Logger::do_log_for_function(__FILE__ . '::' . __FUNCTION__);
+    $fxn = __FILE__ . '::' . __FUNCTION__;
     $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
     $debug && Logger::log($debugvars);
 
     $modules = block_integrityadvocate_get_course_ia_modules($courseid, ['configured' => 1, 'appid' => $appid]);
-    $participantdata = [];
-    foreach ($modules as $key => $m) {
-        $debug && Logger::log($fxn . '::Looking at moduleid=' . $key);
+    $debug && Logger::log($fxn . '::Got $modules=' . ia_u::var_dump($modules));
+
+    $participantsessions = [];
+    foreach ($modules as $m) {
+        $debug && Logger::log($fxn . '::Looking at moduleid=' . $m['id']);
         // Disabled on purpose: $debug && Logger::log($fxn . '::Looking at module=' . ia_u::var_dump($m));
         // Get participant sessions for all users.
-        array_push($participantdata, ia_api::get_participantsessions($apikey, $appid, $courseid, $m['id']));
-        $debug && Logger::log($fxn . '::Got $participantdata=' . ia_u::var_dump($participantdata));
+        $modulesessions = ia_api::get_participantsessions($apikey, $appid, $courseid, $m['id']);
+        $debug && Logger::log($fxn . '::Got $modulesessions=' . ia_u::var_dump($modulesessions));
+        $participantsessions = array_merge($participantsessions, $modulesessions);
     }
 
-    return $participantdata;
+    $debug && Logger::log($fxn . '::About to return $participantsessions=' . ia_u::var_dump($participantsessions));
+    return $participantsessions;
+}
+
+/**
+ * Get the participants' latest sessions.  Note the participants are only stubs.
+ *
+ * @param string $apikey
+ * @param string $appid
+ * @param int $courseid
+ * @return array<Participants> Each participant has the sessions sorted.
+ */
+function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid) {
+    $debug = false || Logger::do_log_for_function(__FILE__ . '::' . __FUNCTION__);
+    $fxn = __FILE__ . '::' . __FUNCTION__;
+    $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
+    $debug && Logger::log($debugvars);
+
+    $participantsessions = block_integrityadvocate_get_course_sessions($apikey, $appid, $courseid);
+    $debug && Logger::log($fxn . '::Got $participantsessions=' . ia_u::var_dump($participantsessions));
+
+    // Invert the array so sessions are collected for each participant.
+    $participants = [];
+    foreach ($participantsessions as $s) {
+        Logger::log($fxn . "::Looking at \$s=" . ia_u::var_dump($s));
+        if (!isset($participants[$s->participant->participantidentifier]) || ia_u::is_empty($thisparticipant = $participants[$s->participant->participantidentifier])) {
+            $thisparticipant = $s->participant;
+            $participants[$s->participant->participantidentifier] = $thisparticipant;
+        }
+
+        if (isset($thisparticipant->sessions[$s->id])) {
+            $msg = $fxn . "::Attempting to overwrite an existing session (id={$s->id}) -- this should not happen";
+            Logger::log($fxn . "::$msg; \$participantsessions=" . ia_u::var_dump($participantsessions));
+            throw new Exception($msg);
+        }
+
+        $thisparticipant->sessions[$s->id] = $s;
+    }
+    $debug && Logger::log($fxn . "::Built \$participants=" . ia_u::var_dump($participants));
+
+    // Sort each participant's sessions.
+    foreach ($participants as &$p) {
+        $debug && Logger::log($fxn . "::Find latest session: Looking at \$p->participantidentifier={$p->participantidentifier}");
+        usort($p->sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
+    }
+
+    $debug && Logger::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants));
+    return $participants;
 }
 
 /**
@@ -324,61 +374,4 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
     }
 
     return $modules;
-}
-
-/**
- * Compares two table row elements for ordering.
- *
- * @param  mixed $a element containing name, online time and progress info
- * @param  mixed $b element containing name, online time and progress info
- * @return order of pair expressed as -1, 0, or 1
- */
-function block_integrityadvocate_compare_rows($a, $b): int {
-    $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
-    $debug = false || Logger::do_log_for_function($fxn);
-    $debug && Logger::log($fxn . '::Started');
-
-    global $sort;
-
-    // Process each of the one or two orders.
-    $orders = explode(', ', $sort);
-    foreach ($orders as $order) {
-
-        // Extract the order information.
-        $orderelements = explode(' ', trim($order));
-        $aspect = $orderelements[0];
-        $ascdesc = $orderelements[1];
-
-        // Compensate for presented vs actual.
-        switch ($aspect) {
-            case 'name':
-                $aspect = 'lastname';
-                break;
-            case 'lastaccess':
-                $aspect = 'lastaccesstime';
-                break;
-            case 'progress':
-                $aspect = 'progressvalue';
-                break;
-        }
-
-        // Check of order can be established.
-        if (is_array($a)) {
-            $first = $a[$aspect];
-            $second = $b[$aspect];
-        } else {
-            $first = $a->$aspect;
-            $second = $b->$aspect;
-        }
-
-        if ($first < $second) {
-            return $ascdesc == 'ASC' ? 1 : -1;
-        }
-        if ($first > $second) {
-            return $ascdesc == 'ASC' ? -1 : 1;
-        }
-    }
-
-    // If previous ordering fails, consider values equal.
-    return 0;
 }
