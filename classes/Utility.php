@@ -146,7 +146,7 @@ class Utility {
             //if (isset($expression->page)) {
             //    error_log(__FUNCTION__ . '::Type of page property stdClass?=' . $expression->page instanceof \stdClass);
             //}
-            if (property_exists($expression, 'page') && (gettype($expression->page) == 'object')) {
+            if (property_exists($expression, 'page') && (gettype($expression->page) == 'object') && class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
                 unset($expression->page);
             }
             if (method_exists(get_class($expression), '__toString')) {
@@ -154,7 +154,7 @@ class Utility {
             }
         }
 
-        if (is_array($expression) && isset($expression['page']) && ($expression['page'] instanceof Object)) {
+        if (is_array($expression) && isset($expression['page']) && ($expression['page'] instanceof Object) && class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
             unset($expression['page']);
         }
 
