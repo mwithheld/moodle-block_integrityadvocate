@@ -43,10 +43,22 @@ if (version_compare(phpversion(), '7.3.0', '<')) {
     }
 }
 if (version_compare(phpversion(), '8', '<')) {
+
+    if (!defined('FILTER_VALIDATE_BOOL') && defined('FILTER_VALIDATE_BOOLEAN')) {
+        define('FILTER_VALIDATE_BOOL', FILTER_VALIDATE_BOOLEAN);
+    }
+
     if (!function_exists('str_contains')) {
 
         function str_contains(string $haystack, string $needle): bool {
             return '' === $needle || false !== strpos($haystack, $needle);
+        }
+
+    }
+    if (!function_exists('str_icontains')) {
+
+        function str_icontains(string $haystack, string $needle): bool {
+            return '' === $needle || false !== stripos($haystack, $needle);
         }
 
     }
@@ -63,6 +75,41 @@ if (version_compare(phpversion(), '8', '<')) {
 
         function str_ends_with(string $haystack, string $needle): bool {
             return '' === $needle || ('' !== $haystack && 0 === \substr_compare($haystack, $needle, -\strlen($needle)));
+        }
+
+    }
+
+    if (!function_exists('str_starts_with')) {
+
+        function get_debug_type($value): string {
+            switch (true) {
+                case null === $value: return 'null';
+                case \is_bool($value): return 'bool';
+                case \is_string($value): return 'string';
+                case \is_array($value): return 'array';
+                case \is_int($value): return 'int';
+                case \is_float($value): return 'float';
+                case \is_object($value): break;
+                case $value instanceof \__PHP_Incomplete_Class: return '__PHP_Incomplete_Class';
+                default:
+                    if (null === $type = @get_resource_type($value)) {
+                        return 'unknown';
+                    }
+
+                    if ('Unknown' === $type) {
+                        $type = 'closed';
+                    }
+
+                    return "resource ($type)";
+            }
+
+            $class = \get_class($value);
+
+            if (false === strpos($class, '@')) {
+                return $class;
+            }
+
+            return (get_parent_class($class) ?: key(class_implements($class)) ?: 'class') . '@anonymous';
         }
 
     }
