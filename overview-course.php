@@ -61,74 +61,63 @@ switch (true) {
         $launch_url = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participants';
 
         $launch_data = [
+            // Required for Moodle oauth_helper.
             'api_root' => $launch_url,
+            // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
             'launch_presentation_locale' => \current_language(),
-            'user_id' => $USER->id,
-            // 2020Dec: This appears to be unused.
-            'roles' => '*',
-            // Z--.
+            // 2020Dec: roles appears to be unused.
+            'roles' => '',
             // This should always be 1.
             'resource_link_id' => '1',
-            // 2020Dec: These appear to be unused.
-            //'resource_link_title' => 'Weekly Blog',
-            //'resource_link_description' => 'A weekly blog.',
-            // Z--.
-            'lis_person_name_full' => \fullname($USER),
+            // Who is requesting this info?.
+            'user_id' => $USER->id,
             'lis_person_contact_email_primary' => $USER->email,
             'lis_person_name_family' => $USER->lastname,
+            'lis_person_name_full' => \fullname($USER),
             'lis_person_name_given' => $USER->firstname,
-//        'lis_person_sourcedid' => 'school.edu:user',
-            //
-//        'tool_consumer_instance_guid' => 'lmsng.school.edu',
-//        'tool_consumer_instance_description' => 'University of School (LMSng)',
-//        'ConsumerKey' => $blockinstance->config->apikey,
-//        'ContextId' => $courseid,
-//        'ResourceLinkId' => '1',
-//        'Url' => INTEGRITYADVOCATE_BASEURL . '/lti/Participants',
-            // --.
+            'lis_person_sourcedid' => $USER->id,
+            // Extra info to help identify this request to the remote side.  2020Dec: They appear to be unused.
+            'tool_consumer_instance_description' => "site={$CFG->wwwroot}; course={$courseid}; blockinstanceid={$blockinstanceid}; moduleid={$moduleid}",
+            'tool_consumer_instance_guid' => $blockinstanceid,
             // LTI setup.
             'lti_message_type' => 'basic-lti-launch-request',
             'lti_version' => 'LTI-1p0',
-            // --.
-            // OAuth setup.
-            // Basic LTI uses OAuth to sign requests.
-            // OAuth Core 1.0 spec: http://oauth.net/core/1.0/ .
+            // OAuth 1.0 setup.
             'oauth_callback' => 'about:blank',
-            // This s/b the IA appid.
             'oauth_consumer_key' => $blockinstance->config->appid,
             'oauth_consumer_secret' => $blockinstance->config->apikey,
             'oauth_nonce' => uniqid('', true),
             'oauth_signature_method' => 'HMAC-SHA1',
             'oauth_timestamp' => (new \DateTime())->getTimestamp(),
             'oauth_version' => '1.0',
-            // Course id.
+            // Context info.
             'context_id' => $courseid,
-            'context_title' => $COURSE->fullname,
             'context_label' => $COURSE->shortname,
-            // IA activities in this course.
-            'custom_activities' => json_encode([
-                ((object) ['Id' => "2", 'Name' => 'Activity 1']),
-                ((object) ['Id' => "3", 'Name' => 'Activity 2']),
-                ((object) ['Id' => "8", 'Name' => 'Activity 3']),
-                ((object) ['Id' => "9", 'Name' => 'Activity 4']),
-                ((object) ['Id' => "11", 'Name' => 'Activity 5']),
-                    ], JSON_PARTIAL_OUTPUT_ON_ERROR),
+            'context_title' => $COURSE->fullname,
         ];
 
-        // We only need OAUTH 1.0, and only to launch the LTI.
-        // Moodle's code does the same as the example but with a bit more cleanup.
+        // The LTI UI will show a dropdown with a list of IA activities in this course.
+        $custom_activities = [];
+        foreach ($modules as $m) {
+            $custom_activities[] = (object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']];
+        }
+        $launch_data['custom_activities'] = json_encode($custom_activities, JSON_PARTIAL_OUTPUT_ON_ERROR);
+
+        // We only need launch the LTI.
+        // The request is signed using OAuth Core 1.0 spec: http://oauth.net/core/1.0/ .
+        // Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
         require_once($CFG->libdir . '/oauthlib.php');
         $signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, urlencode($blockinstance->config->apikey) . '&');
         ?>
-        <form id="form" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="<?php echo $launch_url; ?>">
+        <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="<?php echo $launch_url; ?>">
             <?php foreach ($launch_data as $k => $v) { ?>
                 <input type="hidden" name="<?php echo $k; ?>" value="<?php echo htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); ?>">
             <?php } ?>
             <input type="hidden" name="oauth_signature" value="<?php echo $signature; ?>">
             <button type="submit">Launch</button>
         </form>
-        <iframe id="iframelaunch" name="iframelaunch" src="" style="width: 100%;height: 800px;"></iframe>
-        <script>document.getElementById("form").submit();</script>
+        <iframe id="iframelaunch" name="iframelaunch" src="" style="width:100%;height:800px"></iframe>
+        <script>document.getElementById("ltiLaunchForm").submit();</script>
         <?php
         break;
     case (FeatureControl::OVERVIEW_COURSE_V2):
