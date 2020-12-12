@@ -56,14 +56,17 @@ const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
 /** @var string Longer name for this plugin. */
 const INTEGRITYADVOCATE_BLOCK_NAME = 'block_integrityadvocate';
 
-/** @var string Base url for the API with no trailing slash. */
-const INTEGRITYADVOCATE_BASEURL_LTI = 'https://www.integrityadvocateserver.com';
-
-/** @var string Base url for the API with no trailing slash. */
+/** @var string Base url for the LTI endpoint with no trailing slash. */
 const INTEGRITYADVOCATE_BASEURL_API = 'https://ca.integrityadvocateserver.com';
 
 /** @var string Path relative to baseurl of the API with no trailing slash. */
 const INTEGRITYADVOCATE_API_PATH = '/api';
+
+/** @var string Base url for the API with no trailing slash. */
+const INTEGRITYADVOCATE_BASEURL_LTI = 'https://www.integrityadvocateserver.com';
+
+/** @var string Path relative to baseurl of the LTI endpoint with no trailing slash. */
+const INTEGRITYADVOCATE_LTI_PATH = '/lti';
 
 /** @var string Email address for privacy api data cleanup requests */
 const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
