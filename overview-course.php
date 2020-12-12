@@ -44,50 +44,131 @@ switch (true) {
         throw new \Exception('This feature is disabled');
     case (empty($blockinstanceid)):
         throw new \InvalidArgumentException('$blockinstanceid is required');
-    case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) :
+    case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)):
         throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
-    case(!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
+    case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // The above line throws an error if the current user is not a teacher, so we should never get here.
         $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
         break;
     default:
         $debug && Logger::log(__FILE__ . '::All requirements are met');
 }
+switch (true) {
+    case (FeatureControl::OVERVIEW_COURSE_V3):
+        $launch_url = INTEGRITYADVOCATE_BASEURL_LTI . '/lti/Participants';
+        $secret = $blockinstance->config->apikey;
 
-if (FeatureControl::OVERVIEW_COURSE_V2) {
-    $debug && Logger::log(__FILE__ . '::Request is for overview_course_v2');
-    $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
+        $launch_data = [
+            'launch_presentation_locale' => 'en_US',
+            'user_id' => 'CURRENT+ADMIN+USER+ID',
+            'roles' => 'Administrator',
+            // This should always be 1.
+            'resource_link_id' => '1',
+//        'resource_link_title' => 'Weekly Blog',
+//        'resource_link_description' => 'A weekly blog.',
+//        'lis_person_name_full' => 'Jane Q. Public',
+            'lis_person_contact_email_primary' => 'CURRENT+ADMIN+USER+EMAIL+ADDRESS',
+            'lis_person_name_family' => 'CURRENT+ADMIN+USER+LAST+NAME',
+            'lis_person_name_given' => 'CURRENT+ADMIN+USER+FIRST+NAME',
+//        'lis_person_sourcedid' => 'school.edu:user',
+            //
+//        'tool_consumer_instance_guid' => 'lmsng.school.edu',
+//        'tool_consumer_instance_description' => 'University of School (LMSng)',
+//        'ConsumerKey' => $blockinstance->config->apikey,
+//        'ContextId' => $courseid,
+//        'ResourceLinkId' => '1',
+//        'Url' => INTEGRITYADVOCATE_BASEURL . '/lti/Participants',
+            // --.
+            // LTI setup.
+            'lti_message_type' => 'basic-lti-launch-request',
+            'lti_version' => 'LTI-1p0',
+            // --.
+            // OAuth setup.
+            // Basic LTI uses OAuth to sign requests.
+            // OAuth Core 1.0 spec: http://oauth.net/core/1.0/ .
+            'oauth_callback' => 'about:blank',
+            // This s/b the IA appid.
+            'oauth_consumer_key' => $blockinstance->config->appid,
+            'oauth_nonce' => uniqid('', true),
+            'oauth_signature_method' => 'HMAC-SHA1',
+            'oauth_timestamp' => (new \DateTime())->getTimestamp(),
+            'oauth_version' => '1.0',
+            //--
+            // Course id.
+            'context_id' => $courseid,
+//        'context_title' => 'Design of Personal Environments',
+//        'context_label' => 'SI182',
+            // IA activities in this course.
+            'custom_activities' => json_encode([
+                ((object) ['Id' => "2", 'Name' => 'Activity 1']),
+                ((object) ['Id' => "3", 'Name' => 'Activity 2']),
+                ((object) ['Id' => "8", 'Name' => 'Activity 3']),
+                ((object) ['Id' => "9", 'Name' => 'Activity 4']),
+                ((object) ['Id' => "11", 'Name' => 'Activity 5']),
+                    ], JSON_PARTIAL_OUTPUT_ON_ERROR),
+        ];
+        #
+        # END OF CONFIGURATION SECTION
+        # ------------------------------
+        #
+        # In OAuth, request parameters must be sorted by name
+        $launch_data_keys = array_keys($launch_data);
+        sort($launch_data_keys);
 
-    // Output roles selector.
+        $launch_params = array();
+        foreach ($launch_data_keys as $key) {
+            array_push($launch_params, $key . '=' . rawurlencode($launch_data[$key]));
+        }
+
+        $base_string = 'POST&' . urlencode($launch_url) . '&' . rawurlencode(implode('&', $launch_params));
+        $secret = urlencode($secret) . '&';
+        $signature = base64_encode(hash_hmac('sha1', $base_string, $secret, true));
+        ?>
+        <form id="form" name="ltiLaunchForm" method="POST" target="iframelaunch" action="<?php printf($launch_url); ?>">
+            <?php foreach ($launch_data as $k => $v) { ?>
+                <input type="hidden" name="<?php echo $k; ?>" value="<?php echo htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); ?>">
+            <?php } ?>
+            <input type="hidden" name="oauth_signature" value="<?php echo $signature; ?>">
+            <button type="submit">Launch</button>
+        </form>
+        <iframe id="iframelaunch" name="iframelaunch" src="" style="width: 100%;height: 800px;"></iframe>
+        <script>document.getElementById("form").submit();</script>
+        <?php
+        break;
+    case (FeatureControl::OVERVIEW_COURSE_V2):
+        $debug && Logger::log(__FILE__ . '::Request is for overview_course_v2');
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
+
+        // Output roles selector.
 //    echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME . '_roleid_select', "{$prefix}_roleid");
 //    echo $OUTPUT->single_select($PAGE->url, 'role', ia_mu::get_roles_for_select($coursecontext), $roleid);
 //    echo $OUTPUT->container_end();
-//    
-    // Get list of students in the course.
-    // Usage: get_role_users($roleid, $context, $parent, $fields, $sort, $all, $group, $limitfrom, $limitnum).
-    $debug && Logger::log(__FILE__ . "::About to get_role_users(\$roleid={$roleid}, \$context={$coursecontext->id}, \$parent=false, \$fields='ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), \$sort=null, \$all=true, \$group=$groupid, \$limitfrom=($currpage * $perpage), \$limitnum=$perpage)");
-    $enrolledusers = get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), null, true, $groupid, ($currpage * $perpage), $perpage);
-    $debug && Logger::log(__FILE__ . '::Got count($enrolledusers)=' . ia_u::count_if_countable($enrolledusers));
+//
+        // Get list of students in the course.
+        // Usage: get_role_users($roleid, $context, $parent, $fields, $sort, $all, $group, $limitfrom, $limitnum).
+        $debug && Logger::log(__FILE__ . "::About to get_role_users(\$roleid={$roleid}, \$context={$coursecontext->id}, \$parent=false, \$fields='ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), \$sort=null, \$all=true, \$group=$groupid, \$limitfrom=($currpage * $perpage), \$limitnum=$perpage)");
+        $enrolledusers = get_role_users($roleid, $coursecontext, false, 'ra.id, u.id, u.email, u.lastaccess, u.picture, u.imagealt, ' . get_all_user_name_fields(true, 'u'), null, true, $groupid, ($currpage * $perpage), $perpage);
+        $debug && Logger::log(__FILE__ . '::Got count($enrolledusers)=' . ia_u::count_if_countable($enrolledusers));
 
-    if (!$enrolledusers) {
-        echo get_string('nousersfound');
-    } else {
-        // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
-        echo '<table id="', $prefix, '_table" class="stripe order-column hover display">';
-        $tr = '<tr>';
-        $tr_end = '</tr>';
-        echo '<thead>';
+        if (!$enrolledusers) {
+            echo get_string('nousersfound');
+        } else {
+            // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
+            echo '<table id="', $prefix, '_table" class="stripe order-column hover display">';
+            $tr = '<tr>';
+            $tr_end = '</tr>';
+            echo '<thead>';
 
-        $tr_header = [$tr];
-        $tr_header[] = \html_writer::tag('th', 'id', ['class' => "{$prefix}_id"]);
-        $tr_header[] = \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_user"]);
-        $tr_header[] = \html_writer::tag('th', \get_string('email'), ['class' => "{$prefix}_email"]);
-        $tr_header[] = \html_writer::tag('th', \get_string('lastcourseaccess'), ['class' => "{$prefix}_lastcourseaccess"]);
-        $tr_header[] = \html_writer::tag('th', \get_string('column_latestparticipantleveldata', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iadata"]);
-        $tr_header[] = \html_writer::tag('th', \get_string('column_iaphoto', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iaphoto"]);
-        $tr_header[] = $tr_end;
-        $tr_header = implode('', $tr_header);
-        echo "{$tr_header}</thead><tbody>";
+            $tr_header = [$tr];
+            $tr_header[] = \html_writer::tag('th', 'id', ['class' => "{$prefix}_id"]);
+            $tr_header[] = \html_writer::tag('th', \get_string('user'), ['class' => "{$prefix}_user"]);
+            $tr_header[] = \html_writer::tag('th', \get_string('email'), ['class' => "{$prefix}_email"]);
+            $tr_header[] = \html_writer::tag('th', \get_string('lastcourseaccess'), ['class' => "{$prefix}_lastcourseaccess"]);
+            $tr_header[] = \html_writer::tag('th', \get_string('column_latestparticipantleveldata', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iadata"]);
+            $tr_header[] = \html_writer::tag('th', \get_string('column_iaphoto', INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_column_iaphoto"]);
+            $tr_header[] = $tr_end;
+            $tr_header = implode('', $tr_header);
+            echo "{$tr_header}</thead><tbody>";
 
 //        echo $tr;
 //        $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true];
@@ -104,92 +185,95 @@ if (FeatureControl::OVERVIEW_COURSE_V2) {
 //            echo $tr_end;
 //        }
 
-        echo "</tbody><tfoot>{$tr_header}</tfoot></table>";
-        // Used as a JQueryUI popup to show the user picture.
-        echo '<div id="dialog"></div>';
-    }
+            echo "</tbody><tfoot>{$tr_header}</tfoot></table>";
+            // Used as a JQueryUI popup to show the user picture.
+            echo '<div id="dialog"></div>';
+        }
 
-    // Get IA data for this first set.  We want participant-level data b/c we want the latest photo and status.
+        // Get IA data for this first set.  We want participant-level data b/c we want the latest photo and status.
 //    $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
 //    $debug && Logger::log(__FILE__ . '::Got participants=' . ia_u::var_dump($participants));
-    // Display the first 10.
-    // ??For each student, get their IA data??
-} else {
-    // OLD Participants table UI.
-    // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
-    $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview-course';
+        // Display the first 10.
+        // ??For each student, get their IA data??
+        break;
+    default:
+        // OLD Participants table UI.
+        // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .
+        $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview-course';
 
-    echo '<table id="' . $prefix . '" class="stripe order-column hover display">';
-    $tr = '<tr>';
-    $tr_end = '</tr>';
-    echo '<thead>';
-    $tr_header = $tr;
-    $tr_header .= \html_writer::tag('th', \get_string('fullnameuser'), ['class' => "{$prefix}_user"]);
-    $tr_header .= \html_writer::tag('th', \get_string('email'), ['class' => "{$prefix}_email"]);
-    $tr_header .= \html_writer::tag('th', \get_string('lastaccess'), ['class' => "{$prefix}_lastaccess"]);
-    $tr_header .= \html_writer::tag('th', \get_string('column_iadata', \INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_ia-data"]);
-    $tr_header .= \html_writer::tag('th', \get_string('column_iaphoto', \INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_ia-photo"]);
-    $tr_header .= $tr_end;
-    echo "{$tr_header}</thead><tbody>";
+        echo '<table id="' . $prefix . '" class="stripe order-column hover display">';
+        $tr = '<tr>';
+        $tr_end = '</tr>';
+        echo '<thead>';
+        $tr_header = $tr;
+        $tr_header .= \html_writer::tag('th', \get_string('fullnameuser'), ['class' => "{$prefix}_user"]);
+        $tr_header .= \html_writer::tag('th', \get_string('email'), ['class' => "{$prefix}_email"]);
+        $tr_header .= \html_writer::tag('th', \get_string('lastaccess'), ['class' => "{$prefix}_lastaccess"]);
+        $tr_header .= \html_writer::tag('th', \get_string('column_iadata', \INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_ia-data"]);
+        $tr_header .= \html_writer::tag('th', \get_string('column_iaphoto', \INTEGRITYADVOCATE_BLOCK_NAME), ['class' => "{$prefix}_ia-photo"]);
+        $tr_header .= $tr_end;
+        echo "{$tr_header}</thead><tbody>";
 
-    global $DB;
-    $lastaccess_course = $DB->get_records('user_lastaccess', ['courseid' => $courseid], 'userid', implode(',', ['userid', 'timeaccess']));
-    $debug && Logger::log('Got $lastaccess_course=' . ia_u::var_dump($lastaccess_course, true));
-    $users = \get_enrolled_users(\context_course::instance($courseid), 'moodle/grade:view', $groupid, 'u.*', 'u.lastname', 0, 0, false);
-    $debug && Logger::log('Got $users=get_enrolled_users=' . ia_u::var_dump($users, true));
-    if (ia_u::is_empty($users)) {
-        echo \get_string('error_nousers', \INTEGRITYADVOCATE_BLOCK_NAME);
-        exit;
-    }
-
-    // Check if there is any errors.
-    if ($configerrors = $blockinstance->get_config_errors()) {
-        Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: ' . ia_u::var_dump($configerrors, true));
-        echo implode(ia_output::BRNL, $configerrors);
-        exit;
-    }
-
-    $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
-    $debug && Logger::log('Got $participants=' . ia_u::var_dump($participants, true));
-
-    $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true, 'link' => false];
-    global $OUTPUT;
-    foreach ($users as $user) {
-        error_log('Looking at userid=' . $user->id);
-        echo $tr;
-        // Column=User.
-        $user = ia_mu::get_user_as_obj($user->id);
-        echo \html_writer::tag('td',
-                '<a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '&amp;course=' . $courseid . '" title="' . fullname($user) . '">' .
-                $OUTPUT->user_picture($user, $pictureparams) . '</a>',
-                ['data-sort' => fullname($user), 'class' => "{$prefix}_user"]);
-
-        // Column=email
-        echo \html_writer::tag('td', $user->email, ['class' => "{$prefix}_email"]);
-
-        // Column=lastaccess
-        if (isset($lastaccess_course[$user->id]->timeaccess) && !empty($lastaccess_course[$user->id]->timeaccess)) {
-            $userdate = \userdate($lastaccess_course[$user->id]->timeaccess);
-            $debug && Logger::log('userid=' . $user->id . '; userdate=' . $userdate);
-            echo \html_writer::tag('td', $userdate, ['class' => "{$prefix}_lastaccess"]);
-        } else {
-            echo \html_writer::tag('td', '', ['class' => "{$prefix}_lastaccess"]);
+        global $DB;
+        $lastaccess_course = $DB->get_records('user_lastaccess', ['courseid' => $courseid], 'userid', implode(',', ['userid', 'timeaccess']));
+        $debug && Logger::log('Got $lastaccess_course=' . ia_u::var_dump($lastaccess_course, true));
+        $users = \get_enrolled_users(\context_course::instance($courseid), 'moodle/grade:view', $groupid, 'u.*', 'u.lastname', 0, 0, false);
+        $debug && Logger::log('Got $users=get_enrolled_users=' . ia_u::var_dump($users, true));
+        if (ia_u::is_empty($users)) {
+            echo \get_string('error_nousers', \INTEGRITYADVOCATE_BLOCK_NAME);
+            exit;
         }
 
-        // Column=iadata and Column=iaphoto
-        if (isset($participants[$user->id])) {
-            echo \html_writer::tag('td', ia_output::get_participant_summary_output($blockinstance, $participants[$user->id], false, true, false), ['class' => "{$prefix}_iadata"]);
-            echo \html_writer::tag('td', ia_output::get_participant_photo_output($user->id, $participants[$user->id]->participantphoto, $participants[$user->id]->status, $participants[$user->id]->email), ['class' => "{$prefix}_iaphoto"]);
-        } else {
-            echo \html_writer::tag('td', '', ['class' => "{$prefix}_iadata"]);
-            echo \html_writer::tag('td', '', ['class' => "{$prefix}_iaphoto"]);
+        // Check if there is any errors.
+        if ($configerrors = $blockinstance->get_config_errors()) {
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Error: ' . ia_u::var_dump($configerrors, true));
+            echo implode(ia_output::BRNL, $configerrors);
+            exit;
         }
 
-        echo $tr_end;
-    }
-    echo '</tbody>';
-    echo "<tfoot>{$tr_header}</tfoot>";
-    echo '</table>';
-    // Used as a JQueryUI popup to show the user picture.
-    echo '<div id="dialog"></div>';
+        $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
+        $debug && Logger::log('Got $participants=' . ia_u::var_dump($participants, true));
+
+        $pictureparams = ['size' => 35, 'courseid' => $courseid, 'includefullname' => true, 'link' => false];
+        global $OUTPUT;
+        foreach ($users as $user) {
+            error_log('Looking at userid=' . $user->id);
+            echo $tr;
+            // Column=User.
+            $user = ia_mu::get_user_as_obj($user->id);
+            echo \html_writer::tag(
+                    'td',
+                    '<a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '&amp;course=' . $courseid . '" title="' . fullname($user) . '">' .
+                    $OUTPUT->user_picture($user, $pictureparams) . '</a>',
+                    ['data-sort' => fullname($user), 'class' => "{$prefix}_user"]
+            );
+
+            // Column=email
+            echo \html_writer::tag('td', $user->email, ['class' => "{$prefix}_email"]);
+
+            // Column=lastaccess
+            if (isset($lastaccess_course[$user->id]->timeaccess) && !empty($lastaccess_course[$user->id]->timeaccess)) {
+                $userdate = \userdate($lastaccess_course[$user->id]->timeaccess);
+                $debug && Logger::log('userid=' . $user->id . '; userdate=' . $userdate);
+                echo \html_writer::tag('td', $userdate, ['class' => "{$prefix}_lastaccess"]);
+            } else {
+                echo \html_writer::tag('td', '', ['class' => "{$prefix}_lastaccess"]);
+            }
+
+            // Column=iadata and Column=iaphoto
+            if (isset($participants[$user->id])) {
+                echo \html_writer::tag('td', ia_output::get_participant_summary_output($blockinstance, $participants[$user->id], false, true, false), ['class' => "{$prefix}_iadata"]);
+                echo \html_writer::tag('td', ia_output::get_participant_photo_output($user->id, $participants[$user->id]->participantphoto, $participants[$user->id]->status, $participants[$user->id]->email), ['class' => "{$prefix}_iaphoto"]);
+            } else {
+                echo \html_writer::tag('td', '', ['class' => "{$prefix}_iadata"]);
+                echo \html_writer::tag('td', '', ['class' => "{$prefix}_iaphoto"]);
+            }
+
+            echo $tr_end;
+        }
+        echo '</tbody>';
+        echo "<tfoot>{$tr_header}</tfoot>";
+        echo '</table>';
+        // Used as a JQueryUI popup to show the user picture.
+        echo '<div id="dialog"></div>';
 }
