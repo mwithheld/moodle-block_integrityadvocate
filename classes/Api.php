@@ -92,7 +92,7 @@ class Api {
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0
         ));
-        $requesturi = INTEGRITYADVOCATE_BASEURL . self::ENDPOINT_PING;
+        $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_PING;
         $response = $curl->get($requesturi);
 
         $responseinfo = $curl->get_info();
@@ -145,7 +145,7 @@ class Api {
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0
         ));
-        $requesturi = INTEGRITYADVOCATE_BASEURL . self::ENDPOINT_CLOSE_SESSION . '?' .
+        $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_CLOSE_SESSION . '?' .
                 'appid=' . urlencode($appid) .
                 '&participantidentifier=' . $userid .
                 '&courseid=' . $courseid .
@@ -214,7 +214,7 @@ class Api {
         // Set up request variables.
         // Ref API docs at https://integrityadvocate.com/Developers#aEvents.
         $debug && Logger::log($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params, true) : ''));
-        $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
+        $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
         $requesturi = $requestapiurl . ($params ? '?' . http_build_query($params, null, '&') : '');
         $debug && Logger::log($fxn . '::Built $requesturi=' . $requesturi);
 
@@ -283,7 +283,7 @@ class Api {
      * @return \moodle_url The IA proctoring JS url.
      */
     public static function get_js_url(string $appid, int $courseid, int $cmid, \stdClass $user): \moodle_url {
-        return new \moodle_url(INTEGRITYADVOCATE_BASEURL . '/participants/integrity',
+        return new \moodle_url(INTEGRITYADVOCATE_BASEURL_API . '/participants/integrity',
                 array(
             'appid' => $appid,
             'courseid' => $courseid,
@@ -1329,7 +1329,7 @@ class Api {
         );
 
         $endpoint = '/participantsessions';
-        $requestapiurl = INTEGRITYADVOCATE_BASEURL . INTEGRITYADVOCATE_API_PATH . $endpoint;
+        $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
         $requesturi = $requestapiurl . ($params_url ? '?' . http_build_query($params_url, null, '&') : '');
         $debug && Logger::log($fxn . '::Built $requesturi=' . $requesturi);
 

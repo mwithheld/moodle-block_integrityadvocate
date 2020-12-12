@@ -57,7 +57,10 @@ const INTEGRITYADVOCATE_SHORTNAME = 'integrityadvocate';
 const INTEGRITYADVOCATE_BLOCK_NAME = 'block_integrityadvocate';
 
 /** @var string Base url for the API with no trailing slash. */
-const INTEGRITYADVOCATE_BASEURL = 'https://ca.integrityadvocateserver.com';
+const INTEGRITYADVOCATE_BASEURL_LTI = 'https://www.integrityadvocateserver.com';
+
+/** @var string Base url for the API with no trailing slash. */
+const INTEGRITYADVOCATE_BASEURL_API = 'https://ca.integrityadvocateserver.com';
 
 /** @var string Path relative to baseurl of the API with no trailing slash. */
 const INTEGRITYADVOCATE_API_PATH = '/api';
