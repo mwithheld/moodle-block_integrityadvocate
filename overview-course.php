@@ -55,21 +55,28 @@ switch (true) {
 }
 switch (true) {
     case (FeatureControl::OVERVIEW_COURSE_V3):
-        $launch_url = INTEGRITYADVOCATE_BASEURL_LTI . '/lti/Participants';
-        $secret = $blockinstance->config->apikey;
+        /**
+         * Code here is adapted from https://gist.github.com/matthanger/1171921 .
+         */
+        $launch_url = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participants';
 
         $launch_data = [
-            'launch_presentation_locale' => 'en_US',
-            'user_id' => 'CURRENT+ADMIN+USER+ID',
-            'roles' => 'Administrator',
+            'api_root' => $launch_url,
+            'launch_presentation_locale' => \current_language(),
+            'user_id' => $USER->id,
+            // 2020Dec: This appears to be unused.
+            'roles' => '*',
+            // Z--.
             // This should always be 1.
             'resource_link_id' => '1',
-//        'resource_link_title' => 'Weekly Blog',
-//        'resource_link_description' => 'A weekly blog.',
-//        'lis_person_name_full' => 'Jane Q. Public',
-            'lis_person_contact_email_primary' => 'CURRENT+ADMIN+USER+EMAIL+ADDRESS',
-            'lis_person_name_family' => 'CURRENT+ADMIN+USER+LAST+NAME',
-            'lis_person_name_given' => 'CURRENT+ADMIN+USER+FIRST+NAME',
+            // 2020Dec: These appear to be unused.
+            //'resource_link_title' => 'Weekly Blog',
+            //'resource_link_description' => 'A weekly blog.',
+            // Z--.
+            'lis_person_name_full' => \fullname($USER),
+            'lis_person_contact_email_primary' => $USER->email,
+            'lis_person_name_family' => $USER->lastname,
+            'lis_person_name_given' => $USER->firstname,
 //        'lis_person_sourcedid' => 'school.edu:user',
             //
 //        'tool_consumer_instance_guid' => 'lmsng.school.edu',
@@ -89,15 +96,15 @@ switch (true) {
             'oauth_callback' => 'about:blank',
             // This s/b the IA appid.
             'oauth_consumer_key' => $blockinstance->config->appid,
+            'oauth_consumer_secret' => $blockinstance->config->apikey,
             'oauth_nonce' => uniqid('', true),
             'oauth_signature_method' => 'HMAC-SHA1',
             'oauth_timestamp' => (new \DateTime())->getTimestamp(),
             'oauth_version' => '1.0',
-            //--
             // Course id.
             'context_id' => $courseid,
-//        'context_title' => 'Design of Personal Environments',
-//        'context_label' => 'SI182',
+            'context_title' => $COURSE->fullname,
+            'context_label' => $COURSE->shortname,
             // IA activities in this course.
             'custom_activities' => json_encode([
                 ((object) ['Id' => "2", 'Name' => 'Activity 1']),
@@ -107,24 +114,13 @@ switch (true) {
                 ((object) ['Id' => "11", 'Name' => 'Activity 5']),
                     ], JSON_PARTIAL_OUTPUT_ON_ERROR),
         ];
-        #
-        # END OF CONFIGURATION SECTION
-        # ------------------------------
-        #
-        # In OAuth, request parameters must be sorted by name
-        $launch_data_keys = array_keys($launch_data);
-        sort($launch_data_keys);
 
-        $launch_params = array();
-        foreach ($launch_data_keys as $key) {
-            array_push($launch_params, $key . '=' . rawurlencode($launch_data[$key]));
-        }
-
-        $base_string = 'POST&' . urlencode($launch_url) . '&' . rawurlencode(implode('&', $launch_params));
-        $secret = urlencode($secret) . '&';
-        $signature = base64_encode(hash_hmac('sha1', $base_string, $secret, true));
+        // We only need OAUTH 1.0, and only to launch the LTI.
+        // Moodle's code does the same as the example but with a bit more cleanup.
+        require_once($CFG->libdir . '/oauthlib.php');
+        $signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, urlencode($blockinstance->config->apikey) . '&');
         ?>
-        <form id="form" name="ltiLaunchForm" method="POST" target="iframelaunch" action="<?php printf($launch_url); ?>">
+        <form id="form" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="<?php echo $launch_url; ?>">
             <?php foreach ($launch_data as $k => $v) { ?>
                 <input type="hidden" name="<?php echo $k; ?>" value="<?php echo htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); ?>">
             <?php } ?>
