@@ -53,7 +53,7 @@ trait external_datatables {
     public static function get_datatables_participants(string $appid, int $courseid, int $draw, int $start, int $length, string $tblsearch, array $order, array $columns): array {
         global $USER;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true || Logger::do_log_for_function($fxn);
+        $debug = false || Logger::do_log_for_function($fxn);
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$draw={$draw}; \$start={$start}; \$length={$length}; \$tblsearch=" . $tblsearch . '; $order=' . ia_u::var_dump($order) . '; $columns=' . ia_u::var_dump($columns, true);
         $debug && Logger::log($debugvars);
 
@@ -111,7 +111,7 @@ trait external_datatables {
             case($length < 1) :
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Invalid length {$length} requested");
                 break;
-            case(ia_u::is_empty($activities = \block_integrityadvocate_get_course_ia_modules($course, array('visible' => 1, 'configured' => 1, 'appid' => $appid))) || !is_array($activities)):
+            case(ia_u::is_empty($activities = \block_integrityadvocate_get_course_ia_modules($course, ['visible' => 1, 'configured' => 1, 'appid' => $appid])) || !is_array($activities)):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "No activities in this course (id={$courseid}) use the specified appid={$appid}");
                 break;
         }
@@ -150,6 +150,7 @@ trait external_datatables {
 
                 // Save the coursemodule for later use.
                 $activity = $cm;
+                break;
             }
         }
         if (!$hascapability_overview || ia_u::is_empty($activity)) {
@@ -187,10 +188,10 @@ trait external_datatables {
             $debug && Logger::log($fxn . '::Built $order_cleaned=' . ia_u::var_dump($order_cleaned));
 
             $columns_cleaned = [];
+            // The rownum column is valid, but useless so it is totally ignored after this cleaning and not sent back in the response.
             $valid_columns = array('rownum', 'userid', 'email', 'lastcourseaccess', 'ia-data', 'ia-photo');
             foreach ($columns as $colitem) {
                 // Disabled on purpose: $debug && Logger::log($fxn . '::Looking at $col=' . ia_u::var_dump($colitem)); .
-
                 $colitem_cleaned = [];
                 $colitem_cleaned['data'] = $colitem['data'];
                 if (empty($colitem['name']) || !in_array($colitem['name'], $valid_columns)) {
@@ -273,23 +274,43 @@ trait external_datatables {
         $canviewfullnames = has_capability('moodle/site:viewfullnames', $cm->context);
         $rows = [];
         foreach ($enrolledusers as $user) {
+            $name = fullname($user, $canviewfullnames);
             $rows[$user->id] = [
-                $user->id,
-                array('picture' => ia_mu::get_user_picture($user, $pictureparams), 'name' => fullname($user, $canviewfullnames)),
-                $user->email,
-                ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')),
+                // The array keys here are not tied to the request or response data fields - they're just to make handling easier, and are stripped b/f sending the data back.
+                'userid' => array('id' => $user->id, 'name' => $name, 'picture' => ia_mu::get_user_picture($user, $pictureparams)),
+                'email' => $user->email,
+                'lastcourseaccess' => ($user->lastaccess ? \userdate($user->lastaccess) : get_string('never')),
                 // IA info - this is set later.
-                '',
+                'ia-data' => '',
                 // IA photo - this is set later.
-                '',
+                'ia-photo' => '',
+                // Temporarily add these columns just so we can sort rows later.
+                'sortcol_name' => $name,
+                'sortcol_ia_status' => (isset($participants[$user->id]->status) ? Status::get_status_string($participants[$user->id]->status) : ''),
             ];
         }
 
+        $debug = true;
+        $latestparticipantsessions = block_integrityadvocate_get_latest_participant_sessions($blockinstance->config->apikey, $blockinstance->config->appid, $courseid);
+        $debug && Logger::log($fxn . '::Got $latestparticipantsessions=' . ia_u::var_dump($latestparticipantsessions));
+
         // Populate IA data into the list of Moodle users, and apply the incoming filter.
-        // Any IA participants no longer enrolled will not be shown.
+        // Any IA participants no longer enrolled on the Moodle side will not be shown.
         foreach ($participants as $p) {
-            $rows[$p->participantidentifier][4] = ia_output::get_participant_summary_output($blockinstance, $p, false, true, true);
-            $rows[$p->participantidentifier][5] = $p->participantphoto;
+            $debug && Logger::log($fxn . '::Looking for latestsession for $p->participantidentifier=' . $p->participantidentifier);
+            if (!isset($latestparticipantsessions[$p->participantidentifier]->sessions[0])) {
+                $debug && Logger::log($fxn . '::Skipping $p->participantidentifier=' . $p->participantidentifier . ' bc no latest session');
+                unset($rows[$p->participantidentifier]);
+            }
+
+            $latestsession = $latestparticipantsessions[$p->participantidentifier]->sessions[0];
+            $debug && Logger::log($fxn . '::Got $latestsession=' . $latestsession);
+
+            $params = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid, 'userid' => $user->id);
+            $overviewbuttonhtml = ia_mu::get_button_html($coursecontext, \get_string('btn_overview_user', INTEGRITYADVOCATE_BLOCK_NAME), new \moodle_url('/blocks/integrityadvocate/overview.php', $params), ['class' => 'block_integrityadvocate_overview_btn_overview_user']);
+            // Usage: get_summary_html(int $userid, int $status, int $start, int $end, string $photohtml = '', string $overviewbuttonhtml = '', bool $showstatus = false) .
+            $rows[$p->participantidentifier]['ia-data'] = ia_output::get_summary_html($p->participantidentifier, $latestsession->status, $latestsession->start, $latestsession->end, null, $overviewbuttonhtml, true);
+            $rows[$p->participantidentifier]['ia-photo'] = $latestsession->participantphoto;
         }
 
         // Apply the incoming filter.
@@ -298,17 +319,14 @@ trait external_datatables {
             foreach ($rows as $key => $row) {
                 $debug && Logger::log($fxn . '::Looking at row with $key=' . $key);
                 $searchmatch = false;
-                foreach ($row as $colnumber => $colvalue) {
-                    $debug && Logger::log($fxn . '::Looking at column with $colnumber=' . $colnumber);
+                foreach ($row as $colname => $colvalue) {
+                    $debug && Logger::log($fxn . '::Looking at column with $colnumber=' . $colname);
                     // Skip columns DataTables has marked as non-searchable.
                     if (!$columns_cleaned[$key]['searchable']) {
                         continue;
                     }
-                    switch ($colnumber) {
-                        case 0:
-                            // Do not search the userid column.
-                            continue 2;
-                        case 1:
+                    switch ($colname) {
+                        case 'userid':
                             // Search the fullname plaintext only.
                             $plaintext = \clean_param($colvalue['name'], \PARAM_TEXT);
                             $debug && Logger::log($fxn . '::Searching in column value $plaintext=' . $plaintext);
@@ -317,9 +335,9 @@ trait external_datatables {
                                 break;
                             }
                             break;
-                        case 2:
-                        case 3:
-                        case 4:
+                        case 'email':
+                        case 'lastcourseaccess':
+                        case 'ia-data':
                             // Search the plaintext.
                             $plaintext = \clean_param($colvalue, \PARAM_TEXT);
                             $debug && Logger::log($fxn . '::Searching in column value $plaintext=' . $plaintext);
@@ -331,7 +349,7 @@ trait external_datatables {
                             }
                             $debug && Logger::log($fxn . '::Search found no match');
                             break;
-                        case 5:
+                        case 'ia-photo':
                             // Do not search the base64 IA participant photo.
                             continue 2;
                     }
@@ -347,38 +365,39 @@ trait external_datatables {
             }
         }
 
-        // Set up column sorting/ordering.
-        $sortarr = [];
-        if (!ia_u::is_empty($order_cleaned)) {
-            foreach ($columns_cleaned as $key => $col) {
-                if (!$col['orderable'] || !isset($order_cleaned[$key]['dir'])) {
-                    $debug && Logger::log($fxn . "::Column {$key} is not orderable or a dir is not set");
-                    continue;
-                }
-                switch ($key) {
-                    case 0:
-                        // Column=rownum: Do not sort by this column.
-                        continue 2;
-                    case 1:
-                        // Column=userid: Sort by fullname later if permitted, but by firstname and lastname for now.
-                        $sortarr[] = "u.firstname {$order_cleaned[$key]['dir']}, u.lastname {$order_cleaned[$key]['dir']}";
-                        break;
-                    case 2:
-                        $sortarr[] = "u.email {$order_cleaned[$key]['dir']}";
-                        break;
-                    case 3:
-                        $sortarr[] = "u.lastaccess {$order_cleaned[$key]['dir']}";
-                        break;
-                    default:
-                        // Do not sort by other columns.
-                        continue 2;
-                }
-            }
-        }
-        $sortstr = implode(', ', $sortarr);
-        $debug && Logger::log($fxn . '::Built $sort=' . ia_u::var_dump($sortarr));
-
-        //TODO: Sort the columns.
+        // Do column sorting/ordering.
+//        $sortarr = [];
+//        if (!ia_u::is_empty($order_cleaned)) {
+//            usort($rows, function() {
+//
+//            });
+//            foreach ($columns_cleaned as $key => $col) {
+//                if (!$col['orderable'] || !isset($order_cleaned[$key]['dir'])) {
+//                    $debug && Logger::log($fxn . "::Column {$key} is not orderable or a dir is not set");
+//                    continue;
+//                }
+//                switch ($key) {
+//                    case 0:
+//                        // Column=rownum: Do not sort by this column.
+//                        continue 2;
+//                    case 1:
+//                        // Column=userid: Sort by fullname later if permitted, but by firstname and lastname for now.
+//                        $sortarr[] = "u.firstname {$order_cleaned[$key]['dir']}, u.lastname {$order_cleaned[$key]['dir']}";
+//                        break;
+//                    case 2:
+//                        $sortarr[] = "u.email {$order_cleaned[$key]['dir']}";
+//                        break;
+//                    case 3:
+//                        $sortarr[] = "u.lastaccess {$order_cleaned[$key]['dir']}";
+//                        break;
+//                    default:
+//                        // Do not sort by other columns.
+//                        continue 2;
+//                }
+//            }
+//        }
+//        $sortstr = implode(', ', $sortarr);
+//        $debug && Logger::log($fxn . '::Built $sort=' . ia_u::var_dump($sortarr));
 
         $dataToReturn['recordsFiltered'] = ia_u::count_if_countable($rows);
         $dataToReturn['data'] = array_values($rows);
