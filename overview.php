@@ -102,7 +102,7 @@ switch (true) {
             'moduleid' => $moduleid,
         ];
         break;
-    case ($courseid && (FeatureControl::OVERVIEW_COURSE || FeatureControl::OVERVIEW_COURSE_DATATABLES || FeatureControl::OVERVIEW_COURSE_LTI)):
+    case ($courseid && (FeatureControl::OVERVIEW_COURSE || FeatureControl::OVERVIEW_COURSE_LTI)):
         $debug && Logger::log(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-course';
 
@@ -157,7 +157,7 @@ $PAGE->requires->string_for_js('filter', 'moodle');
 $PAGE->requires->jquery_plugin('ui-css');
 $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
 $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
-$PAGE->requires->data_for_js('M.block_integrityadvocate', (object) ['OVERVIEW_COURSE_V2' => (bool) FeatureControl::OVERVIEW_COURSE_DATATABLES, 'appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
+$PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
 $PAGE->requires->string_for_js('pictureof', 'moodle', '&nbsp;');
 
 // We do not allow overrides on the overview-course page.

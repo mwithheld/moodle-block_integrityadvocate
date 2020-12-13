@@ -458,7 +458,7 @@ class block_integrityadvocate extends block_base {
                         }
 
                         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course: show the overview button and the module list.');
-                        if (ia\FeatureControl::OVERVIEW_COURSE || ia\FeatureControl::OVERVIEW_COURSE_DATATABLES || ia\FeatureControl::OVERVIEW_COURSE_LTI) {
+                        if (ia\FeatureControl::OVERVIEW_COURSE || ia\FeatureControl::OVERVIEW_COURSE_LTI) {
                             $this->content->text .= ia_output::get_button_overview_course($this);
                         }
                         if (ia\FeatureControl::MODULE_LIST) {
@@ -486,7 +486,7 @@ class block_integrityadvocate extends block_base {
                     case $hascapability_overview:
                         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview module button AND the overview course button');
                         (ia\FeatureControl::OVERVIEW_MODULE_ORIGINAL || OVERVIEW_MODULE_LTI) && $this->content->text .= ia_output::get_button_overview_module($this);
-                        (ia\FeatureControl::OVERVIEW_COURSE || ia\FeatureControl::OVERVIEW_COURSE_DATATABLES || ia\FeatureControl::OVERVIEW_COURSE_LTI) && $this->content->text .= ia_output::get_button_overview_course($this);
+                        (ia\FeatureControl::OVERVIEW_COURSE || ia\FeatureControl::OVERVIEW_COURSE_LTI) && $this->content->text .= ia_output::get_button_overview_course($this);
                         break;
                     case $hascapability_view && \is_enrolled($parentcontext, $USER, null, true):
                         // This is someone in a student role.

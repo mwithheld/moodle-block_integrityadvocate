@@ -47,9 +47,6 @@ class FeatureControl {
     /** @var bool True to use Guzzle to get participant info: one API request per Moodle user. False to get all participants from the API in one large request. */
     public const OVERVIEW_COURSE_USE_GUZZLE = false;
 
-    /** @var bool True to use the DataTables-driven UI. */
-    public const OVERVIEW_COURSE_DATATABLES = false;
-
     /** @var bool True to use the IA LTI endpoint. */
     public const OVERVIEW_COURSE_LTI = true;
 
