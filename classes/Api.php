@@ -195,7 +195,7 @@ class Api {
         }
 
         $blockinstanceid = isset($params['blockinstanceid']) ? $params['blockinstanceid'] : -1;
-        unset($params['$blockinstanceid']);
+        unset($params['blockinstanceid']);
 
         // Make sure the required params are present, there's no extra params, and param types are valid.
         self::validate_endpoint_params($endpoint, $params);
