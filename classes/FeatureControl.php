@@ -48,13 +48,16 @@ class FeatureControl {
     public const OVERVIEW_COURSE_USE_GUZZLE = false;
 
     /** @var bool True to use the DataTables-driven UI. */
-    public const OVERVIEW_COURSE_V2 = false;
+    public const OVERVIEW_COURSE_DATATABLES = false;
 
     /** @var bool True to use the IA LTI endpoint. */
-    public const OVERVIEW_COURSE_V3 = true;
+    public const OVERVIEW_COURSE_LTI = true;
 
     /** @var bool True to allow showing the overview_module content. */
-    public const OVERVIEW_MODULE = false;
+    public const OVERVIEW_MODULE_ORIGINAL = true;
+
+    /** @var bool True to allow showing the overview_module content using the IA LTI endpoint. */
+    public const OVERVIEW_MODULE_LTI = true;
 
     /** @var bool True to allow instructors to override the IA session status. */
     public const SESSION_STATUS_OVERRIDE = true;

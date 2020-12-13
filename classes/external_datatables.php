@@ -83,7 +83,7 @@ trait external_datatables {
             case(!\confirm_sesskey()):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => get_string('confirmsesskeybad'));
                 break;
-            case(!FeatureControl::OVERVIEW_COURSE_V2) :
+            case(!FeatureControl::OVERVIEW_COURSE_DATATABLES) :
                 error_log($fxn . '::This feature is disabled');
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'This feature is disabled');
                 break;
