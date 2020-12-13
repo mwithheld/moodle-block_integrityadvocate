@@ -42,12 +42,9 @@ $debug && Logger::log(basename(__FILE__) . "::Started with courseid={$courseid}"
 switch (true) {
     case (!FeatureControl::OVERVIEW_COURSE && !FeatureControl::OVERVIEW_COURSE_LTI):
         throw new \Exception('This feature is disabled');
-    case (empty($blockinstanceid)):
-        throw new \InvalidArgumentException('$blockinstanceid is required');
-    case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)):
-        throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
-        // The above line throws an error if the current user is not a teacher, so we should never get here.
+        // This is not a required permission in the parent file - we only query has_capability().
+        // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
         $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
         break;
     default:
@@ -67,8 +64,8 @@ switch (true) {
             'api_root' => $launch_url,
             // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
             'launch_presentation_locale' => \current_language(),
-            // 2020Dec: roles appears to be unused.
-            'roles' => '',
+            // 2020Dec: roles appears to be unused. 0 = admin; 3=learner.
+            'roles' => 0,
             // This should always be 1.
             'resource_link_id' => '1',
             // Who is requesting this info?.
