@@ -80,6 +80,7 @@ switch (true) {
             // Extra info to help identify this request to the remote side.  2020Dec: They appear to be unused.
             'tool_consumer_instance_description' => "site={$CFG->wwwroot}; course={$courseid}; blockinstanceid={$blockinstanceid}; moduleid={$moduleid}",
             'tool_consumer_instance_guid' => $blockinstanceid,
+            'tool_consumer_blockversion' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'),
             // LTI setup.
             'lti_message_type' => 'basic-lti-launch-request',
             'lti_version' => 'LTI-1p0',
