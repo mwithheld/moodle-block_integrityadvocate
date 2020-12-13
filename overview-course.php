@@ -40,7 +40,7 @@ $debug && Logger::log(basename(__FILE__) . "::Started with courseid={$courseid}"
 
 // Check all requirements.
 switch (true) {
-    case (!FeatureControl::OVERVIEW_COURSE && !FeatureControl::OVERVIEW_COURSE_V2):
+    case (!FeatureControl::OVERVIEW_COURSE && !FeatureControl::OVERVIEW_COURSE_V2 && !FeatureControl::OVERVIEW_COURSE_V3):
         throw new \Exception('This feature is disabled');
     case (empty($blockinstanceid)):
         throw new \InvalidArgumentException('$blockinstanceid is required');
@@ -55,6 +55,7 @@ switch (true) {
 }
 switch (true) {
     case (FeatureControl::OVERVIEW_COURSE_V3):
+        $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_COURSE_V3');
         /**
          * Code here is adapted from https://gist.github.com/matthanger/1171921 .
          */
@@ -121,7 +122,7 @@ switch (true) {
         <?php
         break;
     case (FeatureControl::OVERVIEW_COURSE_V2):
-        $debug && Logger::log(__FILE__ . '::Request is for overview_course_v2');
+        $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_COURSE_V2');
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overviewcourse';
 
         // Output roles selector.
