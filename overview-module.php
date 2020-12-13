@@ -80,9 +80,6 @@ echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . 
 echo $PAGE->get_renderer('core', 'course')->course_section_cm_name_title($cm);
 echo \html_writer::end_tag('div');
 
-// Wraps the main content for this page.  The div must be closed at the end of this script.
-echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container']);
-
 switch (true) {
     case(FeatureControl::OVERVIEW_MODULE_LTI):
         $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_MODULE_LTI');
@@ -140,7 +137,6 @@ switch (true) {
             $msg = 'This module is not an IA module';
             $debug && Logger::log(__FILE__ . "::{$msg}");
             throw new InvalidArgumentException($msg);
-            break 2;
         }
 
         $custom_activities = [(object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']]];
@@ -166,6 +162,9 @@ switch (true) {
 
     default:
         $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_MODULE_ORIGINAL');
+
+        // Wraps the main content for this page.  The div must be closed at the end of this script.
+        echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant_container']);
 
         // Get IA sessions associated with this course module for all participants.
         $participantsessions = ia_api::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $courseid, $moduleid);
@@ -304,6 +303,6 @@ switch (true) {
         echo "</tbody><tfoot>{$tr_header}</tfoot></table>";
         // Used as a JQueryUI popup to show the user picture.
         echo '<div id="dialog"></div>';
+        // Close the participant_container.
+        echo \html_writer::end_tag('div');
 }
-// Close the participant_container.
-echo \html_writer::end_tag('div');

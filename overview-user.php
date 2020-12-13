@@ -336,7 +336,8 @@ if ($continue) {
                 // Used as a JQueryUI popup to show the user picture.
                 echo '<div id="dialog"></div>';
             }
+
+            // Close the participant_container.
+            echo \html_writer::end_tag('div');
     }
-    // Close the participant_container.
-    echo \html_writer::end_tag('div');
 }
