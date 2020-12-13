@@ -94,7 +94,7 @@ switch (true) {
             'userid' => $userid,
         ];
         break;
-    case ($moduleid && (FeatureControl::OVERVIEW_MODULE_ORIGINAL || FeatureControl::OVERVIEW_MODULE_LTI)):
+    case ($courseid && $moduleid && (FeatureControl::OVERVIEW_MODULE_ORIGINAL || FeatureControl::OVERVIEW_MODULE_LTI)):
         $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
@@ -204,7 +204,6 @@ switch (true) {
 
     case (is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
         $debug && Logger::log(__FILE__ . '::The course has no IA modules');
-
         \core\notification::error(get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL);
         break;
 

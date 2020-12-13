@@ -197,7 +197,7 @@ if ($continue) {
         // We already know $cmid is valid and in this course.
         // This throws a moodle_exception if the item doesn't exist or is of wrong module name.
         // We do *not* use this block name for parameter 2 since it's the activity the block is attached to that matters.
-        list($unused, $cm) = \get_course_and_cm_from_cmid($cmid, null, $courseid, $session->participant->participantidentifier);
+        $cm = \get_course_and_cm_from_cmid($cmid, null, $courseid, $session->participant->participantidentifier)[1];
         echo \html_writer::tag('td', \html_writer::tag('a', $cm->name, ['href' => $cm->url]), ['data-cmid' => $cmid, 'class' => "{$prefix}_activitymodule"]);
 
         $debuginfo = "name={$cm->name}; cmid={$cmid}";

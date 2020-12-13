@@ -53,6 +53,7 @@ switch (true) {
     default:
         $debug && Logger::log(__FILE__ . '::All requirements are met');
 }
+
 switch (true) {
     case (FeatureControl::OVERVIEW_COURSE_LTI):
         $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_COURSE_LTI');

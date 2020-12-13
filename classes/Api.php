@@ -635,7 +635,7 @@ class Api {
                     case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
                         $debug && Logger::log($fxn . "::The moduleid={$moduleid} is not part of the course with id={$courseid}");
                         continue 2;
-                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the user cannot access the module */)[1])):
+                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the participant cannot access the module */)[1])):
                         $debug && Logger::log($fxn . "::Failed to get the course module from cmid={$moduleid} or the current Moodle user cannot access this module");
                         continue 2;
                     case(!\is_enrolled($cm->context, $user /* Include inactive enrolments. */)):
