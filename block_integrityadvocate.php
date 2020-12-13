@@ -443,7 +443,8 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapability_overview:
                         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course student profile: show latest student info');
-                        if (str_contains($this->page->url, '/user/view.php?')) {
+                        $is_participants_page = str_contains($this->page->url, '/user/view.php?');
+                        if ($is_participants_page) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
@@ -461,7 +462,7 @@ class block_integrityadvocate extends block_base {
                         if (ia\FeatureControl::OVERVIEW_COURSE || ia\FeatureControl::OVERVIEW_COURSE_LTI) {
                             $this->content->text .= ia_output::get_button_overview_course($this);
                         }
-                        if (ia\FeatureControl::MODULE_LIST) {
+                        if (!$is_participants_page && ia\FeatureControl::MODULE_LIST) {
                             // Adds to $this->context->text and $this->context->footer.
                             $this->populate_course_modulelist();
                         }
