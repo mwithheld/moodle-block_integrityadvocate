@@ -566,7 +566,7 @@ class Output {
                 case (intval(\CONTEXT_COURSE)):
                     // If the block is in a course, show the participant-level latest status, photo, last seen, etc.
                     $debug && Logger::log($fxn . '::Am in a module context');
-                    $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid);
+                    $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid, $blockinstance->instance->id);
 
                     if (ia_u::is_empty($participant)) {
                         $debug && Logger::log($fxn . '::Got empty participant, so return empty result');

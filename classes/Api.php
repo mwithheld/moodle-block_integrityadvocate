@@ -194,6 +194,9 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
+        $blockinstanceid = $params['$blockinstanceid'];
+        unset($params['$blockinstanceid']);
+
         // Make sure the required params are present, there's no extra params, and param types are valid.
         self::validate_endpoint_params($endpoint, $params);
 
@@ -235,8 +238,11 @@ class Api {
             'CURLOPT_SSL_VERIFYPEER' => 1,
         ));
 
-        $header = 'Authorization: amx ' . $appid . ':' . $requestsignature . ':' . $nonce . ':' . $requesttimestamp;
+        $header = implode(':', ["Authorization: amx {$appid}", $requestsignature, $nonce, $requesttimestamp]);
         $curl->setHeader($header);
+        $curl->setHeader('X-IntegrityAdvocate-Blockversion:' . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
+        $curl->setHeader("X-IntegrityAdvocate-Appid:{$appid}");
+        $curl->setHeader("X-IntegrityAdvocate-Blockinstanceid:{$blockinstanceid}");
         $debug && Logger::log($fxn . '::Set $header=' . $header);
 
         $response = $curl->get($requesturi);
@@ -342,7 +348,7 @@ class Api {
      * @param int $userid The user id
      * @return null|Participant Null if nothing found; else the parsed Participant object.
      */
-    public static function get_participant(string $apikey, string $appid, int $courseid, int $userid): ?Participant {
+    public static function get_participant(string $apikey, string $appid, int $courseid, int $userid, int $blockinstanceid): ?Participant {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
@@ -356,7 +362,7 @@ class Api {
         }
 
         // This gets a json-decoded object of the IA API curl result.
-        $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid));
+        $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid));
         $debug && Logger::log($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
         if (ia_u::is_empty($participantraw) || !($participantraw instanceof \stdClass)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
