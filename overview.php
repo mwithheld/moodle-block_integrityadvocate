@@ -95,7 +95,7 @@ switch (true) {
         ];
         break;
     case ($moduleid && FeatureControl::OVERVIEW_MODULE):
-        $debug && Logger::log(__FILE__ . '::Request is for overview_module page. Got $moduleid=' . $moduleid);
+        $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
@@ -103,7 +103,7 @@ switch (true) {
         ];
         break;
     case ($courseid && (FeatureControl::OVERVIEW_COURSE || FeatureControl::OVERVIEW_COURSE_V2 || FeatureControl::OVERVIEW_COURSE_V3)):
-        $debug && Logger::log(__FILE__ . '::Request is for overview_course page. Got $moduleid=' . $moduleid);
+        $debug && Logger::log(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-course';
 
         // The Moodle Participants table wants lots of params.
