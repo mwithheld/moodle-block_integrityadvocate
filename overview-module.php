@@ -91,7 +91,9 @@ $participantsessions = ia_api::get_participantsessions($blockinstance->config->a
 $debug && Logger::log(__FILE__ . '::Got count($participantsessions)=' . ia_u::count_if_countable($participantsessions));
 // Disabled on purpose: echo 'Done the API call; participantsessions=<PRE>' . ia_u::var_dump($participantsessions, true) . '</PRE>';.
 
-if ($participantsessions) {
+if (ia_u::is_empty($participantsessions)) {
+    echo get_string('error_curlnoremoteinfo', INTEGRITYADVOCATE_BLOCK_NAME);
+} else {
     // Group data by participant.
     $participants = [];
     foreach ($participantsessions as $session) {

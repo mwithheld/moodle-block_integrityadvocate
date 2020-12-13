@@ -84,11 +84,7 @@ echo $OUTPUT->user_picture($user, ['size' => 35, 'courseid' => $courseid, 'inclu
 echo \html_writer::end_tag('div');
 
 if (ia_u::is_empty($participant)) {
-    $msg = "No block found or no participants found for this block instance (id={$blockinstanceid})";
-    if ($hascapability_overview) {
-        $msg .= ': Double-check the APIkey and AppId for this block instance are correct';
-    }
-    echo $msg;
+    echo get_string('error_curlnoremoteinfo', INTEGRITYADVOCATE_BLOCK_NAME);
     $continue = false;
 }
 

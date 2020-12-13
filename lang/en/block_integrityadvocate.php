@@ -63,7 +63,7 @@ $string['disabled_notenrolled'] = 'Not available - you are not enrolled in this 
 $string['blocklist_title'] = '{$a} IA blocks in this course:';
 
 $string['error_curlcloseia'] = 'Curl error closing the IA session';
-$string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info - check the API key and app id are valid';
+$string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info. If this is not valid, check the API key and app id are valid.';
 $string['error_invalidappid'] = "Invalid Application Id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538";
 $string['error_noapikey'] = "No Api key is set";
 $string['error_noappid'] = "No Application Id is set";
