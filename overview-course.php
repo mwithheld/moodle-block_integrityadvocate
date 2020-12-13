@@ -120,6 +120,7 @@ switch (true) {
         <script>document.getElementById("ltiLaunchForm").submit();</script>
         <?php
         break;
+
     default:
         // OLD Participants table UI.
         // The classes here are for DataTables styling ref https://datatables.net/examples/styling/index.html .

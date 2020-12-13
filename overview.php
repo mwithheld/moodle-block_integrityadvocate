@@ -198,13 +198,14 @@ switch (true) {
 
     case(!$hascapability_overview && !$hascapability_selfview):
         $msg = 'No permissions to see anything in the block';
-        $debug && Logger::log(__FILE__ . "::$msg");
-        \core\notification::error($msg);
+        $debug && Logger::log(__FILE__ . "::{$msg}");
+        \core\notification::error($msg . ia_output::BRNL);
         break;
 
     case (is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
-        $debug && Logger::log(__FILE__ . '::The course has no IA modules');
-        \core\notification::error(get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL);
+        $msg = get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
+        $debug && Logger::log(__FILE__ . "::{$msg}");
+        \core\notification::error($msg . ia_output::BRNL);
         break;
 
     default:

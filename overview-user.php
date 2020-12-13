@@ -148,6 +148,7 @@ if ($continue) {
             <script>document.getElementById("ltiLaunchForm").submit();</script>
             <?php
             break;
+
         default:
             $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_USER_ORIGINAL');
 

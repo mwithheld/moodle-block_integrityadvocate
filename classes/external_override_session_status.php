@@ -151,7 +151,7 @@ trait external_override_session_status {
         if (!$result['success']) {
             $msg = 'Failed to save the override status to the remote IA server';
             $result['warnings'] = array('warningcode' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg);
-            Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
+            Logger::log($fxn . "::{$msg}; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 

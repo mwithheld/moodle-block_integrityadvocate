@@ -174,7 +174,7 @@ class block_integrityadvocate_observer {
         $modulecontext = $event->get_context();
         if ($modulecontext->contextlevel != CONTEXT_MODULE) {
             $msg = 'The passed-in event is not from a module context level';
-            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::$msg");
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::{$msg}");
             throw new \InvalidArgumentException($msg);
         }
 

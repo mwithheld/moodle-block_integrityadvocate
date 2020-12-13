@@ -209,7 +209,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
 
         if (isset($thisparticipant->sessions[$s->id])) {
             $msg = $fxn . "::Attempting to overwrite an existing session (id={$s->id}) -- this should not happen";
-            Logger::log($fxn . "::$msg; \$participantsessions=" . ia_u::var_dump($participantsessions));
+            Logger::log($fxn . "::{$msg}; \$participantsessions=" . ia_u::var_dump($participantsessions));
             throw new Exception($msg);
         }
 

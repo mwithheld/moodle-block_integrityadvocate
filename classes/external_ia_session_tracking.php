@@ -184,7 +184,7 @@ trait external_ia_session_tracking {
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag to the remote IA server';
             $result['warnings'] = array('warningcode' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg);
-            Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
+            Logger::log($fxn . "::{$msg}; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
@@ -240,7 +240,7 @@ trait external_ia_session_tracking {
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag to the remote IA server';
             $result['warnings'] = array('warningcode' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg);
-            Logger::log($fxn . "::$msg; \$debugvars={$debugvars}");
+            Logger::log($fxn . "::{$msg}; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
