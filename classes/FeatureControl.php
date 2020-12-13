@@ -41,23 +41,29 @@ class FeatureControl {
     // This feature is not ready yet!!
     public const MODULE_LIST_CONFIGLINK = false;
 
-    /** @var bool True to allow showing the overview_course content. */
+    /** @var bool True to allow showing the overview_course content using server-side requests to the API. */
     public const OVERVIEW_COURSE = false;
 
     /** @var bool True to use Guzzle to get participant info: one API request per Moodle user. False to get all participants from the API in one large request. */
-    public const OVERVIEW_COURSE_USE_GUZZLE = false;
+    public const OVERVIEW_COURSE_USE_GUZZLE = true && self::OVERVIEW_COURSE;
 
-    /** @var bool True to use the IA LTI endpoint. */
-    public const OVERVIEW_COURSE_LTI = true;
+    /** @var bool True to showing the overview_course content using the IA LTI endpoint. */
+    public const OVERVIEW_COURSE_LTI = !self::OVERVIEW_COURSE;
 
-    /** @var bool True to allow showing the overview_module content. */
-    public const OVERVIEW_MODULE_ORIGINAL = true;
+    /** @var bool True to allow showing the overview_module content using server-side requests to the API. */
+    public const OVERVIEW_MODULE_ORIGINAL = false;
 
     /** @var bool True to allow showing the overview_module content using the IA LTI endpoint. */
-    public const OVERVIEW_MODULE_LTI = true;
+    public const OVERVIEW_MODULE_LTI = !self::OVERVIEW_MODULE_ORIGINAL;
+
+    /** @var bool True to allow showing the overview_user content using server-side requests to the API. */
+    public const OVERVIEW_USER_ORIGINAL = false;
+
+    /** @var bool True to allow showing the overview_user content using the IA LTI endpoint. */
+    public const OVERVIEW_USER_LTI = !self::OVERVIEW_USER_ORIGINAL;
 
     /** @var bool True to allow instructors to override the IA session status. */
-    public const SESSION_STATUS_OVERRIDE = true;
+    public const SESSION_STATUS_OVERRIDE = true && (self::OVERVIEW_COURSE || self::OVERVIEW_MODULE_ORIGINAL || self::OVERVIEW_USER_ORIGINAL);
 
     /** @var bool True to keep track of when session are started. */
     public const SESSION_STARTED_TRACKING = true;
