@@ -194,7 +194,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        $blockinstanceid = $params['$blockinstanceid'];
+        $blockinstanceid = isset($params['blockinstanceid']) ? $params['blockinstanceid'] : -1;
         unset($params['$blockinstanceid']);
 
         // Make sure the required params are present, there's no extra params, and param types are valid.
@@ -249,11 +249,11 @@ class Api {
 
         $responseparsed = json_decode($response);
         $responseinfo = $curl->get_info();
+        // Remove certinfo b/c it too much info and we do not need it for debugging.
+        unset($responseinfo['certinfo']);
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
         $responsecode = intval($responseinfo['http_code']);
 
-        // Remove certinfo b/c it too much info and we do not need it for debugging.
-        unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn .
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
                         '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
@@ -624,17 +624,22 @@ class Api {
                 $debug && Logger::log($fxn . "::\$user=" . ia_u::var_dump($user = ia_mu::get_user_as_obj($participantidentifier)));
                 switch (true) {
                     case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
+                        $debug && Logger::log($fxn . "::Moodle has no user matching user->id={$participantidentifier}");
                         continue 2;
                     case(!isset($pr->Course_Id) || \intval($pr->Course_Id) !== intval($courseid)):
+                        $debug && Logger::log($fxn . "::The participant Course_Id={$pr->Course_Id} is invalid or does not match this Moodle course={$courseid}");
                         continue 2;
                     case(!isset($pr->Activity_Id) || \intval($pr->Activity_Id) !== intval($moduleid)):
+                        $debug && Logger::log($fxn . "::The participant Activity_Id={$pr->Activity_Id} is invalid or does not match this Moodle moduleid={$moduleid}");
                         continue 2;
                     case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
+                        $debug && Logger::log($fxn . "::The moduleid={$moduleid} is not part of the course with id={$courseid}");
                         continue 2;
-                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $participantidentifier)[1])):
-                        // The above line also throws an error if $overrideuserid cannot access the module.
+                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the user cannot access the module */)[1])):
+                        $debug && Logger::log($fxn . "::Failed to get the course module from cmid={$moduleid} or the current Moodle user cannot access this module");
                         continue 2;
                     case(!\is_enrolled($cm->context, $user /* Include inactive enrolments. */)):
+                        $debug && Logger::log($fxn . "::The user with id={$user->id} is no longer enrolled in this course");
                         continue 2;
                 }
 
