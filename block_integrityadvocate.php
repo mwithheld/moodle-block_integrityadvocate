@@ -444,7 +444,7 @@ class block_integrityadvocate extends block_base {
                     case $hascapability_overview:
                         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a course student profile: show latest student info');
                         $is_participants_page = str_contains($this->page->url, '/user/view.php?');
-                        if ($is_participants_page) {
+                        if ((ia\FeatureControl::OVERVIEW_USER_ORIGINAL || ia\FeatureControl::OVERVIEW_USER_LTI) && $is_participants_page) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
