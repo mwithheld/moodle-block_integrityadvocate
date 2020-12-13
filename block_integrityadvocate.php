@@ -486,7 +486,7 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapability_overview:
                         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Teacher viewing a module: Show the overview module button AND the overview course button');
-                        (ia\FeatureControl::OVERVIEW_MODULE_ORIGINAL || OVERVIEW_MODULE_LTI) && $this->content->text .= ia_output::get_button_overview_module($this);
+                        (ia\FeatureControl::OVERVIEW_MODULE_ORIGINAL || ia\FeatureControl::OVERVIEW_MODULE_LTI) && $this->content->text .= ia_output::get_button_overview_module($this);
                         (ia\FeatureControl::OVERVIEW_COURSE || ia\FeatureControl::OVERVIEW_COURSE_LTI) && $this->content->text .= ia_output::get_button_overview_course($this);
                         break;
                     case $hascapability_view && \is_enrolled($parentcontext, $USER, null, true):
