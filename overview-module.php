@@ -46,17 +46,14 @@ $userid = $USER->id;
 switch (true) {
     case (!FeatureControl::OVERVIEW_MODULE_ORIGINAL && !FeatureControl::OVERVIEW_MODULE_LTI):
         throw new Exception('This feature is disabled');
-    case (empty($blockinstanceid)):
-        throw new \InvalidArgumentException('$blockinstanceid is required');
-    case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) :
-        throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
     case (empty($moduleid) || ($moduleid = \required_param('moduleid', PARAM_INT)) < 1):
         // This is only an optional_param in overview.php.
         // The above line throws an error if $moduleid is not passed as an integer.
         // But we get here if $moduleid is zero or negative.
         throw new \InvalidArgumentException("Invalid moduleid={$moduleid}");
     case(!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
-        // The above line throws an error if the current user is not a teacher, so we should never get here.
+        // This is not a required permission in the parent file - we only query has_capability().
+        // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
         $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
         break;
     case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
@@ -99,8 +96,8 @@ switch (true) {
             'api_root' => $launch_url,
             // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
             'launch_presentation_locale' => \current_language(),
-            // 2020Dec: roles appears to be unused.
-            'roles' => '',
+            // 2020Dec: roles appears to be unused. 0 = admin; 3=learner.
+            'roles' => 0,
             // This should always be 1.
             'resource_link_id' => '1',
             // Who is requesting this info?.
@@ -131,7 +128,7 @@ switch (true) {
             'context_title' => $COURSE->fullname,
         ];
 
-        // The LTI UI will show a dropdown with a list of IA activities in this course.
+        // Setup the LTI UI for one specific module.
         $m = null;
         foreach ($modules as $key => $thismodule) {
             if (intval($thismodule['id']) === intval($moduleid)) {
@@ -142,8 +139,8 @@ switch (true) {
         if (ia_u::is_empty($m)) {
             $msg = 'This module is not an IA module';
             $debug && Logger::log(__FILE__ . "::{$msg}");
-            \core\notification::error($msg . ia_output::BRNL);
-            exit();
+            throw new InvalidArgumentException($msg);
+            break 2;
         }
 
         $custom_activities = [(object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']]];
@@ -167,7 +164,7 @@ switch (true) {
         <?php
         break;
 
-    case(FeatureControl::OVERVIEW_MODULE_ORIGINAL):
+    default:
         $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_MODULE_ORIGINAL');
 
         // Get IA sessions associated with this course module for all participants.
