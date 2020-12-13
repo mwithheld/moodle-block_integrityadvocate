@@ -75,8 +75,7 @@ $params = [
 ];
 
 // Determine course and course context.
-$course = \get_course($courseid);
-if (ia_u::is_empty($course) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
+if (empty($courseid) || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
 $debug && Logger::log("Got courseid={$course->id}");
@@ -85,6 +84,7 @@ $debug && Logger::log("Got courseid={$course->id}");
 \require_login($course, false);
 
 // Set up which overview page we should produce: -user, -module, or -course.
+// Specific sanity/security checks for each one are included in each file.
 switch (true) {
     case ($userid):
         $debug && Logger::log(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
@@ -94,7 +94,7 @@ switch (true) {
             'userid' => $userid,
         ];
         break;
-    case ($courseid && $moduleid && (FeatureControl::OVERVIEW_MODULE_ORIGINAL || FeatureControl::OVERVIEW_MODULE_LTI)):
+    case ($courseid && $moduleid):
         $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
@@ -102,7 +102,7 @@ switch (true) {
             'moduleid' => $moduleid,
         ];
         break;
-    case ($courseid && (FeatureControl::OVERVIEW_COURSE || FeatureControl::OVERVIEW_COURSE_LTI)):
+    case ($courseid):
         $debug && Logger::log(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-course';
 
