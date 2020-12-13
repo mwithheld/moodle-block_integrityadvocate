@@ -460,7 +460,14 @@ class block_integrityadvocate extends block_base {
                             }
 
                             // Do not show the latest status.
-                            $this->content->text .= ia_output::get_user_summary_output($this, $targetuserid);
+                            $participant = ia_api::get_participant($this->config->apikey, $this->config->appid, $this->get_course()->id, $targetuserid, $this->instance->id);
+                            if (ia_u::is_empty($participant)) {
+                                $debug && Logger::log($fxn . '::Got empty participant, so return empty result');
+                                $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                            } else {
+                                $this->content->text .= ia_output::get_participant_summary_output($this, $participant, /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
+                                $this->content->text .= ia_output::get_button_overview($this, $participant->participantidentifier);
+                            }
                         }
 
                         $debug && Logger::log($fxn . '::Teacher viewing a course: Show the overview button and the module list.');
@@ -471,7 +478,6 @@ class block_integrityadvocate extends block_base {
                             // Adds to $this->context->text and $this->context->footer.
                             $this->populate_course_modulelist();
                         }
-                        $this->content->text .= \html_writer::end_tag('div');
                         break;
                     case $hascapability_selfview:
                         // Check the user is enrolled in this course, but they must be active.
