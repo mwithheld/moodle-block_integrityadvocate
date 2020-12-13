@@ -318,15 +318,13 @@ class block_integrityadvocate extends block_base {
         foreach ($iablocksinthiscourse as $blockinstance) {
             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Looking at block $b=' . ia_u::var_dump($blockinstance));
 
-            $courseiablock = null;
-
             // Get the parent module.
             $parentcontext = $blockinstance->context->get_parent_context();
             switch (true) {
                 case($parentcontext->contextlevel == CONTEXT_COURSE) :
                     $course = \context_course::instance($parentcontext->instanceid);
                     $this->content->text .= \html_writer::link('', get_string('course'));
-                    //TODO: Somehow output the block edit link: https://web.uvic.ca/~markv/ac/m38/course/view.php?id=2&bui_editid=20
+                    //TODO: Somehow output the block edit link, e.g. /course/view.php?id=2&bui_editid=20
                     break;
                 case($parentcontext->contextlevel == CONTEXT_MODULE) :
                     // Output a link to the module.
