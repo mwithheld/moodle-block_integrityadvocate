@@ -50,8 +50,8 @@ switch (true) {
         throw new \InvalidArgumentException('$blockinstanceid is required');
     case (empty($courseid) || ia_u::is_empty($course) || ia_u::is_empty($coursecontext)) :
         throw new \InvalidArgumentException('$courseid, $course and $coursecontext are required');
-    case (($moduleid = \required_param('moduleid', PARAM_INT)) < 1):
-        // This is only an optional param in overview.php.
+    case (empty($moduleid) || ($moduleid = \required_param('moduleid', PARAM_INT)) < 1):
+        // This is only an optional_param in overview.php.
         // The above line throws an error if $moduleid is not passed as an integer.
         // But we get here if $moduleid is zero or negative.
         throw new \InvalidArgumentException("Invalid moduleid={$moduleid}");
@@ -132,6 +132,20 @@ switch (true) {
         ];
 
         // The LTI UI will show a dropdown with a list of IA activities in this course.
+        $m = null;
+        foreach ($modules as $key => $thismodule) {
+            if (intval($thismodule['id']) === intval($moduleid)) {
+                $m = $modules[$key];
+                break;
+            }
+        }
+        if (ia_u::is_empty($m)) {
+            $msg = 'This module is not an IA module';
+            $debug && Logger::log(__FILE__ . "::{$msg}");
+            \core\notification::error($msg . ia_output::BRNL);
+            exit();
+        }
+
         $custom_activities = [(object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']]];
         $launch_data['custom_activities'] = json_encode($custom_activities, JSON_PARTIAL_OUTPUT_ON_ERROR);
 
