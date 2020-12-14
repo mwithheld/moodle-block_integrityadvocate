@@ -118,7 +118,7 @@ if ($continue) {
                 'oauth_callback' => 'about:blank',
                 'oauth_consumer_key' => $blockinstance->config->appid,
                 'oauth_consumer_secret' => $blockinstance->config->apikey,
-                'oauth_nonce' => uniqid('', true),
+                'oauth_nonce' => \uniqid('', true),
                 'oauth_signature_method' => 'HMAC-SHA1',
                 'oauth_timestamp' => (new \DateTime())->getTimestamp(),
                 'oauth_version' => '1.0',
