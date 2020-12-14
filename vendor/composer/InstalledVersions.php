@@ -19,7 +19,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '3b32e48722f193c3138bf485b962b32e289d0ab0',
+    'reference' => '861ee1d3ce5b246ccdaf25ee40c3cce41bdfa628',
     'name' => '__root__',
   ),
   'versions' => 
@@ -31,7 +31,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '3b32e48722f193c3138bf485b962b32e289d0ab0',
+      'reference' => '861ee1d3ce5b246ccdaf25ee40c3cce41bdfa628',
     ),
     'guzzlehttp/guzzle' => 
     array (
@@ -62,12 +62,12 @@ private static $installed = array (
     ),
     'monolog/monolog' => 
     array (
-      'pretty_version' => '2.1.1',
-      'version' => '2.1.1.0',
+      'pretty_version' => '2.2.0',
+      'version' => '2.2.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'f9eee5cec93dfb313a38b6b288741e84e53f02d5',
+      'reference' => '1cb1cde8e8dd0f70cc0fe51354a59acad9302084',
     ),
     'psr/http-message' => 
     array (
