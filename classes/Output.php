@@ -549,7 +549,8 @@ class Output {
     public static function get_user_summary_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus));
+        $debugvars = $fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus);
+        $debug && Logger::log($debugvars);
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
@@ -602,6 +603,22 @@ class Output {
             Logger::log($fxn . "::{$debugvars}::Ignoring an HttpException so the page display is not broken");
             return '';
         }
+    }
+
+    public static function get_lti_iframe_html(string $launch_url, array $launch_data, string $signature): string {
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$launch_url={$launch_url}; \$signature={$signature}; \$launch_data=" . ia_u::var_dump($launch_data);
+        $debug && Logger::log($debugvars);
+
+        $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="' . $launch_url . '">'];
+        foreach ($launch_data as $k => $v) {
+            $output[] = '<input type="hidden" name="' . $k . '" value="' . htmlspecialchars($v, ENT_QUOTES, 'UTF-8') . '">';
+        }
+        $output[] = '<input type="hidden" name="oauth_signature" value="' . $signature . '"><button type="submit">Launch</button></form>';
+        $output[] = '<iframe id="iframelaunch" name="iframelaunch" src="" style="width:100%;height:800px"></iframe>';
+        $output[] = '<script>document.getElementById("ltiLaunchForm").submit();</script>';
+        return implode('', $output);
     }
 
 }

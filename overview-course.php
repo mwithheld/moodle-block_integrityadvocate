@@ -108,17 +108,7 @@ switch (true) {
         // Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
         require_once($CFG->libdir . '/oauthlib.php');
         $signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, urlencode($blockinstance->config->apikey) . '&');
-        ?>
-        <form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="<?php echo $launch_url; ?>">
-            <?php foreach ($launch_data as $k => $v) { ?>
-                <input type="hidden" name="<?php echo $k; ?>" value="<?php echo htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); ?>">
-            <?php } ?>
-            <input type="hidden" name="oauth_signature" value="<?php echo $signature; ?>">
-            <button type="submit">Launch</button>
-        </form>
-        <iframe id="iframelaunch" name="iframelaunch" src="" style="width:100%;height:800px"></iframe>
-        <script>document.getElementById("ltiLaunchForm").submit();</script>
-        <?php
+        echo ia_output::get_lti_iframe_html($launch_url, $launch_data, $signature);
         break;
 
     default:
