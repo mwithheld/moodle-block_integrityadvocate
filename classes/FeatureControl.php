@@ -60,7 +60,7 @@ class FeatureControl {
     public const OVERVIEW_USER_ORIGINAL = false;
 
     /** @var bool True to allow showing the overview_user content using the IA LTI endpoint. */
-    public const OVERVIEW_USER_LTI = !self::OVERVIEW_USER_ORIGINAL;
+    public const OVERVIEW_USER_LTI = false;
 
     /** @var bool True to allow instructors to override the IA session status. */
     public const SESSION_STATUS_OVERRIDE = true && (self::OVERVIEW_COURSE || self::OVERVIEW_MODULE_ORIGINAL || self::OVERVIEW_USER_ORIGINAL);
