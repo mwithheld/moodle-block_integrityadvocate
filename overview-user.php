@@ -107,7 +107,7 @@ if ($continue) {
                 // This should always be 1.
                 'resource_link_id' => '1',
                 // Who is requesting this info?.
-                'user_id' => $USER->id,
+                'user_id' => $userid,
                 // Extra info to help identify this request to the remote side.  2020Dec: They appear to be unused.
                 'tool_consumer_instance_description' => "site={$CFG->wwwroot}; course={$courseid}; blockinstanceid={$blockinstanceid}; moduleid={$moduleid}",
                 'tool_consumer_instance_guid' => $blockinstanceid,
