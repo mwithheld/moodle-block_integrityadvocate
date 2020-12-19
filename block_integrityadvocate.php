@@ -449,7 +449,7 @@ class block_integrityadvocate extends block_base {
                     case $hascapability_overview:
                         $debug && Logger::log($fxn . '::Teacher viewing a course student profile: Show latest student info');
                         $is_participants_page = str_contains($this->page->url, '/user/view.php?');
-                        if ((ia\FeatureControl::OVERVIEW_USER_ORIGINAL || ia\FeatureControl::OVERVIEW_USER_LTI) && $is_participants_page) {
+                        if ($is_participants_page && (ia\FeatureControl::OVERVIEW_USER_ORIGINAL || ia\FeatureControl::OVERVIEW_USER_LTI)) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && Logger::log($fxn . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
@@ -466,7 +466,10 @@ class block_integrityadvocate extends block_base {
                                 $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
                             } else {
                                 $this->content->text .= ia_output::get_participant_summary_output($this, $participant, /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
-                                $this->content->text .= ia_output::get_button_overview_course($this, $participant->participantidentifier);
+                                // Add overview_user button.
+                                if (ia\FeatureControl::OVERVIEW_USER_VISIBLE_TO_INSTRUCTORS) {
+                                    $this->content->text .= ia_output::get_button_overview_course($this, $participant->participantidentifier);
+                                }
                             }
                         }
 
