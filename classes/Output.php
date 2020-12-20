@@ -616,7 +616,7 @@ class Output {
             $output[] = '<input type="hidden" name="' . $k . '" value="' . htmlspecialchars($v, ENT_QUOTES, 'UTF-8') . '">';
         }
         $output[] = '<input type="hidden" name="oauth_signature" value="' . $signature . '"><button type="submit">Launch</button></form>';
-        $output[] = '<iframe id="iframelaunch" name="iframelaunch" src="" style="width:100%;height:800px" sandbox="allow-same-origin allow-forms allow-scripts"></iframe>';
+        $output[] = '<iframe id="iframelaunch" name="iframelaunch" src="" style="width:100%;height:800px" sandbox="allow-same-origin allow-forms allow-scripts allow-modals"></iframe>';
         $output[] = '<script>document.getElementById("ltiLaunchForm").submit();</script>';
         return implode('', $output);
     }
