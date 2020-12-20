@@ -168,7 +168,7 @@ class block_integrityadvocate_observer {
      * @param \core\event\base $event Triggered event.
      * @return block_integrityadvocate Null if should not close the remote IA session; else returns the $blockinstance.
      */
-    protected static function check_should_close_user_ia(\core\event\base $event): \block_integrityadvocate {
+    protected static function check_should_close_user_ia(\core\event\base $event): ?\block_integrityadvocate {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
 
         $modulecontext = $event->get_context();
