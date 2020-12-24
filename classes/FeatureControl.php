@@ -53,17 +53,14 @@ class FeatureControl {
     /** @var bool True to allow showing the overview_module content using the IA LTI endpoint. */
     public const OVERVIEW_MODULE_LTI = true;
 
-    /** @var bool True to allow showing the overview_user content using server-side requests to the API. */
-    public const OVERVIEW_USER_ORIGINAL = false;
-
     /** @var bool True to allow showing the overview_user content using the IA LTI endpoint. */
-    public const OVERVIEW_USER_LTI = !self::OVERVIEW_USER_ORIGINAL;
+    public const OVERVIEW_USER_LTI = true;
 
     /** @var bool True to allow showing the overview_user button to instructors. */
     public const OVERVIEW_USER_VISIBLE_TO_INSTRUCTORS = false;
 
     /** @var bool True to allow instructors to override the IA session status. */
-    public const SESSION_STATUS_OVERRIDE = true && (self::OVERVIEW_COURSE || self::OVERVIEW_USER_ORIGINAL);
+    public const SESSION_STATUS_OVERRIDE = true && self::OVERVIEW_COURSE;
 
     /** @var bool True to keep track of when session are started. */
     public const SESSION_STARTED_TRACKING = true;

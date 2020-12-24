@@ -38,7 +38,7 @@ defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
 // Check all requirements.
 switch (true) {
-    case (!FeatureControl::OVERVIEW_USER_ORIGINAL && !FeatureControl::OVERVIEW_USER_LTI):
+    case (!FeatureControl::OVERVIEW_USER_LTI):
         throw new \Exception('This feature is disabled');
     default:
         $debug && Logger::log(__FILE__ . '::All requirements are met');
