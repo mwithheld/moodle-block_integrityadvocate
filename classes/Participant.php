@@ -169,7 +169,7 @@ class Participant {
             $self->sessions[$key] = $s->__toString();
         }
         if (isset($self->participantphoto) && !empty($self->participantphoto)) {
-            $self->participantphoto = \preg_replace(\INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', $self->participantphoto);
+            $self->participantphoto = \preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', $self->participantphoto);
         }
         return \json_encode($self, \JSON_PARTIAL_OUTPUT_ON_ERROR);
     }

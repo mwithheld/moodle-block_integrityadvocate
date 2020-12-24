@@ -58,7 +58,7 @@ class Utility {
      * @return bool True if is a valid guid.
      */
     public static function is_guid(string $str): bool {
-        return preg_match('/^[a-f\d]{8}-?(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i', $str);
+        return (bool) preg_match('/^[a-f\d]{8}-?(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i', $str);
     }
 
     /**
@@ -139,14 +139,14 @@ class Utility {
         }
 
         // Avoid OOM errors.
-        raise_memory_limit(MEMORY_HUGE);
+        \raise_memory_limit(\MEMORY_HUGE);
 
         if (is_object($expression)) {
             //error_log(__FUNCTION__ . '::Found a page property?=' . property_exists($expression, 'page'));
             //if (isset($expression->page)) {
             //    error_log(__FUNCTION__ . '::Type of page property stdClass?=' . $expression->page instanceof \stdClass);
             //}
-            if (property_exists($expression, 'page') && (gettype($expression->page) == 'object') && class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
+            if (property_exists($expression, 'page') && (gettype($expression->page) == 'object') && class_exists('moodle_page', false) && $expression->page instanceof \moodle_page) {
                 unset($expression->page);
             }
             if (method_exists(get_class($expression), '__toString')) {

@@ -86,7 +86,7 @@ class Status {
      * @return int An integer representing the status matching one of the IntegrityAdvocate_Paticipant_Status::* constants.
      */
     public static function parse_status_string(string $statusstring): int {
-        $statusstringcleaned = \clean_param($statusstring, PARAM_TEXT);
+        $statusstringcleaned = \clean_param($statusstring, \PARAM_TEXT);
         switch ($statusstringcleaned) {
             case self::INPROGRESS:
                 $status = self::INPROGRESS_INT;
@@ -120,7 +120,7 @@ class Status {
      */
     public static function get_statuses(): array {
         // Cache so multiple calls don't repeat the same work.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cache = \cache::make(INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__);
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
@@ -231,22 +231,22 @@ class Status {
     public static function get_status_lang(int $statusint): string {
         switch ($statusint) {
             case self::NOTSTARTED_INT:
-                $status = \get_string('status_notstarted', \INTEGRITYADVOCATE_BLOCK_NAME);
+                $status = \get_string('status_notstarted', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INPROGRESS_INT:
-                $status = \get_string('status_in_progress', \INTEGRITYADVOCATE_BLOCK_NAME);
+                $status = \get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::VALID_INT:
-                $status = \get_string('status_valid', \INTEGRITYADVOCATE_BLOCK_NAME);
+                $status = \get_string('status_valid', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INVALID_OVERRIDE_INT:
-                $status = \get_string('status_invalid_override', \INTEGRITYADVOCATE_BLOCK_NAME);
+                $status = \get_string('status_invalid_override', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INVALID_ID_INT:
-                $status = \get_string('status_invalid_id', \INTEGRITYADVOCATE_BLOCK_NAME);
+                $status = \get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             case self::INVALID_RULES_INT:
-                $status = \get_string('status_invalid_rules', \INTEGRITYADVOCATE_BLOCK_NAME);
+                $status = \get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME);
                 break;
             default:
                 $error = __FUNCTION__ . '::Invalid participant review status value=' . $statusint;

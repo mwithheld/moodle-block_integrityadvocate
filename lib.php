@@ -82,7 +82,7 @@ const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
  * Returns empty array if not a block context, if the block is missing APIKey/AppId, or if no participants found.
  *
  * @param \context $blockcontext Block context to get IA Participants data for.
- * @return array<Participant> Array of Participant objects.
+ * @return array<block_integrityadvocate\Participant> Array of Participant objects.
  */
 function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
     $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
@@ -184,10 +184,11 @@ function block_integrityadvocate_get_course_sessions(string $apikey, string $app
 /**
  * Get the participants' latest sessions.  Note the participants are only stubs.
  *
- * @param string $apikey
- * @param string $appid
- * @param int $courseid
- * @return array<Participants> Each participant has the sessions sorted.
+ * @param string $apikey The API key. * @param string $apikey The API key.
+
+ * @param string $appid The App ID.
+ * @param int $courseid The course id.
+ * @return array<block_integrityadvocate\Participants> Each participant has the sessions sorted.
  */
 function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid) {
     $debug = false || Logger::do_log_for_function(__FILE__ . '::' . __FUNCTION__);

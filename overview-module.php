@@ -45,8 +45,8 @@ $userid = $USER->id;
 // Check all requirements.
 switch (true) {
     case (!FeatureControl::OVERVIEW_MODULE_LTI):
-        throw new Exception('This feature is disabled');
-    case (empty($moduleid) || ($moduleid = \required_param('moduleid', PARAM_INT)) < 1):
+        throw new \Exception('This feature is disabled');
+    case (empty($moduleid) || ($moduleid = \required_param('moduleid', \PARAM_INT)) < 1):
         // This is only an optional_param in overview.php.
         // The above line throws an error if $moduleid is not passed as an integer.
         // But we get here if $moduleid is zero or negative.
@@ -107,7 +107,7 @@ switch (true) {
             // Extra info to help identify this request to the remote side.  2020Dec: They appear to be unused.
             'tool_consumer_instance_description' => "site={$CFG->wwwroot}; course={$courseid}; blockinstanceid={$blockinstanceid}; moduleid={$moduleid}",
             'tool_consumer_instance_guid' => $blockinstanceid,
-            'tool_consumer_blockversion' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'),
+            'tool_consumer_blockversion' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'),
             // LTI setup.
             'lti_message_type' => 'basic-lti-launch-request',
             'lti_version' => 'LTI-1p0',
@@ -136,7 +136,7 @@ switch (true) {
         if (ia_u::is_empty($m)) {
             $msg = 'This module is not an IA module';
             $debug && Logger::log(__FILE__ . "::{$msg}");
-            throw new InvalidArgumentException($msg);
+            throw new \InvalidArgumentException($msg);
         }
 
         $custom_activities = [(object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']]];

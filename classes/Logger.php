@@ -143,7 +143,7 @@ class Logger {
             return ($cachedvalue === 'y') ? 1 : 0;
         }
 
-        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
+        $blockconfig = \get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         if (!isset($blockconfig->config_logforfunction)) {
             return false;
         }
@@ -171,7 +171,7 @@ class Logger {
         }
 
         $now = time();
-        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
+        $blockconfig = \get_config(INTEGRITYADVOCATE_BLOCK_NAME);
 
         // Log for 24 hours from the this time.
         $result = $now < $blockconfig->config_logfromtime + 86400;
@@ -190,8 +190,8 @@ class Logger {
     public static function do_log_for_ip(): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
-        $debug && error_log($fxn . "::Started with \$blockconfig->config_logforip={$blockconfig->config_logforip}; remoteip_in_list(\$blockconfig->config_logforip)=" . remoteip_in_list($blockconfig->config_logforip));
+        $blockconfig = \get_config(INTEGRITYADVOCATE_BLOCK_NAME);
+        $debug && error_log($fxn . "::Started with \$blockconfig->config_logforip={$blockconfig->config_logforip}; remoteip_in_list(\$blockconfig->config_logforip)=" . \remoteip_in_list($blockconfig->config_logforip));
 
         $result = isset($blockconfig->config_logforip) && !empty($blockconfig->config_logforip) && remoteip_in_list($blockconfig->config_logforip);
         $debug && error_log($fxn . "::About to return result={$result}");
@@ -211,7 +211,7 @@ class Logger {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $dest=' . $dest);
 
-        $blockconfig = get_config(INTEGRITYADVOCATE_BLOCK_NAME);
+        $blockconfig = \get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         if (ia_u::is_empty($dest)) {
             if (!ia_u::is_empty($blockconfig) && isset($blockconfig->config_logdestination) && !ia_u::is_empty($blockconfig->config_logdestination)) {
                 $dest = $blockconfig->config_logdestination;
@@ -252,7 +252,7 @@ class Logger {
                 print($cleanedmsg) . "<br />\n";
                 break;
             case Logger::MLOG:
-                mtrace(html_to_text($cleanedmsg, 0, false));
+                \mtrace(html_to_text($cleanedmsg, 0, false));
                 break;
             case Logger::STDOUT:
                 print(htmlentities($cleanedmsg, 0, 'UTF-8')) . "\n";

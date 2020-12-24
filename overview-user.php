@@ -44,7 +44,7 @@ switch (true) {
         $debug && Logger::log(__FILE__ . '::All requirements are met');
 }
 // This is only optional_param() in overview.php.
-$userid = \required_param('userid', PARAM_INT);
+$userid = \required_param('userid', \PARAM_INT);
 
 $debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . basename(__FILE__));
 $debug && Logger::log(__FILE__ . '::Started with $userid=' . $userid);
@@ -78,7 +78,7 @@ if (!is_array($coursemodules)) {
 $user = ia_mu::get_user_as_obj($userid);
 if (ia_u::is_empty($user)) {
     $msg = "Failed to find a Moodle user with id={$userid}";
-    Logger::log($fxn . '::' . $msg);
+    Logger::log(__FILE__ . '::' . $msg);
     throw new \Exception($msg);
 }
 
@@ -111,7 +111,7 @@ if ($continue) {
                 // Extra info to help identify this request to the remote side.  2020Dec: They appear to be unused.
                 'tool_consumer_instance_description' => "site={$CFG->wwwroot}; course={$courseid}; blockinstanceid={$blockinstanceid}; moduleid={$moduleid}",
                 'tool_consumer_instance_guid' => $blockinstanceid,
-                'tool_consumer_blockversion' => get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'),
+                'tool_consumer_blockversion' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'),
                 // LTI setup.
                 'lti_message_type' => 'basic-lti-launch-request',
                 'lti_version' => 'LTI-1p0',

@@ -165,13 +165,13 @@ class MoodleUtility {
      *
      * @param object[] $a array of event information
      * @param object[] $b array of event information
-     * @return int Val <0, 0 or >0 depending on order of modules on course page
+     * @return int Is less than 0, 0 or greater than 0 depending on order of modules on course page
      */
     protected static function modules_compare_events($a, $b): int {
         if ($a['section'] != $b['section']) {
-            return $a['section'] - $b['section'];
+            return intval($a['section'] - $b['section']);
         } else {
-            return $a['position'] - $b['position'];
+            return intval($a['position'] - $b['position']);
         }
     }
 
@@ -180,11 +180,11 @@ class MoodleUtility {
      *
      * @param object[] $a array of event information
      * @param object[] $b array of event information
-     * @return int <0, 0 or >0 depending on time then order of modules.
+     * @return int Is less than 0, 0 or greater than 0 depending on time then order of modules.
      */
     protected static function modules_compare_times($a, $b): int {
         if ($a['expected'] != 0 && $b['expected'] != 0 && $a['expected'] != $b['expected']) {
-            return $a['expected'] - $b['expected'];
+            return intval($a['expected'] - $b['expected']);
         } else if ($a['expected'] != 0 && $b['expected'] == 0) {
             return -1;
         } else if ($a['expected'] == 0 && $b['expected'] != 0) {
@@ -423,9 +423,9 @@ class MoodleUtility {
      * Convert course id to moodle course object into if needed.
      *
      * @param int|\stdClass $course The course object or courseid to check
-     * @return bool false if no course found; else Moodle course object.
+     * @return bool|stdClass False if no course found; else Moodle course object.
      */
-    public static function get_course_as_obj($course) {
+    public static function get_course_as_obj($course): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . '::Started with type(\$course)=' . gettype($course));
@@ -446,7 +446,7 @@ class MoodleUtility {
             }
         }
         if (ia_u::is_empty($course)) {
-            return false;
+            return null;
         }
         if (gettype($course) != 'object' || !isset($course->id)) {
             throw new \InvalidArgumentException('$course should be of type stdClass; got ' . gettype($course));
@@ -682,7 +682,7 @@ class MoodleUtility {
 
         global $DB;
         $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
-                array($courseidcleaned), IGNORE_MISSING);
+                array($courseidcleaned), \IGNORE_MISSING);
 
         // Convert false to int 0.
         return intval($lastaccess);
@@ -691,12 +691,12 @@ class MoodleUtility {
     /**
      * Return true if the input $str is base64-encoded.
      *
-     * @uses moodlelib:clean_param Cleans the param as PARAM_BASE64 and checks for empty.
+     * @uses moodlelib:clean_param Cleans the param as \PARAM_BASE64 and checks for empty.
      * @param string $str the string to test.
      * @return bool true if the input $str is base64-encoded.
      */
     public static function is_base64(string $str): bool {
-        return !empty(clean_param($str, PARAM_BASE64));
+        return !empty(clean_param($str, \PARAM_BASE64));
     }
 
     /**
@@ -706,7 +706,7 @@ class MoodleUtility {
      * @return string The cache key.
      */
     public static function get_cache_key(string $key): string {
-        return sha1(get_config('block_integrityadvocate', 'version') . $key);
+        return sha1(\get_config('block_integrityadvocate', 'version') . $key);
     }
 
     /**
