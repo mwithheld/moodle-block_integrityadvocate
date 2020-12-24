@@ -40,7 +40,7 @@ $debug && Logger::log(basename(__FILE__) . "::Started with courseid={$courseid}"
 
 // Check all requirements.
 switch (true) {
-    case (!FeatureControl::OVERVIEW_COURSE && !FeatureControl::OVERVIEW_COURSE_LTI):
+    case (!FeatureControl::OVERVIEW_COURSE_LTI):
         throw new \Exception('This feature is disabled');
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
