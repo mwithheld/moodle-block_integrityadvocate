@@ -53,9 +53,6 @@ class FeatureControl {
     /** @var bool True to allow showing the overview_user button to instructors. */
     public const OVERVIEW_USER_VISIBLE_TO_INSTRUCTORS = false;
 
-    /** @var bool True to allow instructors to override the IA session status. */
-    public const SESSION_STATUS_OVERRIDE = true;
-
     /** @var bool True to keep track of when session are started. */
     public const SESSION_STARTED_TRACKING = true;
 
