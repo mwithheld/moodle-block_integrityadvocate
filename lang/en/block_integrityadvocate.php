@@ -83,7 +83,6 @@ $string['integrityadvocate:addinstance'] = "Add new Integrity Advocate block";
 $string['integrityadvocate:addinstance'] = 'Add a new Integrity Advocate block';
 $string['integrityadvocate:myaddinstance'] = "Add a new Integrity Advocate block to the desired page";
 $string['integrityadvocate:myaddinstance'] = 'Add a Integrity Advocate block to My home page';
-$string['integrityadvocate:override'] = 'Override Integrity Advocate results';
 $string['integrityadvocate:overview'] = 'View course overview of Integrity Advocate results';
 $string['integrityadvocate:selfview'] = 'View own Integrity Advocate results';
 $string['integrityadvocate:view'] = 'Use the Integrity Advocate block as a student';
@@ -156,12 +155,6 @@ $string['status_valid'] = 'Valid';
 $string['submitted'] = 'Submitted';
 $string['time_expected'] = 'Expected';
 
-$string['override_form_label'] = 'Override the status';
-$string['override_reason_label'] = 'Reason for override';
-$string['override_reason_invalid'] = 'Required. Must only contain characters in the range: a-zA-Z0-9._-';
-$string['override_view'] = 'View overrides';
-$string['overridden_date'] = 'Overridden {$a}';
 $string['overridden'] = '(Overridden)';
-$string['viewhide_overrides'] = 'View/Hide overrides';
 $string['override_reason_none'] = 'No reason given';
 

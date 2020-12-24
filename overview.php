@@ -89,7 +89,6 @@ switch (true) {
     case ($userid):
         $debug && Logger::log(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
         $requestedpage = 'overview-user';
-        $PAGE->requires->strings_for_js(array('override_form_label', 'override_reason_label', 'override_reason_invalid'), INTEGRITYADVOCATE_BLOCK_NAME);
         $params += [
             'userid' => $userid,
         ];
@@ -160,10 +159,6 @@ $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dat
 $PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
 $PAGE->requires->string_for_js('pictureof', 'moodle', '&nbsp;');
 
-// We do not allow overrides on the overview-course page.
-if (in_array($requestedpage, ['overview-user', 'overview-module'], true)) {
-    $PAGE->requires->strings_for_js(array('viewhide_overrides'), INTEGRITYADVOCATE_BLOCK_NAME);
-}
 $PAGE->set_heading($title);
 $PAGE->navbar->add($title);
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);

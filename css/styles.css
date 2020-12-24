@@ -51,9 +51,6 @@
 .block_integrityadvocate_status_invalid_rules {
     color: #f00;
 }
-.block_integrityadvocate_override_button {
-    margin-left: 0.5em;
-}
 .block_integrityadvocate_overview_participant_summary_status,
 .block_integrityadvocate_overview_participant_summary_start,
 .block_integrityadvocate_resubmit_link {
@@ -148,9 +145,6 @@
 .block_integrityadvocate_overview_participant_summary_status .icon {
     font-size: 1.5em;
 }
-.block_integrityadvocate_override_form_label {
-    margin-right: 1.5em;
-}
 .block_integrityadvocate_plugininfo {
     font-size: 0.5em;
 }
@@ -168,9 +162,4 @@ td.details-control {
 }
 tr.shown td.details-control {
     background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
-}
-i.block_integrityadvocate_override_edit,
-i.block_integrityadvocate_overriden_icon {
-    padding-left: 0.5em;
-    cursor: pointer;
 }
