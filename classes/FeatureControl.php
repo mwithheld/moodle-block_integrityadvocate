@@ -41,9 +41,6 @@ class FeatureControl {
     // This feature is not ready yet!!
     public const MODULE_LIST_CONFIGLINK = false;
 
-    /** @var bool True to use Guzzle to get participant info: one API request per Moodle user. False to get all participants from the API in one large request. */
-    public const OVERVIEW_COURSE_USE_GUZZLE = true;
-
     /** @var bool True to showing the overview_course content using the IA LTI endpoint. */
     public const OVERVIEW_COURSE_LTI = true;
 
