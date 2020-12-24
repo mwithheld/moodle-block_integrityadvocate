@@ -7,12 +7,6 @@
         <license>MIT</license>
     </library>
     <library>
-        <location>vendor/guzzlehttp/</location>
-        <name>Guzzle</name>
-        <version>6.5</version>
-        <license>MIT</license>
-    </library>
-    <library>
         <location>vendor/monolog/</location>
         <name>Monolog</name>
         <version>1.25.4</version>

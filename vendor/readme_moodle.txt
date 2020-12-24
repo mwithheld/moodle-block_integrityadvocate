@@ -10,13 +10,6 @@ Update all composer packages
 composer update
 
 
-Guzzle HTTP client
-----
-We use Guzzle 6.x b/c Guzzle 7.x requires PHP7.2, which is above Moodle 3.5 requirements (Moodle 7.0).
-http://docs.guzzlephp.org/en/stable/index.html
-composer update guzzlehttp/guzzle
-
-
 Monolog logging client
 ----
 https://seldaek.github.io/monolog/
