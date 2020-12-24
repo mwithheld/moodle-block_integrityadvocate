@@ -30,10 +30,7 @@ require_once($CFG->libdir . '/externallib.php');
  */
 class block_integrityadvocate_external extends \external_api {
 
-    use \block_integrityadvocate\external_override_session_status;
     use \block_integrityadvocate\external_ia_session_tracking;
-
-//    use \block_integrityadvocate\external_participants;
 
     /**
      * Describes a return value that just returns submitted = true.

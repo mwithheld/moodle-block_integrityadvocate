@@ -139,5 +139,8 @@ if ($continue) {
             $signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, urlencode($blockinstance->config->apikey) . '&');
             echo ia_output::get_lti_iframe_html($launch_url, $launch_data, $signature);
             break;
+
+        default:
+            throw new \Exception('This feature is disabled');
     }
 }

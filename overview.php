@@ -176,7 +176,6 @@ echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
 // Gather capabilities for later use.
 $hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockcontext);
-$hascapability_override = \has_capability('block/integrityadvocate:override', $blockcontext);
 $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $blockcontext);
 
 // Check for errors that mean we should not show any overview page.
