@@ -143,21 +143,15 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
 // Set up page parameters.
 $PAGE->set_course($course);
 $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
-// Used to build the page URL and in the overview-course page, the Participants table URL.
+// Used to build the page URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
 $title = \get_string(str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
 $PAGE->set_pagelayout('report');
-// Used for JS-driven filter of table data on all overview pages.
-$PAGE->requires->string_for_js('filter', 'moodle');
-// Include JS and CSS for DataTables.
-$PAGE->requires->jquery_plugin('ui-css');
-$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/dataTables.fontAwesome.css');
-$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/jquery.dataTables.min.css');
+
 $PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
-$PAGE->requires->string_for_js('pictureof', 'moodle', '&nbsp;');
 
 $PAGE->set_heading($title);
 $PAGE->navbar->add($title);

@@ -1,12 +1,6 @@
 <?xml version="1.0"?>
 <libraries>
     <library>
-        <location>amd/src/jquery.dataTables.js</location>
-        <name>DataTables</name>
-        <version>1.10.22</version>
-        <license>MIT</license>
-    </library>
-    <library>
         <location>vendor/monolog/</location>
         <name>Monolog</name>
         <version>1.25.4</version>
