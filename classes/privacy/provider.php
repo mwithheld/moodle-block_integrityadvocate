@@ -291,7 +291,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
+        $debug && Logger::log($fxn . '::Started with $blockcontext->id=' . var_export($blockcontext->id, true));
 
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
         $debug && Logger::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));

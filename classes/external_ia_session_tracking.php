@@ -96,14 +96,14 @@ trait external_ia_session_tracking {
             case(!ia_u::is_guid($appid)):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The input appid is an invalid GUID');
                 break;
-            case(!($course = ia_mu::get_course_as_obj($courseid))):
+            case(!(ia_mu::get_course_as_obj($courseid))):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The input courseid is an invalid course id');
                 break;
             case(!($coursecontext = \context_course::instance($courseid))):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The course context is invalid');
                 break;
             case(!\is_enrolled($coursecontext, $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
-                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have targetuserid={$targetuserid} enrolled");
+                $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have targetuserid={$userid} enrolled");
                 break;
             case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
@@ -124,7 +124,7 @@ trait external_ia_session_tracking {
             case($user->deleted || $user->suspended):
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => 'The user is suspended or deleted');
                 break;
-            case(!\is_enrolled(($modulecontext = $cm->context), $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
+            case(!\is_enrolled(($cm->context), $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
                 $result['warnings'][] = array('warningcode' => implode('-', [$blockversion, __LINE__]), 'message' => "The userid={$userid} is not enrolled in the target module cmid={$moduleid}");
                 break;
             case(\has_capability('block/integrityadvocate:overview', $cm->context)):

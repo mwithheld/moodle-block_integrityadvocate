@@ -37,7 +37,7 @@ class block_integrityadvocate_external extends \external_api {
      *
      * @return external_single_structure
      */
-    private static function returns_boolean_submitted(): \external_single_structure {
+    protected static function returns_boolean_submitted(): \external_single_structure {
         return new \external_single_structure(
                 [
             // Usage: external_value($type, $desc, $required, $default, $allownull).

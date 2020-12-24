@@ -362,12 +362,12 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
             $debug && Logger::log($fxn . '::Looking to filter for apikey and appid');
 
             if ($requireapikey && ($blockinstance->config->apikey !== $requireapikey)) {
-                $debug && Logger::log($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $apikey);
+                $debug && Logger::log($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $requireapikey);
                 unset($modules[$key]);
                 continue;
             }
             if ($requireappid && ($blockinstance->config->appid !== $requireappid)) {
-                $debug && Logger::log($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $appid);
+                $debug && Logger::log($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $requireappid);
                 unset($modules[$key]);
                 continue;
             }
