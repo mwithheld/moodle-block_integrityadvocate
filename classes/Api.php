@@ -1210,7 +1210,7 @@ class Api {
                 case(!($user = ia_mu::get_user_as_obj($userid))) :
                     $debug && Logger::log($fxn . "::User not found for participantidentifier={$userid}");
                     return null;
-                case (ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))):
+                case (ia_u::is_empty(\get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))):
                     $debug && Logger::log($fxn . "::Invalid \$courseid={$courseid} specified or course context not found");
                     return null;
                 case(!\is_enrolled($coursecontext, $user /* Include inactive enrolments. */)) :
@@ -1276,9 +1276,9 @@ class Api {
                 if (!ia_u::is_empty($session = self::parse_session($s, $output))) {
                     $debug && Logger::log($fxn . '::Got a valid session back, so add it to the participant');
                     if (isset($session->end) && ia_u::is_unixtime_past($session->end)) {
-                        $end = \filter_var($session->end, \FILTER_SANITIZE_NUMBER_INT);
+                        $session->end = \filter_var($session->end, \FILTER_SANITIZE_NUMBER_INT);
                     } else {
-                        $end = $time;
+                        $session->end = $time;
                     }
                     $output->sessions[] = $session;
                 } else {
