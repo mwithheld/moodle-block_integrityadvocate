@@ -44,7 +44,7 @@ $userid = $USER->id;
 
 // Check all requirements.
 switch (true) {
-    case (!FeatureControl::OVERVIEW_MODULE_ORIGINAL && !FeatureControl::OVERVIEW_MODULE_LTI):
+    case (!FeatureControl::OVERVIEW_MODULE_LTI):
         throw new Exception('This feature is disabled');
     case (empty($moduleid) || ($moduleid = \required_param('moduleid', PARAM_INT)) < 1):
         // This is only an optional_param in overview.php.
