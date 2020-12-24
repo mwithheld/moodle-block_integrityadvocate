@@ -74,7 +74,7 @@ class MoodleUtility {
             $debug && Logger::log($fxn . '::Looking at $br=' . ia_u::var_dump($r, true));
 
             // Check if it is visible and get the IA appid from the block instance config.
-            $blockinstancevisible = self::get_block_visibility($r->parentcontextid, $r->id);
+            $blockinstancevisible = self::is_block_visibile($r->parentcontextid, $r->id);
             $debug && Logger::log($fxn . "::Found \$blockinstancevisible={$blockinstancevisible}");
 
             if ($visibleonly && !$blockinstancevisible) {
@@ -106,7 +106,7 @@ class MoodleUtility {
         $records = $DB->get_records('block_instances', array('parentcontextid' => $contextid, 'blockname' => preg_replace('/^block_/', '', $blockname)));
         foreach ($records as $r) {
             // Check if it is visible.
-            if ($visibleonly && !self::get_block_visibility($r->parentcontextid, $r->id)) {
+            if ($visibleonly && !self::is_block_visibile($r->parentcontextid, $r->id)) {
                 continue;
             }
 
@@ -335,7 +335,7 @@ class MoodleUtility {
      * @param int $blockinstanceid The block instance id
      * @return bool true if the block is visible in the given context
      */
-    public static function get_block_visibility(int $parentcontextid, int $blockinstanceid): bool {
+    public static function is_block_visibile(int $parentcontextid, int $blockinstanceid): bool {
         global $DB;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
@@ -546,7 +546,7 @@ class MoodleUtility {
         $blockrecord = null;
         foreach ($records as $r) {
             // Check if it is visible and get the IA appid from the block instance config.
-            $r->visible = self::get_block_visibility($modulecontext->id, $r->id);
+            $r->visible = self::is_block_visibile($modulecontext->id, $r->id);
             $debug && Logger::log($fxn . "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$r->id} found \$record->visible={$r->visible}");
             if ($visibleonly && !$r->visible) {
                 $debug && Logger::log($fxn . "::\$visibleonly=true and this instance is not visible so skip it");

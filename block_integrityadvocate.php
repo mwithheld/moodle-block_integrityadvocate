@@ -635,7 +635,7 @@ class block_integrityadvocate extends block_base {
         }
 
         $parentcontext = $this->context->get_parent_context();
-        return $this->visible = ia_mu::get_block_visibility($parentcontext->id, $this->context->id);
+        return $this->visible = ia_mu::is_block_visibile($parentcontext->id, $this->context->id);
     }
 
 }
