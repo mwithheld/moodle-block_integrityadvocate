@@ -24,21 +24,21 @@
 \defined('MOODLE_INTERNAL') || die();
 
 // Ref https://docs.moodle.org/dev/Cache_API_-_Quick_reference#Invalidating_keys_from_a_cache .
-$definitions = array(
-    'perrequest' => array(
+$definitions = [
+    'perrequest' => [
         'mode' => cache_store::MODE_REQUEST,
         'simplekeys' => true,
         'simpledata' => true,
         'staticacceleration' => true,
         'canuselocalstore' => true,
-    ),
-    'persession' => array(
+    ],
+    'persession' => [
         'mode' => cache_store::MODE_SESSION,
         'simplekeys' => true,
         'simpledata' => true,
         'staticacceleration' => true,
         'canuselocalstore' => true,
-    ),
+    ],
 //    'untilcourseenrolmentchanges' => array(
 //        'mode' => cache_store::MODE_SESSION,
 //        'simplekeys' => true,
@@ -49,4 +49,4 @@ $definitions = array(
 //        // Clears this cache: Unenrolling a user.
 //        'invalidationevents' => ['\core\event\enrol_instance_updated', '\core\event\user_enrolment_updated'],
 //    ),
-);
+];

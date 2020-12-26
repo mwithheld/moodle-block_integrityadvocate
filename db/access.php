@@ -23,59 +23,59 @@
  */
 \defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'block/integrityadvocate:overview' => array(
+$capabilities = [
+    'block/integrityadvocate:overview' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array(
+        'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
-    ),
+    ],
     // Can view their own info in the block.
-    'block/integrityadvocate:selfview' => array(
+    'block/integrityadvocate:selfview' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/grade:view'
-    ),
+    ],
     // Can use the IA block.
-    'block/integrityadvocate:view' => array(
+    'block/integrityadvocate:view' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/grade:view'
-    ),
-    'block/integrityadvocate:addinstance' => array(
+    ],
+    'block/integrityadvocate:addinstance' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
-    ),
-    'block/integrityadvocate:myaddinstance' => array(
+    ],
+    'block/integrityadvocate:myaddinstance' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
-    ),
-);
+    ],
+];

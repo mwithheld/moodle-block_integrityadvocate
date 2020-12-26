@@ -144,7 +144,7 @@ if ($ADMIN->fulltree) {
             //$table->colclasses = array ('leftalign', 'leftalign', 'centeralign', 'leftalign', 'leftalign', 'leftalign');
             $table->attributes['class'] = 'admintable generaltable';
             $table->id = INTEGRITYADVOCATE_BLOCK_NAME . '_siteinfo';
-            $table->data = array(); //array_values($siteinfo);
+            $table->data = []; //array_values($siteinfo);
             foreach ($siteinfo as $key => &$val) {
                 $table->data[] = [$key, $val];
             }

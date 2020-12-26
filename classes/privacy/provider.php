@@ -62,7 +62,7 @@ class provider implements \core_privacy\local\metadata\provider,
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . '::Started with $collection=' . \var_export($collection, true), \block_integrityadvocate\Logger::HTML);
 
-        $privacyitems = array(
+        $privacyitems = [
             // Course info.
             'cmid',
             'courseid',
@@ -82,7 +82,7 @@ class provider implements \core_privacy\local\metadata\provider,
             'override_fullname',
             'override_reason',
             'override_status',
-        );
+        ];
 
         // Combine the above keys with corresponding values into a new key-value array.
         $privacyitemsarr = [];
@@ -208,7 +208,7 @@ class provider implements \core_privacy\local\metadata\provider,
             }
 
             // If we got participants, we are in the block context and the parent is a module.
-            self::delete_participants($context, $participants, array($user->id));
+            self::delete_participants($context, $participants, [$user->id]);
         }
     }
 
@@ -407,7 +407,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return string HTML Participant info to uniquely identify the entry to IntegrityAdvocate.
      */
     private static function get_participant_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
-        $usefulfields = array(
+        $usefulfields = [
             'cmid',
             'courseid',
             'created',
@@ -418,7 +418,7 @@ class provider implements \core_privacy\local\metadata\provider,
             'overridedate',
             'participantidentifier',
             'status',
-        );
+        ];
 
         $info = [];
         foreach ($usefulfields as $property) {
@@ -440,7 +440,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return string HTML Participant and override info to uniquely identify the entry to IntegrityAdvocate.
      */
     private static function get_override_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
-        $usefulfields = array(
+        $usefulfields = [
             'cmid',
             'courseid',
             'created',
@@ -455,7 +455,7 @@ class provider implements \core_privacy\local\metadata\provider,
             'overridestatus',
             'participantidentifier',
             'status',
-        );
+        ];
 
         $info = [];
         foreach ($usefulfields as $property) {

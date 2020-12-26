@@ -220,7 +220,7 @@ class MoodleUtility {
         $params = ['contextid' => $context->id];
         global $DB;
         $roles = \role_fix_names($DB->get_records_sql($sql, $params), $context);
-        $rolestodisplay = array(0 => \get_string('allparticipants'));
+        $rolestodisplay = [0 => \get_string('allparticipants')];
         foreach ($roles as $role) {
             $rolestodisplay[$role->id] = $role->localname;
         }
@@ -588,7 +588,7 @@ class MoodleUtility {
                 return $cachedvalue;
             }
 
-            $userarr = user_get_users_by_id(array((int) $user));
+            $userarr = user_get_users_by_id([(int) $user]);
             if (empty($userarr)) {
                 return null;
             }

@@ -25,9 +25,9 @@
 
 // Ref https://docs.moodle.org/dev/Web_services_API.
 // Ref https://docs.moodle.org/dev/Adding_a_web_service_to_a_plugin.
-$services = array(
-    'block_integrityadvocate_session_close' => array(
-        'functions' => array('block_integrityadvocate_session_close'),
+$services = [
+    'block_integrityadvocate_session_close' => [
+        'functions' => ['block_integrityadvocate_session_close'],
         'requiredcapability' => 'block/integrityadvocate:view',
         // If 1, the administrator must manually select which user can use this service.
         // Ref (Administration > Plugins > Web services > Manage services > Authorised users).
@@ -37,9 +37,9 @@ $services = array(
         // The short name used to refer to this service from elsewhere including when fetching a token.
         // Optional – but needed if restrictedusers is set so as to allow logins.
         'shortname' => 'block_integrityadvocate_session_close',
-    ),
-    'block_integrityadvocate_session_open' => array(
-        'functions' => array('block_integrityadvocate_session_open'),
+    ],
+    'block_integrityadvocate_session_open' => [
+        'functions' => ['block_integrityadvocate_session_open'],
         'requiredcapability' => 'block/integrityadvocate:view',
         // If 1, the administrator must manually select which user can use this service.
         // Ref (Administration > Plugins > Web services > Manage services > Authorised users).
@@ -49,11 +49,11 @@ $services = array(
         // The short name used to refer to this service from elsewhere including when fetching a token.
         // Optional – but needed if restrictedusers is set so as to allow logins.
         'shortname' => 'block_integrityadvocate_session_open',
-    ),
-);
+    ],
+];
 
-$functions = array(
-    'block_integrityadvocate_session_close' => array(
+$functions = [
+    'block_integrityadvocate_session_close' => [
         // Class containing the external function OR namespaced class in classes/external/XXXX.php.
         'classname' => 'block_integrityadvocate_external',
         // External function name.
@@ -70,11 +70,11 @@ $functions = array(
         // Optional, only available for Moodle 3.1 onwards.
         // List of built-in services (by shortname) where the function will be included.
         // Services created manually via the Moodle interface are not supported.
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
         // Capabilities required by the function.
         'capabilities' => 'block/integrityadvocate:view',
-    ),
-    'block_integrityadvocate_session_open' => array(
+    ],
+    'block_integrityadvocate_session_open' => [
         // Class containing the external function OR namespaced class in classes/external/XXXX.php.
         'classname' => 'block_integrityadvocate_external',
         // External function name.
@@ -91,8 +91,8 @@ $functions = array(
         // Optional, only available for Moodle 3.1 onwards.
         // List of built-in services (by shortname) where the function will be included.
         // Services created manually via the Moodle interface are not supported.
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
         // Capabilities required by the function.
         'capabilities' => 'block/integrityadvocate:view',
-    ),
-);
+    ],
+];

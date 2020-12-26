@@ -235,7 +235,7 @@ trait external_ia_session_tracking {
         }
         $debug && Logger::log($fxn . '::No warnings');
 
-        $result['success'] = ia_mu::nonce_set(\implode('_', array(INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid)));
+        $result['success'] = ia_mu::nonce_set(\implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid]));
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag to the remote IA server';
             $result['warnings'] = ['warningcode' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg];

@@ -23,9 +23,9 @@
  */
 \defined('MOODLE_INTERNAL') || die();
 
-$observers = array(
-    array(
+$observers = [
+    [
         'eventname' => '*',
         'callback' => 'block_integrityadvocate_observer::process_event',
-    ),
-);
+    ],
+];

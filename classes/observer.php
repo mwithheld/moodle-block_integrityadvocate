@@ -50,13 +50,13 @@ class block_integrityadvocate_observer {
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
-            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (\in_array($event->crud, array('c', 'u'), true)));
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (\in_array($event->crud, ['c', 'u'], true)));
             Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
         }
 
         // No CLI events correspond to a user finishing an IA session.
         if (\defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, array('c', 'u'), true)));
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, ['c', 'u'], true)));
             return false;
         }
 
@@ -83,26 +83,26 @@ class block_integrityadvocate_observer {
          */
         switch (true) {
             case ia_u::strposabool($event->eventname,
-                    array(
+                    [
                         '\\mod_chat\\event\\',
                         '\\mod_data\\event\\',
                         '\\mod_glossary\\event\\',
                         '\\mod_lesson\\event\\',
                         '\\mod_wiki\\event\\',
-            )):
+            ]):
             // None of the event names starting with these strings correspond to finishing a module.
             case \preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
             // None of the \mod_forum\*created events correspond to finishing an module...
             // They probably just posted to the forum or added a discussion but that's not finishing with forums.
             case \in_array($event->eventname,
-                    array(
+                    [
                         '\\assignsubmission_onlinetext\\event\\submission_updated',
                         '\\mod_assign\\event\\submission_duplicated',
                         '\\mod_quiz\\event\\attempt_becameoverdue',
                         '\\mod_quiz\\event\\attempt_started',
                         '\\mod_quiz\\event\\attempt_viewed',
                         '\\mod_workshop\\event\\submission_reassessed',
-            )):
+            ]):
                 // None of these exact string matches on event names correspond to finishing an module.
                 $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
@@ -119,7 +119,7 @@ class block_integrityadvocate_observer {
          */
         switch (true) {
             case \in_array($event->eventname,
-                    array(
+                    [
                         '\\mod_assign\\event\\assessable_submitted',
                         '\\mod_choice\\event\\answer_created',
                         '\\mod_feedback\\event\\response_submitted',
@@ -128,7 +128,7 @@ class block_integrityadvocate_observer {
                         '\\mod_quiz\\event\\attempt_abandoned',
                         '\\mod_quiz\\event\\attempt_reviewed',
                         '\\mod_quiz\\event\\attempt_submitted',
-            )):
+            ]):
                 $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
