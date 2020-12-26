@@ -264,11 +264,11 @@ class Output {
 
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
-        switch (\intval($parentcontext->contextlevel)) {
-            case (\intval(\CONTEXT_COURSE)):
+        switch ((int) ($parentcontext->contextlevel)) {
+            case ((int) (\CONTEXT_COURSE)):
                 $debug && Logger::log($fxn . '::parentcontext=course');
                 return self::get_button_overview_course($blockinstance, $userid);
-            case (\intval(\CONTEXT_MODULE)):
+            case ((int) (\CONTEXT_MODULE)):
                 $debug && Logger::log($fxn . '::parentcontext=module');
                 return self::get_button_overview_module($blockinstance, $userid);
             default:
@@ -505,8 +505,8 @@ class Output {
         $parentcontext = $blockcontext->get_parent_context();
 
         try {
-            switch (\intval($parentcontext->contextlevel)) {
-                case (\intval(\CONTEXT_COURSE)):
+            switch ((int) ($parentcontext->contextlevel)) {
+                case ((int) (\CONTEXT_COURSE)):
                     // If the block is in a course, show the participant-level latest status, photo, last seen, etc.
                     $debug && Logger::log($fxn . '::Am in a module context');
                     $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid, $blockinstance->instance->id);
@@ -518,7 +518,7 @@ class Output {
 
                     return self::get_participant_summary_output($blockinstance, $participant, $showphoto, $showoverviewbutton, $showstatus);
 
-                case (\intval(\CONTEXT_MODULE)):
+                case ((int) (\CONTEXT_MODULE)):
                     // If block is in a module, show the module's latest status, photo, start, end.
                     $debug && Logger::log($fxn . '::Am in a module context');
                     $latestsession = ia_api::get_module_session_latest($parentcontext, $userid);

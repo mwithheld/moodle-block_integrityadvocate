@@ -137,7 +137,7 @@ class MoodleUtility {
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
             $debug && Logger::log($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
-            if (\intval($c->contextlevel) !== \intval(\CONTEXT_MODULE)) {
+            if ((int) ($c->contextlevel) !== (int) (\CONTEXT_MODULE)) {
                 continue;
             }
 
@@ -169,9 +169,9 @@ class MoodleUtility {
      */
     protected static function modules_compare_events($a, $b): int {
         if ($a['section'] != $b['section']) {
-            return \intval($a['section'] - $b['section']);
+            return (int) ($a['section'] - $b['section']);
         } else {
-            return \intval($a['position'] - $b['position']);
+            return (int) ($a['position'] - $b['position']);
         }
     }
 
@@ -184,7 +184,7 @@ class MoodleUtility {
      */
     protected static function modules_compare_times($a, $b): int {
         if ($a['expected'] != 0 && $b['expected'] != 0 && $a['expected'] != $b['expected']) {
-            return \intval($a['expected'] - $b['expected']);
+            return (int) ($a['expected'] - $b['expected']);
         } else if ($a['expected'] != 0 && $b['expected'] == 0) {
             return -1;
         } else if ($a['expected'] == 0 && $b['expected'] != 0) {
@@ -438,7 +438,7 @@ class MoodleUtility {
                 return $cachedvalue;
             }
 
-            $course = \get_course(\intval($course));
+            $course = \get_course((int) $course);
 
             if (FeatureControl::CACHE && !$cache->set($cachekey, $course)) {
                 throw new \Exception('Failed to set value in the cache');
@@ -588,7 +588,7 @@ class MoodleUtility {
                 return $cachedvalue;
             }
 
-            $userarr = user_get_users_by_id(array(\intval($user)));
+            $userarr = user_get_users_by_id(array((int) $user));
             if (empty($userarr)) {
                 return null;
             }
@@ -684,7 +684,7 @@ class MoodleUtility {
                 [$courseidcleaned], \IGNORE_MISSING);
 
         // Convert false to int 0.
-        return \intval($lastaccess);
+        return (int) $lastaccess;
     }
 
     /**

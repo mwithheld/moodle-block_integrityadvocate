@@ -270,9 +270,9 @@ class Logger {
 
                 $functionorline = isset($debugbacktrace['function']) ? $debugbacktrace['function'] : '';
                 if (empty($functionorline)) {
-                    $functionorline = \intval($debugbacktrace['line']);
+                    $functionorline = (int) ($debugbacktrace['line']);
                 } else {
-                    $functionorline .= '-' . \intval($debugbacktrace['line']);
+                    $functionorline .= '-' . (int) ($debugbacktrace['line']);
                 }
 
                 $siteslug = \preg_replace('/^www\./', '', \str_replace(['http://', 'https://'], '', \trim($CFG->wwwroot, '/')));

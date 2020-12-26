@@ -69,7 +69,7 @@ class Utility {
      */
     public static function is_unixtime_past($unixtime): bool {
         if (\is_numeric($unixtime)) {
-            $unixtime = \intval($unixtime);
+            $unixtime = (int) $unixtime;
         }
 
         return \is_int($unixtime) && ($unixtime > 0) && ($unixtime <= \time());

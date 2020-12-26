@@ -233,7 +233,7 @@ class provider implements \core_privacy\local\metadata\provider,
             $blockcontext = $b->context;
             $parentcontext = $blockcontext->get_parent_context();
             // We only have data for IA blocks in modules.
-            if (\intval($parentcontext->contextlevel) !== \intval(CONTEXT_MODULE)) {
+            if ((int) ($parentcontext->contextlevel) !== (int) CONTEXT_MODULE) {
                 continue;
             }
             if (\is_enrolled($parentcontext, $userid)) {

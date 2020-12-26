@@ -96,7 +96,7 @@ class Api {
 
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = \intval($responseinfo['http_code']);
+        $responsecode = (int) ($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . \var_export($requesturi, true) . '; http_code=' . \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
@@ -152,7 +152,7 @@ class Api {
 
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = \intval($responseinfo['http_code']);
+        $responsecode = (int) ($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . \var_export($requesturi, true) . '; http_code=' . \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
@@ -249,7 +249,7 @@ class Api {
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = \intval($responseinfo['http_code']);
+        $responsecode = (int) ($responseinfo['http_code']);
 
         $debug && Logger::log($fxn .
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
@@ -609,7 +609,7 @@ class Api {
                 $debug && Logger::log($fxn . '::Skip: This $participantsessionsraw entry is empty or invalid');
                 continue;
             }
-            if ($userid && \intval($participantidentifier) !== \intval($userid)) {
+            if ($userid && (int) $participantidentifier !== (int) $userid) {
                 $debug && Logger::log($fxn . "::Skip: This \$participantidentifier={$participantidentifier} does not match the \$userid={$userid}");
                 continue;
             }
@@ -622,13 +622,13 @@ class Api {
                     case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
                         $debug && Logger::log($fxn . "::Moodle has no user matching user->id={$participantidentifier}");
                         continue 2;
-                    case(!isset($pr->Course_Id) || \intval($pr->Course_Id) !== \intval($courseid)):
+                    case(!isset($pr->Course_Id) || (int) ($pr->Course_Id) !== (int) $courseid):
                         $debug && Logger::log($fxn . "::The participant Course_Id={$pr->Course_Id} is invalid or does not match this Moodle course={$courseid}");
                         continue 2;
-                    case(!isset($pr->Activity_Id) || \intval($pr->Activity_Id) !== \intval($moduleid)):
+                    case(!isset($pr->Activity_Id) || (int) ($pr->Activity_Id) !== (int) $moduleid):
                         $debug && Logger::log($fxn . "::The participant Activity_Id={$pr->Activity_Id} is invalid or does not match this Moodle moduleid={$moduleid}");
                         continue 2;
-                    case(\intval(ia_mu::get_courseid_from_cmid($moduleid)) !== \intval($courseid)):
+                    case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
                         $debug && Logger::log($fxn . "::The moduleid={$moduleid} is not part of the course with id={$courseid}");
                         continue 2;
                     case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the participant cannot access the module */)[1])):
@@ -836,7 +836,7 @@ class Api {
         foreach (self::get_module_user_sessions($modulecontext, $userid, 1) as $s) {
             $debug && Logger::log($fxn . "::Looking at \$s->id={$s->id}");
             // Only match the module's activity id.
-            if (\intval($modulecontext->instanceid) !== \intval($s->activityid)) {
+            if ((int) ($modulecontext->instanceid) !== (int) ($s->activityid)) {
                 continue;
             }
             if (($s->end > $latestsession->end) || ($s->start > $latestsession->start)) {
@@ -937,7 +937,7 @@ class Api {
 
         $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && Logger::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
-        $isstatusvalid = ia_status::is_invalid_status(\intval($statusinmodule));
+        $isstatusvalid = ia_status::is_invalid_status((int) $statusinmodule);
 
         return $isstatusvalid;
     }
@@ -965,7 +965,7 @@ class Api {
 
         $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && Logger::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
-        $isstatusvalid = ia_status::is_valid_status(\intval($statusinmodule));
+        $isstatusvalid = ia_status::is_valid_status((int) $statusinmodule);
 
         return $isstatusvalid;
     }

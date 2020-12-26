@@ -141,7 +141,7 @@ class Participant {
         // Choose the one with the newest in order of [end || start time].
         foreach ($this->sessions as $s) {
             // Only match the module's activityid (cmid).
-            if (\intval($activityid) !== \intval($s->activityid)) {
+            if ((int) $activityid !== (int) ($s->activityid)) {
                 continue;
             }
             if (($s->end > $latestsession->end) || ($s->start > $latestsession->start)) {

@@ -104,7 +104,7 @@ trait external_ia_session_tracking {
             case(!\is_enrolled($coursecontext, $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
                 $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have targetuserid={$userid} enrolled"];
                 break;
-            case(\intval(ia_mu::get_courseid_from_cmid($moduleid)) !== \intval($courseid)):
+            case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
                 $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid)];
                 break;
             case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1]) || !($blockinstance = ia_mu::get_first_block($cm->context, INTEGRITYADVOCATE_SHORTNAME, false))):
@@ -114,7 +114,7 @@ trait external_ia_session_tracking {
             case($blockinstance->config->appid !== $appid):
                 $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "The input appid {$blockinstance->config->appid} does not match the block intance appid={$appid}"];
                 break;
-            case(\intval($userid) !== \intval($USER->id)):
+            case((int) $userid !== (int) ($USER->id)):
                 $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The userid is not the current user'];
                 break;
             case(!($user = ia_mu::get_user_as_obj($userid))):
