@@ -46,7 +46,7 @@ const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 /** bool Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
 define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
-$debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . basename(__FILE__));
+$debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . \basename(__FILE__));
 
 if ($debug) {
     // Suppress debug notice that we have not done PAGE->set_url().

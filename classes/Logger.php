@@ -32,7 +32,7 @@ require_once(dirname(__DIR__) . '/externallib.php');
 use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 /**
  * Determines where to send error logs.
@@ -74,7 +74,7 @@ class Logger {
     // Unused: public static $logForClass = [];.
 
     public static function get_log_destinations(): array {
-        return array(Logger::NONE, Logger::ERRORLOG, Logger::HTML, Logger::LOGGLY, Logger::MLOG, Logger::STDOUT);
+        return [Logger::NONE, Logger::ERRORLOG, Logger::HTML, Logger::LOGGLY, Logger::MLOG, Logger::STDOUT];
     }
 
     /** @var string Even if the local debug flag is false, this enables debug logging for these functions.
@@ -110,7 +110,7 @@ class Logger {
       if (empty($classname)) {
       return false;
       }
-      return in_array($classname, self::$logForClass, true);
+      return \in_array($classname, self::$logForClass, true);
       }
      */
 
@@ -148,7 +148,7 @@ class Logger {
             return false;
         }
         $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
-        $result = in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
+        $result = \in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
         $debug && error_log($fxn . "::About to return \$result={$result}");
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $result ? 'y' : 'n')) {
@@ -265,19 +265,19 @@ class Logger {
                 }
                 $classorfile = isset($debugbacktrace['class']) ? $debugbacktrace['class'] : '';
                 if (empty($classorfile)) {
-                    $classorfile = basename(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['file']);
+                    $classorfile = \basename(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['file']);
                 }
 
                 $functionorline = isset($debugbacktrace['function']) ? $debugbacktrace['function'] : '';
                 if (empty($functionorline)) {
-                    $functionorline = intval($debugbacktrace['line']);
+                    $functionorline = \intval($debugbacktrace['line']);
                 } else {
-                    $functionorline .= '-' . intval($debugbacktrace['line']);
+                    $functionorline .= '-' . \intval($debugbacktrace['line']);
                 }
 
-                $siteslug = preg_replace('/^www\./', '', str_replace(array('http://', 'https://'), '', trim($CFG->wwwroot, '/')));
+                $siteslug = \preg_replace('/^www\./', '', \str_replace(['http://', 'https://'], '', \trim($CFG->wwwroot, '/')));
                 // Ref https://www-staging.loggly.com/docs/tags/.
-                $tag = self::clean_loggly_tag(str_replace(INTEGRITYADVOCATE_SHORTNAME, '', "{$siteslug}-{$classorfile}-{$functionorline}"));
+                $tag = self::clean_loggly_tag(\str_replace(INTEGRITYADVOCATE_SHORTNAME, '', "{$siteslug}-{$classorfile}-{$functionorline}"));
 
                 // Usage https://github.com/Seldaek/monolog/blob/1.x/doc/01-usage.md.
                 // Usage https://dzone.com/articles/php-monolog-tutorial-a-step-by-step-guide.
@@ -287,7 +287,7 @@ class Logger {
                 break;
             case Logger::ERRORLOG:
             default:
-                error_log($cleanedmsg);
+                \error_log($cleanedmsg);
                 break;
         }
 
@@ -310,14 +310,15 @@ class Logger {
     /**
      * Return true if a file has been included.
      * @url https://stackoverflow.com/a/52467334
-     * @param String $f file path.     * @param String $f file path.
+     * @param String $f file path.
+     * @param String $f file path.
      * @return bool true if a file has been included.
      */
     private static function file_has_been_included(string $filepath): bool {
         $fixpaths = function(string $f): string {
-            return str_replace(array('\\'), '/', $f);
+            return \str_replace(['\\'], '/', $f);
         };
-        return in_array($fixpaths($filepath), array_map($fixpaths, get_included_files()));
+        return \in_array($fixpaths($filepath), \array_map($fixpaths, \get_included_files()));
     }
 
     /**
@@ -327,34 +328,34 @@ class Logger {
      * @return array<string> List of functions defined in a PHP file.
      */
     private static function get_defined_functions_in_file(string $filePath, bool $sort = false): array {
-        $file = file(str_replace(array('\\'), '/', $filePath));
+        $file = \file(\str_replace(['\\'], '/', $filePath));
         $functions = [];
 
         foreach ($file as $line) {
-            $line = trim($line);
-            if (strpos($line, '//')) {
+            $line = \trim($line);
+            if (\strpos($line, '//')) {
                 continue;
             }
 
-            if (stripos($line, 'function ') !== false) {
-                $function_name = trim(str_ireplace([
+            if (\stripos($line, 'function ') !== false) {
+                $function_name = \trim(\str_ireplace([
                     'public',
                     'private',
                     'protected',
                     'static'
                                 ], '', $line));
 
-                $function_name = trim(substr($function_name, 9, strpos($function_name, '(') - 9));
+                $function_name = \trim(\substr($function_name, 9, \strpos($function_name, '(') - 9));
 
-                if (!in_array($function_name, ['__construct', '__destruct', '__get', '__set', '__isset', '__unset'])) {
+                if (!\in_array($function_name, ['__construct', '__destruct', '__get', '__set', '__isset', '__unset'])) {
                     $functions[] = $function_name;
                 }
             }
         }
 
         if ($sort) {
-            asort($functions);
-            $functions = array_values($functions);
+            \asort($functions);
+            $functions = \array_values($functions);
         }
 
         return $functions;

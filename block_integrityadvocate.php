@@ -98,7 +98,7 @@ class block_integrityadvocate extends block_base {
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $debug && Logger::log($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
             global $DB;
-            $record = $DB->get_record('quiz', array('id' => intval($cm->instance)), '*', \MUST_EXIST);
+            $record = $DB->get_record('quiz', ['id' => intval($cm->instance)], '*', \MUST_EXIST);
             $debug && Logger::log($fxn . '::Got record=' . ia_u::var_dump($record, true));
             if ($record->showblocks < 1) {
                 $record->showblocks = 1;
@@ -106,7 +106,7 @@ class block_integrityadvocate extends block_base {
             }
 
             // B. By default show the block on all quiz pages.
-            $DB->set_field('block_instances', 'pagetypepattern', 'mod-quiz-*', array('id' => $this->instance->id));
+            $DB->set_field('block_instances', 'pagetypepattern', 'mod-quiz-*', ['id' => $this->instance->id]);
             $debug && Logger::log($fxn . '::Set DB [pagetypepattern] = mod-quiz-*');
         }
 
@@ -145,11 +145,10 @@ class block_integrityadvocate extends block_base {
     /**
      * Defines where the block can be added.
      *
-     * @return array
+     * @return array<string=mixed> where key=location; value=whether it can be added.
      */
     public function applicable_formats(): array {
-        return array(
-            'admin' => false,
+        return ['admin' => false,
             'course-view' => true,
             'mod' => true,
             'my' => false,
@@ -163,7 +162,7 @@ class block_integrityadvocate extends block_base {
                 // Unused: 'site-index'.
                 // Unused: 'tag'.
                 // Unused: 'user-profile'.
-        );
+        ];
     }
 
     /**
@@ -181,7 +180,7 @@ class block_integrityadvocate extends block_base {
 
         if (!$hasblockconfig) {
             $debug && Logger::log($fxn . '::Error: This block has no config');
-            $errors = array('This block has no config');
+            $errors = ['This block has no config'];
         }
 
         if (!isset($this->config->apikey) || !ia_mu::is_base64($this->config->apikey)) {
@@ -199,7 +198,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Return config errors if there are any.
      *
-     * @return array<field=error message>
+     * @return array<field=error message> Config error array where field = error field; message=error message.
      */
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
@@ -234,7 +233,7 @@ class block_integrityadvocate extends block_base {
         if (str_starts_with($modulecontext->get_context_name(), 'quiz')) {
             $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
-            $record = $DB->get_record('quiz', array('id' => $cm->instance), 'id, showblocks', \MUST_EXIST);
+            $record = $DB->get_record('quiz', ['id' => $cm->instance], 'id, showblocks', \MUST_EXIST);
             if ($record->showblocks < 1) {
                 $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
@@ -296,8 +295,8 @@ class block_integrityadvocate extends block_base {
         $iablocksinthiscourse = ia_mu::get_all_course_blocks($this->get_course()->id, INTEGRITYADVOCATE_SHORTNAME);
         $iamodulesexist = ($blockcount = ia_u::count_if_countable($iablocksinthiscourse)) > 0;
 
-        $this->content->text .= \html_writer::start_tag('div', array('class' => "{$prefix}_div"));
-        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME, $blockcount), array('class' => "{$prefix}_div_title"));
+        $this->content->text .= \html_writer::start_tag('div', ['class' => "{$prefix}_div"]);
+        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME, $blockcount), ['class' => "{$prefix}_div_title"]);
 
         if (!$iamodulesexist) {
             $debug && Logger::log($fxn . '::No modules exist');

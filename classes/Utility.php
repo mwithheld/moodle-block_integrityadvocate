@@ -24,7 +24,7 @@
 
 namespace block_integrityadvocate;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 /**
  * Generic utility functions not specific to Moodle.
@@ -58,7 +58,7 @@ class Utility {
      * @return bool True if is a valid guid.
      */
     public static function is_guid(string $str): bool {
-        return (bool) preg_match('/^[a-f\d]{8}-?(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i', $str);
+        return (bool) \preg_match('/^[a-f\d]{8}-?(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i', $str);
     }
 
     /**
@@ -68,11 +68,11 @@ class Utility {
      * @return bool True if the input value is a valid past unix time > 0.
      */
     public static function is_unixtime_past($unixtime): bool {
-        if (is_numeric($unixtime)) {
-            $unixtime = intval($unixtime);
+        if (\is_numeric($unixtime)) {
+            $unixtime = \intval($unixtime);
         }
 
-        return is_int($unixtime) && ($unixtime > 0) && ($unixtime <= time());
+        return \is_int($unixtime) && ($unixtime > 0) && ($unixtime <= \time());
     }
 
     /**
@@ -85,8 +85,8 @@ class Utility {
      * @return bool true if found; else false
      */
     public static function strposabool(string $haystack, array $needles, int $offset = 0): bool {
-        if (!is_array($needles)) {
-            $needles = array($needles);
+        if (!\is_array($needles)) {
+            $needles = [$needles];
         }
         foreach ($needles as $query) {
             if (\strpos($haystack, $query, $offset) !== false) {

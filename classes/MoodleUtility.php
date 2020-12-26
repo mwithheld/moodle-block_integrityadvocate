@@ -27,7 +27,7 @@ namespace block_integrityadvocate;
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 /**
  * Utility functions not specific to this module that interact with Moodle core.
@@ -58,7 +58,7 @@ class MoodleUtility {
         $debug && Logger::log($fxn . "::Started with \$blockname={$blockname}; \$visibleonly={$visibleonly}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
-        $params = array('blockname' => preg_replace('/^block_/', '', $blockname));
+        $params = ['blockname' => \preg_replace('/^block_/', '', $blockname)];
         $debug && Logger::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
         $records = $DB->get_records('block_instances', $params);
@@ -103,7 +103,7 @@ class MoodleUtility {
         global $DB;
 
         $blockinstances = [];
-        $records = $DB->get_records('block_instances', array('parentcontextid' => $contextid, 'blockname' => preg_replace('/^block_/', '', $blockname)));
+        $records = $DB->get_records('block_instances', ['parentcontextid' => $contextid, 'blockname' => \preg_replace('/^block_/', '', $blockname)]);
         foreach ($records as $r) {
             // Check if it is visible.
             if ($visibleonly && !self::is_block_visibile($r->parentcontextid, $r->id)) {
@@ -137,7 +137,7 @@ class MoodleUtility {
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
             $debug && Logger::log($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
-            if (\intval($c->contextlevel) !== intval(\CONTEXT_MODULE)) {
+            if (\intval($c->contextlevel) !== \intval(\CONTEXT_MODULE)) {
                 continue;
             }
 
@@ -157,7 +157,7 @@ class MoodleUtility {
      * @return bool True if Moodle is in testing mode, e.g. Behat.
      */
     public static function is_testingmode(): bool {
-        return defined('BEHAT_SITE_RUNNING');
+        return \defined('BEHAT_SITE_RUNNING');
     }
 
     /**
@@ -169,9 +169,9 @@ class MoodleUtility {
      */
     protected static function modules_compare_events($a, $b): int {
         if ($a['section'] != $b['section']) {
-            return intval($a['section'] - $b['section']);
+            return \intval($a['section'] - $b['section']);
         } else {
-            return intval($a['position'] - $b['position']);
+            return \intval($a['position'] - $b['position']);
         }
     }
 
@@ -184,7 +184,7 @@ class MoodleUtility {
      */
     protected static function modules_compare_times($a, $b): int {
         if ($a['expected'] != 0 && $b['expected'] != 0 && $a['expected'] != $b['expected']) {
-            return intval($a['expected'] - $b['expected']);
+            return \intval($a['expected'] - $b['expected']);
         } else if ($a['expected'] != 0 && $b['expected'] == 0) {
             return -1;
         } else if ($a['expected'] == 0 && $b['expected'] != 0) {
@@ -217,7 +217,7 @@ class MoodleUtility {
                     FROM    {role} r, {role_assignments} ra
                    WHERE    ra.contextid = :contextid
                      AND    r.id = ra.roleid';
-        $params = array('contextid' => $context->id);
+        $params = ['contextid' => $context->id];
         global $DB;
         $roles = \role_fix_names($DB->get_records_sql($sql, $params), $context);
         $rolestodisplay = array(0 => \get_string('allparticipants'));
@@ -247,8 +247,7 @@ class MoodleUtility {
             $modulename = \get_string('pluginname', $module);
             foreach ($instances as $cm) {
                 if ($cm->completion != \COMPLETION_TRACKING_NONE) {
-                    $modules[] = array(
-                        'type' => $module,
+                    $modules[] = ['type' => $module,
                         'modulename' => $modulename,
                         'id' => $cm->id,
                         'instance' => $cm->instance,
@@ -261,12 +260,12 @@ class MoodleUtility {
                         'context' => $cm->context,
                         // Removed b/c it caused error with developer debug display on: 'icon' => $cm->get_icon_url().
                         'available' => $cm->available,
-                    );
+                    ];
                 }
             }
         }
 
-        usort($modules, array('self', 'modules_compare_times'));
+        \usort($modules, ['self', 'modules_compare_times']);
 
         return $modules;
     }
@@ -341,7 +340,7 @@ class MoodleUtility {
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . "::Started with \$parentcontextid={$parentcontextid}; \$blockinstanceid={$blockinstanceid}");
 
-        $record = $DB->get_record('block_positions', array('blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid), 'id,visible', IGNORE_MULTIPLE);
+        $record = $DB->get_record('block_positions', ['blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid], 'id,visible', \IGNORE_MULTIPLE);
         $debug && Logger::log($fxn . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
             // There is no block_positions record, and the default is visible.
@@ -402,7 +401,7 @@ class MoodleUtility {
                     SELECT c.id
                       FROM {course_modules} cm
                       JOIN {course} c ON c.id = cm.course
-                     WHERE cm.id = ?", array($cmid), 'id', IGNORE_MULTIPLE);
+                     WHERE cm.id = ?", [$cmid], 'id', \IGNORE_MULTIPLE);
         $debug && Logger::log($fxn . '::Got course=' . ia_u::var_dump($course, true));
 
         if (ia_u::is_empty($course) || !isset($course->id)) {
@@ -433,7 +432,7 @@ class MoodleUtility {
         if (is_numeric($course)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
-            $cachekey = self::get_cache_key($fxn . '_' . json_encode($course, JSON_PARTIAL_OUTPUT_ON_ERROR));
+            $cachekey = self::get_cache_key($fxn . '_' . \json_encode($course, \JSON_PARTIAL_OUTPUT_ON_ERROR));
             if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && Logger::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
@@ -468,7 +467,7 @@ class MoodleUtility {
                   WHERE i.courseid = :courseid
                     AND i.id = g.itemid
                     AND g.excluded <> 0";
-        $params = array('courseid' => $courseid);
+        $params = ['courseid' => $courseid];
         $results = $db->get_records_sql($query, $params);
         $exclusions = [];
         foreach ($results as $value) {
@@ -501,7 +500,7 @@ class MoodleUtility {
                 WHERE   ra.contextid = :contextid
                 AND     r.id = ra.roleid
                 AND     r.archetype = :archetype';
-        $params = array('contextid' => $coursecontext->id, 'archetype' => 'student');
+        $params = ['contextid' => $coursecontext->id, 'archetype' => 'student'];
 
         global $DB;
         $studentrole = $DB->get_record_sql($sql, $params, 'id', MUST_EXIST);
@@ -528,7 +527,7 @@ class MoodleUtility {
         $debug && Logger::log($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; \$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
-        $params = array('blockname' => preg_replace('/^block_/', '', $blockname), 'parentcontextid' => $modulecontext->id);
+        $params = ['blockname' => \preg_replace('/^block_/', '', $blockname), 'parentcontextid' => $modulecontext->id];
         $debug && Logger::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
 
         // Z--.
@@ -583,7 +582,7 @@ class MoodleUtility {
         if (is_numeric($user)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
-            $cachekey = self::get_cache_key($fxn . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR));
+            $cachekey = self::get_cache_key($fxn . '_' . \json_encode($user, \JSON_PARTIAL_OUTPUT_ON_ERROR));
             if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && Logger::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
@@ -617,14 +616,14 @@ class MoodleUtility {
      * @param array $params Optional e.g ['courseid' => $courseid].
      * @return string User picture URL - it will not include fullname, size, img tag, or anything else.
      */
-    public static function get_user_picture(\stdClass $user, array $params = array()): string {
+    public static function get_user_picture(\stdClass $user, array $params = []): string {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . "::Started with \$user->id={$user->id}; \$params=" . serialize($params));
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = self::get_cache_key($fxn . '_' . json_encode($user, JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = self::get_cache_key($fxn . '_' . \json_encode($user, \JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -665,7 +664,7 @@ class MoodleUtility {
      */
     public static function get_user_last_access(int $userid, int $courseid): int {
         global $DB;
-        return $DB->get_field('user_lastaccess', 'timeaccess', array('courseid' => $courseid, 'userid' => $userid));
+        return $DB->get_field('user_lastaccess', 'timeaccess', ['courseid' => $courseid, 'userid' => $userid]);
     }
 
     /**
@@ -682,10 +681,10 @@ class MoodleUtility {
 
         global $DB;
         $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
-                array($courseidcleaned), \IGNORE_MISSING);
+                [$courseidcleaned], \IGNORE_MISSING);
 
         // Convert false to int 0.
-        return intval($lastaccess);
+        return \intval($lastaccess);
     }
 
     /**
@@ -696,7 +695,7 @@ class MoodleUtility {
      * @return bool true if the input $str is base64-encoded.
      */
     public static function is_base64(string $str): bool {
-        return !empty(clean_param($str, \PARAM_BASE64));
+        return !empty(\clean_param($str, \PARAM_BASE64));
     }
 
     /**

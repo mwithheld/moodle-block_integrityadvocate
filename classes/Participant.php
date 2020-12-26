@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 class ParticipantsCache {
 
@@ -107,7 +107,7 @@ class Participant {
      * @return bool True if this participant has a session override.
      */
     public function has_session_override(): bool {
-        if (!is_array($this->sessions) || empty($this->sessions)) {
+        if (!\is_array($this->sessions) || empty($this->sessions)) {
             return false;
         }
 
@@ -128,7 +128,7 @@ class Participant {
      * @return mixed Null if not found; else The newest Session matching the activity.
      */
     public function get_latest_module_session(int $activityid): ?Session {
-        if (!is_array($this->sessions) || empty($this->sessions) || $activityid < 0) {
+        if (!\is_array($this->sessions) || empty($this->sessions) || $activityid < 0) {
             return null;
         }
 
@@ -141,7 +141,7 @@ class Participant {
         // Choose the one with the newest in order of [end || start time].
         foreach ($this->sessions as $s) {
             // Only match the module's activityid (cmid).
-            if (intval($activityid) !== intval($s->activityid)) {
+            if (\intval($activityid) !== \intval($s->activityid)) {
                 continue;
             }
             if (($s->end > $latestsession->end) || ($s->start > $latestsession->start)) {

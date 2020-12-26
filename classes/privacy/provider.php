@@ -33,7 +33,7 @@ use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die();
+\defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 
@@ -233,7 +233,7 @@ class provider implements \core_privacy\local\metadata\provider,
             $blockcontext = $b->context;
             $parentcontext = $blockcontext->get_parent_context();
             // We only have data for IA blocks in modules.
-            if (intval($parentcontext->contextlevel) !== intval(CONTEXT_MODULE)) {
+            if (intval($parentcontext->contextlevel) !== \intval(CONTEXT_MODULE)) {
                 continue;
             }
             if (\is_enrolled($parentcontext, $userid)) {
@@ -336,7 +336,7 @@ class provider implements \core_privacy\local\metadata\provider,
         foreach ($participants as $p) {
             // Check the participant is one we should delete.
             if (isset($p->participantidentifier) && !empty($p->participantidentifier) &&
-                    (ia_u::is_empty($useridstodelete) || in_array($p->participantidentifier, $useridstodelete))
+                    (ia_u::is_empty($useridstodelete) || \in_array($p->participantidentifier, $useridstodelete))
             ) {
                 // Request participant data delete.
                 $useridentifier = $blockcontext->instanceid . '-' . $p->participantidentifier;
@@ -349,7 +349,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
             // Check the override user is one we should delete.
             if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) &&
-                    (ia_u::is_empty($useridstodelete) || in_array($p->overridelmsuserid, $useridstodelete))
+                    (ia_u::is_empty($useridstodelete) || \in_array($p->overridelmsuserid, $useridstodelete))
             ) {
                 $useridentifier = $blockcontext->instanceid . '-' . $p->overridelmsuserid;
                 // Request override instructor data delete.

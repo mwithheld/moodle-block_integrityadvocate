@@ -68,7 +68,7 @@ class block_integrityadvocate_observer {
 
         // Make sure this is a module-level event.
         // Note \core\event\user_graded events are contextlevel=50, but there are other events that should close the IA session.
-        $iscoursemodulechangeevent = ( $event->contextlevel === CONTEXT_MODULE && is_numeric($event->courseid) && $event->courseid != SITEID );
+        $iscoursemodulechangeevent = ( $event->contextlevel === CONTEXT_MODULE && \is_numeric($event->courseid) && $event->courseid != SITEID );
         if (!$iscoursemodulechangeevent) {
             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
             return false;

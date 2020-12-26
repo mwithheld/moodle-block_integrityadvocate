@@ -31,7 +31,7 @@ use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\Participant as ia_participant;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 /**
  * Functions for generating user-visible output.
@@ -80,12 +80,11 @@ class Output {
         }
 
         // Organize access to JS.
-        $jsmodule = array(
-            'name' => INTEGRITYADVOCATE_BLOCK_NAME,
+        $jsmodule = ['name' => INTEGRITYADVOCATE_BLOCK_NAME,
             'fullpath' => self::BLOCK_JS_PATH . '/module.js',
             'requires' => [],
             'strings' => [],
-        );
+        ];
 
         $blockinstance->page->requires->jquery_plugin('jquery');
         $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl], false, $jsmodule);
@@ -166,7 +165,7 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        $params = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid);
+        $params = ['instanceid' => $blockinstance->instance->id, 'courseid' => $courseid];
 
         // If we have a userid we must be a teacher looking at a user profile, so show the view user details button.
         if ($userid) {
@@ -188,7 +187,7 @@ class Output {
         }
 
         $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $params);
-        $options = array('class' => 'block_integrityadvocate_overview_btn_overview_user');
+        $options = ['class' => 'block_integrityadvocate_overview_btn_overview_user'];
 
         global $OUTPUT;
         $output = $OUTPUT->single_button($url, $label, 'get', $options);
@@ -223,7 +222,7 @@ class Output {
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
 
-        $params = array('instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid);
+        $params = ['instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid];
         if ($userid) {
             $debug && Logger::log($fxn . "::We have a \$userid={$userid} so label the button with view details");
             $params += ['userid' => $userid];
@@ -280,63 +279,6 @@ class Output {
     }
 
     /**
-     * Build the HTML for an icon wrapped in an anchor link.
-     * Adapted from lib/outputcomponents.php::get_primary_actions().
-     *
-     * @param string $pixpath Path under pix to the icon.
-     * @param string $nameprefix Prefix for class, id, and name attributes.
-     * @param string $name Lang string name AND the main part of the class, id, and name attributes.
-     * @param string $uniqueidsuffix If the anchor id attribute should have a unique identifier (like a userid number), put it here.  Default empty string.
-     * @return string The built HTML.
-     */
-    public static function add_icon(string $pixpath, string $nameprefix = '', string $name, string $uniqueidsuffix = ''): string {
-        global $OUTPUT;
-
-        // Add the save icon.
-        $label = \get_string($name);
-        $anchorattributes = array(
-            'class' => "{$nameprefix}_{$name}",
-            'title' => $label,
-            'aria-label' => $label
-        );
-        if ($uniqueidsuffix) {
-            $anchorattributes['id'] = "{$nameprefix}_{$name}" . ($uniqueidsuffix ? "-{$uniqueidsuffix}" : '');
-        }
-        $pixicon = $OUTPUT->render(new \pix_icon($pixpath, '', 'moodle', array('class' => ' iconsmall', 'title' => '')));
-        return \html_writer::span(\html_writer::link('#', $pixicon, $anchorattributes), "{$nameprefix}_{$name}_span {$nameprefix}_button");
-    }
-
-    /**
-     * Get the HTML showing the latest IA session status overall for a module.
-     * If there is a resubmiturl in the session data and the session is not overridden, output that link HTML.
-     *
-     * @param \context $modulecontext The module context to look in.
-     * @param int $userid The user id to get the status for.
-     * @param string $prefix CSS prefix to add to the HTML.
-     * @return string HTML showing the latest IA status overall.
-     */
-    public static function get_module_status_html(\context $modulecontext, int $userid, string $prefix): string {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$modulecontext->instanceid=" . $modulecontext->instanceid . "; \$userid={$userid}; \$prefix={$prefix}";
-        $debug && Logger::log($debugvars);
-
-        $status = ia_api::get_module_status($modulecontext, $userid);
-        $statushtml = self::get_status_html($status, $prefix);
-
-        if ($status == ia_status::INVALID_ID_INT) {
-            $latestsession = ia_api::get_module_session_latest($modulecontext, $userid);
-            if (!ia_u::is_empty($latestsession) && !$latestsession->has_override() && $latestsession->resubmiturl) {
-                // The user is allowed to re-submit their identity stuff, so build a link to show.
-                $debug && Logger::log($fxn . '::Status is INVALID_ID; got $resubmiturl=' . $latestsession->resubmiturl);
-                $statushtml .= self::get_resubmit_html($latestsession->resubmiturl, $prefix);
-            }
-        }
-
-        return $statushtml;
-    }
-
-    /**
      * Get HTML for a link to re-submit to IA.
      * @param string $resubmiturl
      * @param string $prefix
@@ -344,7 +286,7 @@ class Output {
      */
     public static function get_resubmit_html(string $resubmiturl, string $prefix): string {
         return \html_writer::span(
-                        format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', INTEGRITYADVOCATE_BLOCK_NAME), array('target' => '_blank')), FORMAT_HTML),
+                        \format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', \INTEGRITYADVOCATE_BLOCK_NAME), ['target' => '_blank']), \FORMAT_HTML),
                         $prefix . '_resubmit_link');
     }
 
@@ -463,22 +405,22 @@ class Output {
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $outarr = [];
-        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_div'));
-        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_text'));
+        $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_div']);
+        $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_text']);
 
         if ($showstatus) {
-            $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_status')) .
+            $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_status']) .
                     \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                     self::get_status_html($status, $prefix) .
                     \html_writer::end_tag('div');
         }
 
-        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_start')) .
+        $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_start']) .
                 \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                 ($start ? \userdate($start) : '') .
                 \html_writer::end_tag('div');
 
-        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_overview_participant_summary_end')) .
+        $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_end']) .
                 \html_writer::span(\get_string('last_modified', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
                 ($end ? \userdate($end) : '') .
                 \html_writer::end_tag('div');
@@ -520,11 +462,11 @@ class Output {
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant';
         $outarr = [];
-        $outarr[] = \html_writer::start_tag('div', array('class' => $prefix . '_summary_img_div'));
+        $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_summary_img_div']);
         if ($photo) {
             $outarr[] = \html_writer::start_tag('span',
-                            array('class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' .
-                                ($status === ia_status::VALID_INT ? '' : 'in') . 'valid')
+                            ['class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' .
+                                ($status === ia_status::VALID_INT ? '' : 'in') . 'valid']
                     ) .
                     \html_writer::img($photo, $email) .
                     \html_writer::end_tag('span');

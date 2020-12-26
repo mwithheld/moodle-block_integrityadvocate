@@ -28,7 +28,7 @@ use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 /**
  * Class representing a status value along with helper functions.
@@ -142,9 +142,7 @@ class Status {
      * @return array<int=string> of overridable statuses
      */
     public static function get_inprogress(): array {
-        return array(
-            self::INPROGRESS_INT => self::get_status_lang(self::INPROGRESS_INT),
-        );
+        return [self::INPROGRESS_INT => self::get_status_lang(self::INPROGRESS_INT),];
     }
 
     /**
@@ -154,11 +152,10 @@ class Status {
      * @return array<int=string> of overridable statuses
      */
     public static function get_invalids(): array {
-        return array(
-            self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
+        return [self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
             self::INVALID_ID_INT => self::get_status_lang(self::INVALID_ID_INT),
             self::INVALID_RULES_INT => self::get_status_lang(self::INVALID_RULES_INT),
-        );
+        ];
     }
 
     /**
@@ -169,10 +166,9 @@ class Status {
      * @return array<int=string> of overridable statuses
      */
     public static function get_overrides(): array {
-        return array(
-            self::VALID_INT => self::get_status_lang(self::VALID_INT),
+        return [self::VALID_INT => self::get_status_lang(self::VALID_INT),
             self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
-        );
+        ];
     }
 
     /**
@@ -182,9 +178,7 @@ class Status {
      * @return array<int=string> of valid statuses
      */
     public static function get_valids(): array {
-        return array(
-            self::VALID_INT => self::get_status_lang(self::VALID_INT),
-        );
+        return [self::VALID_INT => self::get_status_lang(self::VALID_INT),];
     }
 
     /**
@@ -266,7 +260,7 @@ class Status {
      * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_override_status(int $statusint): bool {
-        return in_array($statusint, array_keys(self::get_overrides()));
+        return \in_array($statusint, \array_keys(self::get_overrides()));
     }
 
     /**
@@ -276,7 +270,7 @@ class Status {
      * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_valid_status(int $statusint): bool {
-        return in_array($statusint, array_keys(self::get_valids()));
+        return \in_array($statusint, \array_keys(self::get_valids()));
     }
 
     /**
@@ -286,7 +280,7 @@ class Status {
      * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_invalid_status(int $statusint): bool {
-        return in_array($statusint, array_keys(self::get_invalids()));
+        return \in_array($statusint, \array_keys(self::get_invalids()));
     }
 
     /**
@@ -299,10 +293,10 @@ class Status {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with \$statusint={$statusint}");
-        $statusints = array_keys(self::get_statuses());
+        $statusints = \array_keys(self::get_statuses());
         $debug && Logger::log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
 
-        $returnthis = in_array($statusint, $statusints, true);
+        $returnthis = \in_array($statusint, $statusints, true);
         $debug && Logger::log($fxn . "::About to return \$returnthis=$returnthis");
         return $returnthis;
     }

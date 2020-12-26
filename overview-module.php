@@ -24,19 +24,17 @@
 
 namespace block_integrityadvocate;
 
-use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
-use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 // Security check - this file must be included from overview.php.
-defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
+\defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
-$debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . basename(__FILE__));
+$debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . \basename(__FILE__));
 $debug && Logger::log(__FILE__ . '::Started with $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER;
@@ -56,7 +54,7 @@ switch (true) {
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
         $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
         break;
-    case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
+    case(\intval(ia_mu::get_courseid_from_cmid($moduleid)) !== \intval($courseid)):
         throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
     case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1])):
         // The above line throws an error if $overrideuserid cannot access the module.
@@ -80,76 +78,68 @@ echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . 
 echo $PAGE->get_renderer('core', 'course')->course_section_cm_name_title($cm);
 echo \html_writer::end_tag('div');
 
-switch (true) {
-    case(FeatureControl::OVERVIEW_MODULE_LTI):
-        $debug && Logger::log(__FILE__ . '::Request is for OVERVIEW_MODULE_LTI');
-        /**
-         * Code here is adapted from https://gist.github.com/matthanger/1171921 .
-         */
-        $launch_url = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participants';
+/**
+ * Code here is adapted from https://gist.github.com/matthanger/1171921 .
+ */
+$launch_url = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participants';
 
-        $launch_data = [
-            // Required for Moodle oauth_helper.
-            'api_root' => $launch_url,
-            // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
-            'launch_presentation_locale' => \current_language(),
-            // 2020Dec: roles appears to be unused. 0 = admin; 3=learner.
-            'roles' => 0,
-            // This should always be 1.
-            'resource_link_id' => '1',
-            // Who is requesting this info?.
-            'user_id' => $USER->id,
-            'lis_person_contact_email_primary' => $USER->email,
-            'lis_person_name_family' => $USER->lastname,
-            'lis_person_name_full' => \fullname($USER),
-            'lis_person_name_given' => $USER->firstname,
-            'lis_person_sourcedid' => $USER->id,
-            // Extra info to help identify this request to the remote side.  2020Dec: They appear to be unused.
-            'tool_consumer_instance_description' => "site={$CFG->wwwroot}; course={$courseid}; blockinstanceid={$blockinstanceid}; moduleid={$moduleid}",
-            'tool_consumer_instance_guid' => $blockinstanceid,
-            'tool_consumer_blockversion' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'),
-            // LTI setup.
-            'lti_message_type' => 'basic-lti-launch-request',
-            'lti_version' => 'LTI-1p0',
-            // OAuth 1.0 setup.
-            'oauth_callback' => 'about:blank',
-            'oauth_consumer_key' => $blockinstance->config->appid,
-            'oauth_consumer_secret' => $blockinstance->config->apikey,
-            'oauth_nonce' => \uniqid('', true),
-            'oauth_signature_method' => 'HMAC-SHA1',
-            'oauth_timestamp' => (new \DateTime())->getTimestamp(),
-            'oauth_version' => '1.0',
-            // Context info.
-            'context_id' => $courseid,
-            'context_label' => $COURSE->shortname,
-            'context_title' => $COURSE->fullname,
-        ];
+$launch_data = [
+    // Required for Moodle oauth_helper.
+    'api_root' => $launch_url,
+    // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
+    'launch_presentation_locale' => \current_language(),
+    // 2020Dec: roles appears to be unused. 0 = admin; 3=learner.
+    'roles' => 0,
+    // This should always be 1.
+    'resource_link_id' => '1',
+    // Who is requesting this info?.
+    'user_id' => $USER->id,
+    'lis_person_contact_email_primary' => $USER->email,
+    'lis_person_name_family' => $USER->lastname,
+    'lis_person_name_full' => \fullname($USER),
+    'lis_person_name_given' => $USER->firstname,
+    'lis_person_sourcedid' => $USER->id,
+    // Extra info to help identify this request to the remote side.  2020Dec: They appear to be unused.
+    'tool_consumer_instance_description' => "site={$CFG->wwwroot}; course={$courseid}; blockinstanceid={$blockinstanceid}; moduleid={$moduleid}",
+    'tool_consumer_instance_guid' => $blockinstanceid,
+    'tool_consumer_blockversion' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'),
+    // LTI setup.
+    'lti_message_type' => 'basic-lti-launch-request',
+    'lti_version' => 'LTI-1p0',
+    // OAuth 1.0 setup.
+    'oauth_callback' => 'about:blank',
+    'oauth_consumer_key' => $blockinstance->config->appid,
+    'oauth_consumer_secret' => $blockinstance->config->apikey,
+    'oauth_nonce' => \uniqid('', true),
+    'oauth_signature_method' => 'HMAC-SHA1',
+    'oauth_timestamp' => (new \DateTime())->getTimestamp(),
+    'oauth_version' => '1.0',
+    // Context info.
+    'context_id' => $courseid,
+    'context_label' => $COURSE->shortname,
+    'context_title' => $COURSE->fullname,
+];
 
-        // Setup the LTI UI for one specific module.
-        $m = null;
-        foreach ($modules as $key => $thismodule) {
-            if (intval($thismodule['id']) === intval($moduleid)) {
-                $m = $modules[$key];
-                break;
-            }
-        }
-        if (ia_u::is_empty($m)) {
-            $msg = 'This module is not an IA module';
-            $debug && Logger::log(__FILE__ . "::{$msg}");
-            throw new \InvalidArgumentException($msg);
-        }
-
-        $custom_activities = [(object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']]];
-        $launch_data['custom_activities'] = json_encode($custom_activities, JSON_PARTIAL_OUTPUT_ON_ERROR);
-
-        // We only need launch the LTI.
-        // The request is signed using OAuth Core 1.0 spec: http://oauth.net/core/1.0/ .
-        // Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
-        require_once($CFG->libdir . '/oauthlib.php');
-        $signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, urlencode($blockinstance->config->apikey) . '&');
-        echo ia_output::get_lti_iframe_html($launch_url, $launch_data, $signature);
+// Setup the LTI UI for one specific module.
+$m = null;
+foreach ($modules as $key => $thismodule) {
+    if (\intval($thismodule['id']) === \intval($moduleid)) {
+        $m = $modules[$key];
         break;
-
-    default:
-        throw new \Exception('This feature is disabled');
+    }
 }
+if (ia_u::is_empty($m)) {
+    $msg = 'This module is not an IA module';
+    $debug && Logger::log(__FILE__ . "::{$msg}");
+    throw new \InvalidArgumentException($msg);
+}
+
+$custom_activities = [(object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']]];
+$launch_data['custom_activities'] = \json_encode($custom_activities, \JSON_PARTIAL_OUTPUT_ON_ERROR);
+
+// We only need launch the LTI.
+// The request is signed using OAuth Core 1.0 spec: http://oauth.net/core/1.0/ .
+// Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
+require_once($CFG->libdir . '/oauthlib.php');
+$signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, \urlencode($blockinstance->config->apikey) . '&');
+echo ia_output::get_lti_iframe_html($launch_url, $launch_data, $signature);

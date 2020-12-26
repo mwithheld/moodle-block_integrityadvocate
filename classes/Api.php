@@ -30,7 +30,7 @@ use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\Participant as ia_participant;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 /**
  * Functions to interact with the IntegrityAdvocate API.
@@ -54,7 +54,7 @@ class Api {
     private const ENDPOINT_PARTICIPANTSESSIONS = '/course/courseid/participantsessions';
 
     /** @var [string] List of valid endpoints so we can validate calls. */
-    private const ENDPOINTS = array(self::ENDPOINT_PARTICIPANT, self::ENDPOINT_PARTICIPANTS, self::ENDPOINT_PARTICIPANTSESSIONS);
+    private const ENDPOINTS = [self::ENDPOINT_PARTICIPANT, self::ENDPOINT_PARTICIPANTS, self::ENDPOINT_PARTICIPANTSESSIONS];
 
     /** @var int The API returns 10 results max per call by default, but our UI shows 20 users per page.  Set the number we want per UI page here. Ref https://integrityadvocate.com/developers. */
     // Unused at the moment: const RESULTS_PERPAGE = 20;.
@@ -86,18 +86,17 @@ class Api {
         $debug && Logger::log($debugvars);
 
         $curl = new \curl();
-        $curl->setopt(array(
-            'CURLOPT_CERTINFO' => 1,
+        $curl->setopt(['CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0
-        ));
+        ]);
         $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_PING;
         $response = $curl->get($requesturi);
 
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = intval($responseinfo['http_code']);
+        $responsecode = \intval($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
@@ -128,7 +127,7 @@ class Api {
         }
 
         if (FeatureControl::SESSION_STARTED_TRACKING) {
-            if (!ia_mu::nonce_validate(implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid]), true)) {
+            if (!ia_mu::nonce_validate(\implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid]), true)) {
                 $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Found no session_started value - do not close the session');
                 return false;
             } else {
@@ -139,14 +138,13 @@ class Api {
 
         // Do not cache these requests.
         $curl = new \curl();
-        $curl->setopt(array(
-            'CURLOPT_CERTINFO' => 1,
+        $curl->setopt(['CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0
-        ));
+        ]);
         $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_CLOSE_SESSION . '?' .
-                'appid=' . urlencode($appid) .
+                'appid=' . \urlencode($appid) .
                 '&participantidentifier=' . $userid .
                 '&courseid=' . $courseid .
                 '&activityid=' . $moduleid;
@@ -154,14 +152,14 @@ class Api {
 
         $responseinfo = $curl->get_info();
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = intval($responseinfo['http_code']);
+        $responsecode = \intval($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
-        $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
+        $debug && Logger::log($fxn . '::Sent url=' . \var_export($requesturi, true) . '; http_code=' . \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
 
-        $success = in_array($responsecode, array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
+        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
         if (!$success) {
-            $msg = $fxn . '::Request to the IA server failed: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
         }
         return $success;
@@ -208,7 +206,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $endpoint, $appid]) . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $endpoint, $appid]) . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -229,30 +227,29 @@ class Api {
         $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
         // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
-        $curl = new \curl(array('cache' => false));
-        $curl->setopt(array(
-            'CURLOPT_CERTINFO' => 1,
+        $curl = new \curl(['cache' => false]);
+        $curl->setopt(['CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_RETURNTRANSFER' => 1,
             'CURLOPT_SSL_VERIFYPEER' => 1,
-        ));
+        ]);
 
-        $header = implode(':', ["Authorization: amx {$appid}", $requestsignature, $nonce, $requesttimestamp]);
+        $header = \implode(':', ["Authorization: amx {$appid}", $requestsignature, $nonce, $requesttimestamp]);
         $curl->setHeader($header);
-        $curl->setHeader('X-IntegrityAdvocate-Blockversion:' . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
+        $curl->setHeader('X-IntegrityAdvocate-Blockversion:' . \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
         $curl->setHeader("X-IntegrityAdvocate-Appid:{$appid}");
         $curl->setHeader("X-IntegrityAdvocate-Blockinstanceid:{$blockinstanceid}");
         $debug && Logger::log($fxn . '::Set $header=' . $header);
 
         $response = $curl->get($requesturi);
 
-        $responseparsed = json_decode($response);
+        $responseparsed = \json_decode($response);
         $responseinfo = $curl->get_info();
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = intval($responseinfo['http_code']);
+        $responsecode = \intval($responseinfo['http_code']);
 
         $debug && Logger::log($fxn .
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
@@ -260,7 +257,7 @@ class Api {
                         '; $response=' . ia_u::var_dump($response, true) .
                         '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
-        $success = in_array($responsecode, array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
+        $success = \in_array($responsecode, array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed on: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
@@ -290,15 +287,14 @@ class Api {
      */
     public static function get_js_url(string $appid, int $courseid, int $cmid, \stdClass $user): \moodle_url {
         return new \moodle_url(INTEGRITYADVOCATE_BASEURL_API . '/participants/integrity',
-                array(
-            'appid' => $appid,
+                ['appid' => $appid,
             'courseid' => $courseid,
             'activityid' => $cmid,
             'participantidentifier' => $user->id,
             'participantfirstname' => $user->firstname,
             'participantlastname' => $user->lastname,
             'participantemail' => $user->email,
-                )
+                ]
         );
     }
 
@@ -362,7 +358,7 @@ class Api {
         }
 
         // This gets a json-decoded object of the IA API curl result.
-        $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, array('courseid' => $courseid, 'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid));
+        $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, ['courseid' => $courseid, 'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid]);
         $debug && Logger::log($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
         if (ia_u::is_empty($participantraw) || !($participantraw instanceof \stdClass)) {
             $debug && Logger::log($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -405,7 +401,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $debugvars]));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $debugvars]));
         if (FeatureControl::CACHE && $participantscached = $cache->get($cachekey) && isset($participantscached->modified) && $participantscached->modified > 0) {
             // We have a cached participants set, so get only those modified after the modified timestamp.
             $params += ['lastmodified' => $participantscached->modified];
@@ -481,13 +477,13 @@ class Api {
     private static function get_participants_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
+        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
         $debug && Logger::log($debugvars);
 
         static $recursecountparticipants = 0;
         $debug && Logger::log($fxn . '::Started with $recursecountparticipants=' . $recursecountparticipants);
         if ($recursecountparticipants++ > self::RECURSEMAX) {
-            throw new \Exception($fxn . '::Maximum recursion limit reached: params=' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+            throw new \Exception($fxn . '::Maximum recursion limit reached: params=' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
         }
 
         // Stop recursion when $result->NextToken = 'null'.
@@ -505,7 +501,7 @@ class Api {
         }
         // Make sure $params contains only valid parameters.
         foreach (array_keys($params) as $key) {
-            if (!\in_array($key, array('courseid', 'externaluserid', 'lastmodified'))) {
+            if (!\in_array($key, ['courseid', 'externaluserid', 'lastmodified'])) {
                 $msg = 'Input params are invalid';
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -522,7 +518,7 @@ class Api {
 
 //        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
 //        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-//        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__]) . json_encode($result, JSON_PARTIAL_OUTPUT_ON_ERROR));
+//        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__]) . \json_encode($result, \JSON_PARTIAL_OUTPUT_ON_ERROR));
 //        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
 //            $debug && Logger::log($fxn . '::Found a cached value, so return that');
 //            return $cachedvalue;
@@ -613,7 +609,7 @@ class Api {
                 $debug && Logger::log($fxn . '::Skip: This $participantsessionsraw entry is empty or invalid');
                 continue;
             }
-            if ($userid && intval($participantidentifier) !== intval($userid)) {
+            if ($userid && \intval($participantidentifier) !== \intval($userid)) {
                 $debug && Logger::log($fxn . "::Skip: This \$participantidentifier={$participantidentifier} does not match the \$userid={$userid}");
                 continue;
             }
@@ -626,13 +622,13 @@ class Api {
                     case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
                         $debug && Logger::log($fxn . "::Moodle has no user matching user->id={$participantidentifier}");
                         continue 2;
-                    case(!isset($pr->Course_Id) || \intval($pr->Course_Id) !== intval($courseid)):
+                    case(!isset($pr->Course_Id) || \intval($pr->Course_Id) !== \intval($courseid)):
                         $debug && Logger::log($fxn . "::The participant Course_Id={$pr->Course_Id} is invalid or does not match this Moodle course={$courseid}");
                         continue 2;
-                    case(!isset($pr->Activity_Id) || \intval($pr->Activity_Id) !== intval($moduleid)):
+                    case(!isset($pr->Activity_Id) || \intval($pr->Activity_Id) !== \intval($moduleid)):
                         $debug && Logger::log($fxn . "::The participant Activity_Id={$pr->Activity_Id} is invalid or does not match this Moodle moduleid={$moduleid}");
                         continue 2;
-                    case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== intval($courseid)):
+                    case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== \intval($courseid)):
                         $debug && Logger::log($fxn . "::The moduleid={$moduleid} is not part of the course with id={$courseid}");
                         continue 2;
                     case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the participant cannot access the module */)[1])):
@@ -689,13 +685,13 @@ class Api {
     private static function get_participantsessions_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
+        $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
         $debug && Logger::log($debugvars);
 
         static $recursecountparticipantsessions = 0;
         $debug && Logger::log($fxn . '::Started with $recursecountparticipantsessions=' . $recursecountparticipantsessions);
         if ($recursecountparticipantsessions++ > self::RECURSEMAX) {
-            throw new \Exception($fxn . '::Maximum recursion limit reached: params=' . json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR));
+            throw new \Exception($fxn . '::Maximum recursion limit reached: params=' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
         }
 
         // Stop recursion when $result->NextToken = 'null'.
@@ -716,7 +712,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
         foreach (\array_keys($params) as $key) {
-            if (!in_array($key, array('courseid', 'activityid', 'participantidentifier', 'limit', 'backwardsearch'))) {
+            if (!\in_array($key, ['courseid', 'activityid', 'participantidentifier', 'limit', 'backwardsearch'])) {
                 $msg = "Input param {$key} is invalid";
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -992,7 +988,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__]) . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__]) . \json_encode($input, \JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -1060,7 +1056,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__]) . json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__]) . \json_encode($input, \JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -1136,7 +1132,7 @@ class Api {
 
         $debug && Logger::log($fxn . '::About to check of we have flags');
 
-        if (isset($input->Flags) && is_array($input->Flags)) {
+        if (isset($input->Flags) && \is_array($input->Flags)) {
             foreach ($input->Flags as $f) {
                 if (!ia_u::is_empty($flag = self::parse_flag($f))) {
                     $output->flags[] = $flag;
@@ -1181,7 +1177,7 @@ class Api {
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, json_encode($input, JSON_PARTIAL_OUTPUT_ON_ERROR)]));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, \json_encode($input, \JSON_PARTIAL_OUTPUT_ON_ERROR)]));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -1270,7 +1266,7 @@ class Api {
         // Handle sessions data.
         $output->sessions = [];
         $time = \time();
-        if (isset($input->Sessions) && is_array($input->Sessions)) {
+        if (isset($input->Sessions) && \is_array($input->Sessions)) {
             $debug && Logger::log($fxn . '::Found some sessions to look at');
             foreach ($input->Sessions as $s) {
                 if (!ia_u::is_empty($session = self::parse_session($s, $output))) {
@@ -1320,29 +1316,25 @@ class Api {
         // For each endpoint, specify what the accepted params are and their types.
         switch ($endpoint) {
             case self::ENDPOINT_PARTICIPANT:
-                $validparams = array(
-                    'participantidentifier' => \PARAM_INT,
+                $validparams = ['participantidentifier' => \PARAM_INT,
                     'courseid' => \PARAM_INT
-                );
+                ];
                 // All params are required.
-                $requiredparams = array_keys($validparams);
+                $requiredparams = \array_keys($validparams);
                 break;
             case self::ENDPOINT_PARTICIPANTS:
-                $validparams = array(
-                    // PARAM_ALPHA b/c we need to send the string "true" or "false".
-                    'backwardsearch' => \PARAM_ALPHA,
+                $validparams = ['backwardsearch' => \PARAM_ALPHA,
                     'courseid' => \PARAM_INT,
                     'lastmodified' => \PARAM_INT,
                     'limit' => \PARAM_INT,
                     'nexttoken' => \PARAM_TEXT,
                     'status' => \PARAM_TEXT,
                     'externaluserid' => \PARAM_INT,
-                );
-                $requiredparams = array('courseid');
+                ];
+                $requiredparams = ['courseid'];
                 break;
             case self::ENDPOINT_PARTICIPANTSESSIONS:
-                $validparams = array(
-                    'activityid' => \PARAM_INT,
+                $validparams = ['activityid' => \PARAM_INT,
                     // PARAM_ALPHA b/c we need to send the string "true" or "false".
                     'backwardsearch' => \PARAM_ALPHA,
                     'courseid' => \PARAM_INT,
@@ -1351,8 +1343,8 @@ class Api {
                     'nexttoken' => \PARAM_TEXT,
                     'participantidentifier' => \PARAM_INT,
                     'status' => \PARAM_TEXT,
-                );
-                $requiredparams = array('activityid', 'courseid');
+                ];
+                $requiredparams = ['activityid', 'courseid'];
                 break;
             default:
                 throw new \InvalidArgumentException("Unhandled endpoint={$endpoint}");
@@ -1360,8 +1352,8 @@ class Api {
 
         // If there are params missing $requiredparams[] list, throw an exception.
         // Compare the incoming keys in $params vs the list of required params (the values of that array).
-        if ($missingparams = array_diff($requiredparams, array_keys($params))) {
-            $msg = 'The ' . $endpoint . ' endpoint requires params=' . implode(', ', $missingparams) . '; got params=' . implode(', ', array_keys($params));
+        if ($missingparams = array_diff($requiredparams, \array_keys($params))) {
+            $msg = 'The ' . $endpoint . ' endpoint requires params=' . \implode(', ', $missingparams) . '; got params=' . \implode(', ', \array_keys($params));
             Logger::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
         }
@@ -1369,7 +1361,7 @@ class Api {
         // If there are params specified that are not in the $validparams[] list, they are invalid params.
         // Use array_diff_key: Returns an array containing all the entries from array1 whose keys are absent from all of the other arrays.
         if ($extraparams = array_diff_key($params, $validparams)) {
-            $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . implode(', ', array_keys($extraparams)) . '; got params=' . implode(', ', array_keys($params));
+            $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . \implode(', ', \array_keys($extraparams)) . '; got params=' . \implode(', ', \array_keys($params));
             Logger::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
         }

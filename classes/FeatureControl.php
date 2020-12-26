@@ -24,7 +24,7 @@
 
 namespace block_integrityadvocate;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 /**
  * Feature control: Enable/disable features easily.

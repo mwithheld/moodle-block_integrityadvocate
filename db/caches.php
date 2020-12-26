@@ -39,14 +39,14 @@ $definitions = array(
         'staticacceleration' => true,
         'canuselocalstore' => true,
     ),
-    'untilcourseenrolmentchanges' => array(
-        'mode' => cache_store::MODE_SESSION,
-        'simplekeys' => true,
-        'simpledata' => true,
-        'staticacceleration' => true,
-        'canuselocalstore' => true,
-        // Does not clear this cache: Suspending a user.
-        // Clears this cache: Unenrolling a user.
-        'invalidationevents' => ['\core\event\enrol_instance_updated', '\core\event\user_enrolment_updated'],
-    ),
+//    'untilcourseenrolmentchanges' => array(
+//        'mode' => cache_store::MODE_SESSION,
+//        'simplekeys' => true,
+//        'simpledata' => true,
+//        'staticacceleration' => true,
+//        'canuselocalstore' => true,
+//        // Does not clear this cache: Suspending a user.
+//        // Clears this cache: Unenrolling a user.
+//        'invalidationevents' => ['\core\event\enrol_instance_updated', '\core\event\user_enrolment_updated'],
+//    ),
 );
