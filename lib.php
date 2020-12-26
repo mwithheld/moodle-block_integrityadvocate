@@ -30,9 +30,9 @@ use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
-$blockintegrityadvocatewwwroot = dirname(__FILE__, 3);
+$blockintegrityadvocatewwwroot = \dirname(__FILE__, 3);
 require_once($blockintegrityadvocatewwwroot . '/user/lib.php');
 require_once($blockintegrityadvocatewwwroot . '/lib/filelib.php');
 require_once($blockintegrityadvocatewwwroot . '/lib/completionlib.php');
@@ -174,7 +174,7 @@ function block_integrityadvocate_get_course_sessions(string $apikey, string $app
         // Get participant sessions for all users.
         $modulesessions = ia_api::get_participantsessions($apikey, $appid, $courseid, $m['id']);
         $debug && Logger::log($fxn . '::Got $modulesessions=' . ia_u::var_dump($modulesessions));
-        $participantsessions = array_merge($participantsessions, $modulesessions);
+        $participantsessions = \array_merge($participantsessions, $modulesessions);
     }
 
     $debug && Logger::log($fxn . '::About to return $participantsessions=' . ia_u::var_dump($participantsessions));
@@ -221,7 +221,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
     // Sort each participant's sessions.
     foreach ($participants as &$p) {
         $debug && Logger::log($fxn . "::Find latest session: Looking at \$p->participantidentifier={$p->participantidentifier}");
-        usort($p->sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
+        \usort($p->sessions, array('\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc'));
     }
 
     $debug && Logger::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants));

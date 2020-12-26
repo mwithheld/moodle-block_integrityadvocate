@@ -54,7 +54,7 @@ switch (true) {
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
         $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
         break;
-    case(\intval(ia_mu::get_courseid_from_cmid($moduleid)) !== \intval($courseid)):
+    case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
         throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
     case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1])):
         // The above line throws an error if $overrideuserid cannot access the module.
@@ -123,7 +123,7 @@ $launch_data = [
 // Setup the LTI UI for one specific module.
 $m = null;
 foreach ($modules as $key => $thismodule) {
-    if (\intval($thismodule['id']) === \intval($moduleid)) {
+    if ((int) ($thismodule['id']) === (int) $moduleid) {
         $m = $modules[$key];
         break;
     }

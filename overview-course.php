@@ -33,7 +33,7 @@ use block_integrityadvocate\Output as ia_output;
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
 $debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . \basename(__FILE__));
-$debug && Logger::log(basename(__FILE__) . "::Started with courseid={$courseid}");
+$debug && Logger::log(\basename(__FILE__) . "::Started with courseid={$courseid}");
 
 // Check all requirements.
 switch (true) {
@@ -95,11 +95,11 @@ $custom_activities = [];
 foreach ($modules as $m) {
     $custom_activities[] = (object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']];
 }
-$launch_data['custom_activities'] = json_encode($custom_activities, JSON_PARTIAL_OUTPUT_ON_ERROR);
+$launch_data['custom_activities'] = \json_encode($custom_activities, \JSON_PARTIAL_OUTPUT_ON_ERROR);
 
 // We only need launch the LTI.
 // The request is signed using OAuth Core 1.0 spec: http://oauth.net/core/1.0/ .
 // Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
 require_once($CFG->libdir . '/oauthlib.php');
-$signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, urlencode($blockinstance->config->apikey) . '&');
+$signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, \urlencode($blockinstance->config->apikey) . '&');
 echo ia_output::get_lti_iframe_html($launch_url, $launch_data, $signature);

@@ -57,7 +57,7 @@ if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     }
 } else if (\is_enrolled($parentcontext, $userid, 'block/integrityadvocate:selfview', true)) {
     // For Students to view their own stuff.
-    if (\intval($USER->id) !== $userid) {
+    if ((int) ($USER->id) !== $userid) {
         throw new \Exception("You cannot view other users: \$USER->id={$USER->id}; \$userid={$userid}");
     }
 } else {

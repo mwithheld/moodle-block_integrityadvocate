@@ -25,7 +25,7 @@ use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 
@@ -48,7 +48,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      */
     protected function specific_definition($mform) {
         if (!($mform instanceof MoodleQuickForm)) {
-            throw new InvalidArgumentException('$mform must be an instance of MoodleQuickForm and it appears to be a ' . gettype($mform));
+            throw new InvalidArgumentException('$mform must be an instance of MoodleQuickForm and it appears to be a ' . \gettype($mform));
         }
 
         // Start block specific section in config form.
@@ -112,8 +112,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $unused): array {
-        if (!is_array($data)) {
-            throw new InvalidArgumentException('$data must be an array and it appears to be a ' . gettype($data));
+        if (!\is_array($data)) {
+            throw new InvalidArgumentException('$data must be an array and it appears to be a ' . \gettype($data));
         }
 
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -123,7 +123,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $errors = [];
 
         if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {
-            $data['config_appid'] = rtrim(ltrim(trim($data['config_appid']), '{'), '}');
+            $data['config_appid'] = \rtrim(\ltrim(\trim($data['config_appid']), '{'), '}');
             $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
         return $errors;

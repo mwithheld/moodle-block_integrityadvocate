@@ -28,7 +28,7 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 require_once(__DIR__ . '/lib.php');
 
@@ -98,7 +98,7 @@ class block_integrityadvocate extends block_base {
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $debug && Logger::log($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
             global $DB;
-            $record = $DB->get_record('quiz', ['id' => intval($cm->instance)], '*', \MUST_EXIST);
+            $record = $DB->get_record('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
             $debug && Logger::log($fxn . '::Got record=' . ia_u::var_dump($record, true));
             if ($record->showblocks < 1) {
                 $record->showblocks = 1;
@@ -119,7 +119,7 @@ class block_integrityadvocate extends block_base {
      * @return bool
      */
     public function specialization() {
-        if (isset($this->config->progressTitle) && trim($this->config->progressTitle) != '') {
+        if (isset($this->config->progressTitle) && \trim($this->config->progressTitle) != '') {
             $this->title = \format_string($this->config->progressTitle);
         }
     }
@@ -372,7 +372,7 @@ class block_integrityadvocate extends block_base {
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
-        if (is_object($this->content) && isset($this->content->text) && !empty(trim($this->content->text))) {
+        if (\is_object($this->content) && isset($this->content->text) && !empty(\trim($this->content->text))) {
             return;
         }
 
@@ -433,7 +433,7 @@ class block_integrityadvocate extends block_base {
 
             // Error output is visible only to instructors.
             if ($hascapability_overview) {
-                $this->content->text .= implode(ia_output::BRNL, $configerrors);
+                $this->content->text .= \implode(ia_output::BRNL, $configerrors);
             }
             return;
         }
@@ -626,10 +626,10 @@ class block_integrityadvocate extends block_base {
      * @return bool True if the block is configured to be visible.
      */
     public function is_visible(): bool {
-        if (property_exists($this, 'visible') && isset($this->visible) && is_bool($this->visible)) {
+        if (\property_exists($this, 'visible') && isset($this->visible) && \is_bool($this->visible)) {
             return $this->visible;
         }
-        if (property_exists($this->instance, 'visible') && isset($this->instance->visible) && is_bool($this->instance->visible)) {
+        if (\property_exists($this->instance, 'visible') && isset($this->instance->visible) && \is_bool($this->instance->visible)) {
             return $this->instance->visible;
         }
 

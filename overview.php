@@ -35,7 +35,7 @@ use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
 // Include required files.
-require_once(dirname(__FILE__, 3) . '/config.php');
+require_once(\dirname(__FILE__, 3) . '/config.php');
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 require_once($CFG->dirroot . '/notes/lib.php');
 require_once($CFG->libdir . '/tablelib.php');
@@ -44,7 +44,7 @@ require_once($CFG->libdir . '/tablelib.php');
 const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 
 /** bool Flag to tell the overview-course.php and overview-user.php pages the include is legit. */
-define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
+\define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . \basename(__FILE__));
 
@@ -52,7 +52,7 @@ if ($debug) {
     // Suppress debug notice that we have not done PAGE->set_url().
     $debugbackup = $CFG->debug;
     $CFG->debug = null;
-    Logger::log(basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
+    Logger::log(\basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
     $CFG->debug = $debugbackup;
 }
 
@@ -137,7 +137,7 @@ $debug && Logger::log('Build params=' . ia_u::var_dump($params));
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
-    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . var_export($blockinstance, true) . '; context=' . var_export($blockcontext, true));
+    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" . \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext, true));
 }
 
 // Set up page parameters.
@@ -147,7 +147,7 @@ $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
-$title = \get_string(str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
+$title = \get_string(\str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
 $PAGE->set_title($title);
 $PAGE->set_pagelayout('report');
 
@@ -173,7 +173,7 @@ switch (true) {
         $debug && Logger::log(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
         if ($hascapability_overview) {
-            \core\notification::error(implode(ia_output::BRNL, $configerrors));
+            \core\notification::error(\implode(ia_output::BRNL, $configerrors));
         }
         break;
 
@@ -190,7 +190,7 @@ switch (true) {
         \core\notification::error($msg . ia_output::BRNL);
         break;
 
-    case (is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
+    case (\is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
         $msg = get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
         $debug && Logger::log(__FILE__ . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);

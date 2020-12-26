@@ -21,7 +21,7 @@
  * @copyright IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+\defined('MOODLE_INTERNAL') || die();
 
 // Ref https://docs.moodle.org/dev/Cache_API_-_Quick_reference#Invalidating_keys_from_a_cache .
 $definitions = array(

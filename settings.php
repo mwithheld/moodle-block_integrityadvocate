@@ -25,7 +25,7 @@ use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 
-defined('MOODLE_INTERNAL') || die;
+\defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
     $setting = new admin_setting_heading(INTEGRITYADVOCATE_BLOCK_NAME . '/config_loggingnote_heading', get_string('config_loggingnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_loggingnote_help', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -66,13 +66,13 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configtext(INTEGRITYADVOCATE_BLOCK_NAME . '/config_logfromtime',
             get_string('config_logfromtime', INTEGRITYADVOCATE_BLOCK_NAME),
             get_string('config_logfromtime_help', INTEGRITYADVOCATE_BLOCK_NAME),
-            time(), '/^0|([1-9][0-9]{9})$/');
+            \time(), '/^0|([1-9][0-9]{9})$/');
     $settings->add($setting);
 
     $setting = new admin_setting_heading(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo_heading', get_string('config_siteinfo', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_siteinfo_help', INTEGRITYADVOCATE_BLOCK_NAME));
     $settings->add($setting);
 
-    if (!function_exists('block_integrityadvocate_get_siteinfo')) {
+    if (!\function_exists('block_integrityadvocate_get_siteinfo')) {
 
         /**
          * Get site info.  Use caching b/c Moodle will call this function twice per page display.
@@ -85,7 +85,7 @@ if ($ADMIN->fulltree) {
 
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make(INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-            $cachekey = ia_mu::get_cache_key(implode('_', [__FILE__, __FUNCTION__]));
+            $cachekey = ia_mu::get_cache_key(\implode('_', [__FILE__, __FUNCTION__]));
             if (block_integrityadvocate\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
                 $debug && Logger::log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
@@ -93,14 +93,14 @@ if ($ADMIN->fulltree) {
 
             list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
 
-            $micro_date = microtime();
-            $date_array = explode(" ", $micro_date);
-            $date = date("Y-m-d H:i:s", $date_array[1]);
+            $micro_date = \microtime();
+            $date_array = \explode(" ", $micro_date);
+            $date = \date("Y-m-d H:i:s", $date_array[1]);
 
             $badfolders = ['/vendor/bin', '/.git'];
             foreach ($badfolders as $key => $folder) {
-                $debug && error_log('Looking at file_exists(' . __DIR__ . $folder . ')=' . file_exists(__DIR__ . $folder));
-                if (!file_exists(__DIR__ . $folder)) {
+                $debug && \error_log('Looking at file_exists(' . __DIR__ . $folder . ')=' . \file_exists(__DIR__ . $folder));
+                if (!\file_exists(__DIR__ . $folder)) {
                     unset($badfolders[$key]);
                 }
             }
@@ -115,12 +115,12 @@ if ($ADMIN->fulltree) {
             $siteinfo = [
                 'Timestamp' => "{$date}:{$date_array[0]}",
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
-                'PHP version' => phpversion(),
+                'PHP version' => \phpversion(),
                 'Moodle version' => moodle_major_version(),
-                'IA ping' => implode(ia_output::BRNL, ["ip=$remote_ip", "total time={$total_time}s", "response code={$http_reponsecode}", 'body=' . htmlentities(strip_tags($http_responsebody))]),
+                'IA ping' => \implode(ia_output::BRNL, ["ip=$remote_ip", "total time={$total_time}s", "response code={$http_reponsecode}", 'body=' . \htmlentities(\strip_tags($http_responsebody))]),
                 INTEGRITYADVOCATE_BLOCK_NAME . ' config' => '',
-                'Bad folders' => implode(ia_output::BRNL, $badfolders),
-                'Bad plugins' => implode(ia_output::BRNL, $badplugins),
+                'Bad folders' => \implode(ia_output::BRNL, $badfolders),
+                'Bad plugins' => \implode(ia_output::BRNL, $badplugins),
             ];
             foreach (get_config(INTEGRITYADVOCATE_BLOCK_NAME) as $key => $val) {
                 switch (true) {
@@ -128,14 +128,14 @@ if ($ADMIN->fulltree) {
                         // Do not bother outputting these - they are not useful.
                         continue 2;
                     case ($key === 'config_logforfunction'):
-                        $val = str_replace(',', ia_output::NL, $val);
+                        $val = \str_replace(',', ia_output::NL, $val);
                         break;
                     case ($key === 'config_logfromtime'):
-                        $val = "$val (" . date("Y-m-d H:i:s", $val) . ')';
+                        $val = "$val (" . \date("Y-m-d H:i:s", $val) . ')';
                         break;
                 }
 
-                $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= preg_replace('/^config_/', '', $key) . '=>' . ia_output::pre($val);
+                $siteinfo[INTEGRITYADVOCATE_BLOCK_NAME . ' config'] .= \preg_replace('/^config_/', '', $key) . '=>' . ia_output::pre($val);
             }
 
             // Format the site info into a pretty table.
