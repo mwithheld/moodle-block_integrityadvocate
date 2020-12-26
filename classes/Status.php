@@ -104,7 +104,7 @@ class Status {
                 $status = self::INVALID_RULES_INT;
                 break;
             default:
-                $error = 'Invalid participant review status value=' . serialize($statusstring);
+                $error = 'Invalid participant review status value=' . \serialize($statusstring);
                 Logger::log($error);
                 throw new \InvalidArgumentException($error);
         }
@@ -126,7 +126,7 @@ class Status {
             return $cachedvalue;
         }
 
-        $statuses = array_replace([self::NOTSTARTED_INT => self::get_status_lang(self::NOTSTARTED_INT)], self::get_inprogress(), self::get_valids(), self::get_invalids());
+        $statuses = \array_replace([self::NOTSTARTED_INT => self::get_status_lang(self::NOTSTARTED_INT)], self::get_inprogress(), self::get_valids(), self::get_invalids());
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $statuses)) {
             throw new \Exception('Failed to set value in the cache');

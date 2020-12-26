@@ -21,13 +21,13 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+\defined('MOODLE_INTERNAL') || die();
 
 /*
  * Polyfill functions
  */
-if (version_compare(phpversion(), '7.3.0', '<')) {
-    if (!function_exists('is_countable')) {
+if (\version_compare(\phpversion(), '7.3.0', '<')) {
+    if (!\function_exists('is_countable')) {
 
         /**
          * Polyfill for is_countable()
@@ -37,33 +37,33 @@ if (version_compare(phpversion(), '7.3.0', '<')) {
          * @return bool true if is countable.
          */
         function is_countable($var): bool {
-            return (is_array($var) || $var instanceof Countable);
+            return (\is_array($var) || $var instanceof Countable);
         }
 
     }
 }
-if (version_compare(phpversion(), '8', '<')) {
+if (\version_compare(\phpversion(), '8', '<')) {
 
-    if (!defined('FILTER_VALIDATE_BOOL') && defined('FILTER_VALIDATE_BOOLEAN')) {
-        define('FILTER_VALIDATE_BOOL', FILTER_VALIDATE_BOOLEAN);
+    if (!\defined('FILTER_VALIDATE_BOOL') && \defined('FILTER_VALIDATE_BOOLEAN')) {
+        \define('FILTER_VALIDATE_BOOL', \FILTER_VALIDATE_BOOLEAN);
     }
 
-    if (!function_exists('str_contains')) {
+    if (!\function_exists('str_contains')) {
 
         function str_contains(string $haystack, string $needle): bool {
-            return '' === $needle || false !== strpos($haystack, $needle);
+            return '' === $needle || false !== \strpos($haystack, $needle);
         }
 
     }
-    if (!function_exists('str_icontains')) {
+    if (!\function_exists('str_icontains')) {
 
         function str_icontains(string $haystack, string $needle): bool {
-            return '' === $needle || false !== stripos($haystack, $needle);
+            return '' === $needle || false !== \stripos($haystack, $needle);
         }
 
     }
 
-    if (!function_exists('str_starts_with')) {
+    if (!\function_exists('str_starts_with')) {
 
         function str_starts_with(string $haystack, string $needle): bool {
             return 0 === \strncmp($haystack, $needle, \strlen($needle));
@@ -71,7 +71,7 @@ if (version_compare(phpversion(), '8', '<')) {
 
     }
 
-    if (!function_exists('str_ends_with')) {
+    if (!\function_exists('str_ends_with')) {
 
         function str_ends_with(string $haystack, string $needle): bool {
             return '' === $needle || ('' !== $haystack && 0 === \substr_compare($haystack, $needle, -\strlen($needle)));
@@ -79,7 +79,7 @@ if (version_compare(phpversion(), '8', '<')) {
 
     }
 
-    if (!function_exists('str_starts_with')) {
+    if (!\function_exists('str_starts_with')) {
 
         function get_debug_type($value): string {
             switch (true) {
@@ -92,7 +92,7 @@ if (version_compare(phpversion(), '8', '<')) {
                 case \is_object($value): break;
                 case $value instanceof \__PHP_Incomplete_Class: return '__PHP_Incomplete_Class';
                 default:
-                    if (null === $type = @get_resource_type($value)) {
+                    if (null === $type = @\get_resource_type($value)) {
                         return 'unknown';
                     }
 
@@ -105,11 +105,11 @@ if (version_compare(phpversion(), '8', '<')) {
 
             $class = \get_class($value);
 
-            if (false === strpos($class, '@')) {
+            if (false === \strpos($class, '@')) {
                 return $class;
             }
 
-            return (get_parent_class($class) ?: key(class_implements($class)) ?: 'class') . '@anonymous';
+            return (\get_parent_class($class) ?: \key(\class_implements($class)) ?: 'class') . '@anonymous';
         }
 
     }

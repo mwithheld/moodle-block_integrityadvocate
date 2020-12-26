@@ -25,7 +25,7 @@
 namespace block_integrityadvocate;
 
 // Needed so we can choose to log from methods in this class.
-require_once(dirname(__DIR__) . '/externallib.php');
+require_once(\dirname(__DIR__) . '/externallib.php');
 
 //require_once(__DIR__ . '/ParticipantsTable.php');
 
@@ -128,10 +128,10 @@ class Logger {
     public static function do_log_for_function(string $functionname): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $functionname=' . $functionname);
+        $debug && \error_log($fxn . '::Started with $functionname=' . $functionname);
 
         if (empty($functionname)) {
-            $debug && error_log($fxn . '::$functionname is empty so return false');
+            $debug && \error_log($fxn . '::$functionname is empty so return false');
             return false;
         }
 
@@ -139,7 +139,7 @@ class Logger {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . $functionname);
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-            $debug && error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
+            $debug && \error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
             return ($cachedvalue === 'y') ? 1 : 0;
         }
 
@@ -147,9 +147,9 @@ class Logger {
         if (!isset($blockconfig->config_logforfunction)) {
             return false;
         }
-        $debug && error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
-        $result = \in_array($functionname, explode(',', $blockconfig->config_logforfunction), true);
-        $debug && error_log($fxn . "::About to return \$result={$result}");
+        $debug && \error_log($fxn . '::Got $blockconfig->config_logforfunction=' . ia_u::var_dump($blockconfig->config_logforfunction));
+        $result = \in_array($functionname, \explode(',', $blockconfig->config_logforfunction), true);
+        $debug && \error_log($fxn . "::About to return \$result={$result}");
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $result ? 'y' : 'n')) {
             throw new \Exception('Failed to set value in the cache');
@@ -160,22 +160,22 @@ class Logger {
     private static function is_within_log_time(): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started');
+        $debug && \error_log($fxn . '::Started');
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__);
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-            $debug && error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
+            $debug && \error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
             return ($cachedvalue === 'y') ? 1 : 0;
         }
 
-        $now = time();
+        $now = \time();
         $blockconfig = \get_config(INTEGRITYADVOCATE_BLOCK_NAME);
 
         // Log for 24 hours from the this time.
         $result = $now < $blockconfig->config_logfromtime + 86400;
-        $debug && error_log($fxn . '::Got $result=' . $result);
+        $debug && \error_log($fxn . '::Got $result=' . $result);
         if (FeatureControl::CACHE && !$cache->set($cachekey, $result ? 'y' : 'n')) {
             throw new \Exception('Failed to set value in the cache');
         }
@@ -191,10 +191,10 @@ class Logger {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $blockconfig = \get_config(INTEGRITYADVOCATE_BLOCK_NAME);
-        $debug && error_log($fxn . "::Started with \$blockconfig->config_logforip={$blockconfig->config_logforip}; remoteip_in_list(\$blockconfig->config_logforip)=" . \remoteip_in_list($blockconfig->config_logforip));
+        $debug && \error_log($fxn . "::Started with \$blockconfig->config_logforip={$blockconfig->config_logforip}; remoteip_in_list(\$blockconfig->config_logforip)=" . \remoteip_in_list($blockconfig->config_logforip));
 
         $result = isset($blockconfig->config_logforip) && !empty($blockconfig->config_logforip) && remoteip_in_list($blockconfig->config_logforip);
-        $debug && error_log($fxn . "::About to return result={$result}");
+        $debug && \error_log($fxn . "::About to return result={$result}");
         return $result;
     }
 
@@ -209,7 +209,7 @@ class Logger {
     public static function log(string $message, string $dest = '', bool $force = false): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $dest=' . $dest);
+        $debug && \error_log($fxn . '::Started with $dest=' . $dest);
 
         $blockconfig = \get_config(INTEGRITYADVOCATE_BLOCK_NAME);
         if (ia_u::is_empty($dest)) {
@@ -219,33 +219,33 @@ class Logger {
                 $dest = Logger::$default;
             }
         }
-        $debug && error_log($fxn . '::After cleanup, $dest=' . $dest);
+        $debug && \error_log($fxn . '::After cleanup, $dest=' . $dest);
 
         // Short circuit without logging anything in these cases.
         if ($dest === Logger::NONE) {
-            $debug && error_log($fxn . '::Skipping - $dest=NONE');
+            $debug && \error_log($fxn . '::Skipping - $dest=NONE');
             return false;
         }
         if (!($force && $dest === Logger::ERRORLOG)) {
 
-            $debug && error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
+            $debug && \error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
             if (!self::do_log_for_ip()) {
-                $debug && error_log($fxn . '::Skipping - logforip');
+                $debug && \error_log($fxn . '::Skipping - logforip');
                 return false;
             }
             if (!self::is_within_log_time()) {
-                $debug && error_log($fxn . '::Skipping - not isWithinLogTime()');
+                $debug && \error_log($fxn . '::Skipping - not isWithinLogTime()');
                 return false;
             }
         }
 
         global $CFG;
         // If the file path is included, strip it.
-        $cleanedmsg = str_replace(realpath($CFG->dirroot), '', $message);
+        $cleanedmsg = \str_replace(\realpath($CFG->dirroot), '', $message);
         // Remove base64-encoded images.
-        $cleanedmsg = preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', $cleanedmsg);
+        $cleanedmsg = \preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', $cleanedmsg);
         // Trim and remove blank lines.
-        $cleanedmsg = trim(preg_replace('/^[ \t]*[\r\n]+/m', '', $cleanedmsg));
+        $cleanedmsg = \trim(\preg_replace('/^[ \t]*[\r\n]+/m', '', $cleanedmsg));
 
         switch ($dest) {
             case Logger::HTML:
@@ -255,17 +255,17 @@ class Logger {
                 \mtrace(html_to_text($cleanedmsg, 0, false));
                 break;
             case Logger::STDOUT:
-                print(htmlentities($cleanedmsg, 0, 'UTF-8')) . "\n";
+                print(\htmlentities($cleanedmsg, 0, 'UTF-8')) . "\n";
                 break;
             case Logger::LOGGLY:
-                if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1])) {
-                    $debugbacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
-                } else if (isset(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
-                    $debugbacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0];
+                if (isset(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1])) {
+                    $debugbacktrace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
+                } else if (isset(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
+                    $debugbacktrace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0];
                 }
                 $classorfile = isset($debugbacktrace['class']) ? $debugbacktrace['class'] : '';
                 if (empty($classorfile)) {
-                    $classorfile = \basename(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['file']);
+                    $classorfile = \basename(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['file']);
                 }
 
                 $functionorline = isset($debugbacktrace['function']) ? $debugbacktrace['function'] : '';
@@ -304,7 +304,7 @@ class Logger {
         // Ref https://www-staging.loggly.com/docs/tags/
         // Allow alpha-numeric characters, dash, period, and underscore.
         $maxlength = 64;
-        return \core_text::substr(trim(preg_replace('/[^0-9a-z_\-.]+/i', '-', clean_param($key, PARAM_TEXT))), 0, $maxlength);
+        return \core_text::substr(\trim(\preg_replace('/[^0-9a-z_\-.]+/i', '-', clean_param($key, PARAM_TEXT))), 0, $maxlength);
     }
 
     /**
@@ -368,7 +368,7 @@ class Logger {
      * @return string File path relative to this plugin.
      */
     public static function filepath_relative_to_plugin(string $filepath): string {
-        return ltrim(str_replace(dirname(__DIR__), '', $filepath), '/');
+        return \ltrim(\str_replace(\dirname(__DIR__), '', $filepath), '/');
     }
 
     /**
@@ -384,13 +384,13 @@ class Logger {
     public static function get_functions_for_logging(): array {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started');
+        $debug && \error_log($fxn . '::Started');
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__);
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-            $debug && error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
+            $debug && \error_log($fxn . '::Got $cachedvalue=' . $cachedvalue);
             return $cachedvalue;
         }
 
@@ -406,7 +406,7 @@ class Logger {
 
         // These ones are not classes but files with functions.
         $fileswithfunctionstolog = [
-            dirname(__DIR__) . '\lib.php',
+            \dirname(__DIR__) . '\lib.php',
         ];
 
         // These ones are not classes and don't have functions but we want to be able to log them anyway.
@@ -419,14 +419,14 @@ class Logger {
 
         \core_php_time_limit::raise();
         foreach ($classestolog as $classname) {
-            if (!class_exists($classname)) {
+            if (!\class_exists($classname)) {
                 continue;
             }
             $reflection = new \ReflectionClass($classname);
             foreach ($reflection->getMethods() as $method) {
                 // Remove methods from parent etc.
-                $debug && error_log($fxn . "::Looking at \$method->class={$method->class} vs \$classname={$classname}");
-                if (trim($method->class, '\\') !== trim($classname, '\\')) {
+                $debug && \error_log($fxn . "::Looking at \$method->class={$method->class} vs \$classname={$classname}");
+                if (\trim($method->class, '\\') !== \trim($classname, '\\')) {
                     continue;
                 }
                 $val = $method->class . '::' . $method->name;
@@ -444,7 +444,7 @@ class Logger {
             }
         }
 
-        sort($thingstolog);
+        \sort($thingstolog);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $thingstolog)) {
             throw new \Exception('Failed to set value in the cache');

@@ -99,9 +99,9 @@ class Api {
         $responsecode = \intval($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
-        $debug && Logger::log($fxn . '::Sent url=' . var_export($requesturi, true) . '; http_code=' . var_export($responsecode, true) . '; response body=' . var_export($response, true));
+        $debug && Logger::log($fxn . '::Sent url=' . \var_export($requesturi, true) . '; http_code=' . \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
 
-        return [\cleanremoteaddr($responseinfo['primary_ip']), $responsecode, trim($response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
+        return [\cleanremoteaddr($responseinfo['primary_ip']), $responsecode, \trim($response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
     }
 
     /**
@@ -186,7 +186,7 @@ class Api {
         }
 
         // Sanity check.
-        if (!\str_starts_with($endpoint, '/') || !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !is_array($params)) {
+        if (!\str_starts_with($endpoint, '/') || !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !\is_array($params)) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -200,7 +200,7 @@ class Api {
 
         // For the Participants and ParicipantSessions endpoints, add the remaining part of the URL.
         if ($endpoint === self::ENDPOINT_PARTICIPANTS || $endpoint === self::ENDPOINT_PARTICIPANTSESSIONS) {
-            $endpoint = str_replace('courseid', $params['courseid'], $endpoint);
+            $endpoint = \str_replace('courseid', $params['courseid'], $endpoint);
             unset($params['courseid']);
         }
 
@@ -216,13 +216,13 @@ class Api {
         // Ref API docs at https://integrityadvocate.com/Developers#aEvents.
         $debug && Logger::log($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params, true) : ''));
         $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
-        $requesturi = $requestapiurl . ($params ? '?' . http_build_query($params, null, '&') : '');
+        $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, null, '&') : '');
         $debug && Logger::log($fxn . '::Built $requesturi=' . $requesturi);
 
-        $requesttimestamp = time();
+        $requesttimestamp = \time();
         $requestmethod = 'GET';
-        $microtime = explode(' ', microtime());
-        $nonce = $microtime[1] . substr($microtime[0], 2, 6);
+        $microtime = \explode(' ', \microtime());
+        $nonce = $microtime[1] . \substr($microtime[0], 2, 6);
         $debug && Logger::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
         $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
@@ -257,15 +257,15 @@ class Api {
                         '; $response=' . ia_u::var_dump($response, true) .
                         '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
-        $success = \in_array($responsecode, array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
+        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
         if (!$success) {
-            $msg = $fxn . '::Request to the IA server failed on: GET url=' . var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            $msg = $fxn . '::Request to the IA server failed on: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
             throw new HttpException($msg, $responsecode, $requesturi);
         }
 
-        if ($responseparsed === null && json_last_error() === JSON_ERROR_NONE) {
-            $msg = 'Error: json_decode found no results: ' . json_last_error_msg();
+        if ($responseparsed === null && \json_last_error() === \JSON_ERROR_NONE) {
+            $msg = 'Error: json_decode found no results: ' . \json_last_error_msg();
             $debug && Logger::log($fxn . '::' . $msg);
             throw new \Exception('Failed to json_decode: ' . $msg);
         }
@@ -442,7 +442,7 @@ class Api {
                 continue;
             }
 
-            $debug && Logger::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . count($participantsparsed) . ' participants');
+            $debug && Logger::log($fxn . '::About to add participant with $participant->participantidentifier=' . $participant->participantidentifier . ' to the list of ' . \count($participantsparsed) . ' participants');
             $participantsparsed[$participant->participantidentifier] = $participant;
 
             // Update the participants list lastmodified if needed.
@@ -500,7 +500,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
         // Make sure $params contains only valid parameters.
-        foreach (array_keys($params) as $key) {
+        foreach (\array_keys($params) as $key) {
             if (!\in_array($key, ['courseid', 'externaluserid', 'lastmodified'])) {
                 $msg = 'Input params are invalid';
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
@@ -539,7 +539,7 @@ class Api {
             unset($params['nexttoken']);
             \core_php_time_limit::raise();
             echo ' ';
-            $participants = array_merge($participants, self::get_participants_data($apikey, $appid, $params, $result->NextToken));
+            $participants = \array_merge($participants, self::get_participants_data($apikey, $appid, $params, $result->NextToken));
         }
 
 //        if (FeatureControl::CACHE && !$cache->set($cachekey, $participants)) {
@@ -605,7 +605,7 @@ class Api {
         $newparticipant = new ia_participant();
         foreach ($participantsessionsraw as $pr) {
             $debug && Logger::log($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
-            if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !is_numeric($participantidentifier = $pr->ParticipantIdentifier)) {
+            if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !\is_numeric($participantidentifier = $pr->ParticipantIdentifier)) {
                 $debug && Logger::log($fxn . '::Skip: This $participantsessionsraw entry is empty or invalid');
                 continue;
             }
@@ -628,7 +628,7 @@ class Api {
                     case(!isset($pr->Activity_Id) || \intval($pr->Activity_Id) !== \intval($moduleid)):
                         $debug && Logger::log($fxn . "::The participant Activity_Id={$pr->Activity_Id} is invalid or does not match this Moodle moduleid={$moduleid}");
                         continue 2;
-                    case(intval(ia_mu::get_courseid_from_cmid($moduleid)) !== \intval($courseid)):
+                    case(\intval(ia_mu::get_courseid_from_cmid($moduleid)) !== \intval($courseid)):
                         $debug && Logger::log($fxn . "::The moduleid={$moduleid} is not part of the course with id={$courseid}");
                         continue 2;
                     case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the participant cannot access the module */)[1])):
@@ -746,7 +746,7 @@ class Api {
                 unset($params['nexttoken']);
                 \core_php_time_limit::raise();
                 echo ' ';
-                $participantsessions = array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
+                $participantsessions = \array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
             }
         }
 
@@ -775,14 +775,14 @@ class Api {
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (!filter_var($requesturi, FILTER_VALIDATE_URL) || strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !is_string($nonce) ||
+        if (!\filter_var($requesturi, \FILTER_VALIDATE_URL) || \strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !\is_string($nonce) ||
                 !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
-        if (parse_url($requesturi, PHP_URL_QUERY)) {
+        if (\parse_url($requesturi, \PHP_URL_QUERY)) {
             $msg = 'The requesturi should not contain a querystring';
             Logger::log($fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod};  \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
             Logger::log($fxn . '::' . $msg);
@@ -790,20 +790,20 @@ class Api {
         }
 
         // Create the signature data.
-        $signaturerawdata = $appid . $requestmethod . strtolower(urlencode($requesturi)) . $requesttimestamp . $nonce;
+        $signaturerawdata = $appid . $requestmethod . \strtolower(\urlencode($requesturi)) . $requesttimestamp . $nonce;
         $debug && Logger::log($fxn . '::Built $signaturerawdata = ' . $signaturerawdata);
 
         // Decode the API Key.
-        $secretkeybytearray = base64_decode($apikey);
+        $secretkeybytearray = \base64_decode($apikey);
 
         // Encode the signature.
-        $signature = utf8_encode($signaturerawdata);
+        $signature = \utf8_encode($signaturerawdata);
 
         // Calculate the hash.
-        $signaturebytes = hash_hmac('sha256', $signature, $secretkeybytearray, true);
+        $signaturebytes = \hash_hmac('sha256', $signature, $secretkeybytearray, true);
 
         // Convert to base64.
-        return base64_encode($signaturebytes);
+        return \base64_encode($signaturebytes);
     }
 
     /**
@@ -937,7 +937,7 @@ class Api {
 
         $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && Logger::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
-        $isstatusvalid = ia_status::is_invalid_status(intval($statusinmodule));
+        $isstatusvalid = ia_status::is_invalid_status(\intval($statusinmodule));
 
         return $isstatusvalid;
     }
@@ -965,7 +965,7 @@ class Api {
 
         $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && Logger::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
-        $isstatusvalid = ia_status::is_valid_status(intval($statusinmodule));
+        $isstatusvalid = ia_status::is_valid_status(\intval($statusinmodule));
 
         return $isstatusvalid;
     }
@@ -1019,7 +1019,7 @@ class Api {
         if (isset($input->CaptureData)) {
             $matches = [];
             switch (true) {
-                case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->CaptureData, $matches)):
+                case (\preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->CaptureData, $matches)):
                     $output->capturedata = $matches[0];
                     break;
                 case (validate_param($input->CaptureData, PARAM_URL)):
@@ -1074,7 +1074,7 @@ class Api {
         $debug && Logger::log($fxn . '::Got $session->id=' . $output->id);
 
         // Check required field #2.
-        if (!isset($input->Status) || !is_string($input->Status) || strlen($input->Status) < 5) {
+        if (!isset($input->Status) || !\is_string($input->Status) || \strlen($input->Status) < 5) {
             $debug && Logger::log($fxn . '::Minimally-required fields not found: Status');
             return null;
         }
@@ -1113,7 +1113,7 @@ class Api {
 
         // Clean URL fields.
         if (true) {
-            isset($input->ResubmitUrl) && ($output->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
+            isset($input->ResubmitUrl) && ($output->resubmiturl = \filter_var($input->ResubmitUrl, \FILTER_SANITIZE_URL));
         }
         $debug && Logger::log($fxn . '::Done url fields');
 
@@ -1121,7 +1121,7 @@ class Api {
         if (isset($input->Participant_Photo)) {
             $matches = [];
             switch (true) {
-                case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
+                case (\preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
                     $output->participantphoto = $matches[0];
                     break;
                 case (validate_param($input->Participant_Photo, PARAM_URL)):
@@ -1235,7 +1235,7 @@ class Api {
 
         // Clean URL fields.
         if (true) {
-            isset($input->ResubmitUrl) && ($output->resubmiturl = filter_var($input->ResubmitUrl, FILTER_SANITIZE_URL));
+            isset($input->ResubmitUrl) && ($output->resubmiturl = \filter_var($input->ResubmitUrl, \FILTER_SANITIZE_URL));
         }
         $debug && Logger::log($fxn . '::Done url fields');
 
@@ -1243,7 +1243,7 @@ class Api {
         if (isset($input->Participant_Photo)) {
             $matches = [];
             switch (true) {
-                case (preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
+                case (\preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
                     $output->participantphoto = $matches[0];
                     break;
                 case (!ia_u::is_empty(clean_param($input->Participant_Photo, PARAM_URL))):
@@ -1283,7 +1283,7 @@ class Api {
             }
 
             // If the session is in progress, update the global status to reflect this.
-            if (ia_u::count_if_countable($output->sessions) && ($highestsessiontimestamp = max(array_keys($output->sessions)) >= $output->modified)) {
+            if (ia_u::count_if_countable($output->sessions) && ($highestsessiontimestamp = \max(\array_keys($output->sessions)) >= $output->modified)) {
                 $output->status = $output->sessions[$highestsessiontimestamp]->status;
             }
         } else {
@@ -1309,7 +1309,7 @@ class Api {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && Logger::log($fxn . "::Started with \$endpoint={$endpoint}; \$args=" . ($params ? ia_u::var_dump($params, true) : ''));
 
-        if (!in_array($endpoint, self::ENDPOINTS, true)) {
+        if (!\in_array($endpoint, self::ENDPOINTS, true)) {
             throw new \InvalidArgumentException("Invalid endpoint={$endpoint}");
         }
 
@@ -1352,7 +1352,7 @@ class Api {
 
         // If there are params missing $requiredparams[] list, throw an exception.
         // Compare the incoming keys in $params vs the list of required params (the values of that array).
-        if ($missingparams = array_diff($requiredparams, \array_keys($params))) {
+        if ($missingparams = \array_diff($requiredparams, \array_keys($params))) {
             $msg = 'The ' . $endpoint . ' endpoint requires params=' . \implode(', ', $missingparams) . '; got params=' . \implode(', ', \array_keys($params));
             Logger::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
@@ -1360,7 +1360,7 @@ class Api {
 
         // If there are params specified that are not in the $validparams[] list, they are invalid params.
         // Use array_diff_key: Returns an array containing all the entries from array1 whose keys are absent from all of the other arrays.
-        if ($extraparams = array_diff_key($params, $validparams)) {
+        if ($extraparams = \array_diff_key($params, $validparams)) {
             $msg = 'The ' . $endpoint . ' endpoint does not accept params=' . \implode(', ', \array_keys($extraparams)) . '; got params=' . \implode(', ', \array_keys($params));
             Logger::log($fxn . '::' . $msg);
             throw new \invalid_parameter_exception($msg);
@@ -1377,7 +1377,7 @@ class Api {
                 \validate_param($argval, $validparams[$argname]);
                 switch ($argname) {
                     case 'backwardsearch':
-                        if (!in_array($argval, $truefalse)) {
+                        if (!\in_array($argval, $truefalse)) {
                             throw new \invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
                         }
                         break;

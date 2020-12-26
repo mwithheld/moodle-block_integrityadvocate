@@ -427,9 +427,9 @@ class MoodleUtility {
     public static function get_course_as_obj($course): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . '::Started with type(\$course)=' . gettype($course));
+        $debug && Logger::log($fxn . '::Started with type(\$course)=' . \gettype($course));
 
-        if (is_numeric($course)) {
+        if (\is_numeric($course)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key($fxn . '_' . \json_encode($course, \JSON_PARTIAL_OUTPUT_ON_ERROR));
@@ -438,7 +438,7 @@ class MoodleUtility {
                 return $cachedvalue;
             }
 
-            $course = \get_course(intval($course));
+            $course = \get_course(\intval($course));
 
             if (FeatureControl::CACHE && !$cache->set($cachekey, $course)) {
                 throw new \Exception('Failed to set value in the cache');
@@ -447,8 +447,8 @@ class MoodleUtility {
         if (ia_u::is_empty($course)) {
             return null;
         }
-        if (gettype($course) != 'object' || !isset($course->id)) {
-            throw new \InvalidArgumentException('$course should be of type stdClass; got ' . gettype($course));
+        if (\gettype($course) != 'object' || !isset($course->id)) {
+            throw new \InvalidArgumentException('$course should be of type stdClass; got ' . \gettype($course));
         }
 
         return $course;
@@ -576,10 +576,10 @@ class MoodleUtility {
     public static function get_user_as_obj($user): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . '::Started with type($user)=' . gettype($user));
+        $debug && Logger::log($fxn . '::Started with type($user)=' . \gettype($user));
 
 
-        if (is_numeric($user)) {
+        if (\is_numeric($user)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key($fxn . '_' . \json_encode($user, \JSON_PARTIAL_OUTPUT_ON_ERROR));
@@ -588,11 +588,11 @@ class MoodleUtility {
                 return $cachedvalue;
             }
 
-            $userarr = user_get_users_by_id(array(intval($user)));
+            $userarr = user_get_users_by_id(array(\intval($user)));
             if (empty($userarr)) {
                 return null;
             }
-            $user = array_pop($userarr);
+            $user = \array_pop($userarr);
 
             if (isset($user->deleted) && $user->deleted) {
                 return null;
@@ -602,8 +602,8 @@ class MoodleUtility {
                 throw new \Exception('Failed to set value in the cache');
             }
         }
-        if (gettype($user) != 'object') {
-            throw new \InvalidArgumentException('$user should be of type stdClass; got ' . gettype($user));
+        if (\gettype($user) != 'object') {
+            throw new \InvalidArgumentException('$user should be of type stdClass; got ' . \gettype($user));
         }
 
         return $user;
@@ -619,7 +619,7 @@ class MoodleUtility {
     public static function get_user_picture(\stdClass $user, array $params = []): string {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$user->id={$user->id}; \$params=" . serialize($params));
+        $debug && Logger::log($fxn . "::Started with \$user->id={$user->id}; \$params=" . \serialize($params));
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
@@ -674,8 +674,8 @@ class MoodleUtility {
      * @return int User last access unix time.
      */
     public static function get_course_lastaccess(int $courseid): int {
-        $courseidcleaned = filter_var($courseid, FILTER_VALIDATE_INT);
-        if (!is_numeric($courseidcleaned)) {
+        $courseidcleaned = \filter_var($courseid, \FILTER_VALIDATE_INT);
+        if (!\is_numeric($courseidcleaned)) {
             throw new \InvalidArgumentException('Input $courseid must be an integer');
         }
 
@@ -705,7 +705,7 @@ class MoodleUtility {
      * @return string The cache key.
      */
     public static function get_cache_key(string $key): string {
-        return sha1(\get_config('block_integrityadvocate', 'version') . $key);
+        return \sha1(\get_config('block_integrityadvocate', 'version') . $key);
     }
 
     /**
@@ -724,7 +724,7 @@ class MoodleUtility {
         $sessionkey = self::get_cache_key($key);
 
         $debug && Logger::log($fxn . "::About to set \$SESSION key={$key}");
-        return $SESSION->$sessionkey = time();
+        return $SESSION->$sessionkey = \time();
     }
 
     /**
@@ -760,7 +760,7 @@ class MoodleUtility {
         global $CFG;
 
         // The nonce is valid if the time is after $CFG->sessiontimeout ago.
-        $valid = $nonce >= (time() - $CFG->sessiontimeout);
+        $valid = $nonce >= (\time() - $CFG->sessiontimeout);
         $debug && Logger::log($fxn . "::\Found valid={$valid}");
         return $valid;
     }

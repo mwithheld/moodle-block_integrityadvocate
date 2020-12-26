@@ -114,7 +114,7 @@ trait external_ia_session_tracking {
             case($blockinstance->config->appid !== $appid):
                 $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "The input appid {$blockinstance->config->appid} does not match the block intance appid={$appid}"];
                 break;
-            case(intval($userid) !== \intval($USER->id)):
+            case(\intval($userid) !== \intval($USER->id)):
                 $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The userid is not the current user'];
                 break;
             case(!($user = ia_mu::get_user_as_obj($userid))):
@@ -133,7 +133,7 @@ trait external_ia_session_tracking {
         $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            Logger::log($fxn . '::' . serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            Logger::log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
         $debug && Logger::log($fxn . '::No warnings');
@@ -169,7 +169,7 @@ trait external_ia_session_tracking {
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
 
-        $result = array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
+        $result = \array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
         $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
@@ -225,17 +225,17 @@ trait external_ia_session_tracking {
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
 
-        $result = array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
+        $result = \array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
         $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            Logger::log($fxn . '::' . serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            Logger::log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
         $debug && Logger::log($fxn . '::No warnings');
 
-        $result['success'] = ia_mu::nonce_set(implode('_', array(INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid)));
+        $result['success'] = ia_mu::nonce_set(\implode('_', array(INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid)));
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag to the remote IA server';
             $result['warnings'] = ['warningcode' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg];

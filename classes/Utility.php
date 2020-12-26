@@ -41,7 +41,7 @@ class Utility {
      * @return bool true if empty; else false.
      */
     public static function is_empty($obj): bool {
-        if (!is_object($obj)) {
+        if (!\is_object($obj)) {
             return empty($obj);
         }
 
@@ -135,31 +135,31 @@ class Utility {
      */
     public static function var_dump($expression, bool $return = true) {
         if (self::is_empty($expression)) {
-            return print_r('', $return);
+            return \print_r('', $return);
         }
 
         // Avoid OOM errors.
         \raise_memory_limit(\MEMORY_HUGE);
 
-        if (is_object($expression)) {
+        if (\is_object($expression)) {
             //error_log(__FUNCTION__ . '::Found a page property?=' . property_exists($expression, 'page'));
             //if (isset($expression->page)) {
             //    error_log(__FUNCTION__ . '::Type of page property stdClass?=' . $expression->page instanceof \stdClass);
             //}
-            if (property_exists($expression, 'page') && (gettype($expression->page) == 'object') && class_exists('moodle_page', false) && $expression->page instanceof \moodle_page) {
+            if (\property_exists($expression, 'page') && (\gettype($expression->page) == 'object') && \class_exists('moodle_page', false) && $expression->page instanceof \moodle_page) {
                 unset($expression->page);
             }
-            if (method_exists(get_class($expression), '__toString')) {
+            if (\method_exists(\get_class($expression), '__toString')) {
                 $expression = $expression->__toString();
             }
         }
 
-        if (is_array($expression) && isset($expression['page']) && ($expression['page'] instanceof Object) && class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
+        if (\is_array($expression) && isset($expression['page']) && ($expression['page'] instanceof Object) && \class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
             unset($expression['page']);
         }
 
         // Preg_replace prevents dying on base64-encoded images.
-        return print_r(preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', print_r($expression, true)), $return);
+        return \print_r(\preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', \print_r($expression, true)), $return);
     }
 
     /**
@@ -169,7 +169,7 @@ class Utility {
      * @return int The count; -1 if not countable.
      */
     public static function count_if_countable($var): int {
-        return is_countable($var) ? count($var) : -1;
+        return \is_countable($var) ? \count($var) : -1;
     }
 
 }

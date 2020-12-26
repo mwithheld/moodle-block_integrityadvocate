@@ -64,7 +64,7 @@ class Output {
         $debug && Logger::log($fxn . '::Started');
 
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK) || !filter_var($proctorjsurl, FILTER_VALIDATE_URL)) {
+        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK) || !\filter_var($proctorjsurl, \FILTER_VALIDATE_URL)) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
@@ -74,7 +74,7 @@ class Output {
         if ($configerrors = $blockinstance->get_config_errors()) {
             // No visible IA block found with valid config, so skip any output.
             if (\has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
-                echo implode(self::BRNL, $configerrors);
+                echo \implode(self::BRNL, $configerrors);
             }
             return '';
         }
@@ -114,7 +114,7 @@ class Output {
         if (ia_u::is_empty($blockinstance) || ($configerrors = $blockinstance->get_config_errors())) {
             // No visible IA block found with valid config, so skip any output, but show teachers the error.
             if ($configerrors && \has_capability('block/integrityadvocate:overview', $blockinstance->context)) {
-                echo implode(self::BRNL, $configerrors);
+                echo \implode(self::BRNL, $configerrors);
             }
             return '';
         }
@@ -159,7 +159,7 @@ class Output {
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || !is_numeric($courseid = $blockinstance->get_course()->id) || (isset($userid) && !is_int($userid))) {
+        if (ia_u::is_empty($blockinstance) || !\is_numeric($courseid = $blockinstance->get_course()->id) || (isset($userid) && !\is_int($userid))) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -180,7 +180,7 @@ class Output {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR)]));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR)]));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -213,7 +213,7 @@ class Output {
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || !is_numeric($courseid = $blockinstance->get_course()->id) || (isset($userid) && !is_int($userid))) {
+        if (ia_u::is_empty($blockinstance) || !\is_numeric($courseid = $blockinstance->get_course()->id) || (isset($userid) && !\is_int($userid))) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -234,7 +234,7 @@ class Output {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, json_encode($params, JSON_PARTIAL_OUTPUT_ON_ERROR)]));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR)]));
         if (false && FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -264,11 +264,11 @@ class Output {
 
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
-        switch (intval($parentcontext->contextlevel)) {
-            case (intval(\CONTEXT_COURSE)):
+        switch (\intval($parentcontext->contextlevel)) {
+            case (\intval(\CONTEXT_COURSE)):
                 $debug && Logger::log($fxn . '::parentcontext=course');
                 return self::get_button_overview_course($blockinstance, $userid);
-            case (intval(\CONTEXT_MODULE)):
+            case (\intval(\CONTEXT_MODULE)):
                 $debug && Logger::log($fxn . '::parentcontext=module');
                 return self::get_button_overview_module($blockinstance, $userid);
             default:
@@ -327,7 +327,7 @@ class Output {
                 $statushtml = \html_writer::span(\get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_rules");
                 break;
             default:
-                $error = 'Invalid participant status value=' . serialize($status);
+                $error = 'Invalid participant status value=' . \serialize($status);
                 Logger::log($error);
                 throw new \InvalidArgumentException($error);
         }
@@ -361,7 +361,7 @@ class Output {
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(implode('_', [__CLASS__, __FUNCTION__, $participant->__toString(), json_encode($debugvars, JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars]));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $participant->__toString(), \json_encode($debugvars, \JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars]));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             $debug && Logger::log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
@@ -443,7 +443,7 @@ class Output {
         // Start next section on a new line.
         $outarr[] = '<div style="clear:both"></div>';
 
-        return implode('', $outarr);
+        return \implode('', $outarr);
     }
 
     /**
@@ -457,7 +457,7 @@ class Output {
     public static function get_participant_photo_output(int $userid, string $photo, int $status, string $email): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$userid={$userid}; md5(\$photo)=" . md5($photo) . "\$status={$status}, \$email={$email}";
+        $debugvars = $fxn . "::Started with \$userid={$userid}; md5(\$photo)=" . \md5($photo) . "\$status={$status}, \$email={$email}";
         $debug && Logger::log($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant';
@@ -474,7 +474,7 @@ class Output {
         // Close .block_integrityadvocate_overview_participant_summary_img_div.
         $outarr[] = \html_writer::end_tag('div');
 
-        return implode('', $outarr);
+        return \implode('', $outarr);
     }
 
     /**
@@ -491,7 +491,7 @@ class Output {
     public static function get_user_summary_output(\block_integrityadvocate $blockinstance, int $userid, bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . gettype($showstatus);
+        $debugvars = $fxn . "::Started with \$userid={$userid}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . \gettype($showstatus);
         $debug && Logger::log($debugvars);
 
         // Sanity check.
@@ -505,8 +505,8 @@ class Output {
         $parentcontext = $blockcontext->get_parent_context();
 
         try {
-            switch (intval($parentcontext->contextlevel)) {
-                case (intval(\CONTEXT_COURSE)):
+            switch (\intval($parentcontext->contextlevel)) {
+                case (\intval(\CONTEXT_COURSE)):
                     // If the block is in a course, show the participant-level latest status, photo, last seen, etc.
                     $debug && Logger::log($fxn . '::Am in a module context');
                     $participant = ia_api::get_participant($blockinstance->config->apikey, $blockinstance->config->appid, $blockinstance->get_course()->id, $userid, $blockinstance->instance->id);
@@ -518,7 +518,7 @@ class Output {
 
                     return self::get_participant_summary_output($blockinstance, $participant, $showphoto, $showoverviewbutton, $showstatus);
 
-                case (intval(\CONTEXT_MODULE)):
+                case (\intval(\CONTEXT_MODULE)):
                     // If block is in a module, show the module's latest status, photo, start, end.
                     $debug && Logger::log($fxn . '::Am in a module context');
                     $latestsession = ia_api::get_module_session_latest($parentcontext, $userid);
@@ -555,12 +555,12 @@ class Output {
 
         $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="' . $launch_url . '">'];
         foreach ($launch_data as $k => $v) {
-            $output[] = '<input type="hidden" name="' . $k . '" value="' . htmlspecialchars($v, ENT_QUOTES, 'UTF-8') . '">';
+            $output[] = '<input type="hidden" name="' . $k . '" value="' . \htmlspecialchars($v, \ENT_QUOTES, 'UTF-8') . '">';
         }
         $output[] = '<input type="hidden" name="oauth_signature" value="' . $signature . '"><button type="submit">Launch</button></form>';
         $output[] = '<iframe id="iframelaunch" name="iframelaunch" src="" style="width:100%;height:800px" sandbox="allow-same-origin allow-forms allow-scripts allow-modals"></iframe>';
         $output[] = '<script>document.getElementById("ltiLaunchForm").submit();</script>';
-        return implode('', $output);
+        return \implode('', $output);
     }
 
 }

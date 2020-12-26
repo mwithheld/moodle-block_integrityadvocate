@@ -26,7 +26,7 @@ use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
-defined('MOODLE_INTERNAL') || die();
+\defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 
@@ -50,18 +50,18 @@ class block_integrityadvocate_observer {
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         if ($debug) {
             // Disabled on purpose: Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
-            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (in_array($event->crud, array('c', 'u'), true)));
+            Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (\in_array($event->crud, array('c', 'u'), true)));
             Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
         }
 
         // No CLI events correspond to a user finishing an IA session.
-        if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (in_array($event->crud, array('c', 'u'), true)));
+        if (\defined('CLI_SCRIPT') && CLI_SCRIPT) {
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, array('c', 'u'), true)));
             return false;
         }
 
         // If there is no user attached to this event, we can't close the user's IA session, so skip.
-        if (!is_numeric($event->userid)) {
+        if (!\is_numeric($event->userid)) {
             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
             return false;
         }
@@ -91,10 +91,10 @@ class block_integrityadvocate_observer {
                         '\\mod_wiki\\event\\',
             )):
             // None of the event names starting with these strings correspond to finishing a module.
-            case preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
+            case \preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
             // None of the \mod_forum\*created events correspond to finishing an module...
             // They probably just posted to the forum or added a discussion but that's not finishing with forums.
-            case in_array($event->eventname,
+            case \in_array($event->eventname,
                     array(
                         '\\assignsubmission_onlinetext\\event\\submission_updated',
                         '\\mod_assign\\event\\submission_duplicated',
@@ -118,7 +118,7 @@ class block_integrityadvocate_observer {
          *   - Database query type=create or update
          */
         switch (true) {
-            case in_array($event->eventname,
+            case \in_array($event->eventname,
                     array(
                         '\\mod_assign\\event\\assessable_submitted',
                         '\\mod_choice\\event\\answer_created',
@@ -186,7 +186,7 @@ class block_integrityadvocate_observer {
 
         if ($debug) {
             // Remove the block_ prefix and _observer suffix.
-            $blockname = implode('_', array_slice(explode('_', substr(__CLASS__, strrpos(__CLASS__, '\\') + 1)), 1, -1));
+            $blockname = \implode('_', \array_slice(\explode('_', \substr(__CLASS__, \strrpos(__CLASS__, '\\') + 1)), 1, -1));
             Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
         }
 
@@ -220,7 +220,7 @@ class block_integrityadvocate_observer {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started");
 
-        $appid = isset($blockinstance->config->appid) ? trim($blockinstance->config->appid) : false;
+        $appid = isset($blockinstance->config->appid) ? \trim($blockinstance->config->appid) : false;
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
         if (!$appid) {
             $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::The block instance has no appid configured, so skip it");

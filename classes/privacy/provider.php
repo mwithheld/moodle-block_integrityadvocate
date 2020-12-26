@@ -60,7 +60,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function get_metadata(collection $collection): collection {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $collection=' . var_export($collection, true), \block_integrityadvocate\Logger::HTML);
+        $debug && Logger::log($fxn . '::Started with $collection=' . \var_export($collection, true), \block_integrityadvocate\Logger::HTML);
 
         $privacyitems = array(
             // Course info.
@@ -92,7 +92,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         $collection->add_external_location_link(INTEGRITYADVOCATE_BLOCK_NAME, $privacyitemsarr,
                 self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation');
-        $debug && Logger::log('About to return $collection=' . var_export($collection, true), \block_integrityadvocate\Logger::HTML);
+        $debug && Logger::log('About to return $collection=' . \var_export($collection, true), \block_integrityadvocate\Logger::HTML);
 
         return $collection;
     }
@@ -106,7 +106,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function get_users_in_context(userlist $userlist) {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
+        $debug && Logger::log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -128,7 +128,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function delete_data_for_users(approved_userlist $userlist) {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $userlist=' . var_export($userlist, true));
+        $debug && Logger::log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -158,7 +158,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function delete_data_for_all_users_in_context(\context $context) {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $context=' . var_export($context, true));
+        $debug && Logger::log($fxn . '::Started with $context=' . \var_export($context, true));
 
         if (!($context instanceof \context_module)) {
             return;
@@ -188,7 +188,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $contextlist=' . var_export($contextlist, true));
+        $debug && Logger::log($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
 
         if (empty($contextlist->count())) {
             return;
@@ -233,7 +233,7 @@ class provider implements \core_privacy\local\metadata\provider,
             $blockcontext = $b->context;
             $parentcontext = $blockcontext->get_parent_context();
             // We only have data for IA blocks in modules.
-            if (intval($parentcontext->contextlevel) !== \intval(CONTEXT_MODULE)) {
+            if (\intval($parentcontext->contextlevel) !== \intval(CONTEXT_MODULE)) {
                 continue;
             }
             if (\is_enrolled($parentcontext, $userid)) {
@@ -291,7 +291,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $blockcontext->id=' . var_export($blockcontext->id, true));
+        $debug && Logger::log($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
 
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
         $debug && Logger::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
@@ -316,7 +316,7 @@ class provider implements \core_privacy\local\metadata\provider,
             }
         }
 
-        return array_unique($userids);
+        return \array_unique($userids);
     }
 
     /**
@@ -340,7 +340,7 @@ class provider implements \core_privacy\local\metadata\provider,
             ) {
                 // Request participant data delete.
                 $useridentifier = $blockcontext->instanceid . '-' . $p->participantidentifier;
-                if (!in_array($useridentifier, $participantmessagesent)) {
+                if (!\in_array($useridentifier, $participantmessagesent)) {
                     self::send_delete_request($blockcontext, 'Please remove IA participant data for ' . self::BRNL .
                             self::get_participant_info_for_deletion($p));
                     $participantmessagesent[] = $useridentifier;
@@ -353,7 +353,7 @@ class provider implements \core_privacy\local\metadata\provider,
             ) {
                 $useridentifier = $blockcontext->instanceid . '-' . $p->overridelmsuserid;
                 // Request override instructor data delete.
-                if (!in_array($useridentifier, $overridemessagesent)) {
+                if (!\in_array($useridentifier, $overridemessagesent)) {
                     self::send_delete_request($blockcontext, 'Please remove IA *overrider* data for ' . self::BRNL .
                             self::get_override_info_for_deletion($p));
                     $overridemessagesent[] = $useridentifier;
@@ -430,7 +430,7 @@ class provider implements \core_privacy\local\metadata\provider,
             $info[] = "&nbsp;&nbsp;&bull;&nbsp;{$property}={$val}";
         }
 
-        return implode(self::BRNL, $info);
+        return \implode(self::BRNL, $info);
     }
 
     /**
@@ -467,7 +467,7 @@ class provider implements \core_privacy\local\metadata\provider,
             $info[] = "&nbsp;&nbsp;&bull;&nbsp;{$property}={$val}";
         }
 
-        return implode(self::BRNL, $info) . self::BRNL;
+        return \implode(self::BRNL, $info) . self::BRNL;
     }
 
     /**
