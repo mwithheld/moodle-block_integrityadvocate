@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Integrity Advocate';
-$string['proctorjs_load_failed'] = "The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.";
+$string['proctorjs_load_failed'] = 'The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.';
 $string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://integrityadvocate.com/Home/Privacy" target="_blank">Privacy</a><br /><a href="https://integrityadvocate.com/Troubleshooting" target="_blank">Troubleshooting</a><br /><a href="https://support.integrityadvocate.com/hc/ target="_blank">Support</a>';
 
 $string['cachedef_perrequest'] = 'Remember values during a single request';
@@ -64,12 +64,12 @@ $string['blocklist_title'] = '{$a} IA blocks in this course:';
 
 $string['error_curlcloseia'] = 'Curl error closing the IA session';
 $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info. If this is not valid, check the API key and app id are valid.';
-$string['error_invalidappid'] = "Invalid Application Id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538";
-$string['error_noapikey'] = "No Api key is set";
-$string['error_noappid'] = "No Application Id is set";
-$string['error_nousers'] = "No users found";
-$string['error_notenrolled'] = "You are not enrolled in this course";
-$string['error_quiz_showblocks'] = "This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...";
+$string['error_invalidappid'] = 'Invalid Application Id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538';
+$string['error_noapikey'] = 'No Api key is set';
+$string['error_noappid'] = 'No Application Id is set';
+$string['error_nousers'] = 'No users found';
+$string['error_notenrolled'] = 'You are not enrolled in this course';
+$string['error_quiz_showblocks'] = 'This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...';
 
 $string['flag_comment'] = 'Details';
 $string['photo'] = 'Captured photo';
@@ -79,9 +79,9 @@ $string['flags_none'] = 'None';
 
 $string['fullname'] = 'Full course name';
 
-$string['integrityadvocate:addinstance'] = "Add new Integrity Advocate block";
+$string['integrityadvocate:addinstance'] = 'Add new Integrity Advocate block';
 $string['integrityadvocate:addinstance'] = 'Add a new Integrity Advocate block';
-$string['integrityadvocate:myaddinstance'] = "Add a new Integrity Advocate block to the desired page";
+$string['integrityadvocate:myaddinstance'] = 'Add a new Integrity Advocate block to the desired page';
 $string['integrityadvocate:myaddinstance'] = 'Add a Integrity Advocate block to My home page';
 $string['integrityadvocate:overview'] = 'View course overview of Integrity Advocate results';
 $string['integrityadvocate:selfview'] = 'View own Integrity Advocate results';
@@ -92,7 +92,7 @@ $string['lastaccess'] = 'Last in course';
 $string['no_blocks'] = 'No Integrity Advocate blocks are set up for your courses.';
 $string['no_course'] = 'No matching course found';
 $string['no_enrollment'] = 'This user is not enrolled in this course';
-$string['no_ia_block'] = "No active Integrity Advocate block instance found for this activity";
+$string['no_ia_block'] = 'No active Integrity Advocate block instance found for this activity';
 $string['no_local_participants'] = 'No course participants found';
 $string['no_modules_config_message'] = 'There are no modules found with activity completion enabled which have the Integrity Advocate block set up.';
 $string['no_modules_message'] = 'No modules found.';

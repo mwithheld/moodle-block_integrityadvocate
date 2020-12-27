@@ -616,7 +616,7 @@ class Api {
             // It is expensive and unneccesary to call the participant API endpoint for each.
             // Sessions will be attached to this mock Participant object.
             if (!isset($participants[$participantidentifier])) {
-                $debug && Logger::log($fxn . "::\$user=" . ia_u::var_dump($user = ia_mu::get_user_as_obj($participantidentifier)));
+                $debug && Logger::log($fxn . '::$user=' . ia_u::var_dump($user = ia_mu::get_user_as_obj($participantidentifier)));
                 switch (true) {
                     case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
                         $debug && Logger::log($fxn . "::Moodle has no user matching user->id={$participantidentifier}");

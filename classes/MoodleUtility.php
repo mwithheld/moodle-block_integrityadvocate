@@ -59,7 +59,7 @@ class MoodleUtility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = ['blockname' => \preg_replace('/^block_/', '', $blockname)];
-        $debug && Logger::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
+        $debug && Logger::log($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
 
         $records = $DB->get_records('block_instances', $params);
         $debug && Logger::log($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
@@ -397,11 +397,11 @@ class MoodleUtility {
         }
 
         global $DB;
-        $course = $DB->get_record_sql("
+        $course = $DB->get_record_sql('
                     SELECT c.id
                       FROM {course_modules} cm
                       JOIN {course} c ON c.id = cm.course
-                     WHERE cm.id = ?", [$cmid], 'id', \IGNORE_MULTIPLE);
+                     WHERE cm.id = ?', [$cmid], 'id', \IGNORE_MULTIPLE);
         $debug && Logger::log($fxn . '::Got course=' . ia_u::var_dump($course, true));
 
         if (ia_u::is_empty($course) || !isset($course->id)) {
@@ -462,11 +462,11 @@ class MoodleUtility {
      * @return array of exclusions as module-user pairs.
      */
     public static function get_gradebook_exclusions(\moodle_database $db, int $courseid): array {
-        $query = "SELECT g.id, " . $db->sql_concat('i.itemmodule', "'-'", 'i.iteminstance', "'-'", 'g.userid') . " as exclusion
+        $query = 'SELECT g.id, ' . $db->sql_concat('i.itemmodule', "'-'", 'i.iteminstance', "'-'", 'g.userid') . ' as exclusion
                    FROM {grade_grades} g, {grade_items} i
                   WHERE i.courseid = :courseid
                     AND i.id = g.itemid
-                    AND g.excluded <> 0";
+                    AND g.excluded <> 0';
         $params = ['courseid' => $courseid];
         $results = $db->get_records_sql($query, $params);
         $exclusions = [];
@@ -528,7 +528,7 @@ class MoodleUtility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = ['blockname' => \preg_replace('/^block_/', '', $blockname), 'parentcontextid' => $modulecontext->id];
-        $debug && Logger::log($fxn . "::Looking in table block_instances with params=" . ia_u::var_dump($params, true));
+        $debug && Logger::log($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
 
         // Z--.
         // Danger: Caching the resulting $record in the perrequest cache didn't work - we get an invalid stdClass back out.
@@ -548,7 +548,7 @@ class MoodleUtility {
             $r->visible = self::is_block_visibile($modulecontext->id, $r->id);
             $debug && Logger::log($fxn . "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$r->id} found \$record->visible={$r->visible}");
             if ($visibleonly && !$r->visible) {
-                $debug && Logger::log($fxn . "::\$visibleonly=true and this instance is not visible so skip it");
+                $debug && Logger::log($fxn . '::$visibleonly=true and this instance is not visible so skip it');
                 continue;
             }
 
@@ -556,7 +556,7 @@ class MoodleUtility {
             break;
         }
         if (empty($blockrecord)) {
-            $debug && Logger::log($fxn . "::No valid blockrecord found, so return false");
+            $debug && Logger::log($fxn . '::No valid blockrecord found, so return false');
             return null;
         }
 

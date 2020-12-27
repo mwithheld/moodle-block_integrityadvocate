@@ -202,7 +202,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
     // Invert the array so sessions are collected for each participant.
     $participants = [];
     foreach ($participantsessions as $s) {
-        Logger::log($fxn . "::Looking at \$s=" . ia_u::var_dump($s));
+        Logger::log($fxn . '::Looking at $s=' . ia_u::var_dump($s));
         if (!isset($participants[$s->participant->participantidentifier]) || ia_u::is_empty($thisparticipant = $participants[$s->participant->participantidentifier])) {
             $thisparticipant = $s->participant;
             $participants[$s->participant->participantidentifier] = $thisparticipant;
@@ -216,7 +216,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
 
         $thisparticipant->sessions[$s->id] = $s;
     }
-    $debug && Logger::log($fxn . "::Built \$participants=" . ia_u::var_dump($participants));
+    $debug && Logger::log($fxn . '::Built $participants=' . ia_u::var_dump($participants));
 
     // Sort each participant's sessions.
     foreach ($participants as &$p) {

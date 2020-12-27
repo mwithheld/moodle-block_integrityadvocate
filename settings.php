@@ -94,8 +94,8 @@ if ($ADMIN->fulltree) {
             list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
 
             $micro_date = \microtime();
-            $date_array = \explode(" ", $micro_date);
-            $date = \date("Y-m-d H:i:s", $date_array[1]);
+            $date_array = \explode(' ', $micro_date);
+            $date = \date('Y-m-d H:i:s', $date_array[1]);
 
             $badfolders = ['/vendor/bin', '/.git'];
             foreach ($badfolders as $key => $folder) {
@@ -131,7 +131,7 @@ if ($ADMIN->fulltree) {
                         $val = \str_replace(',', ia_output::NL, $val);
                         break;
                     case ($key === 'config_logfromtime'):
-                        $val = "$val (" . \date("Y-m-d H:i:s", $val) . ')';
+                        $val = "$val (" . \date('Y-m-d H:i:s', $val) . ')';
                         break;
                 }
 

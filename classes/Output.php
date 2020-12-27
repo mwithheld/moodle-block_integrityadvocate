@@ -45,7 +45,7 @@ class Output {
     public const NL = "\n";
 
     /** @var string HTML linebreak */
-    public const BRNL = "<br />" . self::NL;
+    public const BRNL = '<br />' . self::NL;
 
     public static function pre(string $str): string {
         return '<PRE>' . $str . '</PRE>';
@@ -121,7 +121,7 @@ class Output {
 
         $blockcontext = $blockinstance->context;
         $blockparentcontext = $blockcontext->get_parent_context();
-        $debug && Logger::log($fxn . "::Got \$blockparentcontext->id=" . ia_u::var_dump($blockparentcontext->id, true));
+        $debug && Logger::log($fxn . '::Got $blockparentcontext->id=' . ia_u::var_dump($blockparentcontext->id, true));
 
         $course = $blockinstance->get_course();
 

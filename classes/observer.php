@@ -108,7 +108,7 @@ class block_integrityadvocate_observer {
                 return false;
             default:
                 // Do nothing.
-                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not blocklisted so continue");
+                $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::This eventname is not blocklisted so continue');
         }
 
         /*
@@ -218,12 +218,12 @@ class block_integrityadvocate_observer {
      */
     protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
-        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Started");
+        $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
 
         $appid = isset($blockinstance->config->appid) ? \trim($blockinstance->config->appid) : false;
         $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
         if (!$appid) {
-            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::The block instance has no appid configured, so skip it");
+            $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . '::The block instance has no appid configured, so skip it');
             return false;
         }
 
