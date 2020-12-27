@@ -328,8 +328,7 @@ class Api {
             return [];
         }
 
-        $moduleusersessions = self::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $modulecontext->instanceid, $userid, $limit);
-        return $moduleusersessions;
+        return self::get_participantsessions($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $modulecontext->instanceid, $userid, $limit);
     }
 
     /**
@@ -937,9 +936,7 @@ class Api {
 
         $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && Logger::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
-        $isstatusvalid = ia_status::is_invalid_status((int) $statusinmodule);
-
-        return $isstatusvalid;
+        return ia_status::is_invalid_status((int) $statusinmodule);
     }
 
     /**
@@ -965,9 +962,7 @@ class Api {
 
         $statusinmodule = self::get_module_status($modulecontext, $userid);
         $debug && Logger::log($fxn . "::Got \$statusinmodule={$statusinmodule}");
-        $isstatusvalid = ia_status::is_valid_status((int) $statusinmodule);
-
-        return $isstatusvalid;
+        return ia_status::is_valid_status((int) $statusinmodule);
     }
 
     /**
