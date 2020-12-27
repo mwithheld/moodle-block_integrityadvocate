@@ -186,7 +186,7 @@ class block_integrityadvocate_observer {
 
         if ($debug) {
             // Remove the block_ prefix and _observer suffix.
-            $blockname = \implode('_', \array_slice(\explode('_', \substr(__CLASS__, \strrpos(__CLASS__, '\\') + 1)), 1, -1));
+            $blockname = \implode('_', \array_slice(\explode('_', \mb_substr(__CLASS__, \mb_strrpos(__CLASS__, '\\') + 1)), 1, -1));
             Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
         }
 

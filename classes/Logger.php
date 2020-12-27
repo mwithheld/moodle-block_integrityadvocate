@@ -333,11 +333,11 @@ class Logger {
 
         foreach ($file as $line) {
             $line = \trim($line);
-            if (\strpos($line, '//')) {
+            if (\mb_strpos($line, '//')) {
                 continue;
             }
 
-            if (\stripos($line, 'function ') !== false) {
+            if (\str_contains($line, 'function ')) {
                 $function_name = \trim(\str_ireplace([
                     'public',
                     'private',
@@ -345,7 +345,7 @@ class Logger {
                     'static'
                                 ], '', $line));
 
-                $function_name = \trim(\substr($function_name, 9, \strpos($function_name, '(') - 9));
+                $function_name = \trim(\mb_substr($function_name, 9, \mb_strpos($function_name, '(') - 9));
 
                 if (!\in_array($function_name, ['__construct', '__destruct', '__get', '__set', '__isset', '__unset'])) {
                     $functions[] = $function_name;

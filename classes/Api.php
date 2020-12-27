@@ -222,7 +222,7 @@ class Api {
         $requesttimestamp = \time();
         $requestmethod = 'GET';
         $microtime = \explode(' ', \microtime());
-        $nonce = $microtime[1] . \substr($microtime[0], 2, 6);
+        $nonce = $microtime[1] . \mb_substr($microtime[0], 2, 6);
         $debug && Logger::log($fxn . "::About to build \$requestsignature from \$requesttimestamp={$requesttimestamp}; \$requestmethod={$requestmethod}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}");
         $requestsignature = self::get_request_signature($requestapiurl, $requestmethod, $requesttimestamp, $nonce, $apikey, $appid);
 
@@ -775,7 +775,7 @@ class Api {
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (!\filter_var($requesturi, \FILTER_VALIDATE_URL) || \strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !\is_string($nonce) ||
+        if (!\filter_var($requesturi, \FILTER_VALIDATE_URL) || \mb_strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !\is_string($nonce) ||
                 !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
@@ -790,7 +790,7 @@ class Api {
         }
 
         // Create the signature data.
-        $signaturerawdata = $appid . $requestmethod . \strtolower(\urlencode($requesturi)) . $requesttimestamp . $nonce;
+        $signaturerawdata = $appid . $requestmethod . \mb_strtolower(\urlencode($requesturi)) . $requesttimestamp . $nonce;
         $debug && Logger::log($fxn . '::Built $signaturerawdata = ' . $signaturerawdata);
 
         // Decode the API Key.
@@ -1074,7 +1074,7 @@ class Api {
         $debug && Logger::log($fxn . '::Got $session->id=' . $output->id);
 
         // Check required field #2.
-        if (!isset($input->Status) || !\is_string($input->Status) || \strlen($input->Status) < 5) {
+        if (!isset($input->Status) || !\is_string($input->Status) || \mb_strlen($input->Status) < 5) {
             $debug && Logger::log($fxn . '::Minimally-required fields not found: Status');
             return null;
         }

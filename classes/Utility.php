@@ -89,7 +89,7 @@ class Utility {
             $needles = [$needles];
         }
         foreach ($needles as $query) {
-            if (\strpos($haystack, $query, $offset) !== false) {
+            if (\mb_strpos($haystack, $query, $offset) !== false) {
                 // Stop on first true result.
                 return true;
             }
