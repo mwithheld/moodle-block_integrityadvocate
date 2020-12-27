@@ -632,7 +632,7 @@ class MoodleUtility {
         $user_picture = new \user_picture($user);
         foreach ($params as $key => $val) {
             if (object_property_exists($user_picture, $key)) {
-                $user_picture->$key = $val;
+                $user_picture->{$key} = $val;
             }
         }
         $debug && Logger::log($fxn . '::Built user_picture=' . ia_u::var_dump(user_picture));
@@ -724,7 +724,7 @@ class MoodleUtility {
         $sessionkey = self::get_cache_key($key);
 
         $debug && Logger::log($fxn . "::About to set \$SESSION key={$key}");
-        return $SESSION->$sessionkey = \time();
+        return $SESSION->{$sessionkey} = \time();
     }
 
     /**
@@ -742,16 +742,16 @@ class MoodleUtility {
 
         // Clean up $contextname so it is a safe cache key.
         $sessionkey = self::get_cache_key($key);
-        if (!isset($SESSION->$sessionkey) || empty($SESSION->$sessionkey) || $SESSION->$sessionkey < 0) {
+        if (!isset($SESSION->{$sessionkey}) || empty($SESSION->{$sessionkey}) || $SESSION->{$sessionkey} < 0) {
             $debug && Logger::log($fxn . "::\$SESSION does not contain key={$key}");
             return false;
         }
 
-        $nonce = $SESSION->$sessionkey;
+        $nonce = $SESSION->{$sessionkey};
         $debug && Logger::log($fxn . "::\Found nonce={$nonce}");
 
         // Delete it since it should only be used once.
-        $SESSION->$sessionkey = null;
+        $SESSION->{$sessionkey} = null;
 
         if ($returntrueifexists) {
             return true;

@@ -423,9 +423,9 @@ class provider implements \core_privacy\local\metadata\provider,
         $info = [];
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
-                $val = \block_integrityadvocate\Status::get_status_lang($participant->$property);
+                $val = \block_integrityadvocate\Status::get_status_lang($participant->{$property});
             } else {
-                $val = $participant->$property;
+                $val = $participant->{$property};
             }
             $info[] = "&nbsp;&nbsp;&bull;&nbsp;{$property}={$val}";
         }
@@ -460,9 +460,9 @@ class provider implements \core_privacy\local\metadata\provider,
         $info = [];
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
-                $val = \block_integrityadvocate\Status::get_status_lang($participant->$property);
+                $val = \block_integrityadvocate\Status::get_status_lang($participant->{$property});
             } else {
-                $val = $participant->$property;
+                $val = $participant->{$property};
             }
             $info[] = "&nbsp;&nbsp;&bull;&nbsp;{$property}={$val}";
         }
