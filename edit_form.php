@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use block_integrityadvocate\Logger as Logger;
-use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Utility as ia_u;
 
 \defined('MOODLE_INTERNAL') || die;
 

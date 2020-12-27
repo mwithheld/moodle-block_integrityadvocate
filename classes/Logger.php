@@ -29,8 +29,8 @@ require_once(\dirname(__DIR__) . '/externallib.php');
 
 //require_once(__DIR__ . '/ParticipantsTable.php');
 
-use block_integrityadvocate\Utility as ia_u;
 use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Utility as ia_u;
 
 \defined('MOODLE_INTERNAL') || die;
 
