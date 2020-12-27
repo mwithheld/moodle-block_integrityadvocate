@@ -263,12 +263,12 @@ class Logger {
                 } else if (isset(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
                     $debugbacktrace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0];
                 }
-                $classorfile = isset($debugbacktrace['class']) ? $debugbacktrace['class'] : '';
+                $classorfile = $debugbacktrace['class'] ?? '';
                 if (empty($classorfile)) {
                     $classorfile = \basename(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['file']);
                 }
 
-                $functionorline = isset($debugbacktrace['function']) ? $debugbacktrace['function'] : '';
+                $functionorline = $debugbacktrace['function'] ?? '';
                 if (empty($functionorline)) {
                     $functionorline = (int) ($debugbacktrace['line']);
                 } else {

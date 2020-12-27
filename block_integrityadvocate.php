@@ -382,7 +382,7 @@ class block_integrityadvocate extends block_base {
         $debug && Logger::log($fxn . '::Done setting up $this->content');
 
         // Guests do not have any IA use. Don't show them the block.
-        if (!\isloggedin() or \isguestuser()) {
+        if (!\isloggedin() || \isguestuser()) {
             $debug && Logger::log($fxn . '::Not logged in or is guest user, so skip it');
             return;
         }
