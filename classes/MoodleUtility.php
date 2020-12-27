@@ -255,7 +255,7 @@ class MoodleUtility {
                         'expected' => $cm->completionexpected,
                         'section' => $cm->sectionnum,
                         // Used for sorting.
-                        'position' => \array_search($cm->id, $sections[$cm->sectionnum]),
+                        'position' => \array_search($cm->id, $sections[$cm->sectionnum], true),
                         'url' => \method_exists($cm->url, 'out') ? $cm->url->out() : '',
                         'context' => $cm->context,
                         // Removed b/c it caused error with developer debug display on: 'icon' => $cm->get_icon_url().
@@ -317,7 +317,7 @@ class MoodleUtility {
             }
 
             // Check for exclusions.
-            if (\in_array($m['type'] . '-' . $m['instance'] . '-' . $userid, $exclusions)) {
+            if (\in_array($m['type'] . '-' . $m['instance'] . '-' . $userid, $exclusions, true)) {
                 continue;
             }
 

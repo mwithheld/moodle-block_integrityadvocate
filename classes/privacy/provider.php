@@ -336,11 +336,11 @@ class provider implements \core_privacy\local\metadata\provider,
         foreach ($participants as $p) {
             // Check the participant is one we should delete.
             if (isset($p->participantidentifier) && !empty($p->participantidentifier) &&
-                    (ia_u::is_empty($useridstodelete) || \in_array($p->participantidentifier, $useridstodelete))
+                    (ia_u::is_empty($useridstodelete) || \in_array($p->participantidentifier, $useridstodelete, true))
             ) {
                 // Request participant data delete.
                 $useridentifier = $blockcontext->instanceid . '-' . $p->participantidentifier;
-                if (!\in_array($useridentifier, $participantmessagesent)) {
+                if (!\in_array($useridentifier, $participantmessagesent, true)) {
                     self::send_delete_request($blockcontext, 'Please remove IA participant data for ' . self::BRNL .
                             self::get_participant_info_for_deletion($p));
                     $participantmessagesent[] = $useridentifier;
@@ -349,11 +349,11 @@ class provider implements \core_privacy\local\metadata\provider,
 
             // Check the override user is one we should delete.
             if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) &&
-                    (ia_u::is_empty($useridstodelete) || \in_array($p->overridelmsuserid, $useridstodelete))
+                    (ia_u::is_empty($useridstodelete) || \in_array($p->overridelmsuserid, $useridstodelete, true))
             ) {
                 $useridentifier = $blockcontext->instanceid . '-' . $p->overridelmsuserid;
                 // Request override instructor data delete.
-                if (!\in_array($useridentifier, $overridemessagesent)) {
+                if (!\in_array($useridentifier, $overridemessagesent, true)) {
                     self::send_delete_request($blockcontext, 'Please remove IA *overrider* data for ' . self::BRNL .
                             self::get_override_info_for_deletion($p));
                     $overridemessagesent[] = $useridentifier;

@@ -318,7 +318,7 @@ class Logger {
         $fixpaths = function(string $f): string {
             return \str_replace(['\\'], '/', $f);
         };
-        return \in_array($fixpaths($filepath), \array_map($fixpaths, \get_included_files()));
+        return \in_array($fixpaths($filepath), \array_map($fixpaths, \get_included_files()), true);
     }
 
     /**
@@ -347,7 +347,7 @@ class Logger {
 
                 $function_name = \trim(\mb_substr($function_name, 9, \mb_strpos($function_name, '(') - 9));
 
-                if (!\in_array($function_name, ['__construct', '__destruct', '__get', '__set', '__isset', '__unset'])) {
+                if (!\in_array($function_name, ['__construct', '__destruct', '__get', '__set', '__isset', '__unset'], true)) {
                     $functions[] = $function_name;
                 }
             }

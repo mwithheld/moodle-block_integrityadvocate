@@ -102,7 +102,7 @@ class block_integrityadvocate_observer {
                         '\\mod_quiz\\event\\attempt_started',
                         '\\mod_quiz\\event\\attempt_viewed',
                         '\\mod_workshop\\event\\submission_reassessed',
-            ]):
+            ], true):
                 // None of these exact string matches on event names correspond to finishing an module.
                 $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
@@ -128,7 +128,7 @@ class block_integrityadvocate_observer {
                         '\\mod_quiz\\event\\attempt_abandoned',
                         '\\mod_quiz\\event\\attempt_reviewed',
                         '\\mod_quiz\\event\\attempt_submitted',
-            ]):
+            ], true):
                 $debug && Logger::log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:

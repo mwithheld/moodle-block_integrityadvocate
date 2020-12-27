@@ -157,7 +157,7 @@ class Api {
         unset($responseinfo['certinfo']);
         $debug && Logger::log($fxn . '::Sent url=' . \var_export($requesturi, true) . '; http_code=' . \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
 
-        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
+        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
@@ -257,7 +257,7 @@ class Api {
                         '; $response=' . ia_u::var_dump($response, true) .
                         '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
-        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR));
+        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed on: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             Logger::log($msg);
@@ -500,7 +500,7 @@ class Api {
         }
         // Make sure $params contains only valid parameters.
         foreach (\array_keys($params) as $key) {
-            if (!\in_array($key, ['courseid', 'externaluserid', 'lastmodified'])) {
+            if (!\in_array($key, ['courseid', 'externaluserid', 'lastmodified'], true)) {
                 $msg = 'Input params are invalid';
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -711,7 +711,7 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
         foreach (\array_keys($params) as $key) {
-            if (!\in_array($key, ['courseid', 'activityid', 'participantidentifier', 'limit', 'backwardsearch'])) {
+            if (!\in_array($key, ['courseid', 'activityid', 'participantidentifier', 'limit', 'backwardsearch'], true)) {
                 $msg = "Input param {$key} is invalid";
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
@@ -793,7 +793,7 @@ class Api {
         $debug && Logger::log($fxn . '::Built $signaturerawdata = ' . $signaturerawdata);
 
         // Decode the API Key.
-        $secretkeybytearray = \base64_decode($apikey);
+        $secretkeybytearray = \base64_decode($apikey, true);
 
         // Encode the signature.
         $signature = \utf8_encode($signaturerawdata);
@@ -1372,12 +1372,12 @@ class Api {
                 \validate_param($argval, $validparams[$argname]);
                 switch ($argname) {
                     case 'backwardsearch':
-                        if (!\in_array($argval, $truefalse)) {
+                        if (!\in_array($argval, $truefalse, true)) {
                             throw new \invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
                         }
                         break;
                     case 'statuses':
-                        if (!\in_array($argval, $remotestatuses)) {
+                        if (!\in_array($argval, $remotestatuses, true)) {
                             throw new \invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
                         }
                         break;

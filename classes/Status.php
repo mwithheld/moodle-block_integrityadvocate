@@ -260,7 +260,7 @@ class Status {
      * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_override_status(int $statusint): bool {
-        return \in_array($statusint, \array_keys(self::get_overrides()));
+        return \in_array($statusint, \array_keys(self::get_overrides()), true);
     }
 
     /**
@@ -270,7 +270,7 @@ class Status {
      * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_valid_status(int $statusint): bool {
-        return \in_array($statusint, \array_keys(self::get_valids()));
+        return \in_array($statusint, \array_keys(self::get_valids()), true);
     }
 
     /**
@@ -280,7 +280,7 @@ class Status {
      * @return bool True if $statusint is the key for a member of array of "override" statuses, e.g. 0=Valid, 1=Invalid.
      */
     public static function is_invalid_status(int $statusint): bool {
-        return \in_array($statusint, \array_keys(self::get_invalids()));
+        return \in_array($statusint, \array_keys(self::get_invalids()), true);
     }
 
     /**
