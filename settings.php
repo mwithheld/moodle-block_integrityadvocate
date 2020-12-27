@@ -115,7 +115,7 @@ if ($ADMIN->fulltree) {
             $siteinfo = [
                 'Timestamp' => "{$date}:{$date_array[0]}",
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
-                'PHP version' => \phpversion(),
+                'PHP version' => \PHP_VERSION,
                 'Moodle version' => moodle_major_version(),
                 'IA ping' => \implode(ia_output::BRNL, ["ip=$remote_ip", "total time={$total_time}s", "response code={$http_reponsecode}", 'body=' . \htmlentities(\strip_tags($http_responsebody))]),
                 INTEGRITYADVOCATE_BLOCK_NAME . ' config' => '',

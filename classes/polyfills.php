@@ -26,7 +26,7 @@
 /*
  * Polyfill functions
  */
-if (\version_compare(\phpversion(), '7.3.0', '<')) {
+if (\version_compare(\PHP_VERSION, '7.3.0', '<')) {
     if (!\function_exists('is_countable')) {
 
         /**
@@ -42,7 +42,7 @@ if (\version_compare(\phpversion(), '7.3.0', '<')) {
 
     }
 }
-if (\version_compare(\phpversion(), '8', '<')) {
+if (\version_compare(\PHP_VERSION, '8', '<')) {
 
     if (!\defined('FILTER_VALIDATE_BOOL') && \defined('FILTER_VALIDATE_BOOLEAN')) {
         \define('FILTER_VALIDATE_BOOL', \FILTER_VALIDATE_BOOLEAN);
