@@ -27,8 +27,6 @@ namespace block_integrityadvocate;
 // Needed so we can choose to log from methods in this class.
 require_once(\dirname(__DIR__) . '/externallib.php');
 
-//require_once(__DIR__ . '/ParticipantsTable.php');
-
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -74,7 +72,7 @@ class Logger {
     // Unused: public static $logForClass = [];.
 
     public static function get_log_destinations(): array {
-        return [Logger::NONE, Logger::ERRORLOG, Logger::HTML, Logger::LOGGLY, Logger::MLOG, Logger::STDOUT];
+        return [self::NONE, self::ERRORLOG, self::HTML, self::LOGGLY, self::MLOG, self::STDOUT];
     }
 
     /** @var string Even if the local debug flag is false, this enables debug logging for these functions.
@@ -216,17 +214,17 @@ class Logger {
             if (!ia_u::is_empty($blockconfig) && isset($blockconfig->config_logdestination) && !ia_u::is_empty($blockconfig->config_logdestination)) {
                 $dest = $blockconfig->config_logdestination;
             } else {
-                $dest = Logger::$default;
+                $dest = self::$default;
             }
         }
         $debug && \error_log($fxn . '::After cleanup, $dest=' . $dest);
 
         // Short circuit without logging anything in these cases.
-        if ($dest === Logger::NONE) {
+        if ($dest === self::NONE) {
             $debug && \error_log($fxn . '::Skipping - $dest=NONE');
             return false;
         }
-        if (!($force && $dest === Logger::ERRORLOG)) {
+        if (!($force && $dest === self::ERRORLOG)) {
 
             $debug && \error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
             if (!self::do_log_for_ip()) {
@@ -248,16 +246,16 @@ class Logger {
         $cleanedmsg = \trim(\preg_replace('/^[ \t]*[\r\n]+/m', '', $cleanedmsg));
 
         switch ($dest) {
-            case Logger::HTML:
+            case self::HTML:
                 print($cleanedmsg) . "<br />\n";
                 break;
-            case Logger::MLOG:
+            case self::MLOG:
                 \mtrace(html_to_text($cleanedmsg, 0, false));
                 break;
-            case Logger::STDOUT:
+            case self::STDOUT:
                 print(\htmlentities($cleanedmsg, 0, 'UTF-8')) . "\n";
                 break;
-            case Logger::LOGGLY:
+            case self::LOGGLY:
                 if (isset(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1])) {
                     $debugbacktrace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
                 } else if (isset(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0])) {
@@ -282,10 +280,10 @@ class Logger {
                 // Usage https://github.com/Seldaek/monolog/blob/1.x/doc/01-usage.md.
                 // Usage https://dzone.com/articles/php-monolog-tutorial-a-step-by-step-guide.
                 $log = new \Monolog\Logger("$tag,$siteslug,$classorfile");
-                $log->pushHandler(new \Monolog\Handler\LogglyHandler(Logger::LOGGLY_TOKEN, \Monolog\Logger::DEBUG));
+                $log->pushHandler(new \Monolog\Handler\LogglyHandler(self::LOGGLY_TOKEN, \Monolog\self::DEBUG));
                 $log->debug($cleanedmsg);
                 break;
-            case Logger::ERRORLOG:
+            case self::ERRORLOG:
             default:
                 \error_log($cleanedmsg);
                 break;

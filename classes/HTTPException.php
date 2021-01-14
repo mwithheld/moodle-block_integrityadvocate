@@ -37,12 +37,12 @@ class HttpException extends \Exception {
 
     public function __construct(
             $message,
-            $httpStatus,
+            $httpstatus,
             $uri,
             \Exception $previous = null
     ) {
         $this->uri = $uri;
-        parent::__construct($message, $httpStatus, $previous);
+        parent::__construct($message, $httpstatus, $previous);
     }
 
 }

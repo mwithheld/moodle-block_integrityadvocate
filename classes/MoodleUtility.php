@@ -578,7 +578,6 @@ class MoodleUtility {
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . '::Started with type($user)=' . \gettype($user));
 
-
         if (\is_numeric($user)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
@@ -629,10 +628,10 @@ class MoodleUtility {
             return $cachedvalue;
         }
 
-        $user_picture = new \user_picture($user);
+        $userpicture = new \user_picture($user);
         foreach ($params as $key => $val) {
-            if (object_property_exists($user_picture, $key)) {
-                $user_picture->{$key} = $val;
+            if (object_property_exists($userpicture, $key)) {
+                $userpicture->{$key} = $val;
             }
         }
         $debug && Logger::log($fxn . '::Built user_picture=' . ia_u::var_dump(user_picture));
@@ -641,13 +640,12 @@ class MoodleUtility {
         $page->set_url('/user/profile.php');
         if (isset($params['courseid']) && !ia_u::is_empty($params['courseid'])) {
             $page->set_context(\context_course::instance($params['courseid']));
-        } elseif (!ia_u::is_empty($user_picture->courseid)) {
-            $page->set_context(\context_course::instance($user_picture->courseid));
+        } else if (!ia_u::is_empty($userpicture->courseid)) {
+            $page->set_context(\context_course::instance($userpicture->courseid));
         } else {
             $page->set_context(\context_system::instance());
         }
-        $picture = $user_picture->get_url($page, $page->get_renderer('core'))->out(false);
-
+        $picture = $userpicture->get_url($page, $page->get_renderer('core'))->out(false);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $picture)) {
             throw new \Exception('Failed to set value in the cache');

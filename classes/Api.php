@@ -854,11 +854,11 @@ class Api {
 
     /**
      * Get the user's participant status in the module.
-     * This may differ from the Participant-level (overall) status.
+     * This may differ from the Participant-level (overall) status, which is not module-specific.
      *
      * @param \context $modulecontext The module context to look in.
      * @param int $userid The userid to get IA info for.
-     * @return int A Status status constant _INT value.
+     * @return int A block_integrityadvocate\Status status constant _INT value.
      */
     public static function get_module_status(\context $modulecontext, int $userid): int {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);

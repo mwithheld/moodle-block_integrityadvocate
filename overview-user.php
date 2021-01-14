@@ -89,11 +89,11 @@ if ($continue) {
     /**
      * Code here is adapted from https://gist.github.com/matthanger/1171921 .
      */
-    $launch_url = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participant';
+    $launchurl = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participant';
 
-    $launch_data = [
+    $launchdata = [
         // Required for Moodle oauth_helper.
-        'api_root' => $launch_url,
+        'api_root' => $launchurl,
         // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
         'launch_presentation_locale' => \current_language(),
         // 2020Dec: roles appears to be unused. 0 = admin; 3=learner.
@@ -124,12 +124,12 @@ if ($continue) {
     ];
 
     // Setup the LTI UI for one specific user.
-    $launch_data['UserId'] = $userid;
+    $launchdata['UserId'] = $userid;
 
     // We only need launch the LTI.
     // The request is signed using OAuth Core 1.0 spec: http://oauth.net/core/1.0/ .
     // Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
     require_once($CFG->libdir . '/oauthlib.php');
-    $signature = (new \oauth_helper($launch_data))->sign('POST', $launch_url, $launch_data, \urlencode($blockinstance->config->apikey) . '&');
-    echo ia_output::get_lti_iframe_html($launch_url, $launch_data, $signature);
+    $signature = (new \oauth_helper($launchdata))->sign('POST', $launchurl, $launchdata, \urlencode($blockinstance->config->apikey) . '&');
+    echo ia_output::get_lti_iframe_html($launchurl, $launchdata, $signature);
 }

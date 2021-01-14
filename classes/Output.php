@@ -547,14 +547,14 @@ class Output {
         }
     }
 
-    public static function get_lti_iframe_html(string $launch_url, array $launch_data, string $signature): string {
+    public static function get_lti_iframe_html(string $url, array $data, string $signature): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$launch_url={$launch_url}; \$signature={$signature}; \$launch_data=" . ia_u::var_dump($launch_data);
+        $debugvars = $fxn . "::Started with \$url={$url}; \$signature={$signature}; \$data=" . ia_u::var_dump($data);
         $debug && Logger::log($debugvars);
 
-        $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="' . $launch_url . '">'];
-        foreach ($launch_data as $k => $v) {
+        $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="' . $url . '">'];
+        foreach ($data as $k => $v) {
             $output[] = '<input type="hidden" name="' . $k . '" value="' . \htmlspecialchars($v, \ENT_QUOTES, 'UTF-8') . '">';
         }
         $output[] = '<input type="hidden" name="oauth_signature" value="' . $signature . '"><button type="submit">Launch</button></form>';

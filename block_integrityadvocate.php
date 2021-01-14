@@ -315,9 +315,9 @@ class block_integrityadvocate extends block_base {
         $user_is_editing = $this->page->user_is_editing();
         $debug && Logger::log($fxn . '::Course editing mode=' . ($user_is_editing ? 1 : 0));
 
-        /**
-         * TODO: Replicate the commented-out foreach loop using the block instances.  Need different links for course vs quiz vs etc.
-         */
+        //
+        // TODO: Replicate the commented-out foreach loop using the block instances.  Need different links for course vs quiz vs etc.
+        //
         foreach ($iablocksinthiscourse as $blockinstance) {
             $debug && Logger::log($fxn . '::Looking at block $b=' . ia_u::var_dump($blockinstance));
 
@@ -326,8 +326,8 @@ class block_integrityadvocate extends block_base {
             switch (true) {
                 case($parentcontext->contextlevel == CONTEXT_COURSE) :
                     $this->content->text .= \html_writer::link('', get_string('course'));
-                    //TODO: Somehow output the block edit link, e.g. /course/view.php?id=2&bui_editid=20
-                    //$course = \context_course::instance($parentcontext->instanceid);
+                    // TODO: Somehow output the block edit link, e.g. /course/view.php?id=2&bui_editid=20.
+                    // Commented out on purpose: $course = \context_course::instance($parentcontext->instanceid);.
                     break;
                 case($parentcontext->contextlevel == CONTEXT_MODULE) :
                     // Output a link to the module.
