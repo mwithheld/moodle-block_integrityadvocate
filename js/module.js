@@ -218,9 +218,6 @@ M.block_integrityadvocate = {
         self.eltUserNotifications = $('#user-notifications');
         self.eltDivMain = $('div[role="main"]');
 
-        // Load font used for icons.
-        $('head').append($('<link rel="stylesheet" type="text/css" />').attr('href', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-
         // Handlers for different kinds of pages - this is for any required setup before the IA JS is loaded.
         switch (true) {
             case (self.isQuizAttempt):
