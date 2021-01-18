@@ -160,7 +160,7 @@ $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
 // Start page output.
 // All header parts like JS, CSS must be above this.
 echo $OUTPUT->header();
-echo $OUTPUT->heading($title, 2);
+echo $OUTPUT->heading($title . '&nbsp;' . $OUTPUT->image_icon('i/reload', \get_string('refresh'), 'moodle', ['onclick' => 'document.getElementById("iframelaunch").src=document.getElementById("iframelaunch").src;e.preventDefault();return false']), 2);
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
 // Gather capabilities for later use.
