@@ -1002,6 +1002,12 @@ class Api {
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
         $debug && Logger::log($fxn . '::Got blockinstance with id=' . isset($blockinstance->instance->id) ?: 'empty');
 
+        // If the block is not configured yet, simply return empty result.
+        if (ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_config_errors())) {
+            $debug && Logger::log($fxn . '::The blockinstance is empty or has config errors, so return empty array');
+            return null;
+        }
+
         $latestsessions = self::get_participantsessions_activity($blockinstance->config->apikey, $blockinstance->config->appid, $modulecontext->get_course_context()->instanceid, $modulecontext->instanceid, $userid, 1);
 
         // If $latestsession is empty then we didn't find anything.
