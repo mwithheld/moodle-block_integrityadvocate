@@ -802,7 +802,7 @@ class Api {
      * @return array<Session> Empty array if nothing found; Else array of Session objects with no photo info.
      */
     public static function get_participantsessions_activity(string $apikey, string $appid, int $courseid, int $moduleid, int $userid, int $limit = 0): array {
-        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}; \$limit={$limit}";
         $debug && Logger::log($debugvars);
@@ -855,7 +855,7 @@ class Api {
      * @return array<Session> Empty array if nothing found; Else array of Session objects.
      */
     private static function get_participantsessions_activity_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
-        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
         $debug && Logger::log($debugvars);
@@ -986,7 +986,7 @@ class Api {
      * @return null|Session Null if nothing found; else the most recent session for that user in that activity.
      */
     public static function get_module_session_latest(\context $modulecontext, int $userid): ?Session {
-        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
@@ -1022,7 +1022,7 @@ class Api {
      * @return int A block_integrityadvocate\Status status constant _INT value.
      */
     public static function get_module_status(\context $modulecontext, int $userid): int {
-        $debug = true || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && Logger::log($debugvars);
