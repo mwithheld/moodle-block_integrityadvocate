@@ -37,8 +37,7 @@ class FeatureControl {
     /** @var bool True to show a list of IA-enabled modules on the course-level block. */
     public const MODULE_LIST = true;
 
-    /** @var bool True to show the gear icon to configure the module-level blocks. */
-    // This feature is not ready yet!!
+    /** @var bool True to show the gear icon to configure the module-level blocks. This feature is not ready yet!! */
     public const MODULE_LIST_CONFIGLINK = false;
 
     /** @var bool True to showing the overview_course content using the IA LTI endpoint. */

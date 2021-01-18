@@ -25,16 +25,21 @@
 namespace block_integrityadvocate;
 
 /**
- *  This class represents an HTTP transport error.
- * Copied from GeoIp2\Exception
+ * This class represents an HTTP transport error. Copied from GeoIp2\Exception.
  */
 class HttpException extends \Exception {
 
-    /**
-     * The URI queried.
-     */
+    /** @var string The URI queried. */
     public $uri;
 
+    /**
+     * Build an HTTPException object.
+     *
+     * @param String $message The exception message.
+     * @param int $httpstatus HTTP status to send back.
+     * @param String $uri URL where the error occurred.
+     * @param \Exception $previous The Exception that cause this error.
+     */
     public function __construct(
             $message,
             $httpstatus,

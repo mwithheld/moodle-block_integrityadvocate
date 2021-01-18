@@ -34,6 +34,15 @@ use block_integrityadvocate\Utility as ia_u;
  */
 class MoodleUtility {
 
+    /**
+     * Return HTML for a button.
+     *
+     * @param \context $context The context to display the button in.
+     * @param string $label Text to show on the button.
+     * @param string $url URL the button should go to. Always uses GET method.
+     * @param array $options HTML attributes for the HTML button tag.
+     * @return string
+     */
     public static function get_button_html(\context $context, string $label, string $url, array $options = []): string {
         $page = new \moodle_page();
         $page->set_url('/user/profile.php');
@@ -93,10 +102,11 @@ class MoodleUtility {
     }
 
     /**
-     * Get blocks in the given contextid (not recursively)
+     * Get blocks in the given contextid (not recursively).
      *
-     * @param int $contextid The context id to look in
+     * @param int $contextid The context id to look in.
      * @param string $blockname Name of the block to get instances for.
+     * @param bool $visibleonly True to return only blocks visible to the student.
      * @return array where key=block_instances.id; val=block_instance object.
      */
     private static function get_blocks_in_context(int $contextid, string $blockname, bool $visibleonly = false): array {
@@ -121,6 +131,7 @@ class MoodleUtility {
      *
      * @param int $courseid The courseid to look in.
      * @param string $blockname Name of the block to get instances for.
+     * @param bool $visibleonly True to return only blocks visible to the student.
      * @return array where key=block_instances.id; val=block_instance object.
      */
     public static function get_all_course_blocks(int $courseid, string $blockname, bool $visibleonly = false): array {
@@ -236,7 +247,7 @@ class MoodleUtility {
      * Returns the modules with completion set in current course.
      *
      * @param int courseid The id of the course.
-     * @return array<module<name=value>> Modules with completion settings in the course.
+     * @return array<module<name-value>> Modules with completion settings in the course.
      */
     public static function get_modules_with_completion(int $courseid): array {
         $modinfo = \get_fast_modinfo($courseid, -1);
@@ -275,7 +286,7 @@ class MoodleUtility {
      *
      * @param \stdClass $cfg Pass in the Moodle $CFG object.
      * @param array<object> $modules The possible modules that can occur for modules.
-     * @param int $userid The user's id.
+     * @param int $userid The userid it should be visible to.
      * @param int $courseid the course for filtering visibility.
      * @param array<int> $exclusions Assignment exemptions for students in the course.
      * @return array<object> The array without the restricted modules.

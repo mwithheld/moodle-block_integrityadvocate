@@ -58,7 +58,6 @@ trait external_ia_session_tracking {
      * @param int $courseid The courseid the user is working in.
      * @param int $moduleid The moduleid the user is working in.
      * @param int $userid The user's userid.
-     * @param int $moduleid CMID for the module.
      * @return array Build result array that sent back as the AJAX result.
      */
     private static function session_function_validate_params(string $appid, int $courseid, int $moduleid, int $userid): array {
@@ -160,7 +159,6 @@ trait external_ia_session_tracking {
      * @param int $courseid The courseid the user is working in.
      * @param int $moduleid The moduleid the user is working in.
      * @param int $userid The user's userid.
-     * @param int $moduleid CMID for the module.
      * @return array Build result array that sent back as the AJAX result.
      */
     public static function session_close(string $appid, int $courseid, int $moduleid, int $userid): array {
@@ -216,7 +214,6 @@ trait external_ia_session_tracking {
      * @param int $courseid The course id the user is working in.
      * @param int $moduleid The module id the user is working in.
      * @param int $userid The user's userid.
-     * @param int $moduleid CMID for the module.
      * @return array Build result array that sent back as the AJAX result.
      */
     public static function session_open(string $appid, int $courseid, int $moduleid, int $userid): array {

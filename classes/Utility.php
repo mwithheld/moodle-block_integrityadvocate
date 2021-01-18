@@ -54,7 +54,7 @@ class Utility {
      * Requires dashes and removes braces.
      *
      * @link https://stackoverflow.com/a/1253417
-     * @param String $str String to check.
+     * @param string $str String to test.
      * @return bool True if is a valid guid.
      */
     public static function is_guid(string $str): bool {

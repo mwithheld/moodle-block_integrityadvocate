@@ -71,6 +71,11 @@ class Logger {
      */
     // Unused: public static $logForClass = [];.
 
+    /**
+     * Return an array of the possible log destination constant values.
+     *
+     * @return array of the possible log destination constant values.
+     */
     public static function get_log_destinations(): array {
         return [self::NONE, self::ERRORLOG, self::HTML, self::LOGGLY, self::MLOG, self::STDOUT];
     }
@@ -155,6 +160,11 @@ class Logger {
         return $result;
     }
 
+    /**
+     * Return true if the time now is before the block config->config_logfromtime value.
+     *
+     * @return bool true if the time now is before the block config->config_logfromtime value.
+     */
     private static function is_within_log_time(): bool {
         $debug = /* Do not make this true except in unusual circumstances */ false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -307,9 +317,9 @@ class Logger {
 
     /**
      * Return true if a file has been included.
-     * @url https://stackoverflow.com/a/52467334
-     * @param String $f file path.
-     * @param String $f file path.
+     *
+     * @link https://stackoverflow.com/a/52467334
+     * @param String $filepath The file path to check.
      * @return bool true if a file has been included.
      */
     private static function file_has_been_included(string $filepath): bool {

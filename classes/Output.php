@@ -47,6 +47,12 @@ class Output {
     /** @var string HTML linebreak */
     public const BRNL = '<br />' . self::NL;
 
+    /**
+     * Wrap the $str value in an HTML <PRE> tag and return it.
+     *
+     * @param string $str The string to wrap.
+     * @return string The wrapped $str string.
+     */
     public static function pre(string $str): string {
         return '<PRE>' . $str . '</PRE>';
     }
@@ -339,7 +345,7 @@ class Output {
      * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
-     * @param Participant $participant Participant object from the IA API.
+     * @param \block_integrityadvocate\Participant $participant Participant object from the IA API.
      * @param bool $showphoto True to include the user photo.
      * @param bool $showoverviewbutton True to show the Overview button.
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
@@ -447,11 +453,12 @@ class Output {
     }
 
     /**
-     * Get the HTML used to display the participant photo in the IA summary output
+     * Get the HTML used to display the participant photo in the IA summary output.
      *
      * @param int $userid The user id.
      * @param string $photo The user photo base64 string.
-     * @param $email The user email.
+     * @param int $status The IA status.
+     * @param string $email The user email.
      * @return string HTML to output
      */
     public static function get_participant_photo_output(int $userid, string $photo, int $status, string $email): string {
@@ -547,6 +554,14 @@ class Output {
         }
     }
 
+    /**
+     * Returns the HTML for a form and its corresponding LTI iframe.
+     *
+     * @param string $url The URL the iframe points to.
+     * @param array $data Form input fields used to launch the LTI iframe.
+     * @param string $signature LTI signature.
+     * @return string The HTML for a form and its corresponding LTI iframe.
+     */
     public static function get_lti_iframe_html(string $url, array $data, string $signature): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;

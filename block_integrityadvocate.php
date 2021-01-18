@@ -359,6 +359,11 @@ class block_integrityadvocate extends block_base {
         return true;
     }
 
+    /**
+     * Get the context for this block.
+     *
+     * @return \context_block
+     */
     public function get_context(): \context_block {
         return $this->context;
     }
@@ -561,6 +566,11 @@ class block_integrityadvocate extends block_base {
         $this->content->footer = $this->get_footer();
     }
 
+    /**
+     * Get the block footer HTML.
+     *
+     * @return string Footer HTML.
+     */
     private function get_footer() {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);

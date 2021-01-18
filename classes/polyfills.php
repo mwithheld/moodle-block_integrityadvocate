@@ -50,6 +50,13 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
 
     if (!\function_exists('str_contains')) {
 
+        /**
+         * Polyfill for str_contains.
+         *
+         * @param string $haystack The string to search in.
+         * @param string $needle The substring to search for in the haystack.
+         * @return bool Returns true if needle is in haystack, false otherwise.
+         */
         function str_contains(string $haystack, string $needle): bool {
             return '' === $needle || false !== \mb_strpos($haystack, $needle);
         }
@@ -57,6 +64,13 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
     }
     if (!\function_exists('str_icontains')) {
 
+        /**
+         * Case-insensitive str_contains.
+         *
+         * @param string $haystack The string to search in.
+         * @param string $needle The substring to search for in the haystack.
+         * @return bool Returns true if needle is in haystack, false otherwise.
+         */
         function str_icontains(string $haystack, string $needle): bool {
             return '' === $needle || false !== \mb_stripos($haystack, $needle);
         }
@@ -65,6 +79,13 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
 
     if (!\function_exists('str_starts_with')) {
 
+        /**
+         * Performs a case-sensitive check indicating if haystack begins with needle.
+         *
+         * @param string $haystack The string to search in.
+         * @param string $needle The substring to search for in the haystack.
+         * @return bool Returns true if haystack begins with needle, false otherwise.
+         */
         function str_starts_with(string $haystack, string $needle): bool {
             return 0 === \strncmp($haystack, $needle, \mb_strlen($needle));
         }
@@ -73,14 +94,28 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
 
     if (!\function_exists('str_ends_with')) {
 
+        /**
+         * Performs a case-sensitive check indicating if haystack ends with needle.
+         *
+         * @param string $haystack The string to search in.
+         * @param string $needle The substring to search for in the haystack.
+         * @return bool Returns true if haystack ends with needle, false otherwise.
+         */
         function str_ends_with(string $haystack, string $needle): bool {
             return '' === $needle || ('' !== $haystack && 0 === \substr_compare($haystack, $needle, -\mb_strlen($needle)));
         }
 
     }
 
-    if (!\function_exists('str_starts_with')) {
+    if (!\function_exists('get_debug_type')) {
 
+        /**
+         * Returns the type of a variable. The new function works in quite a similar way as the gettype function, but get_debug_type returns native type names and resolves class names.
+         *
+         * @link https://kinsta.com/blog/php-8/#get_debug_type
+         * @param \__PHP_Incomplete_Class $value The variable to get the type of.
+         * @return string Native type of class name.
+         */
         function get_debug_type($value): string {
             switch (true) {
                 case null === $value: return 'null';
