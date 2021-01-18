@@ -91,11 +91,11 @@ if ($ADMIN->fulltree) {
                 return $cachedvalue;
             }
 
-            list($remote_ip, $http_reponsecode, $http_responsebody, $total_time) = \block_integrityadvocate\Api::ping();
+            list($remoteip, $httpreponsecode, $httpresponsebody, $totaltime) = \block_integrityadvocate\Api::ping();
 
-            $micro_date = \microtime();
-            $date_array = \explode(' ', $micro_date);
-            $date = \date('Y-m-d H:i:s', $date_array[1]);
+            $microdate = \microtime();
+            $datearray = \explode(' ', $microdate);
+            $date = \date('Y-m-d H:i:s', $datearray[1]);
 
             $badfolders = ['/vendor/bin', '/.git'];
             foreach ($badfolders as $key => $folder) {
@@ -113,11 +113,11 @@ if ($ADMIN->fulltree) {
             }
 
             $siteinfo = [
-                'Timestamp' => "{$date}:{$date_array[0]}",
+                'Timestamp' => "{$date}:{$datearray[0]}",
                 'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
                 'PHP version' => \PHP_VERSION,
                 'Moodle version' => moodle_major_version(),
-                'IA ping' => \implode(ia_output::BRNL, ["ip=$remote_ip", "total time={$total_time}s", "response code={$http_reponsecode}", 'body=' . \htmlentities(\strip_tags($http_responsebody))]),
+                'IA ping' => \implode(ia_output::BRNL, ["ip=$remoteip", "total time={$totaltime}s", "response code={$httpreponsecode}", 'body=' . \htmlentities(\strip_tags($httpresponsebody))]),
                 INTEGRITYADVOCATE_BLOCK_NAME . ' config' => '',
                 'Bad folders' => \implode(ia_output::BRNL, $badfolders),
                 'Bad plugins' => \implode(ia_output::BRNL, $badplugins),

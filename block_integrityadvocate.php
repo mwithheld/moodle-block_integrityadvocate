@@ -281,7 +281,7 @@ class block_integrityadvocate extends block_base {
      *
      * @return bool True if some output was built.
      */
-    function populate_course_modulelist(): bool {
+    private function populate_course_modulelist(): bool {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
         $debug && Logger::log($fxn . '::Started');
@@ -312,8 +312,8 @@ class block_integrityadvocate extends block_base {
         $formstart .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
         $formstart .= '<input type="hidden" name="edit" value="on">';
 
-        $user_is_editing = $this->page->user_is_editing();
-        $debug && Logger::log($fxn . '::Course editing mode=' . ($user_is_editing ? 1 : 0));
+        $userisediting = $this->page->user_is_editing();
+        $debug && Logger::log($fxn . '::Course editing mode=' . ($userisediting ? 1 : 0));
 
         //
         // TODO: Replicate the commented-out foreach loop using the block instances.  Need different links for course vs quiz vs etc.
@@ -336,7 +336,7 @@ class block_integrityadvocate extends block_base {
 
                     if (ia\FeatureControl::MODULE_LIST_CONFIGLINK && has_capability('moodle/block:edit', $blockinstance->context)) {
                         $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
-                        if ($user_is_editing) {
+                        if ($userisediting) {
                             // Output a link to module's block config.
                             $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
                         } else {
@@ -452,8 +452,8 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapability_overview:
                         $debug && Logger::log($fxn . '::Teacher viewing a course student profile: Show latest student info');
-                        $is_participants_page = str_contains($this->page->url, '/user/view.php?');
-                        if ($is_participants_page && ia\FeatureControl::OVERVIEW_USER_LTI) {
+                        $isparticipantspage = str_contains($this->page->url, '/user/view.php?');
+                        if ($isparticipantspage && ia\FeatureControl::OVERVIEW_USER_LTI) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && Logger::log($fxn . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
@@ -481,7 +481,7 @@ class block_integrityadvocate extends block_base {
                         if (ia\FeatureControl::OVERVIEW_COURSE_LTI) {
                             $this->content->text .= ia_output::get_button_overview_course($this);
                         }
-                        if (!$is_participants_page && ia\FeatureControl::MODULE_LIST) {
+                        if (!$isparticipantspage && ia\FeatureControl::MODULE_LIST) {
                             // Adds to $this->context->text and $this->context->footer.
                             $this->populate_course_modulelist();
                         }
