@@ -184,11 +184,10 @@ function block_integrityadvocate_get_course_sessions(string $apikey, string $app
 /**
  * Get the participants' latest sessions.  Note the participants are only stubs.
  *
- * @param string $apikey The API key. * @param string $apikey The API key.
-
+ * @param string $apikey The API key.
  * @param string $appid The App ID.
  * @param int $courseid The course id.
- * @return array<block_integrityadvocate\Participants> Each participant has the sessions sorted.
+ * @return array Array of Participants, each with the sessions attribute sorted by start date ascending.
  */
 function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid) {
     $debug = false || Logger::do_log_for_function(__FILE__ . '::' . __FUNCTION__);
@@ -270,9 +269,9 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
 /**
  * Filter the input Moodle modules array for ones that use an IA block.
  *
- * @param array<\stdClass> $modules Course modules to check.
- * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
- * @return array<\Arrays> of course modules, e.g. each entry is like this:
+ * @param array $modules Array of \stdClass course modules to check.
+ * @param array $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @return array Array of course modules, each as an array. E.g. each entry is like this:
  *  (
  *   [type] => quiz
  *   [modulename] => Quiz

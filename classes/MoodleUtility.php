@@ -247,7 +247,7 @@ class MoodleUtility {
      * Returns the modules with completion set in current course.
      *
      * @param int courseid The id of the course.
-     * @return array<module<name-value>> Modules with completion settings in the course.
+     * @return array Modules with completion settings in the course in the format [module[name-value]].
      */
     public static function get_modules_with_completion(int $courseid): array {
         $modinfo = \get_fast_modinfo($courseid, -1);
@@ -285,11 +285,11 @@ class MoodleUtility {
      * Filters modules that a user cannot see due to grouping constraints.
      *
      * @param \stdClass $cfg Pass in the Moodle $CFG object.
-     * @param array<object> $modules The possible modules that can occur for modules.
+     * @param array $modules Array of objects representing the possible modules that can occur for modules.
      * @param int $userid The userid it should be visible to.
      * @param int $courseid the course for filtering visibility.
-     * @param array<int> $exclusions Assignment exemptions for students in the course.
-     * @return array<object> The array without the restricted modules.
+     * @param array $exclusions Array of integers. Assignment exemptions for students in the course.
+     * @return array Array of objects representing the input modules without the restricted modules.
      */
     public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, array $exclusions): array {
         $filteredmodules = [];

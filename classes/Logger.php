@@ -125,7 +125,7 @@ class Logger {
      *   - non-namespaced standalone function: functionname
      *   - namespaced class method: namespace\classname::functionname
      *   - namespaced standalone function: namespace\functionname.
-     * @param string $classname Namespaced functionname.
+     * @param string $functionname Namespaced functionname.
      * @return bool True if the namespaced functionname is in the self::$logForFunction array.
      */
     public static function do_log_for_function(string $functionname): bool {
@@ -319,8 +319,8 @@ class Logger {
      * Return true if a file has been included.
      *
      * @link https://stackoverflow.com/a/52467334
-     * @param String $filepath The file path to check.
-     * @return bool true if a file has been included.
+     * @param string $filepath The file path to check.
+     * @return bool True if a file has been included.
      */
     private static function file_has_been_included(string $filepath): bool {
         $fixpaths = function(string $f): string {

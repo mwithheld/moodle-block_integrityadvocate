@@ -171,7 +171,7 @@ class Api {
      * @param string $endpoint One of the self::ENDPOINT* constants.
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
-     * @param array<key-val> $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
+     * @param array $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
@@ -304,7 +304,7 @@ class Api {
      * @param \context $modulecontext Module context to look in.
      * @param int $userid User to get participant data for.
      * @param int limit How many records to return; default 0=all.
-     * @return array<Session> Array of Sessions; Empty array if nothing found.
+     * @return array Array of Sessions; Empty array if nothing found.
      */
     public static function get_module_user_sessions(\context $modulecontext, int $userid, int $limit = 0): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -479,7 +479,7 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The Appid.
-     * @param array<key-val> $params Query params in key-value format: courseid=>someval is required.  Optional externaluserid=user email.
+     * @param array $params Query params in key-value format: courseid=>someval is required.  Optional externaluserid=user email.
      * @param string $nexttoken The next token to get subsequent results from the API.
      * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
@@ -570,7 +570,7 @@ class Api {
      * @param int $moduleid Get info for this course module.
      * @param int $userid Optionally get info for this user.
      * @param int $limit Optionally limit to this number of results.  Min 0; max 10; default=IA API default (10).
-     * @return array<Session> Empty array if nothing found; Else array of Session objects.
+     * @return array Empty array if nothing found; Else array of Session objects.
      */
     public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, int $userid = -1, int $limit = 0): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -619,9 +619,9 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The AppId.
-     * @param array<key-val> $params Query params in key-value format: [courseid=>intval, activityid=>intval] are required, optional userid=>intval.
+     * @param array $params Query params in key-value format: [courseid=>intval, activityid=>intval] are required, optional userid=>intval.
      * @param string $nexttoken The next token to get subsequent results from the API.
-     * @return array<Session> Empty array if nothing found; Else array of Session objects.
+     * @return array Empty array if nothing found; Else array of Session objects.
      */
     private static function get_participantsessions_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -702,7 +702,7 @@ class Api {
      * @param int $courseid The courseid.
      * @param int $moduleid The moduleid.
      * @param int $userid The userid.
-     * @param array<ParticipantSession_raw> $participantsessionsraw ParticipantSession response body from the IA API.
+     * @param array $participantsessionsraw An array representing the ParticipantSession response body from the IA API.
      * @return array ParticipantSession An array of parsed ParticipantSession objects with parent attribute populated with mock Participant objects.
      */
     private static function attach_sessions_to_mock_participants(int $courseid, int $moduleid, int $userid, array $participantsessionsraw): array {
@@ -818,7 +818,7 @@ class Api {
      * @param int $moduleid Get info for this course module.
      * @param int $userid Get info for this user.
      * @param int $limit Optionally limit to this number of results.  Min=0; max=10; default=IA API default if 0 = 10.
-     * @return array<Session> Empty array if nothing found; Else array of Session objects with no photo info.
+     * @return array Empty array if nothing found; Else array of Session objects with no photo info.
      */
     public static function get_participantsessions_activity(string $apikey, string $appid, int $courseid, int $moduleid, int $userid, int $limit = 0): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -873,9 +873,9 @@ class Api {
      *
      * @param string $apikey The API key.
      * @param string $appid The AppId.
-     * @param array<key-val> $params Query params in key-value format: [courseid=>intval, activityid=>intval, participantidentifier=>intval] are required.
+     * @param array $params Query params in key-value format: [courseid=>intval, activityid=>intval, participantidentifier=>intval] are required.
      * @param string $nexttoken The next token to get subsequent results from the API.
-     * @return array<Session> Empty array if nothing found; Else array of Session objects.
+     * @return array Empty array if nothing found; Else array of Session objects.
      */
     private static function get_participantsessions_activity_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
@@ -1249,7 +1249,7 @@ class Api {
      * Extract a Session object from API Participant data, cleaning all the fields.
      *
      * @param \stdClass $input API session data.
-     * @param Participant $participant Parent object.
+     * @param ia_participant $participant Parent Participant object.
      * @return null|Session Null if failed to parse, otherwise a parsed Session object.
      */
     private static function parse_session(\stdClass $input, ia_participant $participant): ?Session {
@@ -1510,7 +1510,7 @@ class Api {
      * Make sure the required params are present, there's no extra params, and param types are valid.
      *
      * @param string $endpoint One of the constants self::ENDPOINT*.
-     * @param array<key-val> $params Key-value array of params being sent to the API endpoint.
+     * @param array $params Key-value array of params being sent to the API endpoint.
      * @return bool True if everything seems valid.
      */
     public static function validate_endpoint_params(string $endpoint, array $params = []): bool {

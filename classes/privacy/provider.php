@@ -324,8 +324,8 @@ class provider implements \core_privacy\local\metadata\provider,
      * One request per userid is sent, even if someone is both participant and overrider.
      *
      * @param \context_block $blockcontext The block context.
-     * @param array<\block_integrityadvocate\Participant> $participants IA Participants associated with the block.
-     * @param array<int> $useridstodelete List of userid to send deletion requests for. If empty, requests are sent for all participants.
+     * @param array $participants IA Participants associated with the block.
+     * @param array $useridstodelete Array of integer userid to send deletion requests for. If empty, requests are sent for all participants.
      * @return bool True on success.
      */
     public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = []): bool {
