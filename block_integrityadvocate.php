@@ -41,7 +41,7 @@ require_once(__DIR__ . '/lib.php');
 class block_integrityadvocate extends block_base {
 
     /**
-     * Sets the block title
+     * Sets the block title.
      *
      * @return void
      */
@@ -52,7 +52,7 @@ class block_integrityadvocate extends block_base {
     /**
      *  We have global config/settings data.
      *
-     * @return bool
+     * @return bool True if we have global config/settings data.
      */
     public function has_config(): bool {
         return true;
@@ -61,7 +61,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Do any additional initialization you may need at the time a new block instance is created.
      *
-     * @return bool
+     * @return bool True if we have additional initializations.
      */
     public function instance_create() {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -116,7 +116,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Controls the block title based on instance configuration.
      *
-     * @return bool
+     * @return void.
      */
     public function specialization() {
         if (isset($this->config->progressTitle) && \trim($this->config->progressTitle) != '') {
@@ -127,7 +127,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Controls whether multiple instances of the block are allowed on a page.
      *
-     * @return bool
+     * @return bool True if multiple instances of the block are allowed on a page.
      */
     public function instance_allow_multiple(): bool {
         return false;
@@ -136,7 +136,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Controls whether the block is configurable.
      *
-     * @return bool
+     * @return bool True if the block is configurable.
      */
     public function instance_allow_config(): bool {
         return true;
@@ -145,7 +145,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Defines where the block can be added.
      *
-     * @return array<string=mixed> where key=location; value=whether it can be added.
+     * @return array<string, mixed> where key=location; value=whether it can be added.
      */
     public function applicable_formats(): array {
         return ['admin' => false,
@@ -168,7 +168,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Check of errors in the APIKey and AppId.
      *
-     * @return array<string> Array of error messages from lang file: error_*.  Empty array if no errors.
+     * @return string[] Array of error messages from lang file: error_*.  Empty array if no errors.
      */
     public function get_apikey_appid_errors(): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -198,7 +198,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Return config errors if there are any.
      *
-     * @return array<field=error message> Config error array where field = error field; message=error message.
+     * @return array<string, string> Config error array where field = error field; message=error message.
      */
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
@@ -251,6 +251,8 @@ class block_integrityadvocate extends block_base {
      *
      * @param \stdClass $user Moodle user to get the JS for - the request is encoded for this user.
      * @param bool $hidemodulecontent True to hide the module content by adding a style tag to the block output.
+     *
+     * @return void.
      */
     private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true) {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -362,7 +364,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the context for this block.
      *
-     * @return \context_block
+     * @return \context_block The context for this block.
      */
     public function get_context(): \context_block {
         return $this->context;
@@ -370,6 +372,8 @@ class block_integrityadvocate extends block_base {
 
     /**
      * Creates the blocks main content.
+     *
+     * @return void.
      */
     public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
@@ -595,7 +599,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the course this block belongs to.
      *
-     * @return \stdClass The $COURSE.
+     * @return \stdClass The $COURSE object.
      */
     public function get_course(): \stdClass {
         global $COURSE;
@@ -605,7 +609,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the block user.
      *
-     * @return \stdClass The $USER.
+     * @return \stdClass The $USER object.
      */
     public function get_user(): stdClass {
         global $USER;
@@ -615,7 +619,7 @@ class block_integrityadvocate extends block_base {
     /**
      * Get the current block instance.
      *
-     * @return block_integrityadvocate Block instance.
+     * @return \block_integrityadvocate Block instance.
      */
     public function get_instance(): \block_integrityadvocate {
         return $this->instance;

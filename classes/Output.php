@@ -345,7 +345,7 @@ class Output {
      * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
-     * @param \block_integrityadvocate\Participant $participant Participant object from the IA API.
+     * @param ia_participant $participant Participant object from the IA API.
      * @param bool $showphoto True to include the user photo.
      * @param bool $showoverviewbutton True to show the Overview button.
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
