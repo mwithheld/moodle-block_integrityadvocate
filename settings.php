@@ -59,7 +59,7 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configmultiselect(INTEGRITYADVOCATE_BLOCK_NAME . '/config_logforfunction',
             get_string('config_logforfunction', INTEGRITYADVOCATE_BLOCK_NAME),
             get_string('config_logforfunction_help', INTEGRITYADVOCATE_BLOCK_NAME),
-            Logger::$logForFunction, $logforfunctionoptions);
+            Logger::$logforfunction, $logforfunctionoptions);
     $setting->set_locked_flag_options(admin_setting_flag::ENABLED, false);
     $settings->add($setting);
 
