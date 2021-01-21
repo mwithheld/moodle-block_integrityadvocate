@@ -121,7 +121,7 @@ class Api {
 
         // Sanity check.
         if (!ia_u::is_guid($appid)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
@@ -187,7 +187,7 @@ class Api {
 
         // Sanity check.
         if (!\str_starts_with($endpoint, '/') || !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !\is_array($params)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
@@ -314,9 +314,13 @@ class Api {
 
         // Sanity check.
         if (ia_u::is_empty($modulecontext) || ($modulecontext->contextlevel !== \CONTEXT_MODULE)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
+        }
+
+        if (empty($userid)) {
+            return null;
         }
 
         // Get the APIKey and AppID for this module.
@@ -353,9 +357,13 @@ class Api {
 
         // Sanity check.
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
+        }
+
+        if (empty($userid)) {
+            return null;
         }
 
         // This gets a json-decoded object of the IA API curl result.
@@ -496,14 +504,14 @@ class Api {
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || !isset($params['courseid']) || !\is_number($params['courseid'])) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
         // Make sure $params contains only valid parameters.
         foreach (\array_keys($params) as $key) {
             if (!\in_array($key, ['courseid', 'externaluserid', 'lastmodified'], true)) {
-                $msg = 'Input params are invalid' . $debugvars;
+                $msg = 'Input params are invalid: ' . $debugvars;
                 Logger::log($fxn . '::' . $msg . '::' . $debugvars);
                 throw new \InvalidArgumentException($msg);
             }
@@ -564,7 +572,7 @@ class Api {
      * @param int $limit Optionally limit to this number of results.  Min 0; max 10; default=IA API default (10).
      * @return array<Session> Empty array if nothing found; Else array of Session objects.
      */
-    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, int $userid = 0, int $limit = 0): array {
+    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, int $userid = -1, int $limit = 0): array {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}; \$limit={$limit}";
@@ -572,7 +580,7 @@ class Api {
 
         // Sanity check.
         if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || $courseid < 1 || $moduleid < 1) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
@@ -640,7 +648,7 @@ class Api {
                 !isset($params['activityid']) || !\is_number($params['activityid']) ||
                 (isset($params['participantidentifier']) && !\is_number($params['participantidentifier']))
         ) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
@@ -705,12 +713,12 @@ class Api {
 
         // Sanity check.
         if ($courseid < 1 || $moduleid < 1) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
-        if (empty($participantsessionsraw)) {
+        if (empty($participantsessionsraw) || $userid < 1) {
             return [];
         }
 
@@ -819,10 +827,14 @@ class Api {
         $debug && Logger::log($debugvars);
 
         // Sanity check.
-        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || $courseid < 1 || $moduleid < 1 || $userid < 1) {
-            $msg = 'Input params are invalid' . $debugvars;
+        if (!ia_mu::is_base64($apikey) || !ia_u::is_guid($appid) || $moduleid < 1) {
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
+        }
+
+        if (empty($userid) || empty($courseid)) {
+            return [];
         }
 
         // Build the parameters array to pass to the API data getter.
@@ -960,7 +972,7 @@ class Api {
         // Sanity check.
         if (!\filter_var($requesturi, \FILTER_VALIDATE_URL) || \mb_strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !\is_string($nonce) ||
                 !ia_mu::is_base64($apikey) || !ia_u::is_guid($appid)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
@@ -1004,9 +1016,13 @@ class Api {
 
         // Sanity check.
         if (ia_u::is_empty($modulecontext) || ($modulecontext->contextlevel !== \CONTEXT_MODULE)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
+        }
+
+        if ($userid < 1) {
+            return null;
         }
 
         // Get the APIKey and AppID for this module.
@@ -1033,6 +1049,7 @@ class Api {
     /**
      * Get the user's participant status in the module.
      * This may differ from the Participant-level (overall) status, which is not module-specific.
+     * There is login and enrolled checks in this function b/c it is used by the IA availability condition.
      *
      * @param \context $modulecontext The module context to look in.
      * @param int $userid The userid to get IA info for.
@@ -1046,13 +1063,32 @@ class Api {
 
         // Sanity check.
         if (ia_u::is_empty($modulecontext) || ($modulecontext->contextlevel !== \CONTEXT_MODULE)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
         // Get the int value representing this constant so it's equivalent to what is stored in Session->status.
         $notfoundval = ia_status::INPROGRESS_INT;
+
+        // Security: Is the user logged in?
+        // Copied from moodlelib.php::require_login().
+        if ((!isloggedin() || isguestuser())) {
+            return $notfoundval;
+        }
+
+        // Security: Can the user access this course?
+        $course = ia_mu::get_course_as_obj($modulecontext->get_course_context()->instanceid);
+        if (!can_access_course($course, $userid, '', true)) {
+            $debug && Logger::log($fxn . "::The userid={$userid} is not enrolled in the course");
+            return $notfoundval;
+        }
+
+        // Security: Can the user access this module context?
+        if (!\is_enrolled($modulecontext, $userid)) {
+            $debug && Logger::log($fxn . "::The userid={$userid} is not enrolled in the course");
+            return $notfoundval;
+        }
 
         $latestsession = self::get_module_session_latest($modulecontext, $userid);
         $debug && Logger::log($fxn . '::Got $latestsession=' . ia_u::var_dump($latestsession, true));
@@ -1083,7 +1119,7 @@ class Api {
 
         // Sanity check.
         if (ia_u::is_empty($modulecontext) || ($modulecontext->contextlevel !== \CONTEXT_MODULE)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
@@ -1107,7 +1143,7 @@ class Api {
 
         // Sanity check.
         if (ia_u::is_empty($modulecontext) || ($modulecontext->contextlevel !== \CONTEXT_MODULE)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
@@ -1133,7 +1169,7 @@ class Api {
 
         // Sanity check.
         if (ia_u::is_empty($modulecontext) || ($modulecontext->contextlevel !== \CONTEXT_MODULE)) {
-            $msg = 'Input params are invalid' . $debugvars;
+            $msg = 'Input params are invalid: ' . $debugvars;
             Logger::log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
