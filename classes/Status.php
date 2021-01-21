@@ -142,7 +142,7 @@ class Status {
      * @return array<int=string> of overridable statuses
      */
     public static function get_inprogress(): array {
-        return [self::INPROGRESS_INT => self::get_status_lang(self::INPROGRESS_INT),];
+        return [self::INPROGRESS_INT => self::get_status_lang(self::INPROGRESS_INT)];
     }
 
     /**
@@ -178,7 +178,7 @@ class Status {
      * @return array<int=string> of valid statuses
      */
     public static function get_valids(): array {
-        return [self::VALID_INT => self::get_status_lang(self::VALID_INT),];
+        return [self::VALID_INT => self::get_status_lang(self::VALID_INT)];
     }
 
     /**

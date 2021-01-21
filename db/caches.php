@@ -39,6 +39,7 @@ $definitions = [
         'staticacceleration' => true,
         'canuselocalstore' => true,
     ],
+// phpcs:disable
 //    'untilcourseenrolmentchanges' => array(
 //        'mode' => cache_store::MODE_SESSION,
 //        'simplekeys' => true,
@@ -49,4 +50,5 @@ $definitions = [
 //        // Clears this cache: Unenrolling a user.
 //        'invalidationevents' => ['\core\event\enrol_instance_updated', '\core\event\user_enrolment_updated'],
 //    ),
+// phpcs:enable
 ];

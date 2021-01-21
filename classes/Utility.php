@@ -142,10 +142,6 @@ class Utility {
         \raise_memory_limit(\MEMORY_HUGE);
 
         if (\is_object($expression)) {
-            //error_log(__FUNCTION__ . '::Found a page property?=' . property_exists($expression, 'page'));
-            //if (isset($expression->page)) {
-            //    error_log(__FUNCTION__ . '::Type of page property stdClass?=' . $expression->page instanceof \stdClass);
-            //}
             if (\property_exists($expression, 'page') && (\gettype($expression->page) == 'object') && \class_exists('moodle_page', false) && $expression->page instanceof \moodle_page) {
                 $expression->page = null;
             }
@@ -159,6 +155,7 @@ class Utility {
         }
 
         // Preg_replace prevents dying on base64-encoded images.
+        // phpcs:ignore
         return \print_r(\preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', \print_r($expression, true)), $return);
     }
 

@@ -89,7 +89,7 @@ class Logger {
      *   - namespaced standalone function: namespace\functionname
      * This is overridden by $logForClass and is only used if $blockconfig->config_logforfunction is empty.
      */
-    public static $logForFunction = [
+    public static $logforfunction = [
 //        INTEGRITYADVOCATE_BLOCK_NAME.'\Api::get_participant',
 //        INTEGRITYADVOCATE_BLOCK_NAME.'\Api::get_participants_data',
 //        INTEGRITYADVOCATE_BLOCK_NAME . '\Api::get_participantsessions',
