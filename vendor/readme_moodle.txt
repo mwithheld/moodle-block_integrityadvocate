@@ -13,6 +13,12 @@ Update all composer packages
 composer update
 
 
+PHPCodeSniffer
+--
+cd ~/.config/composer
+php ~/.config/composer/vendor/squizlabs/php_codesniffer/bin/phpcs -p -v --ignore=*/vendor/* --standard=PHPCompatibility /opt/lampp/apps/moodle/htdocs/blocks/integrityadvocate/
+
+
 Monolog logging client
 ----
 https://seldaek.github.io/monolog/
