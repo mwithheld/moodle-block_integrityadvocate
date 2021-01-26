@@ -26,6 +26,9 @@ namespace block_integrityadvocate;
 
 \defined('MOODLE_INTERNAL') || die;
 
+// Polyfill for PHP7.1 b/c we use is_countable().
+require_once('polyfills.php');
+
 /**
  * Generic utility functions not specific to Moodle.
  */
@@ -100,12 +103,13 @@ class Utility {
     /**
      * Sort the object by the created property in descending order
      * E.g. an IA Flag object.
+     * Type hints commented out for PHP7.1 compat.
      *
-     * @param object $a
-     * @param object $b
+     * @param object $a The first object to sort.
+     * @param object $b The second object to sort.
      * @return int 0 if the same; -1 if $a->created exceeds $b->created; else 1.
      */
-    public static function sort_by_created_desc(object $a, object $b): int {
+    public static function sort_by_created_desc(/* object */ $a, /* object */ $b): int {
         if ($a->created == $b->created) {
             return 0;
         }
@@ -114,12 +118,13 @@ class Utility {
 
     /**
      * Sort the object by the start property in descending order.
+     * Type hints commented out for PHP7.1 compat.
      *
-     * @param object $a
-     * @param object $b
+     * @param object $a The first object to sort.
+     * @param object $b The second object to sort.
      * @return int 0 if the same; -1 if $a->start exceeds $b->start; else 1.
      */
-    public static function sort_by_start_desc(object $a, object $b): int {
+    public static function sort_by_start_desc(/* object */ $a, /* object */ $b): int {
         if ($a->start == $b->start) {
             return 0;
         }
