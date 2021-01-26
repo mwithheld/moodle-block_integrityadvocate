@@ -296,7 +296,7 @@ class Logger {
                 // Usage https://github.com/Seldaek/monolog/blob/1.x/doc/01-usage.md.
                 // Usage https://dzone.com/articles/php-monolog-tutorial-a-step-by-step-guide.
                 $log = new \Monolog\Logger("$tag,$siteslug,$classorfile");
-                $log->pushHandler(new \Monolog\Handler\LogglyHandler(self::LOGGLY_TOKEN, \Monolog\self::DEBUG));
+                $log->pushHandler(new \Monolog\Handler\LogglyHandler(self::LOGGLY_TOKEN, \Monolog\Logger::DEBUG));
                 $log->debug($cleanedmsg);
                 break;
             case self::ERRORLOG:
