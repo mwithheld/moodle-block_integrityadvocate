@@ -211,7 +211,7 @@ class Logger {
      *
      * @param string $message Message to log.
      * @param string $dest One of the LogDestination::* constants.
-     * @param bool $force Ignore IP and time restrictions and log anyway, but only if destination=ERRORLOG.  This is meant to be used for errors that should be logged.
+     * @param bool $force Ignore IP and time restrictions and log anyway.  If $dest=self::NONE then dest will be forced to self::ERRORLOG.  This is meant to be used for errors that should be logged.
      * @return bool True on completion.
      */
     public static function log(string $message, string $dest = '', bool $force = false): bool {
@@ -230,20 +230,26 @@ class Logger {
         $debug && \error_log($fxn . '::After cleanup, $dest=' . $dest);
 
         // Short circuit without logging anything in these cases.
-        if ($dest === self::NONE) {
-            $debug && \error_log($fxn . '::Skipping - $dest=NONE');
-            return false;
-        }
-        if (!($force && $dest === self::ERRORLOG)) {
+        if (!$force) {
+            switch ($dest) {
+                case(self::NONE):
+                    $debug && \error_log($fxn . '::Skipping - $dest=NONE');
+                    return false;
 
-            $debug && \error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
-            if (!self::do_log_for_ip()) {
-                $debug && \error_log($fxn . '::Skipping - logforip');
-                return false;
+                default:
+                    $debug && \error_log($fxn . '::About to check IP vs logforip; $CFG->blockedip=');
+                    if (!self::do_log_for_ip()) {
+                        $debug && \error_log($fxn . '::Skipping - logforip');
+                        return false;
+                    }
+                    if (!self::is_within_log_time()) {
+                        $debug && \error_log($fxn . '::Skipping - not isWithinLogTime()');
+                        return false;
+                    }
             }
-            if (!self::is_within_log_time()) {
-                $debug && \error_log($fxn . '::Skipping - not isWithinLogTime()');
-                return false;
+        } else {
+            if ($dest === self::NONE) {
+                $dest = self::ERRORLOG;
             }
         }
 
