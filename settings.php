@@ -27,6 +27,8 @@ use block_integrityadvocate\Output as ia_output;
 
 \defined('MOODLE_INTERNAL') || die;
 
+require_once($CFG->libdir . '/adminlib.php');
+
 if ($ADMIN->fulltree) {
     $setting = new admin_setting_heading(INTEGRITYADVOCATE_BLOCK_NAME . '/config_loggingnote_heading', get_string('config_loggingnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_loggingnote_help', INTEGRITYADVOCATE_BLOCK_NAME));
     $settings->add($setting);
@@ -72,6 +74,9 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_heading(INTEGRITYADVOCATE_BLOCK_NAME . '/config_siteinfo_heading', get_string('config_siteinfo', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_siteinfo_help', INTEGRITYADVOCATE_BLOCK_NAME));
     $settings->add($setting);
 
+    /*
+     * This script gets called multiple times per pageload by Moodle, so we must prevent attempting to re-define the function.
+     */
     if (!\function_exists('block_integrityadvocate_get_siteinfo')) {
 
         /**
@@ -156,6 +161,82 @@ if ($ADMIN->fulltree) {
 
 
             return $returnThis;
+        }
+
+    }
+
+    /*
+     * Moodle 3.5 compat: This class does not exist < Moodle 3.6.
+     * Adapted only slightly from Moodle 3.10 lib/adminlib.php ~line 2310.
+     */
+    if (!\class_exists('admin_setting_description')) {
+
+        /**
+         * No setting - just name and description in same row.
+         *
+         * @copyright 2018 onwards Amaia Anabitarte
+         * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+         */
+        class admin_setting_description extends admin_setting {
+
+            /**
+             * Not a setting, just text
+             *
+             * @param string $name
+             * @param string $visiblename
+             * @param string $description
+             */
+            public function __construct($name, $visiblename, $description) {
+                $this->nosave = true;
+                parent::__construct($name, $visiblename, $description, '');
+            }
+
+            /**
+             * Always returns true
+             *
+             * @return bool Always returns true
+             */
+            public function get_setting() {
+                return true;
+            }
+
+            /**
+             * Always returns true
+             *
+             * @return bool Always returns true
+             */
+            public function get_defaultsetting() {
+                return true;
+            }
+
+            /**
+             * Never write settings
+             *
+             * @param mixed $data Gets converted to str for comparison against yes value
+             * @return string Always returns an empty string
+             */
+            public function write_setting($data) {
+                // Do not write any setting.
+                return '';
+            }
+
+            /**
+             * Returns an HTML string
+             *
+             * @param string $data
+             * @param string $query
+             * @return string Returns an HTML string
+             */
+            public function output_html($data, $query = '') {
+                global $OUTPUT;
+
+                $context = new stdClass();
+                $context->title = $this->visiblename;
+                $context->description = $this->description;
+
+                return $OUTPUT->render_from_template(INTEGRITYADVOCATE_BLOCK_NAME . '/setting_description', $context);
+            }
+
         }
 
     }
