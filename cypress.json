@@ -1,0 +1,14 @@
+{
+    "projectId": "8ivkxf",
+    
+    "_experimentalStudio": true,
+
+    "downloadsFolder": "tests/cypress/fixtures",
+    "fixturesFolder": "tests/cypress/fixtures",
+    "integrationFolder": "tests/cypress/integration",
+    "screenshotsFolder": "tests/cypress/screenshots",
+    "videosFolder": "tests/cypress/videos",
+
+    "_supportFile": "tests/cypress/support/index.js",    
+    "_pluginsFile": "tests/cypress/plugins/index.js"
+}

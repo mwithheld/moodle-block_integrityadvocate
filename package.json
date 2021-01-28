@@ -1,3 +1,7 @@
 {
-    "name": "moodle-block_integrityadvocate"
+    "name": "moodle-block_integrityadvocate",
+    "devDependencies": {
+        "cypress": "^6.3.0",
+        "cypress-xpath": "^1.6.1"
+    }
 }
