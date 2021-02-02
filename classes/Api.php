@@ -1236,6 +1236,29 @@ class Api {
     }
 
     /**
+     * Validate $photostring as either a URL or a base64-encoded image and return it, else return empty string.
+     *
+     * @param string $photostring String to parse.
+     * @return string A URL or a base64-encoded image and return it, else return empty string.
+     */
+    private static function parse_participantphoto(string $photostring): string {
+        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && Logger::log($fxn . '::Started with $photostring=' . ia_u::var_dump($photostring, true));
+
+        $matches = [];
+        switch (true) {
+            case (\preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $photostring, $matches)):
+                return $matches[0];
+            case (!ia_u::is_empty(clean_param($photostring, PARAM_URL))):
+                return $photostring;
+            default:
+                $debug && Logger::log($fxn . '::No valid photo found');
+                return '';
+        }
+    }
+
+    /**
      * Extract a Session object from API Participant data, cleaning all the fields.
      *
      * @param \stdClass $input API session data.
@@ -1318,19 +1341,10 @@ class Api {
 
         // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         if (isset($input->Participant_Photo)) {
-            $matches = [];
-            switch (true) {
-                case (\preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
-                    $output->participantphoto = $matches[0];
-                    break;
-                case (validate_param($input->Participant_Photo, PARAM_URL)):
-                    $output->participantphoto = $input->Participant_Photo;
-                    break;
-            }
+            $output->participantphoto = self::parse_participantphoto($input->Participant_Photo);
         }
 
         $debug && Logger::log($fxn . '::About to check of we have flags');
-
         if (isset($input->Flags) && \is_array($input->Flags)) {
             foreach ($input->Flags as $f) {
                 if (!ia_u::is_empty($flag = self::parse_flag($f))) {
@@ -1440,17 +1454,7 @@ class Api {
 
         // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         if (isset($input->Participant_Photo)) {
-            $matches = [];
-            switch (true) {
-                case (\preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->Participant_Photo, $matches)):
-                    $output->participantphoto = $matches[0];
-                    break;
-                case (!ia_u::is_empty(clean_param($input->Participant_Photo, PARAM_URL))):
-                    $output->participantphoto = $input->Participant_Photo;
-                    break;
-                default:
-                    $debug && Logger::log($fxn . '::No valid photo found');
-            }
+            $output->participantphoto = self::parse_participantphoto($input->Participant_Photo);
         }
 
         // Clean status vs allowlist.
