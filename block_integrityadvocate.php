@@ -506,7 +506,7 @@ class block_integrityadvocate extends block_base {
                         ia\FeatureControl::OVERVIEW_MODULE_LTI && $this->content->text .= ia_output::get_button_overview_module($this);
                         ia\FeatureControl::OVERVIEW_COURSE_LTI && $this->content->text .= ia_output::get_button_overview_course($this);
                         break;
-                    case $hascapability_view && \is_enrolled($parentcontext, $USER, null, true):
+                    case $hascapability_view && (\is_role_switched($this->get_course()->id) || \is_enrolled($parentcontext, $USER, null, true)):
                         // This is someone in a student role.
                         switch (true) {
                             case (str_starts_with($this->page->pagetype, 'mod-scorm-')):
