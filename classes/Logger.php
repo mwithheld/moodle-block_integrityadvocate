@@ -297,7 +297,13 @@ class Logger {
                 // Usage https://dzone.com/articles/php-monolog-tutorial-a-step-by-step-guide.
                 $log = new \Monolog\Logger("$tag,$siteslug,$classorfile");
                 $log->pushHandler(new \Monolog\Handler\LogglyHandler(self::LOGGLY_TOKEN, \Monolog\Logger::DEBUG));
-                $log->debug($cleanedmsg);
+
+                // Add the client IP address for easier log filtering.
+                static $remoteip = null;
+                if (empty($remoteip)) {
+                    $remoteip = getremoteaddr();
+                }
+                $log->debug($remoteip . '::' . $cleanedmsg);
                 break;
             case self::ERRORLOG:
             default:
