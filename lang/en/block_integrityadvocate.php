@@ -23,7 +23,7 @@
  */
 $string['pluginname'] = 'Integrity Advocate';
 $string['proctorjs_load_failed'] = 'The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.';
-$string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://www.integrityadvocate.com/privacy/privacy" target="_blank">Privacy</a><br /><a href="https://integrityadvocate.zendesk.com/hc/en-us/sections/360004489293" target="_blank">Troubleshooting</a><br /><a href="https://support.integrityadvocate.com/hc/" target="_blank">Support</a>';
+$string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://www.integrityadvocate.com/privacy-policy-for-end-users" target="_blank">Privacy</a><br /><a href="https://support.integrityadvocate.com/" target="_blank">Troubleshooting</a><br /><a href="https://support.integrityadvocate.com/" target="_blank">Support</a>';
 
 $string['cachedef_perrequest'] = 'Remember values during a single request';
 $string['cachedef_persession'] = 'Remember values during the user session';
@@ -113,8 +113,8 @@ $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
 
-$string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://www.integrityadvocate.com/privacy/privacy" target="_blank">Integrity Advocate Privacy</a> for more information.';
-$string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://www.integrityadvocate.com/privacy/privacy" target="_blank">Integrity Advocate Privacy</a> for more information.';
+$string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://www.integrityadvocate.com/privacy-policy-for-end-users" target="_blank">Integrity Advocate Privacy</a> for more information.';
+$string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://www.integrityadvocate.com/privacy-policy-for-end-users" target="_blank">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate:cmid'] = 'Id number of the course module.';
 $string['privacy:metadata:block_integrityadvocate:courseid'] = 'Id number of the course.';
 $string['privacy:metadata:block_integrityadvocate:email'] = 'Your email address.';
