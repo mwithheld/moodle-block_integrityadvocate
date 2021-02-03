@@ -23,7 +23,7 @@
  */
 $string['pluginname'] = 'Integrity Advocate';
 $string['proctorjs_load_failed'] = 'The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.';
-$string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://www.integrityadvocate.com/privacy/privacy" target="_blank">Privacy</a><br /><a href="https://integrityadvocate.com/Troubleshooting" target="_blank">Troubleshooting</a><br /><a href="https://support.integrityadvocate.com/hc/" target="_blank">Support</a>';
+$string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://www.integrityadvocate.com/privacy/privacy" target="_blank">Privacy</a><br /><a href="https://integrityadvocate.zendesk.com/hc/en-us/sections/360004489293" target="_blank">Troubleshooting</a><br /><a href="https://support.integrityadvocate.com/hc/" target="_blank">Support</a>';
 
 $string['cachedef_perrequest'] = 'Remember values during a single request';
 $string['cachedef_persession'] = 'Remember values during the user session';
