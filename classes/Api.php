@@ -539,6 +539,7 @@ class Api {
 
             // The nexttoken value is only needed for the above get request.
             unset($params['nexttoken']);
+            // Attempt to not die, then recurse.
             \core_php_time_limit::raise();
             echo ' ';
             $participants = \array_merge($participants, self::get_participants_data($apikey, $appid, $params, $result->NextToken));
@@ -675,6 +676,7 @@ class Api {
 
                 // The nexttoken value is only needed for the above get request.
                 unset($params['nexttoken']);
+                // Attempt to not die, then recurse.
                 \core_php_time_limit::raise();
                 echo ' ';
                 $participantsessions = \array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
@@ -929,9 +931,10 @@ class Api {
 
                 // The nexttoken value is only needed for the above get request.
                 unset($params['nexttoken']);
+                // Attempt to not die, then recurse.
                 \core_php_time_limit::raise();
                 echo ' ';
-                $participantsessions = \array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
+                $participantsessions = \array_merge($participantsessions, self::get_participantsessions_activity_data($apikey, $appid, $params, $result->NextToken));
             }
         }
 
