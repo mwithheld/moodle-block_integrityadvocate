@@ -327,7 +327,7 @@ class block_integrityadvocate extends block_base {
             $parentcontext = $blockinstance->context->get_parent_context();
             switch (true) {
                 case($parentcontext->contextlevel == CONTEXT_COURSE) :
-                    $this->content->text .= \html_writer::link('', get_string('course'));
+                    $this->content->text .= \html_writer::link($parentcontext->get_url(), get_string('course'));
                     // TODO: Somehow output the block edit link, e.g. /course/view.php?id=2&bui_editid=20.
                     // Commented out on purpose: $course = \context_course::instance($parentcontext->instanceid);.
                     break;
