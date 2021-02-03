@@ -96,7 +96,6 @@ class Api {
         $response = $curl->get($requesturi);
 
         $responseinfo = $curl->get_info();
-        $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
         $responsecode = (int) ($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
@@ -491,10 +490,6 @@ class Api {
         $debug && Logger::log($debugvars);
 
         static $recursecountparticipants = 0;
-        $debug && Logger::log($fxn . '::Started with $recursecountparticipants=' . $recursecountparticipants);
-        if ($recursecountparticipants++ > self::RECURSEMAX) {
-            throw new \Exception($fxn . '::Maximum recursion limit reached: params=' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        }
 
         // Stop recursion when $result->NextToken = 'null'.
         // WTF: It's a string with content 'null' when other fields returned are actual NULL.
@@ -535,14 +530,20 @@ class Api {
         $debug && Logger::log($fxn . '::$result->NextToken=:' . $result->NextToken);
 
         if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
-            $debug && Logger::log($fxn . '::About to recurse to get more results');
+            // Check if we should recurse any more.
+            $debug && Logger::log($fxn . '::Started with $recursecountparticipants=' . $recursecountparticipants);
+            if ($recursecountparticipants++ > self::RECURSEMAX) {
+                throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipants} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . debug_backtrace());
+            }
 
+            $debug && Logger::log($fxn . '::About to recurse to get more results');
             // The nexttoken value is only needed for the above get request.
             unset($params['nexttoken']);
             // Attempt to not die, then recurse.
             \core_php_time_limit::raise();
             echo ' ';
             $participants = \array_merge($participants, self::get_participants_data($apikey, $appid, $params, $result->NextToken));
+            $recursecountparticipants--;
         }
 
         // Disabled on purpose: $debug && Logger::log($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
@@ -621,10 +622,6 @@ class Api {
         $debug && Logger::log($debugvars);
 
         static $recursecountparticipantsessions = 0;
-        $debug && Logger::log($fxn . '::Started with $recursecountparticipantsessions=' . $recursecountparticipantsessions);
-        if ($recursecountparticipantsessions++ > self::RECURSEMAX) {
-            throw new \Exception($fxn . '::Maximum recursion limit reached: params=' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        }
 
         // Stop recursion when $result->NextToken = 'null'.
         // WTF: It's a string with content 'null' when other fields returned are actual NULL.
@@ -668,18 +665,24 @@ class Api {
         $debug && Logger::log($fxn . '::count($participantsessions)=' . ia_u::count_if_countable($participantsessions) . '; isset($params[\'limit\'])=' . isset($params['limit']));
 
         if (isset($params['limit']) && ia_u::count_if_countable($participantsessions) >= $params['limit']) {
-            $debug && Logger::log($fxn . '::We have a limit set and we have reached it');
+            $debug && Logger::log($fxn . '::Found ($params[\'limit\']=' . $params['limit'] . ' and we have reached that number of $participantsessions');
         } else {
             $debug && Logger::log($fxn . "::We have no limit set or have not reached it; check for a NextToken: \$result->NextToken={$result->NextToken}");
             if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
-                $debug && Logger::log($fxn . '::About to recurse to get more results');
+                // Check if we should recurse any more.
+                $debug && Logger::log($fxn . '::Started with $recursecountparticipantsessions=' . $recursecountparticipantsessions);
+                if ($recursecountparticipantsessions++ > self::RECURSEMAX) {
+                    throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipantsessions} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . debug_backtrace());
+                }
 
+                $debug && Logger::log($fxn . '::About to recurse to get more results');
                 // The nexttoken value is only needed for the above get request.
                 unset($params['nexttoken']);
                 // Attempt to not die, then recurse.
                 \core_php_time_limit::raise();
                 echo ' ';
                 $participantsessions = \array_merge($participantsessions, self::get_participantsessions_data($apikey, $appid, $params, $result->NextToken));
+                $recursecountparticipantsessions--;
             }
         }
 
@@ -875,11 +878,7 @@ class Api {
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
         $debug && Logger::log($debugvars);
 
-        static $recursecountparticipantsessions = 0;
-        $debug && Logger::log($fxn . '::Started with $recursecountparticipantsessions=' . $recursecountparticipantsessions);
-        if ($recursecountparticipantsessions++ > self::RECURSEMAX) {
-            throw new \Exception($fxn . '::Maximum recursion limit reached: params=' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        }
+        static $recursecountparticipantsessionsactivity = 0;
 
         // Stop recursion when $result->NextToken = 'null'.
         // WTF: It's a string with content 'null' when other fields returned are actual NULL.
@@ -927,14 +926,20 @@ class Api {
         } else {
             $debug && Logger::log($fxn . "::We have no limit set or have not reached it; check for a NextToken: \$result->NextToken={$result->NextToken}");
             if (isset($result->NextToken) && !empty($result->NextToken) && ($result->NextToken != $nexttoken)) {
-                $debug && Logger::log($fxn . '::About to recurse to get more results');
+                // Check if we should recurse any more.
+                $debug && Logger::log($fxn . '::Started with $recursecountparticipantsessionsactivity=' . $recursecountparticipantsessionsactivity);
+                if ($recursecountparticipantsessionsactivity++ > self::RECURSEMAX) {
+                    throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipantsessionsactivity} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . debug_backtrace());
+                }
 
+                $debug && Logger::log($fxn . '::About to recurse to get more results');
                 // The nexttoken value is only needed for the above get request.
                 unset($params['nexttoken']);
                 // Attempt to not die, then recurse.
                 \core_php_time_limit::raise();
                 echo ' ';
                 $participantsessions = \array_merge($participantsessions, self::get_participantsessions_activity_data($apikey, $appid, $params, $result->NextToken));
+                $recursecountparticipantsessionsactivity--;
             }
         }
 
