@@ -119,7 +119,8 @@ if ($ADMIN->fulltree) {
 
             $siteinfo = [
                 'Timestamp' => "{$date}:{$datearray[0]}",
-                'Server IP' => cleanremoteaddr($_SERVER['REMOTE_ADDR']),
+                'Server IP' => cleanremoteaddr($_SERVER['SERVER_ADDR']),
+                'Client IP' => getremoteaddr(),
                 'PHP version' => \PHP_VERSION,
                 'Moodle version' => moodle_major_version(),
                 'IA ping' => \implode(ia_output::BRNL, ["ip=$remoteip", "total time={$totaltime}s", "response code={$httpreponsecode}", 'body=' . \htmlentities(\strip_tags($httpresponsebody))]),
