@@ -119,7 +119,7 @@ if ($ADMIN->fulltree) {
 
             $siteinfo = [
                 'Timestamp' => "{$date}:{$datearray[0]}",
-                'Server IP' => cleanremoteaddr($_SERVER['SERVER_ADDR']),
+                'Server IP' => cleanremoteaddr(gethostbyname($_SERVER['HTTP_HOST'])),
                 'Client IP' => getremoteaddr(),
                 'PHP version' => \PHP_VERSION,
                 'Moodle version' => moodle_major_version(),
