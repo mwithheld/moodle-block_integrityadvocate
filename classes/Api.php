@@ -151,7 +151,7 @@ class Api {
         $response = $curl->get($requesturi);
 
         $responseinfo = $curl->get_info();
-        $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && Logger::log($fxn . '::$responseinfo=' . ia_u::var_dump($responseinfo));
         $responsecode = (int) ($responseinfo['http_code']);
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
@@ -248,7 +248,7 @@ class Api {
         $responseinfo = $curl->get_info();
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
-        $debug && Logger::log('$responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && Logger::log($fxn . '::$responseinfo=' . ia_u::var_dump($responseinfo));
         $responsecode = (int) ($responseinfo['http_code']);
 
         $debug && Logger::log($fxn .
