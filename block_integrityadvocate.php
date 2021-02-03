@@ -311,15 +311,12 @@ class block_integrityadvocate extends block_base {
         // The start of the form is the same for each module, so just build it once.
         $formstart = '&nbsp;<form class="' . $prefix . '_form" method="post" action="' . $CFG->wwwroot . '/course/view.php">';
         $formstart .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
-        $formstart .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+        $formstart .= '<input type="hidden" name="sesskey" value="' . \sesskey() . '">';
         $formstart .= '<input type="hidden" name="edit" value="on">';
 
         $userisediting = $this->page->user_is_editing();
         $debug && Logger::log($fxn . '::Course editing mode=' . ($userisediting ? 1 : 0));
 
-        //
-        // TODO: Replicate the commented-out foreach loop using the block instances.  Need different links for course vs quiz vs etc.
-        //
         foreach ($iablocksinthiscourse as $blockinstance) {
             $debug && Logger::log($fxn . '::Looking at block $b=' . ia_u::var_dump($blockinstance));
 
@@ -328,22 +325,20 @@ class block_integrityadvocate extends block_base {
             switch (true) {
                 case($parentcontext->contextlevel == CONTEXT_COURSE) :
                     $this->content->text .= \html_writer::link($parentcontext->get_url(), get_string('course'));
-                    // TODO: Somehow output the block edit link, e.g. /course/view.php?id=2&bui_editid=20.
-                    // Commented out on purpose: $course = \context_course::instance($parentcontext->instanceid);.
                     break;
                 case($parentcontext->contextlevel == CONTEXT_MODULE) :
                     // Output a link to the module.
                     $module = \context_module::instance($parentcontext->instanceid);
                     $this->content->text .= \html_writer::link($module->get_url(), $module->get_context_name(false));
 
-                    if (ia\FeatureControl::MODULE_LIST_CONFIGLINK && has_capability('moodle/block:edit', $blockinstance->context)) {
+                    if (ia\FeatureControl::MODULE_LIST_CONFIGLINK && \has_capability('moodle/block:edit', $blockinstance->context)) {
                         $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
                         if ($userisediting) {
                             // Output a link to module's block config.
-                            $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                            $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $module['id'] . '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
                         } else {
                             // We need a form to turn course editing on; then go to block config.
-                            $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $m['id'] . '&sesskey=' . sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
+                            $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $module['id'] . '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
                             $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();e.preventDefault();return false;"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
                             $this->content->text .= '</form>';
                         }
@@ -492,7 +487,7 @@ class block_integrityadvocate extends block_base {
                         break;
                     case $hascapability_selfview:
                         // Check the user is enrolled in this course, but they must be active.
-                        if (!\is_enrolled($parentcontext, $USER, null, true)) {
+                        if (!\is_role_switched($this->get_course()->id) && !\is_enrolled($parentcontext, $USER, null, true)) {
                             throw new \Exception('That user is not in this course');
                         }
 
