@@ -16,44 +16,19 @@
 
 /**
  * CLI task execution.
+ * Adapted for web use instead of CLI use from Moodle 3.10 admin/tool/task/scheduled_task.php.
  *
  * @package    core
  * @subpackage cli
  * @copyright  2014 Petr Skoda
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-//define('CLI_SCRIPT', true);
-
 require(__DIR__ . '/../../config.php');
-//require_once("$CFG->libdir/clilib.php");
 require_once("$CFG->libdir/cronlib.php");
 require_once("$CFG->libdir/classes/task/manager.php");
 require_once("$CFG->libdir/classes/task/logmanager.php");
 
 require_admin();
-
-//list($options, $unrecognized) = cli_get_params(
-//    [
-//        'help' => false,
-//        'list' => false,
-//        'execute' => false,
-//        'showsql' => false,
-//        'showdebugging' => false,
-//        'force' => false,
-//    ], [
-//        'h' => 'help',
-//        'f' => 'force',
-//    ]
-//);
-$unrecognized = null;
-$options = $_GET;
-echo '<PRE>';
-echo "Started\n";
-
-if ($unrecognized) {
-    $unrecognized = implode("\n  ", $unrecognized);
-    die(get_string('cliunknowoption', 'admin', $unrecognized));
-}
 
 ini_set('log_errors', 1);
 date_default_timezone_set('America/Vancouver');
@@ -61,10 +36,13 @@ date_default_timezone_set('America/Vancouver');
 $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
 @ini_set('display_errors', '1');    // NOT FOR PRODUCTION SERVERS!
 $CFG->debugdisplay = 1;             // NOT FOR PRODUCTION SERVERS!
+$execute = preg_replace('/[^0-9a-zA-Z_\-\\]/', '', clean_param($_GET['execute'], PARAM_TEXT));
+echo '<PRE>';
+echo "Started\n";
 
-if ($execute = $options['execute']) {
+if ($execute) {
     if (!$task = \core\task\manager::get_scheduled_task($execute)) {
-        die("Task '$execute' not found");
+        die("Task '{$execute}' not found");
     }
 
     if (moodle_needs_upgrading()) {
@@ -142,7 +120,7 @@ if ($execute = $options['execute']) {
     } finally {
         // Reset back to the standard admin user.
         //cron_setup_user();
-//        cron_set_process_title('Waiting for next scheduled task');
+        //cron_set_process_title('Waiting for next scheduled task');
         cron_prepare_core_renderer(true);
     }
     get_mailer('close');
