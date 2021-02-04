@@ -299,7 +299,10 @@ class Logger {
                 $log->pushHandler(new \Monolog\Handler\LogglyHandler(self::LOGGLY_TOKEN, \Monolog\Logger::DEBUG));
 
                 // Add the client IP address for easier log filtering.
-                $remoteip = \getremoteaddr($_SERVER['SERVER_ADDR']);
+                static $remoteip = null;
+                if(empty($remoteip)) {
+                    $remoteip = \getremoteaddr();
+                }
                 $log->debug($remoteip . '::' . $cleanedmsg);
                 break;
             case self::ERRORLOG:
