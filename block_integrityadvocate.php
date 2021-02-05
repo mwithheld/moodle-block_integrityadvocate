@@ -293,7 +293,7 @@ class block_integrityadvocate extends block_base {
             return false;
         }
 
-        $prefix = 'integrityadvocate_modulelist';
+        $prefix = 'block_integrityadvocate_modulelist';
         $iablocksinthiscourse = ia_mu::get_all_course_blocks($this->get_course()->id, INTEGRITYADVOCATE_SHORTNAME);
         $iamodulesexist = ($blockcount = ia_u::count_if_countable($iablocksinthiscourse)) > 0;
 
