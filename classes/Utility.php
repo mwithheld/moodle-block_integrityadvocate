@@ -174,4 +174,19 @@ class Utility {
         return \is_countable($var) ? \count($var) : -1;
     }
 
+    /**
+     * Remove $prefix from string $text and return the result.
+     *
+     * @link https://stackoverflow.com/a/16638231
+     * @param string $prefix The prefix to remove.
+     * @param string $text The text to clean.
+     * @return string The result.
+     */
+    public static function remove_prefix(string $prefix, string $text): string {
+        if (0 === strpos($text, $prefix)) {
+            $text = substr($text, strlen($prefix)) . '';
+        }
+        return $text;
+    }
+
 }
