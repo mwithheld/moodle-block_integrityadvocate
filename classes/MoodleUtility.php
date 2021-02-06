@@ -35,6 +35,123 @@ use block_integrityadvocate\Utility as ia_u;
 class MoodleUtility {
 
     /**
+     * Return true if there are other block instances of the same name (e.g. "navigation" or "block_navigation") on the $page (where "other" means having a different instance id).
+     * Adapted from Moodle 3.10 lib/blocklib.php::is_block_present().
+     *
+     * @link https://moodle.org/mod/forum/discuss.php?d=359669
+     * @param \block_manager $blockmanager The $page->block object.
+     * @param string $block The block instance to look for other instances of the same name/type.
+     * @return bool True if there are other block instances of the same name (e.g. "navigation" or "block_navigation") on the $page.
+     */
+    public static function another_blockinstance_exists(\block_manager $blockmanager, \block_base $block): bool {
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = true || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
+
+        $blockmanager->load_blocks(true);
+        $blockname_clean = ia_u::remove_prefix('block_', $block->instance->blockname);
+
+        $requiredbythemeblocks = $blockmanager->get_required_by_theme_block_types();
+        foreach ($blockmanager->get_regions() as $region) {
+            foreach ($blockmanager->get_blocks_for_region($region) as $instance) {
+                if (empty($instance->instance->blockname)) {
+                    continue;
+                }
+                $debug && Logger::log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                if ($instance->instance->blockname == $blockname_clean && intval($instance->instance->id) != intval($block->instance->id)) {
+                    if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
+                        continue;
+                    }
+                    $debug && Logger::log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id . ' that does not match the passed in block id=' . $block->instance->id);
+                    return true;
+                }
+            }
+        }
+
+        $debug && Logger::log($fxn . '::No other instances found with differing ids ');
+        return false;
+    }
+
+    /**
+     * Return true if the block passed in is the first (by display order) visible block of that type on the $page.
+     *
+     * @param \block_manager $blockmanager The $page->block object.
+     * @param string $block The block instance to look for other instances of the same name/type.
+     * @return bool True if the block passed in is the first (by display order) visible block of that type on the $page.
+     */
+    public static function is_first_visible_block_of_type(\block_manager $blockmanager, \block_base $block): bool {
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
+
+        $blockmanager->load_blocks(true);
+        $blockname_clean = ia_u::remove_prefix('block_', $block->instance->blockname);
+
+        $requiredbythemeblocks = $blockmanager->get_required_by_theme_block_types();
+        // This goes through the blocks in their display order.
+        foreach ($blockmanager->get_regions() as $region) {
+            foreach ($blockmanager->get_blocks_for_region($region) as $instance) {
+                if (empty($instance->instance->blockname)) {
+                    continue;
+                }
+                $debug && Logger::log($fxn . '::Looking at visible=' . $instance->instance->visible . '; blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                if ($instance->instance->visible && $instance->instance->blockname == $blockname_clean) {
+                    if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
+                        continue;
+                    }
+                    if (intval($instance->instance->id) === intval($block->instance->id)) {
+                        $debug && Logger::log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id . ' that matches the passed in block id=' . $block->instance->id);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        $debug && Logger::log($fxn . '::Could not find any matching blocks,so assume it is the first');
+        return true;
+    }
+
+    /**
+     * Count blocks on the current $page with name matching $blockname.
+     * Adapted from Moodle 3.10 lib/blocklib.php::is_block_present().
+     *
+     * @link https://moodle.org/mod/forum/discuss.php?d=359669
+     * @param \block_manager $blockmanager The $page->block object.
+     * @param string $blockname The name of a block (e.g. "navigation" or "block_navigation").
+     * @return int Count of matching blocks on the page.
+     */
+    public static function count_blocks(\block_manager $blockmanager, string $blockname): int {
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false || Logger::do_log_for_function($fxn);
+        $debug && Logger::log($fxn . '::Started with $blockname=' . $blockname);
+
+        $blockmanager->load_blocks(true);
+        $blockname_clean = ia_u::remove_prefix('block_', $blockname);
+
+        $requiredbythemeblocks = $blockmanager->get_required_by_theme_block_types();
+        $count = 0;
+        foreach ($blockmanager->get_regions() as $region) {
+            foreach ($blockmanager->get_blocks_for_region($region) as $instance) {
+                if (empty($instance->instance->blockname)) {
+                    continue;
+                }
+                $debug && Logger::log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                if ($instance->instance->blockname == $blockname_clean) {
+                    if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
+                        continue;
+                    }
+                    $debug && Logger::log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * Return HTML for a button.
      *
      * @param \context $context The context to display the button in.
