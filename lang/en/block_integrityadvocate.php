@@ -70,6 +70,7 @@ $string['error_noappid'] = 'No Application Id is set';
 $string['error_nousers'] = 'No users found';
 $string['error_notenrolled'] = 'You are not enrolled in this course';
 $string['error_quiz_showblocks'] = 'This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...';
+$string['error_twoblocks'] = 'This block is added twice to this page, so skipping the content.  This block will not display to students.';
 
 $string['flag_comment'] = 'Details';
 $string['photo'] = 'Captured photo';

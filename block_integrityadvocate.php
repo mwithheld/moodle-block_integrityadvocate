@@ -418,7 +418,7 @@ class block_integrityadvocate extends block_base {
         if (!ia_mu::is_first_visible_block_of_type($this->page->blocks, $this)) {
             $debug && Logger::log($fxn . '::Found another_blockinstance_exists=true so refuse to show the content for this one');
             if ($hascapability_overview) {
-                $this->content->text = 'This block is added twice to this page, so skipping the content';
+                $this->content->text = get_string('error_twoblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
             $this->visible = false;
             return;
