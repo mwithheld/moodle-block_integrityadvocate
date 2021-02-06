@@ -415,6 +415,15 @@ class block_integrityadvocate extends block_base {
             return;
         }
 
+        if (!ia_mu::is_first_visible_block_of_type($this->page->blocks, $this)) {
+            $debug && Logger::log($fxn . '::Found another_blockinstance_exists=true so refuse to show the content for this one');
+            if ($hascapability_overview) {
+                $this->content->text = 'This block is added twice to this page, so skipping the content';
+            }
+            $this->visible = false;
+            return;
+        }
+
         // Check if any modules have been created.
         $exclusions = ia_mu::get_gradebook_exclusions($DB, $COURSE->id);
         $modules = ia_mu::get_modules_with_completion($COURSE->id);
