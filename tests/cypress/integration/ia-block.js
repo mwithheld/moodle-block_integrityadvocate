@@ -144,63 +144,66 @@ if (true) {
 describe('ia-block-testsuite', () => {
   // Run once before all tests in the block.
   // Setup done this way is an anti-pattern, but can't be done properly if we are switching b/t Moodles on different servers.
-  // before(() => {
-  //   cy.login(strings.baseurl + url.login, strings.username_admin, strings.password_admin);
+  before(() => {
+    // Optionally disable all before() actions.
+    if (false) {
+      cy.login(strings.baseurl + url.login, strings.username_admin, strings.password_admin);
 
-  //   cy.log('before::Step: Check if we should delete the old course');
-  //   let targeturl = url.course_management + '?search=' + strings.coursename;
-  //   cy.visit(targeturl).then(contentWindow => {
-  //     cy.get('body').then(body => {
-  //       if (body.find(".course-listing .listitem-course:contains('" + strings.coursename + "')").length > 0) {
-  //         cy.log('before::test course exists');
-  //         // Hit the delete trash can link.
-  //         cy.get(" .listitem-course:contains('" + strings.coursename + "')").find('a.action-delete i').click();
-  //         // Confirm delete.
-  //         cy.get('#modal-footer button.btn-primary').click();
-  //       } else {
-  //         cy.log('before::test course does not exist');
-  //       }
-  //     });
-  //   });
+      cy.log('before::Step: Check if we should delete the old course');
+      let targeturl = url.course_management + '?search=' + strings.coursename;
+      cy.visit(targeturl).then(contentWindow => {
+        cy.get('body').then(body => {
+          if (body.find(".course-listing .listitem-course:contains('" + strings.coursename + "')").length > 0) {
+            cy.log('before::test course exists');
+            // Hit the delete trash can link.
+            cy.get(" .listitem-course:contains('" + strings.coursename + "')").find('a.action-delete i').click();
+            // Confirm delete.
+            cy.get('#modal-footer button.btn-primary').click();
+          } else {
+            cy.log('before::test course does not exist');
+          }
+        });
+      });
 
-  //   cy.log('before::Step: Create a new empty course to hold the test course content');
-  //   cy.visit(url.course_management).then(contentWindow => {
-  //     cy.get('.course-listing-actions > a.btn').click().then(() => {
-  //       cy.get('#id_fullname').type(strings.coursename);
-  //       cy.get('#id_shortname').type(strings.coursename);
-  //       cy.get('#id_enddate_enabled').uncheck();
-  //       cy.get('#id_saveanddisplay').click();
-  //     });
-  //   });
-  //   cy.get('.breadcrumb').should('contain', strings.coursename);
+      cy.log('before::Step: Create a new empty course to hold the test course content');
+      cy.visit(url.course_management).then(contentWindow => {
+        cy.get('.course-listing-actions > a.btn').click().then(() => {
+          cy.get('#id_fullname').type(strings.coursename);
+          cy.get('#id_shortname').type(strings.coursename);
+          cy.get('#id_enddate_enabled').uncheck();
+          cy.get('#id_saveanddisplay').click();
+        });
+      });
+      cy.get('.breadcrumb').should('contain', strings.coursename);
 
-  //   // Restore the test course into the Misc category id=1.
-  //   // Skip: I could not get this to work.
-  //   //cy.visit('/backup/restorefile.php?contextid=1');
-  //   //cy.get('.filepicker-container').last().attachFile('ia-automated-tests.mbz', { subjectType: 'drag-n-drop', force: true, mimeType: 'application/octet-stream' });
+      // Restore the test course into the Misc category id=1.
+      // Skip: I could not get this to work.
+      //cy.visit('/backup/restorefile.php?contextid=1');
+      //cy.get('.filepicker-container').last().attachFile('ia-automated-tests.mbz', { subjectType: 'drag-n-drop', force: true, mimeType: 'application/octet-stream' });
 
-  //   // ASSUME the course is already in the admin profile user private backup area.
-  //   cy.visit('/backup/restorefile.php?contextid=1');
-  //   cy.get(".backup-files-table:contains('" + strings.coursename + "')").find('a:contains("Restore")').click();
-  //   cy.get('.backup-restore button[type=submit]').click();
-  //   cy.url().should('contains', '/backup/restore.php');
+      // ASSUME the course is already in the admin profile user private backup area.
+      cy.visit('/backup/restorefile.php?contextid=1');
+      cy.get(".backup-files-table:contains('" + strings.coursename + "')").find('a:contains("Restore")').click();
+      cy.get('.backup-restore button[type=submit]').click();
+      cy.url().should('contains', '/backup/restore.php');
 
-  //   cy.get('.bcs-existing-course #detail-pair-value-3').check();
-  //   cy.get(".bcs-existing-course .restore-course-search tr:contains('" + strings.coursename + "')").find('input').check();
-  //   cy.get('.bcs-existing-course input[type="Submit"]').click();
-  //   cy.url().should('contains', '/backup/restore.php');
+      cy.get('.bcs-existing-course #detail-pair-value-3').check();
+      cy.get(".bcs-existing-course .restore-course-search tr:contains('" + strings.coursename + "')").find('input').check();
+      cy.get('.bcs-existing-course input[type="Submit"]').click();
+      cy.url().should('contains', '/backup/restore.php');
 
-  //   cy.get('#id_submitbutton').click();
-  //   cy.url().should('contains', '/backup/restore.php');
-  //   cy.get('#id_submitbutton').click();
-  //   cy.url().should('contains', '/backup/restore.php');
-  //   cy.get('#id_submitbutton').click();
-  //   cy.url().should('contains', '/backup/restore.php');
-  //   cy.get('.continuebutton button').click();
-  //   cy.url().should('contains', '/course/view.php?id=');
+      cy.get('#id_submitbutton').click();
+      cy.url().should('contains', '/backup/restore.php');
+      cy.get('#id_submitbutton').click();
+      cy.url().should('contains', '/backup/restore.php');
+      cy.get('#id_submitbutton').click();
+      cy.url().should('contains', '/backup/restore.php');
+      cy.get('.continuebutton button').click();
+      cy.url().should('contains', '/course/view.php?id=');
 
-  //   cy.log('before::Done');
-  // });
+      cy.log('before::Done');
+    }
+  });
 
   // Runs before each test in this test suite.
   beforeEach(() => {
@@ -245,21 +248,21 @@ describe('ia-block-testsuite', () => {
     });
   });
 
-  it.only('add-block-to-quiz', function () {
+  it('add-block-to-quiz', function () {
     cy.visit(url.course_home).then(contentWindow => {
       cy.log(this.test.title + '::Step: Make sure course editing is on');
       cy.course_editing_on().then(contentWindow => {
         cy.block_ia_remove();
       });
 
-      cy.log(this.test.title + '::Step: Click into the quiz and check course editing is on');
+      cy.log(this.test.title + '::Step: Click into the quiz and remove any existing IA block');
       cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').click().then(() => {
         cy.url().should('include', '/mod/quiz/view.php');
         cy.get('#nav-drawer span').should('contain', 'Add a block');
         cy.block_ia_remove();
       });
 
-      cy.log(this.test.title + '::Step: Add the IA block to the quiz');
+      cy.log(this.test.title + '::Step: Add the block to the quiz');
       cy.block_ia_add();
 
       cy.log(this.test.title + '::Step: Make sure the block was added to the quiz with no config');
