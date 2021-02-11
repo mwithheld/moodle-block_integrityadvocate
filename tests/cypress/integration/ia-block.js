@@ -28,14 +28,15 @@ var url = {
 
 if (true) {
   Cypress.Commands.add('login', (url, username, password) => {
-    cy.log("login::Started with url.login=", url);
-    cy.request(url)
+    const debug = false;
+    debug && cy.log("login::Started with url.login=", url);
+    cy.request(url, { log: false })
       .its('body')
       .then(body => {
         // we can use Cypress.$ to parse the string body
         // thus enabling us to query into it easily
-        const $html = Cypress.$(body);
-        const csrfToken = $html.find('input[name=logintoken]').val();
+        const html = Cypress.$(body);
+        const csrfToken = html.find('input[name=logintoken]').val();
 
         cy.request({
           method: 'POST',
@@ -54,11 +55,50 @@ if (true) {
       });
   });
 
+  Cypress.Commands.add('course_block_add', function (url_course_home) {
+    const debug = false;
+    cy.visit(url_course_home).then(contentWindow => {
+      debug && cy.log('add-block-to-course::Step: Delete any existing course-level IA block');
+      cy.course_editing_on().then(contentWindow => {
+        cy.block_ia_remove();
+      });
+
+      debug && cy.log('add-block-to-course::Step: Add the block to the course');
+      cy.block_ia_add();
+
+      debug && cy.log('add-block-to-course::Step: Make sure the course block was added with no config');
+      cy.get('body').then(body => {
+        cy.wrap(body).find('.block_integrityadvocate').then(elt => {
+          expect(elt).to.have.length(1);
+          expect(elt).to.contain('This block has no config');
+          expect(elt).to.contain('No Api key is set');
+          expect(elt).to.contain('No Application Id is set');
+        });
+      });
+
+      debug && cy.log('add-block-to-course::Step: Configure the course block');
+      cy.block_ia_configure(strings.appid, strings.apikey);
+
+      debug && cy.log('add-block-to-course::Step: Check the course block got configured');
+      cy.get('.block_integrityadvocate').then(elt => {
+        cy.wrap(elt).find('button[type=submit]').contains('Course Overview');
+
+        debug && cy.log('add-block-to-course::Step: Make sure the Course link is correct');
+        cy.wrap(elt).find('.block_integrityadvocate_modulelist_div a').contains('Course').then(e => {
+          cy.url().then(url => {
+            expect(e).to.have.attr('href', url);
+          });
+        });
+      });
+    });
+  });
+
   Cypress.Commands.add('course_editing_on', () => {
+    const debug = false;
     // Enter course editing mode.
     cy.get('body').then(body => {
       if (body.find('body.editing').length > 0) {
-        cy.log('course_editing_on::course editing mode is already on');
+        debug && cy.log('course_editing_on::course editing mode is already on');
       } else {
         cy.get('#page-header button').contains('Turn editing on').click().then(e => {
           cy.url().should('contains', 'notifyeditingon=1');
@@ -93,16 +133,17 @@ if (true) {
    * Assumes we are already on the course home page, and course editing mode is on.
    */
   Cypress.Commands.add('block_ia_remove', () => {
+    const debug = false;
     cy.get('body').then(body => {
       if (body.find('.block_integrityadvocate').length > 0) {
-        cy.log('block_ia_remove::Found an IA block, so delete it');
+        debug && cy.log('block_ia_remove::Found an IA block, so delete it');
         cy.get('.block_integrityadvocate .action-menu .dropdown-toggle i').scrollIntoView().click().then(() => {
           cy.get('.block_integrityadvocate .action-menu').contains('Delete Integrity Advocate block').click();
           // Confirm delete.
           cy.get('#modal-footer button.btn-primary').click().then(() => {
             cy.get('body').find('.block_integrityadvocate').should('not.exist');
           });
-          cy.log('block_ia_remove::Deleted the existing IA block');
+          debug && cy.log('block_ia_remove::Deleted the existing IA block');
         });
       }
     });
@@ -126,16 +167,17 @@ if (true) {
   });
 
   Cypress.Commands.add('navdrawer_open', () => {
+    const debug = false;
     // If the navdrawer is closed, open it.
     cy.get('body').then(body => {
       if (body.find('div#nav-drawer.closed').length > 0) {
-        cy.log('navdrawer_open::sidebar is closed');
+        debug && cy.log('navdrawer_open::sidebar is closed');
         cy.get('button[data-preference=drawer-open-nav').click().then(() => {
-          cy.log('navdrawer_open::sidebar should now be opened');
+          debug && cy.log('navdrawer_open::sidebar should now be opened');
           cy.get("div#nav-drawer").should('not.have.class', 'closed');
         });
       } else {
-        cy.log('navdrawer_open::navdrawer is already open');
+        debug && cy.log('navdrawer_open::navdrawer is already open');
       }
     });
   });
@@ -146,7 +188,7 @@ describe('ia-block-testsuite', () => {
   // Setup done this way is an anti-pattern, but can't be done properly if we are switching b/t Moodles on different servers.
   before(() => {
     // Optionally disable all before() actions.
-    if (false) {
+    if (true) {
       cy.login(strings.baseurl + url.login, strings.username_admin, strings.password_admin);
 
       cy.log('before::Step: Check if we should delete the old course');
@@ -212,40 +254,7 @@ describe('ia-block-testsuite', () => {
   });
 
   it('add-block-to-course', function () {
-    cy.visit(url.course_home).then(contentWindow => {
-      cy.log(this.test.title + '::Step: Delete any existing course-level IA block');
-      cy.course_editing_on().then(contentWindow => {
-        cy.block_ia_remove();
-      });
-
-      cy.log(this.test.title + '::Step: Add the block to the course');
-      cy.block_ia_add();
-
-      cy.log(this.test.title + '::Step: Make sure the course block was added with no config');
-      cy.get('body').then(body => {
-        cy.wrap(body).find('.block_integrityadvocate').then(elt => {
-          expect(elt).to.have.length(1);
-          expect(elt).to.contain('This block has no config');
-          expect(elt).to.contain('No Api key is set');
-          expect(elt).to.contain('No Application Id is set');
-        });
-      });
-
-      cy.log(this.test.title + '::Step: Configure the course block');
-      cy.block_ia_configure(strings.appid, strings.apikey);
-
-      cy.log(this.test.title + '::Step: Check the course block got configured');
-      cy.get('.block_integrityadvocate').then(elt => {
-        cy.wrap(elt).find('button[type=submit]').contains('Course Overview');
-
-        cy.log(this.test.title + '::Step: Make sure the Course link is correct');
-        cy.wrap(elt).find('.block_integrityadvocate_modulelist_div a').contains('Course').then(e => {
-          cy.url().then(url => {
-            expect(e).to.have.attr('href', url);
-          });
-        });
-      });
-    });
+    cy.course_block_add(url.course_home);
   });
 
   it('add-block-to-quiz', function () {
@@ -286,5 +295,10 @@ describe('ia-block-testsuite', () => {
         expect(elt).to.not.contain('No Application Id is set');
       });
     });
+  });
+
+  it.only('add-block-to-course-then-quiz', function () {
+    cy.course_block_add(url.course_home);
+    cy.debug();
   });
 });
