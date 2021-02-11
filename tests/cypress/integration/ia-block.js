@@ -311,7 +311,27 @@ describe('ia-block-testsuite', () => {
   });
 
   it.only('add-block-to-course-then-quiz', function () {
-    course_block_add(url.course_home);
-    cy.debug();
+    cy.visit(url.course_home).then(contentWindow => {
+      course_block_add(url.course_home);
+
+      cy.log(this.test.title + '::Step: Click into the quiz');
+      cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').click().then(() => {
+        cy.url().should('include', '/mod/quiz/view.php');
+        cy.get('#nav-drawer span').should('contain', 'Add a block');
+      });
+
+      cy.log(this.test.title + '::Step: Add the block to the quiz');
+      block_ia_add();
+
+      cy.log(this.test.title + '::Step: Check the quiz block got configured');
+      cy.get('.block_integrityadvocate').then(elt => {
+        cy.wrap(elt).find('button[type=submit]').contains('Course Overview');
+        cy.wrap(elt).contains('Application Id ' + strings.appid);
+
+        expect(elt).to.not.contain('This block has no config');
+        expect(elt).to.not.contain('No Api key is set');
+        expect(elt).to.not.contain('No Application Id is set');
+      });
+    });
   });
 });
