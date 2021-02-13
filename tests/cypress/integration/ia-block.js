@@ -31,6 +31,16 @@ const urls = {
   course_management: '/course/management.php'
 }
 
+/**
+ * Suppress logging of xhr requests.
+ * @url https://docs.cypress.io/api/commands/server.html#Options
+ */
+Cypress.Server.defaults({
+  ignore: (xhr) => {
+    return true;
+  }
+});
+
 //-----------------------------------------------------------------------------
 // Custom commands re-usable across this app.
 //-----------------------------------------------------------------------------
@@ -56,8 +66,8 @@ Cypress.Commands.add('login', (url, username, password) => {
           logintoken: csrfToken,
         },
       }).then(resp => {
-        expect(resp.status).to.eq(200);
-        expect(resp.body).to.include('You are logged in as');
+        debug && expect(resp.status).to.eq(200);
+        debug && expect(resp.body).to.include('You are logged in as');
         cy.url().should('not.include', '/login');
       });
     });
@@ -66,6 +76,7 @@ Cypress.Commands.add('login', (url, username, password) => {
 Cypress.Commands.add('course_editing_on', () => {
   const debug = false;
   debug && cy.log('course_editing_on::Started');
+
   // Enter course editing mode.
   cy.get('body').then(body => {
     if (body.hasClass('editing')) {
@@ -81,6 +92,8 @@ Cypress.Commands.add('course_editing_on', () => {
 
 Cypress.Commands.add('navdrawer_open', () => {
   const debug = false;
+  debug && cy.log('navdrawer_open::Started');
+
   // If the navdrawer is closed, open it.
   cy.get('body').then(body => {
     if (body.find('div#nav-drawer.closed').length > 0) {
@@ -102,27 +115,40 @@ Cypress.Commands.add('navdrawer_open', () => {
 //#region 
 
 /**
+ * Make sure course editing is on and remove any existing IA blocks
+ * 
+ * @param {*} removeCourseBlock 
+ * @param {*} removeQuizBlock 
+ */
+const test_prep = (removeCourseBlock = true, removeQuizBlock = true) => {
+  const debug = false;
+  debug && cy.log('test_prep::Started with removeCourseBlock=' + removeCourseBlock + '; removeQuizBlock=' + removeQuizBlock);
+
+  cy.course_editing_on().then(() => {
+    removeCourseBlock && block_ia_remove();
+    removeQuizBlock && quiz_block_ia_remove();
+  });
+};
+
+/**
  * @url https://dmitripavlutin.com/parse-url-javascript/
  */
 const url_is_course_home = (url) => {
   const debug = false;
-  debug && cy.log('url_is_course_home::Started with url='(typeof url !== 'undefined' ? '' : url));
+  debug && cy.log('url_is_course_home::Started with url=' + (typeof url !== 'undefined' ? '' : url));
 
-  if (typeof url !== 'undefined') {
-    debug && cy.log('url_is_course_home::About to compare input url=' + new URL(url).pathname + ' vs urls.course_home=' + new URL(urls.baseurl + urls.course_home).pathname);
-    return new URL(url).pathname == new URL(urls.baseurl + urls.course_home).pathname;
-  } else {
-    cy.url().then(url => {
-      debug && cy.log('url_is_course_home::About to compare cy.url()=' + new URL(url).pathname + ' vs urls.course_home=' + new URL(urls.baseurl + urls.course_home).pathname);
-      return new URL(url).pathname == new URL(urls.baseurl + urls.course_home).pathname;
-    });
-  }
+  debug && cy.log('url_is_course_home::About to compare input url=' + new URL(url).pathname + ' vs urls.course_home=' + new URL(urls.baseurl + urls.course_home).pathname);
+  return new URL(url).pathname == new URL(urls.baseurl + urls.course_home).pathname;
 }
 
 /**
-* Assumes we are already on the page, course editing mode is on.
+* Add the IA block to the current page.
+* Assumes we are already on the target page, course editing mode is on.
 */
 const block_ia_add = () => {
+  const debug = false;
+  debug && cy.log('block_ia_add::Started');
+
   cy.navdrawer_open();
   cy.get('#nav-drawer span').contains('Add a block').click();
   return cy.get('.list-group-item-action', { timeout: 10000 }).should('contain', strings.block_fullname).then((eltouter) => {
@@ -136,10 +162,23 @@ const block_ia_add = () => {
   });
 };
 
+/**
+ * Does this:
+ * - Enable course editing
+ * - Delete any existing course-level block
+ * - Add the IA block to the course page
+ * - If(do_configure) then 
+ *   - Assert the block was added with no config
+ *   - Configure the block
+ * Does *not* assert the block got configured
+ * Assumes we are on the course home page.
+ * 
+ * @param {*} do_configure 
+ */
 const course_block_add = (do_configure = true) => {
   const debug = false;
-
   debug && cy.log('course_block_add::Started with do_configure=' + do_configure);
+
   debug && cy.log('course_block_add::Step: Delete any existing course-level IA block');
   cy.course_editing_on().then(() => {
     block_ia_remove();
@@ -152,36 +191,50 @@ const course_block_add = (do_configure = true) => {
     debug && cy.log('course_block_add::Step: Make sure the course block was added with no config');
     cy.get('body').then(body => {
       cy.wrap(body).find('.block_integrityadvocate').then(elt => {
-        course_block_ia_assert_instructor_view(elt, false);
+        course_block_ia_assert_instructor_view({ elt: elt });
       });
     });
 
-    debug && cy.log('course_block_add::Step: Configure the course block');
+    debug && cy.log('course_block_add::Step: Configure the course block and assert it got configured');
     block_ia_configure(strings.appid, strings.apikey);
-
-    debug && cy.log('course_block_add::Step: Check the course block got configured');
-    return cy.get('.block_integrityadvocate').then(elt => {
-      course_block_ia_assert_instructor_view(elt, do_configure);
-    });
   }
 }
 
-const course_block_ia_assert_instructor_view = (elt, configured = false, ismodulelevel = false) => {
-  const debug = true;
-  debug && cy.log('course_block_ia_assert_instructor_view::Started with configured=' + configured + '; ismodulelevel=' + ismodulelevel);
+/**
+ * Assert the block element looks the way an instructor should see it.
+ * 
+ * @param {object} object where:
+ *    jQuery<HtmlElement> elt HTML element of the block
+ *    bool configured True if the block should have been configured.
+ *    bool isModuleLevel True if the block is at module-level and not course-level.
+ */
+const course_block_ia_assert_instructor_view = (
+  { elt = null, configured = false, isModuleLevel = false}
+) => {
+  const debug = false;
+  debug && cy.log('course_block_ia_assert_instructor_view::Started with configured=' + configured + '; isModuleLevel=' + isModuleLevel);
 
   // There should only be one block.
-  expect(elt).to.have.length(1);
+  cy.wrap(elt).should('have.length', 1);
   block_ia_assert_footer(elt, configured);
 
   if (configured) {
-    if (!ismodulelevel) {
+    if (!isModuleLevel) {
+      // We should see the Course Overview button.
+      cy.wrap(elt).find('button[type=submit]').contains('Course Overview');
+
       // We should see a Course link with a link to the current course URL.
       cy.wrap(elt).find('.block_integrityadvocate_modulelist_div a').contains('Course').then(e => {
         cy.url().then(url => {
           expect(e).to.have.attr('href', url);
         });
       });
+    } else {
+      // We should see the Course Overview button.
+      cy.wrap(elt).find('button[type=submit]').contains('Course Overview');
+      // We should see the Module Overview button.
+      cy.wrap(elt).find('button[type=submit]').contains('Module Overview');
+
     }
   } else {
     block_ia_assert_content_no_config(elt);
@@ -190,6 +243,7 @@ const course_block_ia_assert_instructor_view = (elt, configured = false, ismodul
 
 const block_ia_assert_footer = (elt, configured = false) => {
   const debug = false;
+  debug && cy.log('block_ia_assert_footer::Started with configured=' + configured);
 
   // We should see Application Id.
   debug && cy.log('block_ia_assert_footer::Step: Make sure the Course link is correct');
@@ -202,28 +256,37 @@ const block_ia_assert_footer = (elt, configured = false) => {
 }
 
 const block_ia_assert_content_no_config = (elt) => {
+  const debug = false;
+  debug && cy.log('block_ia_assert_footer::Started');
+
   expect(elt).to.contain('This block has no config');
   expect(elt).to.contain('No Api key is set');
   expect(elt).to.contain('No Application Id is set');
   return cy;
 }
 
+/**
+ * On the current page, configure the IA block with the params passed in, then assert it worked.
+ * 
+ * @param {*} appid 
+ * @param {*} apikey 
+ */
 const block_ia_configure = (appid, apikey) => {
-  const debug = true;
-  debug && cy.log('block_ia_configure::Started');
+  const debug = false;
+  debug && cy.log('block_ia_configure::Started with appid=' + appid + '; apikey=' + apikey);
 
   return cy.get('.block_integrityadvocate').as('block_integrityadvocate').find('.action-menu .dropdown-toggle.icon-no-margin').click().then(() => {
     cy.get('@block_integrityadvocate').find('.dropdown-menu .editing_edit').click({ force: true }).then(() => {
-      cy.get('body').then(body => {
-        expect(body).to.contain('Block settings');
-      });
+      cy.get('body').should('contain', 'Block settings');
+
       cy.get('#id_config_appid').type(appid);
       cy.get('#id_config_apikey').type(apikey);
 
       cy.get('#id_submitbutton').click().then(() => {
-        // Check items that exist in all IA blocks after config.
         cy.get('@block_integrityadvocate').then(elt => {
-          course_block_ia_assert_instructor_view(elt, true, !url_is_course_home());
+          cy.url().then(url => {
+            course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: !url_is_course_home(url) });
+          });
         });
       });
     });
@@ -235,6 +298,8 @@ const block_ia_configure = (appid, apikey) => {
  */
 const block_ia_remove = () => {
   const debug = false;
+  debug && cy.log('block_ia_remove::Started');
+
   return cy.get('body').then(body => {
     if (body.find('.block_integrityadvocate').length > 0) {
       debug && cy.log('block_ia_remove::Found an IA block, so delete it');
@@ -274,12 +339,14 @@ describe('ia-block-testsuite', () => {
   // Setup done this way is an anti-pattern, but can't be done properly if we are switching b/t Moodles on different servers.
   before(() => {
     const debug = false;
+    debug && cy.log('before::Started');
+
     // Optionally disable all before() actions.
     if (true) {
       cy.login(strings.baseurl + urls.login, strings.username_admin, strings.password_admin);
 
       debug && cy.log('before::Step: Check if we should delete the old course');
-      let targeturl = urls.course_management + '?search=' + strings.coursename;
+      const targeturl = urls.course_management + '?search=' + strings.coursename;
       cy.visit(targeturl).then(() => {
         cy.get('body').then(body => {
           if (body.find(".course-listing .listitem-course:contains('" + strings.coursename + "')").length > 0) {
@@ -337,6 +404,8 @@ describe('ia-block-testsuite', () => {
   // Runs before each test in this test suite.
   beforeEach(() => {
     const debug = false;
+    debug && cy.log('beforeEach::Started');
+
     cy.login(strings.baseurl + urls.login, strings.username_admin, strings.password_admin);
     debug && cy.log('beforeEach::Done');
   });
@@ -360,13 +429,16 @@ describe('ia-block-testsuite', () => {
     });
   });
 
-  it.only('can-add-block-to-quiz-and-config', function () {
+  // it.only('cannot-add-block-with-bad-config', function () {
+  //   cy.visit(urls.course_home).then(() => {
+  //     test_prep();
+  //   });
+  // });
+
+  it('can-add-block-to-quiz-and-config', function () {
     cy.visit(urls.course_home).then(() => {
       cy.log(this.test.title + '::Step: Make sure course editing is on and remove any existing IA blocks');
-      cy.course_editing_on().then(() => {
-        block_ia_remove();
-        quiz_block_ia_remove();
-      });
+      test_prep();
 
       cy.log(this.test.title + '::Step: Add the block to the quiz');
       block_ia_add();
@@ -374,29 +446,23 @@ describe('ia-block-testsuite', () => {
       cy.log(this.test.title + '::Step: Make sure the block was added to the quiz with no config');
       cy.get('body').then(body => {
         cy.wrap(body).find('.block_integrityadvocate').as('block_integrityadvocate').then(elt => {
-          course_block_ia_assert_instructor_view(elt, false, true);
+          course_block_ia_assert_instructor_view({ elt: elt, configured: false, isModuleLevel: true });
         });
       });
 
-      cy.log(this.test.title + '::Step: Configure the quiz block');
+      cy.log(this.test.title + '::Step: Configure the quiz block and assert it got configured');
       block_ia_configure(strings.appid, strings.apikey);
 
-      cy.log(this.test.title + '::Step: Check the quiz block got configured');
-      cy.get('@block_integrityadvocate').then(elt => {
-        cy.wrap(elt).find('button[type=submit]').contains('Course Overview');
-        course_block_ia_assert_instructor_view(elt, true, true);
-      });
+      // We should see the Module Overview button.
+      cy.get('@block_integrityadvocate').find('button[type=submit]').contains('Module Overview');
     });
   });
 
   it('add-block-to-course-then-quiz-should-pick-up-config', function () {
     cy.visit(urls.course_home).then(() => {
       cy.log(this.test.title + '::Step: Make sure course editing is on and remove any existing IA blocks');
-      cy.course_editing_on().then(() => {
-        // Don't bother removing the course-level block - we're just gonna add it again.
-        //block_ia_remove();
-        quiz_block_ia_remove();
-      });
+      // Don't bother removing the course-level block - we're just gonna add it again.
+      test_prep(false, true);
     });
 
     cy.visit(urls.course_home).then(() => {
@@ -404,18 +470,17 @@ describe('ia-block-testsuite', () => {
       course_block_add();
 
       cy.log(this.test.title + '::Step: Click into the quiz');
-      cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').click().then(() => {
+      cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').trigger('mouseover').click().then(() => {
         cy.url().should('include', '/mod/quiz/view.php');
         cy.get('#nav-drawer span').should('contain', 'Add a block');
       });
 
+      cy.log(this.test.title + '::Step: Add the block to the quiz');
+      block_ia_add();
+
       cy.log(this.test.title + '::Step: Check the quiz block picked up the config from the course-level IA block');
       cy.get('.block_integrityadvocate').then(elt => {
-        cy.wrap(elt).find('button[type=submit]').contains('Course Overview');
-        cy.wrap(elt).find('button[type=submit]').contains('Module Overview');
-        block_ia_assert_footer(elt, true);
-
-        expect(elt).to.contain('This block has no config');
+        course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: true});
       });
     });
   });
@@ -423,14 +488,11 @@ describe('ia-block-testsuite', () => {
   it('add-block-to-quiz-then-course-should-pick-up-config', function () {
     cy.visit(urls.course_home).then(() => {
       cy.log(this.test.title + '::Step: Make sure course editing is on and remove any existing IA blocks');
-      cy.course_editing_on().then(contentWindow => {
-        block_ia_remove();
-        // Don't bother removing the quiz-level block - we're just gonna add it again.
-        //quiz_block_ia_remove();
-      });
+      // Don't bother removing the quiz-level block - we're just gonna add it again.
+      test_prep(true, false);
 
       cy.log(this.test.title + '::Step: Click into the quiz and add the block');
-      cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').click().then(() => {
+      cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').trigger('mouseover').click().then(() => {
         cy.url().should('include', '/mod/quiz/view.php');
         cy.get('#nav-drawer span').should('contain', 'Add a block');
 
@@ -450,8 +512,14 @@ describe('ia-block-testsuite', () => {
 
       cy.log(this.test.title + '::Step: Check the course block picked up the config from the quiz-level IA block');
       cy.get('.block_integrityadvocate').then(elt => {
-        course_block_ia_assert_instructor_view(elt, true);
+        course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: false });
       });
     });
   });
+
+  // it('two-blocks-in-quiz-should-hide-second', function () {
+  // });
+
+  // it('certificate-add-ia-restriction', function () {
+  // });
 });
