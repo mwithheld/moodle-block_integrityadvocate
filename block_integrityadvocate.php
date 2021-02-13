@@ -202,7 +202,7 @@ class block_integrityadvocate extends block_base {
      */
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $this->instance->id]));
         if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
@@ -405,6 +405,11 @@ class block_integrityadvocate extends block_base {
             Logger::log($fxn . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapability_overview);
             Logger::log($fxn . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
         }
+
+        if ($hascapability_overview) {
+            $this->content->footer = $this->get_footer();
+        }
+
         if ($setuperrors) {
             if ($hascapability_overview) {
                 foreach ($setuperrors as $err) {
@@ -570,8 +575,6 @@ class block_integrityadvocate extends block_base {
                 $debug && Logger::log($fxn . '::In some unknown context, so show nothing');
                 break;
         }
-
-        $this->content->footer = $this->get_footer();
     }
 
     /**
@@ -581,7 +584,7 @@ class block_integrityadvocate extends block_base {
      */
     private function get_footer() {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $this->instance->id);
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $this->instance->id, isset($this->config->appid)?$this->config->appid:'']));
         if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
@@ -591,7 +594,7 @@ class block_integrityadvocate extends block_base {
         $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
         $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
         $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
-        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . $this->config->appid . '</div>';
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . (isset($this->config->appid)?$this->config->appid:'') . '</div>';
 
         if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
             throw new \Exception('Failed to set value in the cache');
