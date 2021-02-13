@@ -5,6 +5,8 @@
 //require('cypress-xpath');
 //require('cypress-file-upload');
 //require('cypress-iframe');
+// ref https://github.com/javierbrea/cypress-fail-fast
+import 'cypress-fail-fast';
 
 //-----------------------------------------------------------------------------
 // Global constants and vars.
