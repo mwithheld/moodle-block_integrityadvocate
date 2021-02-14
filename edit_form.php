@@ -68,8 +68,9 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 39]);
         $mform->setType('config_appid', PARAM_ALPHANUMEXT);
 
+        // Accept ALPHANUMEXT even though we could use BASE64 b/c the former will show a nice error, which the latter will simply ignore the input value on submit.
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 52]);
-        $mform->setType('config_apikey', PARAM_BASE64);
+        $mform->setType('config_apikey', PARAM_ALPHANUMEXT);
 
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             $mform->addElement('selectyesno', 'config_proctorquizinfopage', get_string('config_proctorquizinfopage', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -91,6 +92,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $appid = $mform->getElementValue('config_appid');
         $apikey = $mform->getElementValue('config_apikey');
 
+        // Hide the text above the form inputs that says "Use of this plugin requires purchasing a paid service".
         if (!empty($apikey) && ia_mu::is_base64($apikey) && !empty($appid) && ia_u::is_guid($appid)) {
             $mform->getElement('topnote')->setAttributes(['class' => 'hidden']);
         }
@@ -122,10 +124,17 @@ class block_integrityadvocate_edit_form extends block_edit_form {
 
         $errors = [];
 
+        // Since we accept ALPHANUMEXT as input, we need to custom validate it is a GUID.
         if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {
             $data['config_appid'] = \rtrim(\ltrim(\trim($data['config_appid']), '{'), '}');
             $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
+
+        if (!empty($data['config_apikey']) && !ia_mu::is_base64($data['config_apikey'])) {
+            $data['config_apikey'] = \rtrim(\ltrim(\trim($data['config_apikey']), '{'), '}');
+            $errors['config_apikey'] = get_string('error_invalidapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
+        }
+
         return $errors;
     }
 
