@@ -9,7 +9,7 @@
 import 'cypress-fail-fast';
 
 //-----------------------------------------------------------------------------
-// Global constants and vars.
+//#region Global constants and vars
 //-----------------------------------------------------------------------------
 // Base URL with no trailing slash.
 Cypress.config('baseUrl', 'http://127.0.0.1/moodle');
@@ -42,15 +42,15 @@ Cypress.Server.defaults({
     return true;
   }
 });
+//#endregion
 
 //-----------------------------------------------------------------------------
-// Custom commands re-usable across this app.
+//#region Custom commands re-usable across this app.
 //-----------------------------------------------------------------------------
-//#region 
 Cypress.Commands.add('login', (url, username, password) => {
   const debug = false;
   debug && cy.log("login::Started with url.login=", url);
-  cy.request(url, { log: false })
+  return cy.request(url, { log: false })
     .its('body')
     .then(body => {
       // we can use Cypress.$ to parse the string body
@@ -70,7 +70,7 @@ Cypress.Commands.add('login', (url, username, password) => {
       }).then(resp => {
         debug && expect(resp.status).to.eq(200);
         debug && expect(resp.body).to.include('You are logged in as');
-        cy.url().should('not.include', '/login');
+        cy.location('href').should('not.include', '/login');
       });
     });
 });
@@ -84,8 +84,8 @@ Cypress.Commands.add('course_editing_on', () => {
     if (body.hasClass('editing')) {
       debug && cy.log('course_editing_on::course editing mode is already on');
     } else {
-      cy.get('#page-header button').contains('Turn editing on').trigger('mouseover').click().then(e => {
-        cy.url().should('contains', 'notifyeditingon=1');
+      cy.get('#page-header button').contains('Turn editing on').trigger('mouseover').click({ force: true }).then(e => {
+        cy.location('href').should('contains', 'notifyeditingon=1');
       });
     }
   });
@@ -97,7 +97,7 @@ Cypress.Commands.add('navdrawer_open', () => {
   debug && cy.log('navdrawer_open::Started');
 
   // If the navdrawer is closed, open it.
-  cy.get('body').then(body => {
+  return cy.get('body').then(body => {
     if (body.find('div#nav-drawer.closed').length > 0) {
       debug && cy.log('navdrawer_open::sidebar is closed');
       cy.get('button[data-preference=drawer-open-nav').click().then(() => {
@@ -112,9 +112,8 @@ Cypress.Commands.add('navdrawer_open', () => {
 //#endregion
 
 //-----------------------------------------------------------------------------
-// Cypress-based functions specific to this spec.
+//#region Cypress-based functions specific to this spec.
 //-----------------------------------------------------------------------------
-//#region 
 
 /**
  * Make sure course editing is on and remove any existing IA blocks
@@ -126,7 +125,7 @@ const test_prep = (removeCourseBlock = true, removeQuizBlock = true) => {
   const debug = false;
   debug && cy.log('test_prep::Started with removeCourseBlock=' + removeCourseBlock + '; removeQuizBlock=' + removeQuizBlock);
 
-  cy.course_editing_on().then(() => {
+  return cy.course_editing_on().then(() => {
     removeCourseBlock && block_ia_remove();
     removeQuizBlock && quiz_block_ia_remove();
   });
@@ -135,11 +134,11 @@ const test_prep = (removeCourseBlock = true, removeQuizBlock = true) => {
 /**
  * @url https://dmitripavlutin.com/parse-url-javascript/
  */
-const url_is_course_home = (url) => {
+const is_url_course_home = (url) => {
   const debug = false;
-  debug && cy.log('url_is_course_home::Started with url=' + (typeof url !== 'undefined' ? '' : url));
+  debug && cy.log('is_url_course_home::Started with url=' + (typeof url !== 'undefined' ? '' : url));
 
-  debug && cy.log('url_is_course_home::About to compare input url=' + new URL(url).pathname + ' vs urls.course_home=' + new URL(urls.baseurl + urls.course_home).pathname);
+  debug && cy.log('is_url_course_home::About to compare input url=' + new URL(url).pathname + ' vs urls.course_home=' + new URL(urls.baseurl + urls.course_home).pathname);
   return new URL(url).pathname == new URL(urls.baseurl + urls.course_home).pathname;
 }
 
@@ -152,12 +151,13 @@ const block_ia_add = () => {
   debug && cy.log('block_ia_add::Started');
 
   cy.navdrawer_open();
-  cy.get('#nav-drawer span').contains('Add a block').click();
-  return cy.get('.list-group-item-action', { timeout: 10000 }).should('contain', strings.block_fullname).then((eltouter) => {
-    cy.wrap(eltouter).contains(strings.block_fullname).then(elt => {
-      cy.wrap(elt).click().then(() => {
-        cy.get('body').then(body => {
-          cy.wrap(body).find('section.block_integrityadvocate').should('have.length', 1);
+  return cy.get('#nav-drawer span').contains('Add a block').click().then(() => {
+    cy.get('.list-group-item-action', { timeout: 10000 }).should('contain', strings.block_fullname).then((eltouter) => {
+      cy.wrap(eltouter).contains(strings.block_fullname).then(elt => {
+        cy.wrap(elt).click().then(() => {
+          cy.get('body').then(body => {
+            cy.wrap(body).find('section.block_integrityadvocate').should('have.length', 1);
+          });
         });
       });
     });
@@ -167,7 +167,6 @@ const block_ia_add = () => {
 /**
  * Does this:
  * - Enable course editing
- * - Delete any existing course-level block
  * - Add the IA block to the course page
  * - If(do_configure) then 
  *   - Assert the block was added with no config
@@ -181,13 +180,12 @@ const course_block_add = (do_configure = true) => {
   const debug = false;
   debug && cy.log('course_block_add::Started with do_configure=' + do_configure);
 
-  debug && cy.log('course_block_add::Step: Delete any existing course-level IA block');
-  cy.course_editing_on().then(() => {
-    block_ia_remove();
-  });
+  var returnThis = null;
 
-  debug && cy.log('course_block_add::Step: Add the block to the course');
-  block_ia_add();
+  cy.course_editing_on().then(() => {
+    debug && cy.log('course_block_add::Step: Add the block to the course');
+    returnThis = block_ia_add();
+  });
 
   if (do_configure) {
     debug && cy.log('course_block_add::Step: Make sure the course block was added with no config');
@@ -198,8 +196,10 @@ const course_block_add = (do_configure = true) => {
     });
 
     debug && cy.log('course_block_add::Step: Configure the course block and assert it got configured');
-    block_ia_configure(strings.appid, strings.apikey);
+    returnThis = block_ia_configure(strings.appid, strings.apikey);
   }
+
+  return returnThis;
 }
 
 /**
@@ -211,7 +211,7 @@ const course_block_add = (do_configure = true) => {
  *    bool isModuleLevel True if the block is at module-level and not course-level.
  */
 const course_block_ia_assert_instructor_view = (
-  { elt = null, configured = false, isModuleLevel = false}
+  { elt = null, configured = false, isModuleLevel = false }
 ) => {
   const debug = false;
   debug && cy.log('course_block_ia_assert_instructor_view::Started with configured=' + configured + '; isModuleLevel=' + isModuleLevel);
@@ -227,7 +227,7 @@ const course_block_ia_assert_instructor_view = (
 
       // We should see a Course link with a link to the current course URL.
       cy.wrap(elt).find('.block_integrityadvocate_modulelist_div a').contains('Course').then(e => {
-        cy.url().then(url => {
+        cy.location('href').then(url => {
           expect(e).to.have.attr('href', url);
         });
       });
@@ -241,6 +241,8 @@ const course_block_ia_assert_instructor_view = (
   } else {
     block_ia_assert_content_no_config(elt);
   }
+
+  return cy.wrap(elt);
 }
 
 const block_ia_assert_footer = (elt, configured = false) => {
@@ -261,10 +263,9 @@ const block_ia_assert_content_no_config = (elt) => {
   const debug = false;
   debug && cy.log('block_ia_assert_footer::Started');
 
-  expect(elt).to.contain('This block has no config');
-  expect(elt).to.contain('No Api key is set');
-  expect(elt).to.contain('No Application Id is set');
-  return cy;
+  return cy.wrap(elt).should('contain', 'This block has no config')
+    .should('contain', 'No Api key is set')
+    .should('contain', 'No Application Id is set');
 }
 
 /**
@@ -286,8 +287,8 @@ const block_ia_configure = (appid, apikey) => {
 
       cy.get('#id_submitbutton').click().then(() => {
         cy.get('@block_integrityadvocate').then(elt => {
-          cy.url().then(url => {
-            course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: !url_is_course_home(url) });
+          cy.location('href').then(url => {
+            course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: !is_url_course_home(url) });
           });
         });
       });
@@ -325,8 +326,8 @@ const quiz_block_ia_remove = () => {
   const debug = false;
   debug && cy.log('quiz_block_ia_remove::Started');
 
-  cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').scrollIntoView().click().then(() => {
-    cy.url().should('include', '/mod/quiz/view.php');
+  return cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').scrollIntoView().click().then(() => {
+    cy.location('href').should('include', '/mod/quiz/view.php');
     cy.get('#nav-drawer span').should('contain', 'Add a block');
     block_ia_remove();
   });
@@ -334,7 +335,7 @@ const quiz_block_ia_remove = () => {
 //#endregion
 
 //-----------------------------------------------------------------------------
-// Test suite begins.
+//#region Test suite begins.
 //-----------------------------------------------------------------------------
 describe('ia-block-testsuite', () => {
   // Run once before all tests in the block.
@@ -427,15 +428,51 @@ describe('ia-block-testsuite', () => {
 
   it('can-add-block-to-course-and-config', function () {
     cy.visit(urls.course_home).then(() => {
-      course_block_add();
+      course_block_add(false);
     });
   });
 
-  // it.only('cannot-add-block-with-bad-config', function () {
-  //   cy.visit(urls.course_home).then(() => {
-  //     test_prep();
-  //   });
-  // });
+  it.only('cannot-add-block-with-bad-config', function () {
+    cy.visit(urls.course_home).then(() => {
+      test_prep();
+
+      cy.course_editing_on().then(() => {
+        cy.log(this.test.title + '::Step: Add the block to the course');
+        block_ia_add();
+      });
+    });
+
+    cy.log(this.test.title + '::Step: Edit the block config');
+    cy.get('.block_integrityadvocate').find('.action-menu .dropdown-toggle').click().then(() => {
+      cy.get('.block_integrityadvocate').find('.dropdown-menu .editing_edit').click({ force: true });
+    });
+    cy.get('body').should('contain', 'Block settings');
+
+    cy.log(this.test.title + '::Step: Test a bad appid shows an error');
+    cy.get('#id_config_appid').type('some-bad-appid');
+    cy.get('#id_submitbutton').click().then(() => {
+      cy.get('#id_config_appid').closest('form').find('.invalid-feedback').should('contain', 'Invalid Application Id');
+    });
+
+    // Set the appid to a good value so it does not show up as a validation error.
+    cy.get('#id_config_appid').clear().type(strings.appid);
+
+    cy.log(this.test.title + '::Step: Test a bad apikey shows an error');
+    cy.get('#id_config_apikey').type('some-bad-apikey');
+    cy.get('#id_submitbutton').click().then(() => {
+      cy.get('#id_config_appid').closest('form').find('.invalid-feedback').should('contain', 'Invalid API Key');
+    });
+
+    cy.log(this.test.title + '::Step: Test good values work');
+    cy.get('#id_config_apikey').clear().type(strings.apikey);
+    cy.get('#id_submitbutton').click().then(() => {
+      cy.get('.block_integrityadvocate').then(elt => {
+        cy.url().then(url => {
+          course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: !is_url_course_home(url) });
+        });
+      });
+    });
+  });
 
   it('can-add-block-to-quiz-and-config', function () {
     cy.visit(urls.course_home).then(() => {
@@ -482,7 +519,7 @@ describe('ia-block-testsuite', () => {
 
       cy.log(this.test.title + '::Step: Check the quiz block picked up the config from the course-level IA block');
       cy.get('.block_integrityadvocate').then(elt => {
-        course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: true});
+        course_block_ia_assert_instructor_view({ elt: elt, configured: true, isModuleLevel: true });
       });
     });
   });
@@ -525,3 +562,4 @@ describe('ia-block-testsuite', () => {
   // it('certificate-add-ia-restriction', function () {
   // });
 });
+//#endregion
