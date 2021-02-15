@@ -635,6 +635,9 @@ describe('block_ia-testsuite', () => {
       block_ia_test_prep(true, false);
     });
 
+    cy.log(this.test.title + '::Step: Add the block to the quiz');
+    block_ia_add_to_quiz();
+
     cy.visit(urls.course_home).then(() => {
       cy.log(this.test.title + '::Step: Add the course block');
       block_ia_add_to_course(false);
@@ -647,6 +650,12 @@ describe('block_ia-testsuite', () => {
   });
 
   // it('two-blocks-in-quiz-should-hide-second', function () {
+  //   cy.visit(urls.course_home).then(() => {
+  //     cy.log(this.test.title + '::Step: Make sure course editing is on and remove any existing IA blocks');
+  //     // Don't bother removing the quiz-level block - we're just gonna add it again.
+  //     block_ia_test_prep(true, false);
+  //   });
+
   // });
 
   // it('certificate-add-ia-restriction', function () {
