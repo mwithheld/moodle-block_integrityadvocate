@@ -221,7 +221,7 @@ const block_ia_add_to_course = (do_configure = true) => {
   var returnThis = null;
 
   cy.course_editing_on().then(() => {
-    debug && cy.log(strings.function_delimiter + fxn + '::Step: Add the block to the course');
+    debug && cy.log(strings.function_delimiter + fxn + '::Step: Add the block to the course without config');
     returnThis = block_ia_add_to_page();
   });
 
@@ -346,7 +346,7 @@ const block_ia_add_to_quiz = () => {
     cy.url().should('include', '/mod/quiz/view.php');
     cy.get('#nav-drawer span').should('contain', 'Add a block');
 
-    debug && cy.log(strings.function_delimiter + fxn + '::Step: Add the block to the quiz');
+    debug && cy.log(strings.function_delimiter + fxn + '::Step: Add the block to the quiz and config it');
     cy.get('body').then(body => {
       if (body.find('.block_integrityadvocate').length < 1) {
         block_ia_add_to_page();
@@ -541,7 +541,7 @@ describe('block_ia-testsuite', () => {
       block_ia_test_prep();
 
       cy.course_editing_on().then(() => {
-        cy.log(this.test.title + '::Step: Add the block to the course');
+        cy.log(this.test.title + '::Step: Add the block to the course without config');
         block_ia_add_to_page();
       });
     });
@@ -583,7 +583,7 @@ describe('block_ia-testsuite', () => {
       cy.log(this.test.title + '::Step: Make sure course editing is on and remove any existing IA blocks');
       block_ia_test_prep();
 
-      cy.log(this.test.title + '::Step: Add the block to the quiz');
+      cy.log(this.test.title + '::Step: Add the block to the quiz without config');
       block_ia_add_to_page();
 
       cy.log(this.test.title + '::Step: Make sure the block was added to the quiz with no config');
@@ -618,7 +618,7 @@ describe('block_ia-testsuite', () => {
         cy.get('#nav-drawer span').should('contain', 'Add a block');
       });
 
-      cy.log(this.test.title + '::Step: Add the block to the quiz');
+      cy.log(this.test.title + '::Step: Add the block to the quiz without config');
       block_ia_add_to_page();
 
       cy.log(this.test.title + '::Step: Check the quiz block picked up the config from the course-level IA block');
