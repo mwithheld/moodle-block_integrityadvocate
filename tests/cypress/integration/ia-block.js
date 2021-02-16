@@ -218,7 +218,7 @@ const block_ia_add_to_course = (do_configure = true) => {
   const fxn = 'block_ia_add_to_course';
   cy.log(strings.function_delimiter + fxn + '::Started with do_configure=' + do_configure);
 
-  var returnThis = null;
+  var returnThis = cy;
 
   cy.course_editing_on().then(() => {
     debug && cy.log(strings.function_delimiter + fxn + '::Step: Add the block to the course without config');
@@ -333,14 +333,14 @@ const block_ia_assert_content_no_config = (elt) => {
 /**
  * Click into the quiz and add the block and configure it.
  * 
- * @returns {object} Whatever cy.get('.section .modtype_quiz') returns = the DOM element it found.
+ * @returns {object} Whatever block_ia_click_quiz() returns = the DOM element it found.
  */
 const block_ia_add_to_quiz = () => {
   const debug = false;
   const fxn = 'block_ia_add_to_quiz';
   cy.log(strings.function_delimiter + fxn + '::Started');
   debug && cy.log(strings.function_delimiter + fxn + '::Step: Click into the quiz and add the block');
-  var returnThis = cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').trigger('mouseover').click().then(() => {
+  var returnThis = block_ia_click_quiz().then(() => {
     cy.url().should('include', '/mod/quiz/view.php');
     cy.get('#nav-drawer span').should('contain', 'Add a block');
 
@@ -364,17 +364,23 @@ const block_ia_add_to_quiz = () => {
  * @param {string} apikey 
  * @returns {object} Whatever cy.get('.block_integrityadvocate') returns = the DOM element it found.
  */
-const block_ia_configure = (appid, apikey) => {
+const block_ia_configure = (appid = '', apikey = '', pagetypepattern = '') => {
   const debug = false;
   const fxn = 'block_ia_configure';
-  cy.log(strings.function_delimiter + fxn + '::Started with appid=' + appid + '; apikey=' + apikey);
+  cy.log(strings.function_delimiter + fxn + '::Started with appid=' + appid + '; apikey=' + apikey + '; pagetypepattern=' + pagetypepattern);
 
   var returnThis = cy.get('.block_integrityadvocate').as('block_integrityadvocate').find('.action-menu .dropdown-toggle.icon-no-margin').click().then(() => {
     cy.get('@block_integrityadvocate').find('.dropdown-menu .editing_edit').click({ force: true }).then(() => {
       cy.get('body').should('contain', 'Block settings');
 
-      cy.get('#id_config_appid').type(appid);
-      cy.get('#id_config_apikey').type(apikey);
+      appid && cy.get('#id_config_appid').type(appid);
+      apikey && cy.get('#id_config_apikey').type(apikey);
+
+      if (pagetypepattern) {
+        cy.get('.ftoggler a[aria-controls="id_whereheader"]').trigger('mouseover').click({ force: true }).then(() => {
+          cy.get('#id_bui_pagetypepattern').scrollIntoView().select(pagetypepattern);
+        });
+      }
 
       cy.get('#id_submitbutton').click().then(() => {
         cy.get('@block_integrityadvocate').then(elt => {
@@ -425,7 +431,7 @@ const block_ia_remove_from_quiz = () => {
   const fxn = 'block_ia_remove_from_quiz';
   cy.log(strings.function_delimiter + fxn + '::Started');
 
-  var returnThis = cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').scrollIntoView().click().then(() => {
+  var returnThis = block_ia_click_quiz().then(() => {
     cy.location('href').should('include', '/mod/quiz/view.php');
     cy.get('#nav-drawer span').should('contain', 'Add a block');
     block_ia_remove();
@@ -433,6 +439,10 @@ const block_ia_remove_from_quiz = () => {
 
   cy.log(strings.function_delimiter + fxn + '::Done');
   return returnThis;
+};
+
+const block_ia_click_quiz = () => {
+  return cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').trigger('mouseover').click();
 };
 //#endregion
 
@@ -459,7 +469,7 @@ describe('block_ia-testsuite', () => {
             // Hit the delete trash can link.
             cy.get(" .listitem-course:contains('" + strings.coursename + "')").find('a.action-delete').click();
             // Confirm delete.
-            cy.get('#modal-footer button.btn-primary').click();
+            cy.get('#modal-footer button.btn-primary').trigger('mouseover').click({ force: true });
           } else {
             debug && cy.log('before::test course does not exist');
           }
@@ -611,7 +621,7 @@ describe('block_ia-testsuite', () => {
       block_ia_add_to_course();
 
       cy.log(this.test.title + '::Step: Click into the quiz');
-      cy.get('.section .modtype_quiz').first().find('a.aalink span.instancename').trigger('mouseover').click().then(() => {
+      block_ia_click_quiz().then(() => {
         cy.url().should('include', '/mod/quiz/view.php');
         cy.get('#nav-drawer span').should('contain', 'Add a block');
       });
@@ -637,7 +647,7 @@ describe('block_ia-testsuite', () => {
     block_ia_add_to_quiz();
 
     cy.visit(urls.course_home).then(() => {
-      cy.log(this.test.title + '::Step: Add the course block');
+      cy.log(this.test.title + '::Step: Add the course block with no config');
       block_ia_add_to_course(false);
 
       cy.log(this.test.title + '::Step: Check the course block picked up the config from the quiz-level IA block');
@@ -647,14 +657,34 @@ describe('block_ia-testsuite', () => {
     });
   });
 
-  // it('two-blocks-in-quiz-should-hide-second', function () {
-  //   cy.visit(urls.course_home).then(() => {
-  //     cy.log(this.test.title + '::Step: Make sure course editing is on and remove any existing IA blocks');
-  //     // Don't bother removing the quiz-level block - we're just gonna add it again.
-  //     block_ia_test_prep(true, false);
-  //   });
+  it.only('two-blocks-in-quiz-should-hide-second', function () {
+    cy.visit(urls.course_home).then(() => {
+      cy.log(this.test.title + '::Step: Make sure course editing is on and remove any existing IA blocks');
+      // Don't bother removing the quiz-level block - we're just gonna add it again.
+      block_ia_test_prep(true, false);
+    });
 
-  // });
+    cy.log(this.test.title + '::Step: Add the block to the quiz');
+    block_ia_add_to_quiz();
+
+    cy.visit(urls.course_home).then(() => {
+      cy.log(this.test.title + '::Step: Add the course block with no config');
+      block_ia_add_to_course(false);
+    });
+
+    cy.log(this.test.title + '::Step: Configure the course block to show on all pages');
+    block_ia_configure('', '', '*');
+
+    cy.log(this.test.title + '::Step: Click into the quiz and assert the second block is present but not displaying');
+    block_ia_click_quiz().then(() => {
+      cy.url().should('include', '/mod/quiz/view.php');
+      cy.get('.block_integrityadvocate').should('have.length', 2);
+      cy.get('.block_integrityadvocate').last().then(elt=>{
+        cy.wrap(elt).should('contain', 'added twice to this page');
+      });
+    });
+
+  });
 
   // it('certificate-add-ia-restriction', function () {
   // });
