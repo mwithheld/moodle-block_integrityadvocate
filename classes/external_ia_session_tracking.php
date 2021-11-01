@@ -86,47 +86,47 @@ trait external_ia_session_tracking {
         // Check for things that should make this fail.
         switch (true) {
             case(!\confirm_sesskey()):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => \get_string('confirmsesskeybad')];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => \get_string('confirmsesskeybad')];
                 break;
             case(!\block_integrityadvocate\FeatureControl::SESSION_STARTED_TRACKING) :
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'This feature is disabled'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'This feature is disabled'];
                 break;
             case(!ia_u::is_guid($appid)):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The input appid is an invalid GUID'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The input appid is an invalid GUID'];
                 break;
             case(!(ia_mu::get_course_as_obj($courseid))):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The input courseid is an invalid course id'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The input courseid is an invalid course id'];
                 break;
             case(!($coursecontext = \context_course::instance($courseid))):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The course context is invalid'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The course context is invalid'];
                 break;
             case(!\is_enrolled($coursecontext, $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have targetuserid={$userid} enrolled"];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => "Course id={$courseid} does not have targetuserid={$userid} enrolled"];
                 break;
             case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid)];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid)];
                 break;
             case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1]) || !($blockinstance = ia_mu::get_first_block($cm->context, INTEGRITYADVOCATE_SHORTNAME, false))):
                 // The above line also throws an error if $overrideuserid cannot access the module.
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The target module must have an instance of ' . \INTEGRITYADVOCATE_SHORTNAME . ' attached'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The target module must have an instance of ' . \INTEGRITYADVOCATE_SHORTNAME . ' attached'];
                 break;
             case($blockinstance->config->appid !== $appid):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "The input appid {$blockinstance->config->appid} does not match the block intance appid={$appid}"];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => "The input appid {$blockinstance->config->appid} does not match the block intance appid={$appid}"];
                 break;
             case((int) $userid !== (int) ($USER->id)):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The userid is not the current user'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The userid is not the current user'];
                 break;
             case(!($user = ia_mu::get_user_as_obj($userid))):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The userid is not a valid user'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The userid is not a valid user'];
                 break;
             case($user->deleted || $user->suspended):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'The user is suspended or deleted'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The user is suspended or deleted'];
                 break;
             case(!\is_enrolled(($cm->context), $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => "The userid={$userid} is not enrolled in the target module cmid={$moduleid}"];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => "The userid={$userid} is not enrolled in the target module cmid={$moduleid}"];
                 break;
             case(\has_capability('block/integrityadvocate:overview', $cm->context)):
-                $result['warnings'][] = ['warningcode' => \implode('-', [$blockversion, __LINE__]), 'message' => 'Instructors do not get the proctoring UI so never need to open or close the session'];
+                $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'Instructors do not get the proctoring UI so never need to open or close the session'];
                 break;
         }
         $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
