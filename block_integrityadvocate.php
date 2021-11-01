@@ -183,16 +183,26 @@ class block_integrityadvocate extends block_base {
             $errors = ['This block has no config'];
         }
 
-        if (!isset($this->config->apikey) || !ia_mu::is_base64($this->config->apikey)) {
+        if (!isset($this->config->apikey) || !self::is_valid_apikey($this->config->apikey)) {
             $errors['config_apikey'] = \get_string('error_noapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
             $debug && Logger::log($fxn . '::' . $errors['config_apikey']);
         }
-        if (!isset($this->config->appid) || !ia_u::is_guid($this->config->appid)) {
+        if (!isset($this->config->appid) || !self::is_valid_appid($this->config->appid)) {
             $errors['config_appid'] = \get_string('error_noappid', \INTEGRITYADVOCATE_BLOCK_NAME);
             $debug && Logger::log($fxn . '::' . $errors['config_appid']);
         }
 
         return $errors;
+    }
+
+    public static function is_valid_apikey(string $apikey): bool
+    {
+        return ia_mu::is_base64($apikey);
+    }
+
+    public static function is_valid_appid(string $appid): bool
+    {
+        return ia_u::is_guid($appid);
     }
 
     /**
