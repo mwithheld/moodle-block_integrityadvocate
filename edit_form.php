@@ -70,7 +70,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
 
         // Accept ALPHANUMEXT even though we could use BASE64 b/c the former will show a nice error, which the latter will simply ignore the input value on submit.
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 52]);
-        $mform->setType('config_apikey', PARAM_ALPHANUMEXT);
+        $mform->setType('config_apikey', PARAM_BASE64);
 
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             $mform->addElement('selectyesno', 'config_proctorquizinfopage', get_string('config_proctorquizinfopage', INTEGRITYADVOCATE_BLOCK_NAME));
