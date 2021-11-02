@@ -55,4 +55,7 @@ class FeatureControl {
     /** @var bool True to keep track of when session are started. */
     public const SESSION_STARTED_TRACKING = true;
 
+    /** @var bool True to allow IA to remotely get course actvities basic info . */
+    public const EXTERNAL_API_COURSE_INFO = true;
+
 }
