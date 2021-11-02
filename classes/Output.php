@@ -67,10 +67,16 @@ class Output {
     public static function add_block_js(\block_integrityadvocate $blockinstance, string $proctorjsurl): string {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started');
+        $debug && Logger::log($fxn . '::Started with ia_u::is_empty($blockinstance)='.ia_u::is_empty($blockinstance).'; $blockinstance->context->contextlevel='.$blockinstance->context->contextlevel.' vs \CONTEXT_BLOCK='.\CONTEXT_BLOCK.'; $proctorjsurl='.$proctorjsurl);
 
+        // If the user is not enrolled as a student, $proctorjsurl is a string error message, so simply return an empty result.
+        if(!\filter_var($proctorjsurl, \FILTER_VALIDATE_URL)) {
+            Logger::log($fxn . '::The incoming $proctorjsurl is not a valid url it is '.ia_u::var_dump($proctorjsurl));
+            return '';
+        }
+        
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK) || !\filter_var($proctorjsurl, \FILTER_VALIDATE_URL)) {
+        if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
             $msg = 'Input params are invalid';
             Logger::log($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
@@ -529,7 +535,7 @@ class Output {
                     // If block is in a module, show the module's latest status, photo, start, end.
                     $debug && Logger::log($fxn . '::Am in a module context');
                     $latestsession = ia_api::get_module_session_latest($parentcontext, $userid);
-                    $debug && Logger::log($fxn . '::Got $latestsession=' . $latestsession->__toString());
+                    $debug && Logger::log($fxn . '::Got $latestsession=' . ia_u::is_empty($latestsession)?'':$latestsession->__toString());
                     if (ia_u::is_empty($latestsession)) {
                         $debug && Logger::log($fxn . '::Got empty $latestsession, so return empty result');
                         return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
