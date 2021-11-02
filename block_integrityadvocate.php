@@ -268,7 +268,7 @@ class block_integrityadvocate extends block_base {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false || Logger::do_log_for_function($fxn);
         global $OUTPUT;
-        $debug && Logger::log($fxn . '::Add the proctoring JS');
+        $debug && Logger::log($fxn . '::Started with $user='.$user->id);
 
         $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
         $this->page->requires->string_for_js('exitactivity', 'scorm');
@@ -285,6 +285,7 @@ class block_integrityadvocate extends block_base {
         // This must hold some content, otherwise this function runs twice.
         $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
 
+        $debug && Logger::log($fxn . '::About to add_block_js() with $user='.$user->id);
         ia_output::add_block_js($this, ia_output::get_proctor_js_url($this, $user));
     }
 
@@ -585,6 +586,9 @@ class block_integrityadvocate extends block_base {
                 $debug && Logger::log($fxn . '::In some unknown context, so show nothing');
                 break;
         }
+        
+        
+        $debug && Logger::log($fxn . '::Done');
     }
 
     /**
