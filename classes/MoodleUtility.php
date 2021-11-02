@@ -545,7 +545,25 @@ class MoodleUtility {
 
         return $returnthis;
     }
-
+    
+    /**
+     * Return true if a course exists.
+     *
+     * @param int| The course id.
+     * @return bool False if no course found; else true.
+     */
+    public static function couse_exists(int $id):bool {
+        global $DB;
+        $exists = false;
+        try {
+            $exists = $DB->record_exists('course', array('id' => $id));
+        } catch (\dml_missing_record_exception $e) {
+            // Ignore these.
+        }
+        
+        return $exists;
+    }
+    
     /**
      * Convert course id to moodle course object into if needed.
      *
