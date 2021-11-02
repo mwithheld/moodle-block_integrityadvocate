@@ -112,7 +112,7 @@ trait external_get_course_info
             case (!ia::is_valid_appid($appid)):
                 $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The input appid is invalid'];
                 break;
-            case ($courseid < 1 || $courseid == \SITEID || !(ia_mu::get_course_as_obj($courseid))):
+            case ($courseid < 1 || $courseid == \SITEID || !(ia_mu::couse_exists($courseid))):
                 $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The input courseid is invalid'];
                 break;
             case (!($coursecontext = \context_course::instance($courseid))):
@@ -164,9 +164,16 @@ trait external_get_course_info
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
         $debug && error_log($debugvars);
 
-        $result = \array_merge(['submitted' => false, 'success' => false, 'warnings' => []], self::get_course_activities_validate_params($apikey, $appid, $courseid));
+        $result = \array_merge(['submitted' => false, 'success' => false, 'warnings' => [], 'courseactivities'=>[]], self::get_course_activities_validate_params($apikey, $appid, $courseid));
         $debug && error_log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
+        if (isset($result['warnings']) && !empty($result['warnings'])) {
+            $result['success'] = false;
+            Logger::log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            return $result;
+        }
+        $debug && Logger::log($fxn . '::No warnings');
+        
         $modinfo = \get_fast_modinfo($courseid, -1);
         $coursefullname = get_course($courseid)->fullname;
         
@@ -219,7 +226,7 @@ trait external_get_course_info
                     'activityname' => new \external_value(PARAM_NOTAGS, 'Module display name with no HTML tags e.g. Fancy Quiz number 1'),
                     'activitytype' => new \external_value(PARAM_PLUGIN, 'Plugin type e.g. quiz, forum, glossary'),
                     )
-                )
+                ), VALUE_OPTIONAL
             )
             ]
         );
