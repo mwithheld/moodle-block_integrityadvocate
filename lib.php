@@ -25,6 +25,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
@@ -84,7 +85,8 @@ const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
  * @param \context $blockcontext Block context to get IA Participants data for.
  * @return array<block_integrityadvocate\Participant> Array of Participant objects.
  */
-function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
+function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array
+{
     $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false || Logger::do_log_for_function($fxn);
     $debug && Logger::log($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
@@ -158,7 +160,8 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  *        ), ...
  * )
  */
-function block_integrityadvocate_get_course_sessions(string $apikey, string $appid, int $courseid) {
+function block_integrityadvocate_get_course_sessions(string $apikey, string $appid, int $courseid)
+{
     $debug = false || Logger::do_log_for_function(__FILE__ . '::' . __FUNCTION__);
     $fxn = __FILE__ . '::' . __FUNCTION__;
     $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
@@ -189,7 +192,8 @@ function block_integrityadvocate_get_course_sessions(string $apikey, string $app
  * @param int $courseid The course id.
  * @return array Array of Participants, each with the sessions attribute sorted by start date ascending.
  */
-function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid) {
+function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid)
+{
     $debug = false || Logger::do_log_for_function(__FILE__ . '::' . __FUNCTION__);
     $fxn = __FILE__ . '::' . __FUNCTION__;
     $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
@@ -235,7 +239,8 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
  * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
  * @return string|array Array of modules that match; else string error identifier.
  */
-function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
+function block_integrityadvocate_get_course_ia_modules($course, $filter = [])
+{
     $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false || Logger::do_log_for_function($fxn);
 
@@ -320,7 +325,8 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
  *                   [page] => ...
  *  )
  */
-function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array {
+function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array
+{
     $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false || Logger::do_log_for_function($fxn);
     $debug && Logger::log($fxn . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
@@ -380,4 +386,33 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
     }
 
     return $modules;
+}
+
+/**
+ * Check the course contains a block with the matching APIKey and AppId.
+ */
+function block_integrityadvocate_get_first_course_ia_block(int $courseid, string $apikey, string $appid): ?block_integrityadvocate
+{
+    $fxn = Logger::NONAMESPACE_FUNCTION_PREFIX . Logger::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
+    $debug = true || Logger::do_log_for_function($fxn);
+    $debug && error_log($fxn . "::Started with \$courseid={$courseid}; \$apikey={$apikey}; \$appid={$appid}");
+
+    $blocks = ia_mu::get_all_course_blocks($courseid, INTEGRITYADVOCATE_SHORTNAME);
+    $debug && Logger::log($fxn . '::Got count(blocks)=' . ia_u::count_if_countable($blocks));
+    
+    foreach ($blocks as $key => &$b) {
+        $debug && Logger::log($fxn . "::Looking at block_instance.id={$key}");
+
+        // Look for a block in the course specified by courseid with matching APIKey and AppId.
+        if (
+            $b->config->apikey  == $apikey
+            && $b->config->appid == $appid
+        ) {
+            $debug && Logger::log($fxn . "::Found a courseid={$courseid} block_instance.id={$key} with matching apikey and appid");
+            return $b;
+        }
+    }
+
+    $debug && Logger::log($fxn . "::No courseid={$courseid} block_instance.id={$key} matches apikey and appid");
+    return null;
 }

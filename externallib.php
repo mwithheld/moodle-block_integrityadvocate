@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -28,9 +29,11 @@ require_once($CFG->libdir . '/externallib.php');
 /**
  * Answers AJAX calls for this block.
  */
-class block_integrityadvocate_external extends \external_api {
+class block_integrityadvocate_external extends \external_api
+{
 
     use \block_integrityadvocate\external_ia_session_tracking;
+    use \block_integrityadvocate\external_get_course_info;
 
     /**
      * Describes a return value that just returns submitted = true.
