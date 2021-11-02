@@ -113,6 +113,7 @@ class Api {
      * @param int $userid The user id
      * @return bool true if the remote API close says it succeeded; else false
      */
+    /*
     public static function close_remote_session(string $appid, int $courseid, int $moduleid, int $userid): bool {
         $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -164,6 +165,7 @@ class Api {
         }
         return $success;
     }
+     */
 
     /**
      * Interact with the IA-side API to get results.
