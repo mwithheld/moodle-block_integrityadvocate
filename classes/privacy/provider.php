@@ -29,7 +29,6 @@ use \core_privacy\local\request\approved_contextlist;
 use \core_privacy\local\request\approved_userlist;
 use \core_privacy\local\request\contextlist;
 use \core_privacy\local\request\userlist;
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -58,9 +57,9 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return collection The metadata.
      */
     public static function get_metadata(collection $collection): collection {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $collection=' . \var_export($collection, true), \block_integrityadvocate\Logger::HTML);
+        $debug && error_log($fxn . '::Started with $collection=' . \var_export($collection, true));
 
         $privacyitems = [
             // Course info.
@@ -92,7 +91,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         $collection->add_external_location_link(INTEGRITYADVOCATE_BLOCK_NAME, $privacyitemsarr,
                 self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation');
-        $debug && Logger::log('About to return $collection=' . \var_export($collection, true), \block_integrityadvocate\Logger::HTML);
+        $debug && error_log('About to return $collection=' . \var_export($collection, true));
 
         return $collection;
     }
@@ -104,9 +103,9 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param   \userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
+        $debug && error_log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -126,9 +125,9 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
+        $debug && error_log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -141,7 +140,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Get IA participant data from the remote API.
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && Logger::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants) || ia_u::is_empty($userlist) || ia_u::is_empty($userids = $userlist->get_userids())) {
             return;
         }
@@ -156,9 +155,9 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param context $context Context to delete data from.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $context=' . \var_export($context, true));
+        $debug && error_log($fxn . '::Started with $context=' . \var_export($context, true));
 
         if (!($context instanceof \context_module)) {
             return;
@@ -166,7 +165,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Get IA participant data from the remote API.
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && Logger::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return;
         }
@@ -186,9 +185,9 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param   approved_contextlist $contextlist    The approved contexts and user information to delete information for.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
+        $debug && error_log($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
 
         if (empty($contextlist->count())) {
             return;
@@ -202,7 +201,7 @@ class provider implements \core_privacy\local\metadata\provider,
         foreach ($contextlist->get_contexts() as $context) {
             // Get IA participant data from the remote API.
             $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-            $debug && Logger::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+            $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
             if (ia_u::is_empty($participants)) {
                 continue;
             }
@@ -289,12 +288,12 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return array<int> Array of unique IA participant Ids and overrider Ids from the remote API.
      */
     public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
+        $debug && error_log($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
 
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
-        $debug && Logger::log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return [];
         }

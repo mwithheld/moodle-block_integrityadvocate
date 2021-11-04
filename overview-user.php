@@ -24,7 +24,6 @@
 
 namespace block_integrityadvocate;
 
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
@@ -39,13 +38,13 @@ switch (true) {
     case (!FeatureControl::OVERVIEW_USER_LTI):
         throw new \Exception('This feature is disabled');
     default:
-        $debug && Logger::log(__FILE__ . '::All requirements are met');
+        $debug && error_log(__FILE__ . '::All requirements are met');
 }
 // This is only optional_param() in overview.php.
 $userid = \required_param('userid', \PARAM_INT);
 
-$debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . \basename(__FILE__));
-$debug && Logger::log(__FILE__ . '::Started with $userid=' . $userid);
+$debug = false;
+$debug && error_log(__FILE__ . '::Started with $userid=' . $userid);
 
 $parentcontext = $blockcontext->get_parent_context();
 
@@ -76,7 +75,7 @@ if (!\is_array($coursemodules)) {
 $user = ia_mu::get_user_as_obj($userid);
 if (ia_u::is_empty($user)) {
     $msg = "Failed to find a Moodle user with id={$userid}";
-    Logger::log(__FILE__ . '::' . $msg);
+    error_log(__FILE__ . '::' . $msg);
     throw new \Exception($msg);
 }
 

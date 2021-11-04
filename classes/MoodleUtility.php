@@ -24,7 +24,6 @@
 
 namespace block_integrityadvocate;
 
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\Utility as ia_u;
 
 \defined('MOODLE_INTERNAL') || die;
@@ -45,8 +44,8 @@ class MoodleUtility {
      */
     public static function another_blockinstance_exists(\block_manager $blockmanager, \block_base $block): bool {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
+        $debug = false;
+        $debug && error_log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
 
         $blockmanager->load_blocks(true);
         $blockname_clean = ia_u::remove_prefix('block_', $block->instance->blockname);
@@ -57,18 +56,18 @@ class MoodleUtility {
                 if (empty($instance->instance->blockname)) {
                     continue;
                 }
-                $debug && Logger::log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                $debug && error_log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
                 if ($instance->instance->blockname == $blockname_clean && intval($instance->instance->id) != intval($block->instance->id)) {
                     if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
                         continue;
                     }
-                    $debug && Logger::log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id . ' that does not match the passed in block id=' . $block->instance->id);
+                    $debug && error_log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id . ' that does not match the passed in block id=' . $block->instance->id);
                     return true;
                 }
             }
         }
 
-        $debug && Logger::log($fxn . '::No other instances found with differing ids ');
+        $debug && error_log($fxn . '::No other instances found with differing ids ');
         return false;
     }
 
@@ -81,8 +80,8 @@ class MoodleUtility {
      */
     public static function is_first_visible_block_of_type(\block_manager $blockmanager, \block_base $block): bool {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
+        $debug = false;
+        $debug && error_log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
 
         $blockmanager->load_blocks(true);
         $blockname_clean = ia_u::remove_prefix('block_', $block->instance->blockname);
@@ -94,13 +93,13 @@ class MoodleUtility {
                 if (empty($instance->instance->blockname)) {
                     continue;
                 }
-                $debug && Logger::log($fxn . '::Looking at visible=' . $instance->instance->visible . '; blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                $debug && error_log($fxn . '::Looking at visible=' . $instance->instance->visible . '; blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
                 if ($instance->instance->visible && $instance->instance->blockname == $blockname_clean) {
                     if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
                         continue;
                     }
                     if (intval($instance->instance->id) === intval($block->instance->id)) {
-                        $debug && Logger::log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id . ' that matches the passed in block id=' . $block->instance->id);
+                        $debug && error_log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id . ' that matches the passed in block id=' . $block->instance->id);
                         return true;
                     } else {
                         return false;
@@ -109,7 +108,7 @@ class MoodleUtility {
             }
         }
 
-        $debug && Logger::log($fxn . '::Could not find any matching blocks,so assume it is the first');
+        $debug && error_log($fxn . '::Could not find any matching blocks,so assume it is the first');
         return true;
     }
 
@@ -124,8 +123,8 @@ class MoodleUtility {
      */
     public static function count_blocks(\block_manager $blockmanager, string $blockname): int {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . '::Started with $blockname=' . $blockname);
+        $debug = false;
+        $debug && error_log($fxn . '::Started with $blockname=' . $blockname);
 
         $blockmanager->load_blocks(true);
         $blockname_clean = ia_u::remove_prefix('block_', $blockname);
@@ -137,12 +136,12 @@ class MoodleUtility {
                 if (empty($instance->instance->blockname)) {
                     continue;
                 }
-                $debug && Logger::log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                $debug && error_log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
                 if ($instance->instance->blockname == $blockname_clean) {
                     if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
                         continue;
                     }
-                    $debug && Logger::log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                    $debug && error_log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
                     $count++;
                 }
             }
@@ -180,35 +179,35 @@ class MoodleUtility {
     public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$blockname={$blockname}; \$visibleonly={$visibleonly}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$blockname={$blockname}; \$visibleonly={$visibleonly}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = ['blockname' => \preg_replace('/^block_/', '', $blockname)];
-        $debug && Logger::log($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
+        $debug && error_log($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
 
         $records = $DB->get_records('block_instances', $params);
-        $debug && Logger::log($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
+        $debug && error_log($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
-            $debug && Logger::log($fxn . "::No instances of block_{$blockname} found");
+            $debug && error_log($fxn . "::No instances of block_{$blockname} found");
             return [];
         }
 
         // Go through each of the block instances and check visibility.
         $blockinstances = [];
         foreach ($records as $r) {
-            $debug && Logger::log($fxn . '::Looking at $br=' . ia_u::var_dump($r, true));
+            $debug && error_log($fxn . '::Looking at $br=' . ia_u::var_dump($r, true));
 
             // Check if it is visible and get the IA appid from the block instance config.
             $blockinstancevisible = self::is_block_visibile($r->parentcontextid, $r->id);
-            $debug && Logger::log($fxn . "::Found \$blockinstancevisible={$blockinstancevisible}");
+            $debug && error_log($fxn . "::Found \$blockinstancevisible={$blockinstancevisible}");
 
             if ($visibleonly && !$blockinstancevisible) {
                 continue;
             }
 
             if (isset($blockinstances[$r->id])) {
-                $debug && Logger::log($fxn . "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
+                $debug && error_log($fxn . "::Multiple visible block_{$blockname} instances found in the same parentcontextid - just return the first one");
                 continue;
             }
 
@@ -253,28 +252,28 @@ class MoodleUtility {
      */
     public static function get_all_course_blocks(int $courseid, string $blockname, bool $visibleonly = false): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with courseid={$courseid}; \$blockname={$blockname}; \$visibleonly={$visibleonly}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with courseid={$courseid}; \$blockname={$blockname}; \$visibleonly={$visibleonly}");
 
         $coursecontext = \context_course::instance($courseid, MUST_EXIST);
 
         // Get course-level instances.
         $blockinstances = self::get_blocks_in_context($coursecontext->id, $blockname, $visibleonly);
-        $debug && Logger::log($fxn . '::Found course level block count=' . ia_u::count_if_countable($blockinstances));
+        $debug && error_log($fxn . '::Found course level block count=' . ia_u::count_if_countable($blockinstances));
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && Logger::log($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
+            $debug && error_log($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
             if ((int) ($c->contextlevel) !== (int) (\CONTEXT_MODULE)) {
                 continue;
             }
 
             $blocksinmodule = self::get_blocks_in_context($c->id, $blockname, $visibleonly);
-            $debug && Logger::log($fxn . '::Found module level block count=' . ia_u::count_if_countable($blocksinmodule));
+            $debug && error_log($fxn . '::Found module level block count=' . ia_u::count_if_countable($blocksinmodule));
             $blockinstances += $blocksinmodule;
         }
 
-        $debug && Logger::log($fxn . '::About to return blockinstances count=' . ia_u::count_if_countable(ia_u::var_dump($blockinstances)));
+        $debug && error_log($fxn . '::About to return blockinstances count=' . ia_u::count_if_countable(ia_u::var_dump($blockinstances)));
         return $blockinstances;
     }
 
@@ -330,14 +329,14 @@ class MoodleUtility {
      */
     public static function get_roles_for_select(\context $context): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$context->id={$context->id}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$context->id={$context->id}");
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-            $debug && Logger::log($fxn . '::Found a cached value, so return that');
+            $debug && error_log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
 
@@ -465,11 +464,11 @@ class MoodleUtility {
     public static function is_block_visibile(int $parentcontextid, int $blockinstanceid): bool {
         global $DB;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$parentcontextid={$parentcontextid}; \$blockinstanceid={$blockinstanceid}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$parentcontextid={$parentcontextid}; \$blockinstanceid={$blockinstanceid}");
 
         $record = $DB->get_record('block_positions', ['blockinstanceid' => $blockinstanceid, 'contextid' => $parentcontextid], 'id,visible', \IGNORE_MULTIPLE);
-        $debug && Logger::log($fxn . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
+        $debug && error_log($fxn . '::Got $bp_record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
         if (ia_u::is_empty($record)) {
             // There is no block_positions record, and the default is visible.
             return true;
@@ -512,15 +511,15 @@ class MoodleUtility {
      */
     public static function get_courseid_from_cmid(int $cmid): int {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with $cmid={$cmid}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with $cmid={$cmid}");
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make('block_integrityadvocate', 'perrequest');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
-        $debug && Logger::log($fxn . "::Built cachekey={$cachekey}");
+        $debug && error_log($fxn . "::Built cachekey={$cachekey}");
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-            $debug && Logger::log($fxn . '::Found a cached value, so return that');
+            $debug && error_log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
 
@@ -530,10 +529,10 @@ class MoodleUtility {
                       FROM {course_modules} cm
                       JOIN {course} c ON c.id = cm.course
                      WHERE cm.id = ?', [$cmid], 'id', \IGNORE_MULTIPLE);
-        $debug && Logger::log($fxn . '::Got course=' . ia_u::var_dump($course, true));
+        $debug && error_log($fxn . '::Got course=' . ia_u::var_dump($course, true));
 
         if (ia_u::is_empty($course) || !isset($course->id)) {
-            $debug && Logger::log($fxn . "::No course found for cmid={$cmid}");
+            $debug && error_log($fxn . "::No course found for cmid={$cmid}");
             $returnthis = -1;
         } else {
             $returnthis = $course->id;
@@ -572,15 +571,15 @@ class MoodleUtility {
      */
     public static function get_course_as_obj($course): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . '::Started with type(\$course)=' . \gettype($course));
+        $debug = false;
+        $debug && error_log($fxn . '::Started with type(\$course)=' . \gettype($course));
 
         if (\is_numeric($course)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key($fxn . '_' . \json_encode($course, \JSON_PARTIAL_OUTPUT_ON_ERROR));
             if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-                $debug && Logger::log($fxn . '::Found a cached value, so return that');
+                $debug && error_log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
 
@@ -630,14 +629,14 @@ class MoodleUtility {
      */
     public static function get_default_course_role(\context $coursecontext): int {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$coursecontext={$coursecontext->instanceid}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$coursecontext={$coursecontext->instanceid}");
 
         // Sanity check.
         if (ia_u::is_empty($coursecontext) || ($coursecontext->contextlevel !== \CONTEXT_COURSE)) {
             $msg = 'Input params are invalid';
-            Logger::log($fxn . "::Started with \$coursecontext->instanceid={$coursecontext->instanceid}");
-            Logger::log($fxn . '::' . $msg);
+            error_log($fxn . "::Started with \$coursecontext->instanceid={$coursecontext->instanceid}");
+            error_log($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -669,21 +668,21 @@ class MoodleUtility {
      */
     public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false): ?\block_integrityadvocate {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; \$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; \$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = ['blockname' => \preg_replace('/^block_/', '', $blockname), 'parentcontextid' => $modulecontext->id];
-        $debug && Logger::log($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
+        $debug && error_log($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
 
         // Z--.
         // Danger: Caching the resulting $record in the perrequest cache didn't work - we get an invalid stdClass back out.
         // Z--.
         global $DB;
         $records = $DB->get_records('block_instances', $params);
-        $debug && Logger::log($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
+        $debug && error_log($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
         if (ia_u::is_empty($records)) {
-            $debug && Logger::log($fxn . "::No instances of block_{$blockname} is associated with this context");
+            $debug && error_log($fxn . "::No instances of block_{$blockname} is associated with this context");
             return null;
         }
 
@@ -692,9 +691,9 @@ class MoodleUtility {
         foreach ($records as $r) {
             // Check if it is visible and get the IA appid from the block instance config.
             $r->visible = self::is_block_visibile($modulecontext->id, $r->id);
-            $debug && Logger::log($fxn . "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$r->id} found \$record->visible={$r->visible}");
+            $debug && error_log($fxn . "::For \$modulecontext->id={$modulecontext->id} and \$record->id={$r->id} found \$record->visible={$r->visible}");
             if ($visibleonly && !$r->visible) {
-                $debug && Logger::log($fxn . '::$visibleonly=true and this instance is not visible so skip it');
+                $debug && error_log($fxn . '::$visibleonly=true and this instance is not visible so skip it');
                 continue;
             }
 
@@ -702,7 +701,7 @@ class MoodleUtility {
             break;
         }
         if (empty($blockrecord)) {
-            $debug && Logger::log($fxn . '::No valid blockrecord found, so return false');
+            $debug && error_log($fxn . '::No valid blockrecord found, so return false');
             return null;
         }
 
@@ -721,15 +720,15 @@ class MoodleUtility {
      */
     public static function get_user_as_obj($user): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . '::Started with type($user)=' . \gettype($user));
+        $debug = false;
+        $debug && error_log($fxn . '::Started with type($user)=' . \gettype($user));
 
         if (\is_numeric($user)) {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key($fxn . '_' . \json_encode($user, \JSON_PARTIAL_OUTPUT_ON_ERROR));
             if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-                $debug && Logger::log($fxn . '::Found a cached value, so return that');
+                $debug && error_log($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
 
@@ -763,14 +762,14 @@ class MoodleUtility {
      */
     public static function get_user_picture(\stdClass $user, array $params = []): string {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$user->id={$user->id}; \$params=" . \serialize($params));
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$user->id={$user->id}; \$params=" . \serialize($params));
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = self::get_cache_key($fxn . '_' . \json_encode($user, \JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
         if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
-            $debug && Logger::log($fxn . '::Found a cached value, so return that');
+            $debug && error_log($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
 
@@ -780,7 +779,7 @@ class MoodleUtility {
                 $userpicture->{$key} = $val;
             }
         }
-        $debug && Logger::log($fxn . '::Built user_picture=' . ia_u::var_dump(user_picture));
+        $debug && error_log($fxn . '::Built user_picture=' . ia_u::var_dump(user_picture));
 
         $page = new \moodle_page();
         $page->set_url('/user/profile.php');
@@ -861,13 +860,13 @@ class MoodleUtility {
     public static function nonce_set(string $key): int {
         global $SESSION;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$key={$key}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$key={$key}");
 
         // Make sure $key is a safe cache key.
         $sessionkey = self::get_cache_key($key);
 
-        $debug && Logger::log($fxn . "::About to set \$SESSION key={$key}");
+        $debug && error_log($fxn . "::About to set \$SESSION key={$key}");
         return $SESSION->{$sessionkey} = \time();
     }
 
@@ -881,18 +880,18 @@ class MoodleUtility {
     public static function nonce_validate(string $key, bool $returntrueifexists = false): bool {
         global $SESSION;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
-        $debug && Logger::log($fxn . "::Started with \$key={$key}; \$returntrueifexists={$returntrueifexists}");
+        $debug = false;
+        $debug && error_log($fxn . "::Started with \$key={$key}; \$returntrueifexists={$returntrueifexists}");
 
         // Clean up $contextname so it is a safe cache key.
         $sessionkey = self::get_cache_key($key);
         if (!isset($SESSION->{$sessionkey}) || empty($SESSION->{$sessionkey}) || $SESSION->{$sessionkey} < 0) {
-            $debug && Logger::log($fxn . "::\$SESSION does not contain key={$key}");
+            $debug && error_log($fxn . "::\$SESSION does not contain key={$key}");
             return false;
         }
 
         $nonce = $SESSION->{$sessionkey};
-        $debug && Logger::log($fxn . "::\Found nonce={$nonce}");
+        $debug && error_log($fxn . "::\Found nonce={$nonce}");
 
         // Delete it since it should only be used once.
         $SESSION->{$sessionkey} = null;
@@ -905,7 +904,7 @@ class MoodleUtility {
 
         // The nonce is valid if the time is after $CFG->sessiontimeout ago.
         $valid = $nonce >= (\time() - $CFG->sessiontimeout);
-        $debug && Logger::log($fxn . "::\Found valid={$valid}");
+        $debug && error_log($fxn . "::\Found valid={$valid}");
         return $valid;
     }
 

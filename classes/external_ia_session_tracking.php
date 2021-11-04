@@ -29,7 +29,6 @@ require_once(\dirname(__DIR__) . '/lib.php');
 require_once($CFG->libdir . '/externallib.php');
 
 use block_integrityadvocate\Api as ia_api;
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -63,9 +62,9 @@ trait external_ia_session_tracking {
     private static function session_function_validate_params(string $appid, int $courseid, int $moduleid, int $userid): array {
         global $USER;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
+        $debug = false;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && Logger::log($debugvars);
+        $debug && error_log($debugvars);
 
         self::validate_parameters(self::session_function_params(),
                 [
@@ -129,13 +128,13 @@ trait external_ia_session_tracking {
                 $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'Instructors do not get the proctoring UI so never need to open or close the session'];
                 break;
         }
-        $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && error_log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            Logger::log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            error_log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && Logger::log($fxn . '::No warnings');
+        $debug && error_log($fxn . '::No warnings');
 
         // Makes sure the current user may execute functions in this context.
         self::validate_context($cm->context);
@@ -163,29 +162,29 @@ trait external_ia_session_tracking {
      */
     public static function session_close(string $appid, int $courseid, int $moduleid, int $userid): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
+        $debug = false;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && Logger::log($debugvars);
+        $debug && error_log($debugvars);
 
         $result = \array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
-        $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && error_log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            Logger::log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            error_log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && Logger::log($fxn . '::No warnings');
+        $debug && error_log($fxn . '::No warnings');
 
         $result['success'] = ia_api::close_remote_session($appid, $courseid, $moduleid, $userid);
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag to the remote IA server';
             $result['warnings'] = ['warningcode' => \get_config(\INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg];
-            Logger::log($fxn . "::{$msg}; \$debugvars={$debugvars}");
+            error_log($fxn . "::{$msg}; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
-        $debug && Logger::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && error_log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 
@@ -218,29 +217,29 @@ trait external_ia_session_tracking {
      */
     public static function session_open(string $appid, int $courseid, int $moduleid, int $userid): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = false || Logger::do_log_for_function($fxn);
+        $debug = false;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && Logger::log($debugvars);
+        $debug && error_log($debugvars);
 
         $result = \array_merge(['submitted' => false, 'success' => true, 'warnings' => []], self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
-        $debug && Logger::log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && error_log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            Logger::log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            error_log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && Logger::log($fxn . '::No warnings');
+        $debug && error_log($fxn . '::No warnings');
 
         $result['success'] = ia_mu::nonce_set(\implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid]));
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag to the remote IA server';
             $result['warnings'] = ['warningcode' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__, 'message' => $msg];
-            Logger::log($fxn . "::{$msg}; \$debugvars={$debugvars}");
+            error_log($fxn . "::{$msg}; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
-        $debug && Logger::log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && error_log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 

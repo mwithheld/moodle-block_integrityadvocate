@@ -46,7 +46,6 @@ require_once(\dirname(__DIR__) . '/block_integrityadvocate.php');
 require_once($CFG->libdir . '/externallib.php');
 
 use block_integrityadvocate as ia;
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -80,7 +79,7 @@ trait external_get_course_info
     private static function get_course_activities_validate_params(string $apikey, string $appid, int $courseid): array
     {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true || Logger::do_log_for_function($fxn);
+        $debug = false;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
         $debug && error_log($debugvars);
 
@@ -142,7 +141,7 @@ trait external_get_course_info
     public static function get_course_activities_parameters(): \external_function_parameters
     {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true || Logger::do_log_for_function($fxn);
+        $debug = false;
         $debugvars = $fxn . '::Started';
         $debug && error_log($debugvars);
 
@@ -160,7 +159,7 @@ trait external_get_course_info
     public static function get_course_activities(string $apikey, string $appid, int $courseid): array
     {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true || Logger::do_log_for_function($fxn);
+        $debug = false;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
         $debug && error_log($debugvars);
 
@@ -169,10 +168,10 @@ trait external_get_course_info
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            Logger::log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            error_log($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && Logger::log($fxn . '::No warnings');
+        $debug && error_log($fxn . '::No warnings');
         
         $modinfo = \get_fast_modinfo($courseid, -1);
         $coursefullname = get_course($courseid)->fullname;
@@ -208,7 +207,7 @@ trait external_get_course_info
     public static function get_course_activities_returns(): \external_single_structure
     {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true || Logger::do_log_for_function($fxn);
+        $debug = false;
         $debugvars = $fxn . '::Started';
         $debug && error_log($debugvars);
 
