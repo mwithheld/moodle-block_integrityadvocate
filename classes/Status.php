@@ -24,7 +24,6 @@
 
 namespace block_integrityadvocate;
 
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -105,7 +104,7 @@ class Status {
                 break;
             default:
                 $error = 'Invalid participant review status value=' . \serialize($statusstring);
-                Logger::log($error);
+                error_log($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -209,7 +208,7 @@ class Status {
                 break;
             default:
                 $error = 'Invalid participant review status value=' . $statusint;
-                Logger::log($error);
+                error_log($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -244,7 +243,7 @@ class Status {
                 break;
             default:
                 $error = __FUNCTION__ . '::Invalid participant review status value=' . $statusint;
-                Logger::log($error);
+                error_log($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -290,14 +289,14 @@ class Status {
      * @return bool True if the status integer is one of the ones defined in this class.
      */
     public static function is_status_int(int $statusint): bool {
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . "::Started with \$statusint={$statusint}");
+        $debug && error_log($fxn . "::Started with \$statusint={$statusint}");
         $statusints = \array_keys(self::get_statuses());
-        $debug && Logger::log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
+        $debug && error_log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
 
         $returnthis = \in_array($statusint, $statusints, true);
-        $debug && Logger::log($fxn . "::About to return \$returnthis=$returnthis");
+        $debug && error_log($fxn . "::About to return \$returnthis=$returnthis");
         return $returnthis;
     }
 

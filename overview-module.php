@@ -24,7 +24,6 @@
 
 namespace block_integrityadvocate;
 
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
@@ -34,8 +33,8 @@ use block_integrityadvocate\Utility as ia_u;
 // Security check - this file must be included from overview.php.
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
-$debug = false || Logger::do_log_for_function(INTEGRITYADVOCATE_BLOCK_NAME . '\\' . \basename(__FILE__));
-$debug && Logger::log(__FILE__ . '::Started with $moduleid=' . $moduleid);
+$debug = false;
+$debug && error_log(__FILE__ . '::Started with $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER;
 $userid = $USER->id;
@@ -52,7 +51,7 @@ switch (true) {
     case(!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
-        $debug && Logger::log(__FILE__ . '::Checked required capability: overview');
+        $debug && error_log(__FILE__ . '::Checked required capability: overview');
         break;
     case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
         throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
@@ -70,7 +69,7 @@ switch (true) {
         // Note this capability check is on the parent, not the block instance.
         break;
     default:
-        $debug && Logger::log(__FILE__ . '::All requirements are met');
+        $debug && error_log(__FILE__ . '::All requirements are met');
 }
 
 // Show basic module info at the top.  Adapted from course/classes/output/course_module_name.php:export_for_template().
@@ -130,7 +129,7 @@ foreach ($modules as $key => $thismodule) {
 }
 if (ia_u::is_empty($m)) {
     $msg = 'This module is not an IA module';
-    $debug && Logger::log(__FILE__ . "::{$msg}");
+    $debug && error_log(__FILE__ . "::{$msg}");
     throw new \InvalidArgumentException($msg);
 }
 

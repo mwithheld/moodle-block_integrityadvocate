@@ -21,7 +21,6 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use block_integrityadvocate\Logger as Logger;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -118,9 +117,9 @@ class block_integrityadvocate_edit_form extends block_edit_form {
             throw new InvalidArgumentException('$data must be an array and it appears to be a ' . \gettype($data));
         }
 
-        $debug = false || Logger::do_log_for_function(__CLASS__ . '::' . __FUNCTION__);
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && Logger::log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
+        $debug && error_log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
 
         $errors = [];
 
