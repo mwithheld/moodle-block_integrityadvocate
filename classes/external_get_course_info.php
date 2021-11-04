@@ -23,6 +23,7 @@
  * Example:
  * https://127.0.0.1/lib/ajax/service.php?info=block_integrityadvocate_course_activities
  * with valid post info
+ * BTW, we don't use the index param and nothing will die if omitted, but Moodle blithely looks for it, it prevents a warning in the PHP logs to include it.
  * [{"index":0,"methodname":"block_integrityadvocate_course_activities","args":{"appid":"12345678-aeb1-4f3d-8ac0-1f3a12345678","courseid":2,"apikey":"12345678qaUuYX3Res78VnxS385tlm12345678="}}]
  * returns info like this
  * {
@@ -83,6 +84,13 @@ trait external_get_course_info
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
         $debug && error_log($debugvars);
 
+        $cache = \cache::make('core', 'coursemodinfo');
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $apikey, $appid, $courseid]));
+        if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debugvars = $fxn . '::Found a cached value=' . serialize($cachedvalue);
+            return $cachedvalue;
+        }
+
         self::validate_parameters(
             self::get_course_info_params(),
             [
@@ -105,7 +113,7 @@ trait external_get_course_info
             case (!FeatureControl::EXTERNAL_API_COURSE_INFO):
                 $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'This feature is disabled'];
                 break;
-            case (!ia::is_valid_apikey($apikey)):
+            case (!strlen($apikey) > 40 && ia_mu::is_base64($apikey)):
                 $result['warnings'][] = ['warningcode' => \implode('a', [$blockversion, __LINE__]), 'message' => 'The input apikey is invalid'];
                 break;
             case (!ia::is_valid_appid($appid)):
@@ -129,6 +137,10 @@ trait external_get_course_info
             return $result;
         }
         $debug && error_log($fxn . '::No warnings');
+
+        if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $result)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
 
         return $result;
     }
@@ -163,7 +175,7 @@ trait external_get_course_info
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
         $debug && error_log($debugvars);
 
-        $result = \array_merge(['submitted' => false, 'success' => false, 'warnings' => [], 'courseactivities'=>[]], self::get_course_activities_validate_params($apikey, $appid, $courseid));
+        $result = \array_merge(['submitted' => false, 'success' => false, 'warnings' => [], 'courseactivities' => []], self::get_course_activities_validate_params($apikey, $appid, $courseid));
         $debug && error_log($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
@@ -172,14 +184,23 @@ trait external_get_course_info
             return $result;
         }
         $debug && error_log($fxn . '::No warnings');
-        
+
+        $cache = \cache::make('core', 'coursemodinfo');
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $apikey, $appid, $courseid]));
+        if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            $debugvars = $fxn . '::Found a cached value=' . serialize($cachedvalue);
+            return $cachedvalue;
+        }
+
+        // This call is cached by Moodle.
         $modinfo = \get_fast_modinfo($courseid, -1);
         $coursefullname = get_course($courseid)->fullname;
-        
+
         $modules = [];
         foreach ($modinfo->instances as $module => $instances) {
             foreach ($instances as $cm) {
-                //$debug && error_log($fxn . '::Looking at coursemodule=' . ia_u::var_dump($cm, true));
+                // Since we are pulling this from a Moodle core function, assume the data is clean.
+                // Moodle automatically does JSON escaping.
                 $modules[] = [
                     'courseid' => $courseid,
                     'coursename' => $coursefullname,
@@ -194,6 +215,10 @@ trait external_get_course_info
 
         $result['courseactivities'] = $modules;
         $result['success'] = true;
+
+        if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $result)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
 
         $debug && error_log($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
@@ -220,9 +245,9 @@ trait external_get_course_info
                 new \external_single_structure(
                     array(
                     'courseid' => new \external_value(PARAM_INT, 'Course ID'),
-                    'coursename' => new \external_value(PARAM_NOTAGS, 'Course display name with no HTML tags'),
+                    'coursename' => new \external_value(PARAM_TEXT, 'Course display name with no HTML tags'),
                     'activityid' => new \external_value(PARAM_INT, 'Activity ID'),
-                    'activityname' => new \external_value(PARAM_NOTAGS, 'Module display name with no HTML tags e.g. Fancy Quiz number 1'),
+                    'activityname' => new \external_value(PARAM_TEXT, 'Module display name with no HTML tags e.g. Fancy Quiz number 1'),
                     'activitytype' => new \external_value(PARAM_PLUGIN, 'Plugin type e.g. quiz, forum, glossary'),
                     )
                 ), VALUE_OPTIONAL
