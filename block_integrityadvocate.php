@@ -206,7 +206,20 @@ class block_integrityadvocate extends block_base
 
     public static function is_valid_apikey(string $apikey): bool
     {
-        return ia_mu::is_base64($apikey);
+        // Cache bc this can be called many times even in one request.
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $apikey]));
+        if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            return $cachedvalue;
+        }
+
+        $returnthis = strlen($apikey) > 40 && ia_mu::is_base64($apikey);
+
+        if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $returnthis;
     }
 
     public static function is_valid_appid(string $appid): bool

@@ -92,7 +92,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $apikey = $mform->getElementValue('config_apikey');
 
         // Hide the text above the form inputs that says "Use of this plugin requires purchasing a paid service".
-        if (!empty($apikey) && ia_mu::is_base64($apikey) && !empty($appid) && ia_u::is_guid($appid)) {
+        if (!empty($apikey) && \block_integrityadvocate::is_valid_apikey($apikey) && !empty($appid) && ia_u::is_guid($appid)) {
             $mform->getElement('topnote')->setAttributes(['class' => 'hidden']);
         }
     }
@@ -129,7 +129,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
             $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
 
-        if (!empty($data['config_apikey']) && !ia_mu::is_base64($data['config_apikey'])) {
+        if (!empty($data['config_apikey']) && !\block_integrityadvocate::is_valid_apikey($data['config_apikey'])) {
             $data['config_apikey'] = \rtrim(\ltrim(\trim($data['config_apikey']), '{'), '}');
             $errors['config_apikey'] = get_string('error_invalidapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
