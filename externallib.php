@@ -33,21 +33,20 @@ class block_integrityadvocate_external extends \external_api
 {
 
     use \block_integrityadvocate\external_ia_session_tracking;
-    use \block_integrityadvocate\external_get_course_info;
 
     /**
      * Describes a return value that just returns submitted = true.
      *
      * @return external_single_structure
      */
-    protected static function returns_boolean_submitted(): \external_single_structure {
+    protected static function returns_boolean_submitted(): \external_single_structure
+    {
         return new \external_single_structure(
-                [
+            [
             // Usage: external_value($type, $desc, $required, $default, $allownull).
             'submitted' => new \external_value(PARAM_BOOL, 'submitted', true, false, false),
             'warnings' => new \external_warnings()
-                ]
+            ]
         );
     }
-
 }
