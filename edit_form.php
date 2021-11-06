@@ -61,7 +61,7 @@ class block_integrityadvocate_edit_form extends block_edit_form
     }
 
     /**
-     * Build form fields for this block's settings.
+     * Build form fields for this block instance's settings.
      *
      * @param MoodleQuickForm $mform the form being built.
      */
