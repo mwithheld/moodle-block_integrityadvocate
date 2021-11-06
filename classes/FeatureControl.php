@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -29,7 +30,8 @@ namespace block_integrityadvocate;
 /**
  * Feature control: Enable/disable features easily.
  */
-class FeatureControl {
+class FeatureControl
+{
 
     /** @var bool True to allow caching using MUC. */
     public const CACHE = true;
@@ -54,8 +56,5 @@ class FeatureControl {
 
     /** @var bool True to keep track of when session are started. */
     public const SESSION_STARTED_TRACKING = true;
-
-    /** @var bool True to allow IA to remotely get course activities basic info . */
-    public const EXTERNAL_API_COURSE_INFO = true;
 
 }
