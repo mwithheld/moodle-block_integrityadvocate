@@ -26,6 +26,7 @@
 
 namespace block_integrityadvocate;
 
+use block_integrityadvocate as ia;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
@@ -190,7 +191,7 @@ class Api
         }
 
         // Sanity check.
-        if (!\str_starts_with($endpoint, '/') || !is_valid_apikey($apikey) || !ia_u::is_guid($appid) || !\is_array($params)) {
+        if (!\str_starts_with($endpoint, '/') || !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) || !\is_array($params)) {
             $msg = 'Input params are invalid: ' . $debugvars;
             error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -363,7 +364,7 @@ class Api
         $debug && error_log($debugvars);
 
         // Sanity check.
-        if (!is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
+        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid: ' . $debugvars;
             error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -407,8 +408,8 @@ class Api
         $debug && error_log($debugvars);
 
         // Sanity check.
-        if (!is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
-            $msg = 'Input params are invalid - both these must be true: is_valid_apikey($apikey)=' . is_valid_apikey($apikey) . '; ia_u::is_guid($appid)=' . ia_u::is_guid($appid);
+        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
+            $msg = 'Input params are invalid - both these must be true: ia::is_valid_apikey($apikey)=' . ia::is_valid_apikey($apikey) . '; ia_u::is_guid($appid)=' . ia_u::is_guid($appid);
             error_log($fxn . '::' . $msg . '::' . $debugvars, '', true);
             throw new \InvalidArgumentException($msg);
         }
@@ -507,7 +508,7 @@ class Api
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!is_valid_apikey($apikey) || !ia_u::is_guid($appid) || !isset($params['courseid']) || !\is_number($params['courseid'])) {
+        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) || !isset($params['courseid']) || !\is_number($params['courseid'])) {
             $msg = 'Input params are invalid: ' . $debugvars;
             error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -580,7 +581,7 @@ class Api
         $debug && error_log($debugvars);
 
         // Sanity check.
-        if (!is_valid_apikey($apikey) || !ia_u::is_guid($appid) || $courseid < 1 || $moduleid < 1) {
+        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) || $courseid < 1 || $moduleid < 1) {
             $msg = 'Input params are invalid: ' . $debugvars;
             error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -641,7 +642,7 @@ class Api
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
+        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
             !isset($params['courseid']) || !\is_number($params['courseid']) ||
             !isset($params['activityid']) || !\is_number($params['activityid']) ||
             (isset($params['participantidentifier']) && !\is_number($params['participantidentifier']))
@@ -834,7 +835,7 @@ class Api
         $debug && error_log($debugvars);
 
         // Sanity check.
-        if (!is_valid_apikey($apikey) || !ia_u::is_guid($appid) || $moduleid < 1) {
+        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) || $moduleid < 1) {
             $msg = 'Input params are invalid: ' . $debugvars;
             error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -902,7 +903,7 @@ class Api
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
+        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
             !isset($params['courseid']) || !\is_number($params['courseid']) ||
             !isset($params['activityid']) || !\is_number($params['activityid']) ||
             !isset($params['participantidentifier']) || !\is_number($params['participantidentifier'])
@@ -979,12 +980,12 @@ class Api
     {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with $requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
+        $debugvars = $fxn . "::Started with \$requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
         $debug && error_log($debugvars);
 
         // Sanity check.
         if (!\filter_var($requesturi, \FILTER_VALIDATE_URL) || \mb_strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !\is_string($nonce) ||
-            !is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
+            !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid: ' . $debugvars;
             error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);

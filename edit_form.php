@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -21,6 +22,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use block_integrityadvocate as ia;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -34,7 +36,8 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  * @copyright IntegrityAdvocate.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_integrityadvocate_edit_form extends block_edit_form {
+class block_integrityadvocate_edit_form extends block_edit_form
+{
 
     /**
      * Overridden to create any form fields specific to this type of block.
@@ -45,7 +48,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *
      * @param \stdClass|MoodleQuickForm $mform the form being built.
      */
-    protected function specific_definition($mform) {
+    protected function specific_definition($mform)
+    {
         if (!($mform instanceof MoodleQuickForm)) {
             throw new InvalidArgumentException('$mform must be an instance of MoodleQuickForm and it appears to be a ' . \gettype($mform));
         }
@@ -61,7 +65,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *
      * @param MoodleQuickForm $mform the form being built.
      */
-    protected function specific_definition_ia(MoodleQuickForm $mform) {
+    protected function specific_definition_ia(MoodleQuickForm $mform)
+    {
         $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME), ['hidden' => true]);
 
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 39]);
@@ -84,7 +89,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * values. This method is called after definition(), data submission and set_data().
      * All form setup that is dependent on form values should go in here.
      */
-    public function definition_after_data() {
+    public function definition_after_data()
+    {
         parent::definition_after_data();
         $mform = & $this->_form;
 
@@ -92,7 +98,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $apikey = $mform->getElementValue('config_apikey');
 
         // Hide the text above the form inputs that says "Use of this plugin requires purchasing a paid service".
-        if (!empty($apikey) && \block_integrityadvocate::is_valid_apikey($apikey) && !empty($appid) && ia_u::is_guid($appid)) {
+        if (!empty($apikey) && ia::is_valid_apikey($apikey) && !empty($appid) && ia_u::is_guid($appid)) {
             $mform->getElement('topnote')->setAttributes(['class' => 'hidden']);
         }
     }
@@ -112,7 +118,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * @return object[] of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
-    public function validation($data, $unused): array {
+    public function validation($data, $unused): array
+    {
         if (!\is_array($data)) {
             throw new InvalidArgumentException('$data must be an array and it appears to be a ' . \gettype($data));
         }
@@ -129,12 +136,11 @@ class block_integrityadvocate_edit_form extends block_edit_form {
             $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
 
-        if (!empty($data['config_apikey']) && !\block_integrityadvocate::is_valid_apikey($data['config_apikey'])) {
+        if (!empty($data['config_apikey']) && !ia::is_valid_apikey($data['config_apikey'])) {
             $data['config_apikey'] = \rtrim(\ltrim(\trim($data['config_apikey']), '{'), '}');
             $errors['config_apikey'] = get_string('error_invalidapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
 
         return $errors;
     }
-
 }
