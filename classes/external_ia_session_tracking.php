@@ -37,7 +37,7 @@ trait external_ia_session_tracking {
     /**
      * Describes the parameters for session_* functions.
      *
-     * @return external_function_parameters The parameters for session_*() functions.
+     * @return \external_function_parameters The parameters for session_*() functions.
      */
     private static function session_function_params(): \external_function_parameters {
         return new \external_function_parameters(
@@ -145,7 +145,7 @@ trait external_ia_session_tracking {
     /**
      * Describes the parameters for session_close.
      *
-     * @return external_function_parameters The parameters for session_open.
+     * @return \external_function_parameters The parameters for session_open.
      */
     public static function session_close_parameters(): \external_function_parameters {
         return self::session_function_params();
@@ -191,7 +191,7 @@ trait external_ia_session_tracking {
     /**
      * Describes the session_open return value.
      *
-     * @return external_single_structure
+     * @return \external_single_structure
      */
     public static function session_close_returns(): \external_single_structure {
         return self::returns_boolean_submitted();
@@ -200,7 +200,7 @@ trait external_ia_session_tracking {
     /**
      * Describes the parameters for session_open.
      *
-     * @return external_function_parameters The parameters for session_open.
+     * @return \external_function_parameters The parameters for session_open.
      */
     public static function session_open_parameters(): \external_function_parameters {
         return self::session_function_params();
@@ -246,7 +246,7 @@ trait external_ia_session_tracking {
     /**
      * Describes the session_open return value.
      *
-     * @return external_single_structure
+     * @return \external_single_structure
      */
     public static function session_open_returns(): \external_single_structure {
         return self::returns_boolean_submitted();
