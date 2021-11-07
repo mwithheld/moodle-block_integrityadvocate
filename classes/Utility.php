@@ -164,7 +164,7 @@ class Utility
             }
         }
 
-        if (\is_array($expression) && isset($expression['page']) && ($expression['page'] instanceof Object) && \class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
+        if (\is_array($expression) && isset($expression['page']) && (\gettype($expression['page']) == 'object') && \class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
             unset($expression['page']);
         }
 
