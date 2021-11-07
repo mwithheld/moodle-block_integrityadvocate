@@ -41,7 +41,7 @@ class MoodleUtility
      *
      * @link https://moodle.org/mod/forum/discuss.php?d=359669
      * @param \block_manager $blockmanager The $page->block object.
-     * @param string $block The block instance to look for other instances of the same name/type.
+     * @param \block_base $block The block instance to look for other instances of the same name/type.
      * @return bool True if there are other block instances of the same name (e.g. "navigation" or "block_navigation") on the $page.
      */
     public static function another_blockinstance_exists(\block_manager $blockmanager, \block_base $block): bool
@@ -78,7 +78,7 @@ class MoodleUtility
      * Return true if the block passed in is the first (by display order) visible block of that type on the $page.
      *
      * @param \block_manager $blockmanager The $page->block object.
-     * @param string $block The block instance to look for other instances of the same name/type.
+     * @param \block_base $block The block instance to look for other instances of the same name/type.
      * @return bool True if the block passed in is the first (by display order) visible block of that type on the $page.
      */
     public static function is_first_visible_block_of_type(\block_manager $blockmanager, \block_base $block): bool
@@ -337,7 +337,7 @@ class MoodleUtility
      * Given a context, get array of roles usable in a roles select box.
      *
      * @param \context $context The course context.
-     * @return array<roleid=role name>.
+     * @return array<roleid, rolename>.
      */
     public static function get_roles_for_select(\context $context): array
     {
@@ -375,7 +375,7 @@ class MoodleUtility
     /**
      * Returns the modules with completion set in current course.
      *
-     * @param int courseid The id of the course.
+     * @param int $courseid The id of the course.
      * @return array Modules with completion settings in the course in the format [module[name-value]].
      */
     public static function get_modules_with_completion(int $courseid): array
@@ -566,7 +566,7 @@ class MoodleUtility
     /**
      * Return true if a course exists.
      *
-     * @param int| The course id.
+     * @param int $id The course id.
      * @return bool False if no course found; else true.
      */
     public static function couse_exists(int $id): bool
@@ -586,7 +586,7 @@ class MoodleUtility
      * Convert course id to moodle course object into if needed.
      *
      * @param int|\stdClass $course The course object or courseid to check
-     * @return bool|stdClass False if no course found; else Moodle course object.
+     * @return null|\stdClass False if no course found; else Moodle course object.
      */
     public static function get_course_as_obj($course): ?\stdClass
     {
@@ -739,7 +739,7 @@ class MoodleUtility
      * Convert userid to moodle user object into if needed.
      *
      * @param int|\stdClass $user The user object or id to convert
-     * @return false|\stdClass False if no user found; else moodle user object.
+     * @return null|\stdClass False if no user found; else moodle user object.
      */
     public static function get_user_as_obj($user): ?\stdClass
     {
@@ -804,7 +804,7 @@ class MoodleUtility
                 $userpicture->{$key} = $val;
             }
         }
-        $debug && error_log($fxn . '::Built user_picture=' . ia_u::var_dump(user_picture));
+        $debug && error_log($fxn . '::Built user_picture=' . ia_u::var_dump($userpicture));
 
         $page = new \moodle_page();
         $page->set_url('/user/profile.php');
