@@ -233,6 +233,6 @@ class block_integrityadvocate_observer
         $modulecontext = $blockcontext->get_parent_context();
         $coursecontext = $blockcontext->get_course_context();
 
-        return ia_api::close($appid, $coursecontext->instanceid, $modulecontext->instanceid, $userid);
+        return ia_api::close_remote_session($appid, $coursecontext->instanceid, $modulecontext->instanceid, $userid);
     }
 }
