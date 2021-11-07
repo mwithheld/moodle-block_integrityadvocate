@@ -71,10 +71,17 @@ class block_integrityadvocate_edit_form extends block_edit_form
 
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 39]);
         $mform->setType('config_appid', PARAM_ALPHANUMEXT);
+        $mform->addRule('config_appid', null, 'required', null, 'client');
 
         // Accept ALPHANUMEXT even though we could use BASE64 b/c the former will show a nice error, which the latter will simply ignore the input value on submit.
         $mform->addElement('text', 'config_apikey', get_string('config_apikey', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 52]);
         $mform->setType('config_apikey', PARAM_BASE64);
+
+        $invalidstr = get_string('error_invalidapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
+        $mform->addRule('config_apikey', null, 'required', null, 'client');
+        $mform->addRule('config_apikey', $invalidstr, 'minlength', 41, 'client');
+        $mform->addRule('config_apikey', get_string('maximumchars', '', 50), 'maxlength', 50, 'client');
+        $mform->addRule('config_apikey', $invalidstr, 'regex', '/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}={2})$/', 'client');
 
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             $mform->addElement('selectyesno', 'config_proctorquizinfopage', get_string('config_proctorquizinfopage', INTEGRITYADVOCATE_BLOCK_NAME));
