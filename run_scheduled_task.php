@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,9 +19,8 @@
  * CLI task execution.
  * Adapted for web use instead of CLI use from Moodle 3.10 admin/tool/task/scheduled_task.php.
  *
- * @package    core
- * @subpackage cli
- * @copyright  2014 Petr Skoda
+ * @package    block_integrityadvocate
+ * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require(__DIR__ . '/../../config.php');
@@ -30,7 +30,7 @@ require_once("$CFG->libdir/classes/task/logmanager.php");
 
 require_admin();
 
-ini_set('log_errors', 1);
+ini_set('log_errors', '1');
 date_default_timezone_set('America/Vancouver');
 @error_reporting(E_ALL | E_STRICT); // NOT FOR PRODUCTION SERVERS!
 $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
@@ -46,7 +46,7 @@ if ($execute) {
     }
 
     if (moodle_needs_upgrading()) {
-        die("Moodle upgrade pending, cannot execute tasks.");
+        echo('Moodle upgrade pending, cannot execute tasks.');
         exit(1);
     }
 
@@ -84,17 +84,17 @@ if ($execute) {
 //    cron_trace_time_and_memory();
 //    $predbqueries = null;
 //    $predbqueries = $DB->perf_get_queries();
-    $pretime = microtime(1);
+    $pretime = microtime(true);
     try {
         get_mailer('buffer');
         cron_prepare_core_renderer();
         $task->execute();
         if ($DB->is_transaction_started()) {
-            throw new coding_exception("Task left transaction open");
+            throw new coding_exception('Task left transaction open');
         }
         if (isset($predbqueries)) {
-            mtrace("... used " . ($DB->perf_get_queries() - $predbqueries) . " dbqueries");
-            mtrace("... used " . (microtime(1) - $pretime) . " seconds");
+            mtrace("... used " . ($DB->perf_get_queries() - $predbqueries) . ' dbqueries');
+            mtrace("... used " . (microtime(true) - $pretime) . ' seconds');
         }
         mtrace('Scheduled task complete: ' . $fullname);
         \core\task\manager::scheduled_task_complete($task);
@@ -104,16 +104,16 @@ if ($execute) {
             $DB->force_transaction_rollback();
         }
         if (isset($predbqueries)) {
-            mtrace("... used " . ($DB->perf_get_queries() - $predbqueries) . " dbqueries");
-            mtrace("... used " . (microtime(1) - $pretime) . " seconds");
+            mtrace("... used " . ($DB->perf_get_queries() - $predbqueries) . ' dbqueries');
+            mtrace("... used " . (microtime(true) - $pretime) . ' seconds');
         }
         mtrace('Scheduled task failed: ' . $fullname . ',' . $e->getMessage());
         if ($CFG->debugdeveloper) {
             if (!empty($e->debuginfo)) {
-                mtrace("Debug info:");
+                mtrace('Debug info:');
                 mtrace($e->debuginfo);
             }
-            mtrace("Backtrace:");
+            mtrace('Backtrace:');
             mtrace(format_backtrace($e->getTrace(), true));
         }
         \core\task\manager::scheduled_task_failed($task);
