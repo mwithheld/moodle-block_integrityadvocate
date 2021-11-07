@@ -334,7 +334,7 @@ class block_integrityadvocate extends block_base
         $iamodulesexist = ($blockcount = ia_u::count_if_countable($iablocksinthiscourse)) > 0;
 
         $this->content->text .= \html_writer::start_tag('div', ['class' => "{$prefix}_div"]);
-        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME, $blockcount), ['class' => "{$prefix}_div_title"]);
+        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME, (string)$blockcount), ['class' => "{$prefix}_div_title"]);
 
         if (!$iamodulesexist) {
             $debug && error_log($fxn . '::No modules exist');
