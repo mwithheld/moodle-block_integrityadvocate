@@ -37,7 +37,7 @@ if (\version_compare(\PHP_VERSION, '7.3.0', '<')) {
          * @return bool true if is countable.
          */
         function is_countable($var): bool {
-            return (\is_array($var) || $var instanceof Countable);
+            return ($var instanceof Countable || \is_array($var));
         }
 
     }
@@ -118,7 +118,7 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
          */
         function get_debug_type($value): string {
             switch (true) {
-                case null === $value: return 'null';
+                case null == $value: return 'null';
                 case \is_bool($value): return 'bool';
                 case \is_string($value): return 'string';
                 case \is_array($value): return 'array';
@@ -127,7 +127,7 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
                 case \is_object($value): break;
                 case $value instanceof \__PHP_Incomplete_Class: return '__PHP_Incomplete_Class';
                 default:
-                    if (null === $type = @\get_resource_type($value)) {
+                    if (null == $type = @\get_resource_type($value)) {
                         return 'unknown';
                     }
 
