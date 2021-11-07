@@ -48,10 +48,10 @@ const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 $debug = false;
 
 // Suppress debug notice that we have not done PAGE->set_url().
-$debug && $debugbackup = $CFG->debug;
-$debug && $CFG->debug = null;
+$debug && ($debugbackup = $CFG->debug);
+$debug && ($CFG->debug = null);
 $debug && error_log(\basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
-$debug && $CFG->debug = $debugbackup;
+$debug && ($CFG->debug = $debugbackup);
 
 \require_login();
 
