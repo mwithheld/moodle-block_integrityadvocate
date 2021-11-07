@@ -65,22 +65,19 @@ class Api
     /** @var int In case of errors, this limits recursion to some reasonable maximum. */
     private const RECURSEMAX = 250;
 
-    /** @var int Consider recursion failed after this time.  In seconds = 10 minutes. */
-    private const RECURSION_TIMEOUT = 10 * 60;
-
-    /** @var int Accept these HTTP success response codes as successful */
+    /** @var array<int> Accept these HTTP success response codes as successful */
     private const HTTP_CODE_SUCCESS = [200, 201, 202, 204, 205];
 
-    /** @var int Accept these HTTP success response codes as successful */
+    /** @var array<int> Accept these HTTP success response codes as successful */
     private const HTTP_CODE_REDIRECT = [303, 304];
 
-    /** @var int Accept these HTTP success response codes as successful */
+    /** @var array<int> Accept these HTTP success response codes as successful */
     private const HTTP_CODE_CLIENTERROR = [404, 410];
 
     /**
      * Make sure we can reach the IA API.
      *
-     * @return array<int remote_ip, int http_response_code, string response_body, int total_time]. Numeric values are cleaned but the response body is unchanged.
+     * @return array<int remote_ip, int http_response_code, string response_body, int total_time>. Numeric values are cleaned but the response body is unchanged.
      */
     public static function ping(): array
     {
@@ -309,8 +306,8 @@ class Api
      *
      * @param \context $modulecontext Module context to look in.
      * @param int $userid User to get participant data for.
-     * @param int limit How many records to return; default 0=all.
-     * @return array Array of Sessions; Empty array if nothing found.
+     * @param int $limit How many records to return; default 0=all.
+     * @return array<Session> Array of Sessions; Empty array if nothing found.
      */
     public static function get_module_user_sessions(\context $modulecontext, int $userid, int $limit = 0): array
     {
@@ -327,7 +324,7 @@ class Api
         }
 
         if (empty($userid)) {
-            return null;
+            return [];
         }
 
         // Get the APIKey and AppID for this module.
@@ -398,7 +395,7 @@ class Api
      * @param string $apikey The API Key to get data for.
      * @param string $appid The AppId to get data for.
      * @param int $courseid Get info for this course.
-     * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
+     * @return array<int moodleuserid, Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
     public static function get_participants(string $apikey, string $appid, int $courseid): array
     {
@@ -410,7 +407,7 @@ class Api
         // Sanity check.
         if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid - both these must be true: ia::is_valid_apikey($apikey)=' . ia::is_valid_apikey($apikey) . '; ia_u::is_guid($appid)=' . ia_u::is_guid($appid);
-            error_log($fxn . '::' . $msg . '::' . $debugvars, '', true);
+            error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -420,7 +417,7 @@ class Api
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $debugvars]));
-        if (FeatureControl::CACHE && $participantscached = $cache->get($cachekey) && isset($participantscached->modified) && $participantscached->modified > 0) {
+        if (FeatureControl::CACHE && ($participantscached = $cache->get($cachekey)) && isset($participantscached->modified) && $participantscached->modified > 0) {
             // We have a cached participants set, so get only those modified after the modified timestamp.
             $params += ['lastmodified' => $participantscached->modified];
             $debug && error_log($fxn . '::Got some $participantscached=' . ia_u::var_dump($participantscached));
@@ -489,7 +486,7 @@ class Api
      * @param string $appid The Appid.
      * @param array $params Query params in key-value format: courseid=>someval is required.  Optional externaluserid=user email.
      * @param string $nexttoken The next token to get subsequent results from the API.
-     * @return array<moodleuserid=Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
+     * @return array<moodleuserid, Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
     private static function get_participants_data(string $apikey, string $appid, array $params, $nexttoken = null): array
     {
@@ -542,7 +539,7 @@ class Api
             // Check if we should recurse any more.
             $debug && error_log($fxn . '::Started with $recursecountparticipants=' . $recursecountparticipants);
             if ($recursecountparticipants++ > self::RECURSEMAX) {
-                throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipants} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . debug_backtrace());
+                throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipants} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . http_build_query(debug_backtrace()));
             }
 
             $debug && error_log($fxn . '::About to recurse to get more results');
@@ -683,7 +680,7 @@ class Api
                 // Check if we should recurse any more.
                 $debug && error_log($fxn . '::Started with $recursecountparticipantsessions=' . $recursecountparticipantsessions);
                 if ($recursecountparticipantsessions++ > self::RECURSEMAX) {
-                    throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipantsessions} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . debug_backtrace());
+                    throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipantsessions} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . http_build_query(debug_backtrace()));
                 }
 
                 $debug && error_log($fxn . '::About to recurse to get more results');
@@ -944,7 +941,7 @@ class Api
                 // Check if we should recurse any more.
                 $debug && error_log($fxn . '::Started with $recursecountparticipantsessionsactivity=' . $recursecountparticipantsessionsactivity);
                 if ($recursecountparticipantsessionsactivity++ > self::RECURSEMAX) {
-                    throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipantsessionsactivity} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . debug_backtrace());
+                    throw new \Exception($fxn . "::Maximum recursion limit={$recursecountparticipantsessionsactivity} reached: params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n" . http_build_query(debug_backtrace()));
                 }
 
                 $debug && error_log($fxn . '::About to recurse to get more results');
@@ -1123,11 +1120,11 @@ class Api
      * Returns true if the status value for the user in the latest session for the module represents "In Progress".
      * This may differ from the Participant-level (overall) status.
      *
-     * @param \block_integrityadvocate\context $modulecontext The context to look in.
+     * @param \context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
      * @return bool True if the status value for the user in the module represents "In Progress".
      */
-    public static function is_status_inprogress(context $modulecontext, int $userid): bool
+    public static function is_status_inprogress(\context $modulecontext, int $userid): bool
     {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -1141,14 +1138,14 @@ class Api
             throw new \InvalidArgumentException($msg);
         }
 
-        return self::get_module_status($modulecontext, $userid) === ia_status::INPROGRESS;
+        return self::get_module_status($modulecontext, $userid) == ia_status::INPROGRESS_INT;
     }
 
     /**
      * Returns true if the status value for the user in the latest session for the module represents "Invalid".
      * This may differ from the Participant-level (overall) status.
      *
-     * @param \block_integrityadvocate\context $modulecontext The context to look in.
+     * @param \context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
      * @return bool True if the status value for the user in the module represents "Invalid".
      */
@@ -1175,7 +1172,7 @@ class Api
      * Returns true if the status value for the user in the latest session for the module represents "Valid".
      * This may differ from the Participant-level (overall) status.
      *
-     * @param \block_integrityadvocate\context $modulecontext The context to look in.
+     * @param \context $modulecontext The context to look in.
      * @param int $userid The user id to look for.
      * @return bool True if the status value for the user in the module represents "Valid".
      */
@@ -1508,7 +1505,7 @@ class Api
                 if (!ia_u::is_empty($session = self::parse_session($s, $output))) {
                     $debug && error_log($fxn . '::Got a valid session back, so add it to the participant');
                     if (isset($session->end) && ia_u::is_unixtime_past($session->end)) {
-                        $session->end = \filter_var($session->end, \FILTER_SANITIZE_NUMBER_INT);
+                        $session->end = (int)\filter_var($session->end, \FILTER_SANITIZE_NUMBER_INT);
                     } else {
                         $session->end = $time;
                     }
