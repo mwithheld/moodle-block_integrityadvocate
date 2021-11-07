@@ -1,10 +1,11 @@
 {
     "name": "moodle-block_integrityadvocate",
     "devDependencies": {
-        "cypress": "^6.4.0",
-        "cypress-fail-fast": "^2.0.0",
+        "cypress": "^8.7.0",
+        "cypress-fail-fast": "^3.2.0",
         "cypress-file-upload": "^5.0.2",
         "cypress-iframe": "^1.0.1",
         "cypress-xpath": "^1.6.1"
-    }
+    },
+    "dependencies": {}
 }
