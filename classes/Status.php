@@ -115,7 +115,7 @@ class Status {
      * Get an array of all statuses; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array<int=string> of all statuses; [(key=int; val=string)].
+     * @return array<int, string> of all statuses; [(key=int; val=string)].
      */
     public static function get_statuses(): array {
         // Cache so multiple calls don't repeat the same work.
@@ -138,7 +138,7 @@ class Status {
      * Get an array of statuses that represent the "In progress state"; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array<int=string> of overridable statuses
+     * @return array<int, string> of overridable statuses
      */
     public static function get_inprogress(): array {
         return [self::INPROGRESS_INT => self::get_status_lang(self::INPROGRESS_INT)];
@@ -148,7 +148,7 @@ class Status {
      * Get an array of statuses that are considered invalid; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array<int=string> of overridable statuses
+     * @return array<int, string> of overridable statuses
      */
     public static function get_invalids(): array {
         return [self::INVALID_OVERRIDE_INT => self::get_status_lang(self::INVALID_OVERRIDE_INT),
@@ -162,7 +162,7 @@ class Status {
      * This should NOT be used as a sole determinant if a status from the API represents an overriden value since the Valid value is the same either way.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array<int=string> of overridable statuses
+     * @return array<int, string> of overridable statuses
      */
     public static function get_overrides(): array {
         return [self::VALID_INT => self::get_status_lang(self::VALID_INT),
@@ -174,7 +174,7 @@ class Status {
      * Get an array of "valid" statuses; key=int representing the status; value=language string representing the status.
      * Note the language string != string representation of value - see get_status_string() vs get_status_lang().
      *
-     * @return array<int=string> of valid statuses
+     * @return array<int, string> of valid statuses
      */
     public static function get_valids(): array {
         return [self::VALID_INT => self::get_status_lang(self::VALID_INT)];
