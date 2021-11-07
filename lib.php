@@ -118,7 +118,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  * @param string $apikey
  * @param string $appid
  * @param int $courseid
- * @return array<Session>, e.g.
+ * @return array<block_integrityadvocate\Session>, e.g.
  * (
  *    [<session_id>=04fda967-25df-4ce0-945f-72a244b862de] => block_integrityadvocate\Session Object (
  *            [activityid] => 2
@@ -235,7 +235,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
  * Optionally filtered to IA blocks having a matching apikey and appid or visible.
  *
  * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up.
- * @param array<key=val> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @param array<string, mixed> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
  * @return string|array Array of modules that match; else string error identifier.
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = [])
