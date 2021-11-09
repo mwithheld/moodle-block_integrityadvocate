@@ -34,7 +34,7 @@ M.block_integrityadvocate = {
         return textArea.value;
     },
     sessionOpen: function() {
-        var debug = true;
+        var debug = false;
         debug && window.console.log('M.block_integrityadvocate.sessionOpen::Started');
         var self = M.block_integrityadvocate;
 
@@ -62,7 +62,7 @@ M.block_integrityadvocate = {
         debug && window.console.log('M.block_integrityadvocate.sessionOpen::Done');
     },
     sessionClose: function(callback) {
-        var debug = true;
+        var debug = false;
         debug && window.console.log('M.block_integrityadvocate.sessionClose::Started');
         var self = M.block_integrityadvocate;
 
@@ -98,7 +98,7 @@ M.block_integrityadvocate = {
      * @returns nothing.
      */
     proctorUILoaded: function() {
-        var debug = true;
+        var debug = false;
         debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::Started');
         var self = M.block_integrityadvocate;
         self.eltUserNotifications.css({'background-image': 'none'}).height('auto');
@@ -149,7 +149,7 @@ M.block_integrityadvocate = {
      * @returns null Nothing.
      */
     loadProctorUi: function(proctorjsurl) {
-        var debug = true;
+        var debug = false;
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Started with proctorjsurl=', proctorjsurl);
         if (!/^https:\/\/ca\.integrityadvocateserver\.com\/participants\/integrity\?appid=.*/.test(proctorjsurl)) {
@@ -192,7 +192,7 @@ M.block_integrityadvocate = {
                 });
     },
     blockinit: function(Y, proctorjsurl) {
-        var debug = true;
+        var debug = false;
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.blockinit::Started with proctorjsurl=', proctorjsurl);
 
