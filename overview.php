@@ -196,9 +196,6 @@ switch (true) {
     default:
         $debug && error_log(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
-        // All overview pages use this JS for interactive features.
-        $PAGE->requires->js_call_amd('block_integrityadvocate/init', 'init');
-
         // Open the requested overview page.
         require_once($requestedpage . '.php');
 }
