@@ -64,7 +64,7 @@ const INTEGRITYADVOCATE_API_PATH = '/api';
 const INTEGRITYADVOCATE_BASEURL_LTI = 'https://www.integrityadvocateserver.com';
 
 /** @var string Path relative to baseurl of the LTI endpoint with no trailing slash. */
-const INTEGRITYADVOCATE_LTI_PATH = '/lti';
+const INTEGRITYADVOCATE_LTI_PATH = '/integration/lti';
 
 /** @var string Email address for privacy api data cleanup requests */
 const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
