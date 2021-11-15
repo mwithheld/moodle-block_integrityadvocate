@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<libraries>
-    <library>
-        <location>vendor/monolog/</location>
-        <name>Monolog</name>
-        <version>1.25.4</version>
-        <license>MIT</license>
-    </library>
-</libraries>
