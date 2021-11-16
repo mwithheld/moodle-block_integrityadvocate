@@ -10,11 +10,25 @@ buildZip: &buildZip
     caches:
       - apt
     script:
+      # Set up dependencies.
       - apt-get update && apt-get -qq install zip rsync git
+      # Set up vars.
       - repodir=$(pwd -LP)
       - pluginver=$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')
       # Tag this version as a release.
-      #- git tag -a v1.0 -m "My v1.0"
+      - git tag -a pluginver -m "Tag ${pluginver}"
+      # Upload to Moodle plugins repo Ref https://docs.moodle.org/dev/Plugins_directory_API
+      #TOKEN="d41d8cd98f00b204e9800998ecf8427e"
+      # Set the full component name of the plugin.
+      #PLUGIN=mod_subcourse
+      # Path to the ZIP fle with the new version.
+      #ZIP=version.zip
+      #CURL="curl -s"
+      #HOST="https://moodle.org/"
+      #ENDPOINT_REST="${HOST}/webservice/rest/server.php"
+      #ENDPOINT_UPLOAD="${HOST}/webservice/upload.php"
+      #ITEMID=$(${CURL} -F data=@${ZIP} "${ENDPOINT_UPLOAD}?token=${TOKEN}" | jq --raw-output '.[0].itemid')
+      #${CURL} ${ENDPOINT_REST} --data-urlencode "wstoken=${TOKEN}" --data-urlencode "wsfunction=${FUNCTION}" --data-urlencode "moodlewsrestformat=json" --data-urlencode "frankenstyle=${PLUGIN}" --data-urlencode "zipdrafitemtid=${ITEMID}" | jq
       # Make a folder that we will zip up.
       - mkdir -p /tmp/iaparent/integrityadvocate
       # Copy stuff over to the dir to be zipped but skip stuff not needed by Moodle.
