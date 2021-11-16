@@ -45,36 +45,8 @@ buildZip: &buildZip
       - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@$zipfilepath"
 
 
-buildJS: &buildJS
- - step:
-    name: "Build the JS module"
-    caches:
-      - apt
-      - node
-    script:
-      - apt-get update && apt-get -qq install zip rsync git
-      - repodir=$(pwd -LP)
-      - mkdir -p /tmp/iaparent/integrityadvocate
-      - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude Makefile --exclude bitbucket-pipelines.yml --exclude screenshots/ --exclude tests/
-      - cd /tmp/iaparent/integrityadvocate
-
-      - npm install
-      - npm install -g grunt
-      - npm install -g grunt-cli
-      - grunt --verbose shifter
-
-      - ls -Rhl $repodir
-      - rsync -av /tmp/iaparent/integrityadvocate/amd/build/ $repodir/amd/build/
-      - cd $repodir
-      - ls -Rhl
-      - haschanges=$(git status --porcelain --short 2>&1)
-      - if [ -n "$haschanges" ]; then git add ./amd/build && git commit -m 'Built JS [SKIP CI]' && git status;git show-ref && git push origin master; fi
-      #- ls -Rhl
-
 pipelines:
-  custom: # Pipelines that are triggered manually
-    build_js:
-       - <<: *buildJS
+  custom: # Pipelines that are triggered manually.
     build_zip:
       #- <<: *buildJS
       - <<: *buildZip
