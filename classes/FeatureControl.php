@@ -51,9 +51,6 @@ class FeatureControl
     /** @var bool True to allow showing the overview_user content using the IA LTI endpoint. */
     public const OVERVIEW_USER_LTI = true;
 
-    /** @var bool True to allow showing the overview_user button to instructors. */
-    public const OVERVIEW_USER_VISIBLE_TO_INSTRUCTORS = false;
-
     /** @var bool True to keep track of when session are started. */
     public const SESSION_STARTED_TRACKING = true;
 

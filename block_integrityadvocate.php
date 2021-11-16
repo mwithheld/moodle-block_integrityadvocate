@@ -519,10 +519,6 @@ class block_integrityadvocate extends block_base
                                 $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
                             } else {
                                 $this->content->text .= ia_output::get_participant_summary_output($this, $participant, /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
-                                // Add overview_user button.
-                                if (ia\FeatureControl::OVERVIEW_USER_VISIBLE_TO_INSTRUCTORS) {
-                                    $this->content->text .= ia_output::get_button_overview_course($this, $participant->participantidentifier);
-                                }
                             }
                         }
 
