@@ -17,6 +17,7 @@ buildZip: &buildZip
       # Copy stuff over to the dir to be zipped but skip stuff not needed by Moodle.
       - rsync -av ./ /tmp/iaparent/integrityadvocate --exclude *.pl --exclude *.zip --exclude .git/ --exclude .gitignore --exclude .shifter.json --exclude bitbucket-pipelines.yml --exclude cypress.json --exclude Makefile --exclude phpstan.neon --exclude README_DEVELOPER.txt --exclude workspace.code-workspace --exclude screenshots/ --exclude tests/ --exclude vendor/bin/
       - cd /tmp/iaparent/integrityadvocate
+      # Disable debug mode.
       - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
       - cd /tmp/iaparent/
       #- ls -altrh
