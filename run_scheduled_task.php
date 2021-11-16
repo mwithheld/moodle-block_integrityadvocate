@@ -30,12 +30,14 @@ require_once("$CFG->libdir/classes/task/logmanager.php");
 
 require_admin();
 
-ini_set('log_errors', '1');
+$debug = false;
+
+$debug && ini_set('log_errors', '1');
 date_default_timezone_set('America/Vancouver');
-@error_reporting(E_ALL | E_STRICT); // NOT FOR PRODUCTION SERVERS!
-$CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
-@ini_set('display_errors', '1');    // NOT FOR PRODUCTION SERVERS!
-$CFG->debugdisplay = 1;             // NOT FOR PRODUCTION SERVERS!
+$debug && @error_reporting(E_ALL | E_STRICT); // NOT FOR PRODUCTION SERVERS!
+$debug && $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
+$debug && @ini_set('display_errors', '1');    // NOT FOR PRODUCTION SERVERS!
+$debug && $CFG->debugdisplay = 1;             // NOT FOR PRODUCTION SERVERS!
 $execute = preg_replace('/[^0-9a-zA-Z_\-\\]/', '', clean_param($_GET['execute'], PARAM_TEXT));
 echo '<PRE>';
 echo "Started\n";
