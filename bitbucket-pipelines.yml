@@ -51,7 +51,7 @@ pipelines:
     build_zip:
       #- <<: *buildJS
       - <<: *buildZip
-  tags:
-    '*':
-      #- <<: *buildJS
-      - <<: *buildZip
+  #tags:
+  #  '*':
+  #    #- <<: *buildJS
+  #    - <<: *buildZip
