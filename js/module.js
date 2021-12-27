@@ -166,13 +166,15 @@ M.block_integrityadvocate = {
         }
         $.getScript(self.decodeEntities(proctorjsurl))
                 .done(function() {
-                    debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Proctoring JS loaded');
+                    window.console.log('M.block_integrityadvocate.loadProctorUi::Proctoring JS loaded');
                     $(document).bind('IA_Ready', function() {
                         // Remember that we have started a session so we only close it once.
                         self.sessionOpen();
 
                         // Hide the loading gif and show the main content.
                         self.proctorUILoaded();
+                        
+                        window.console.log('M.block_integrityadvocate.loadProctorUi::IA_Ready done');
                     });
                 })
                 .fail(function(jqxhr, settings, exception) {
@@ -186,8 +188,8 @@ M.block_integrityadvocate = {
                     if (exception.toString() !== 'error') {
                         msg += "Error details:\n" + exception.toString();
                     }
-                    debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::' + msg);
-                    debug && window.console.log(arguments);
+                    
+                    window.console.log('M.block_integrityadvocate.proctorUILoaded::', msg, 'args=', arguments);
                     self.eltUserNotifications.html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
                 });
     },
