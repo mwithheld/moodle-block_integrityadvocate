@@ -99,6 +99,8 @@ class Output {
 
         $blockinstance->page->requires->jquery_plugin('jquery');
         $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl], false, $jsmodule);
+        
+        $debug && error_log($fxn . '::Done requiring IA JS and doing init call; had jsmodule='.serialize($jsmodule));
         return '';
     }
 
