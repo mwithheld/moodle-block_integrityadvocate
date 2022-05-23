@@ -756,7 +756,9 @@ class MoodleUtility
                 return $cachedvalue;
             }
 
-            $userarr = user_get_users_by_id([(int) $user]);
+            global $CFG;
+            require_once($CFG->dirroot . '/user/lib.php');
+            $userarr = \user_get_users_by_id([(int) $user]);
             if (empty($userarr)) {
                 return null;
             }
