@@ -530,7 +530,7 @@ class MoodleUtility
     {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
-        $debug && error_log($fxn . "::Started with $cmid={$cmid}");
+        $debug && error_log($fxn . "::Started with \$cmid={$cmid}");
 
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make('block_integrityadvocate', 'perrequest');
