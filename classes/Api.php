@@ -106,6 +106,7 @@ class Api
 
     /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
+     * @link https://www.integrityadvocateserver.com/Developers#endingthesession .
      *
      * @param string $appid The AppId to get data for
      * @param int $courseid The course id
