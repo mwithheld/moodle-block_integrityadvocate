@@ -34,7 +34,7 @@ M.block_integrityadvocate = {
         return textArea.value;
     },
     sessionOpen: function() {
-        var debug = false;
+        var debug = true;
         debug && window.console.log('M.block_integrityadvocate.sessionOpen::Started');
         var self = M.block_integrityadvocate;
 
@@ -62,7 +62,7 @@ M.block_integrityadvocate = {
         debug && window.console.log('M.block_integrityadvocate.sessionOpen::Done');
     },
     sessionClose: function(callback) {
-        var debug = false;
+        var debug = true;
         debug && window.console.log('M.block_integrityadvocate.sessionClose::Started');
         var self = M.block_integrityadvocate;
 
@@ -98,15 +98,15 @@ M.block_integrityadvocate = {
      * @returns nothing.
      */
     proctorUILoaded: function() {
-        var debug = false;
+        var debug = true;
         debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::Started');
         var self = M.block_integrityadvocate;
         self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
         var eltMainContent = $('#responseform, #scormpage, div[role="main"]');
         switch (true) {
             case self.isQuizAttempt:
-                debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::On quizzes, disable the submit button and hide the questions until IA is ready', $('.mod_quiz-next-nav'));
-                $('.mod_quiz-next-nav').removeAttr('disabled');
+                debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::On quizzes, disable the submit button and hide the questions until IA is ready', self.eltQuizNextButtonSet);
+                self.eltQuizNextButtonSet.removeAttr('disabled').off('click.block_integrityadvocate.disable');
                 $('#block_integrityadvocate_hidequiz').remove();
                 eltMainContent.show();
                 break;
@@ -149,7 +149,7 @@ M.block_integrityadvocate = {
      * @returns null Nothing.
      */
     loadProctorUi: function(proctorjsurl) {
-        var debug = false;
+        var debug = true;
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Started with proctorjsurl=', proctorjsurl);
         if (!/^https:\/\/ca\.integrityadvocateserver\.com\/participants\/integrity\?appid=.*/.test(proctorjsurl)) {
@@ -176,6 +176,27 @@ M.block_integrityadvocate = {
 
                     window.console.log('M.block_integrityadvocate.loadProctorUi::IA_Ready done');
                 });
+                // Quiz navigation sidebar "Finish attempt button".
+                $('a.endtestlink').on('click.block_integrityadvocate', function(e) {
+                    debug && window.console.log('M.block_integrityadvocate.a.endtestlink.on(click)::started');
+                    window.IntegrityAdvocate.endSession();
+
+                    // These are commented out bc we DO want the default actions to happen.
+                    //e.preventDefault();
+                    //return false;
+                });
+                //Quiz "Next / Finish attempt" button, but only if this is the last page of the quiz.
+                var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]')
+                if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
+                    self.eltQuizNextButton.on('click.block_integrityadvocate', function(e) {
+                        debug && window.console.log('M.block_integrityadvocate.#mod_quiz-next-nav.on(click)::started');
+                        window.IntegrityAdvocate.endSession();
+
+                        // These are commented out bc we DO want the default actions to happen.
+                        //e.preventDefault();
+                        //return false;
+                    });
+                }
             })
             .fail(function(jqxhr, settings, exception) {
                 // Hide the loading gif.
@@ -194,7 +215,7 @@ M.block_integrityadvocate = {
             });
     },
     blockinit: function(Y, proctorjsurl) {
-        var debug = false;
+        var debug = true;
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.blockinit::Started with proctorjsurl=', proctorjsurl);
 
@@ -215,13 +236,15 @@ M.block_integrityadvocate = {
         }
         self.eltUserNotifications = $('#user-notifications');
         self.eltDivMain = $('div[role="main"]');
+        self.eltQuizNextButton = $('#mod_quiz-next-nav');
+        self.eltQuizNextButtonSet = $('.mod_quiz-next-nav');
 
         // Handlers for different kinds of pages - this is for any required setup before the IA JS is loaded.
         switch (true) {
             case (self.isQuizAttempt):
                 debug && window.console.log('M.block_integrityadvocate.blockinit::This is a quiz attempt page');
                 // Disables the Next button until IA JS is loaded
-                $('.mod_quiz-next-nav').attr('disabled', 1);
+                self.eltQuizNextButtonSet.attr('disabled', 1).on('click.block_integrityadvocate.disable', false);
                 self.loadProctorUi(proctorjsurl);
                 break;
             case (self.isScormEntryNewWindow):
