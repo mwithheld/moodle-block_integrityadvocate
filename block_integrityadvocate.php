@@ -599,7 +599,8 @@ class block_integrityadvocate extends block_base
                         }
                         break;
                     default:
-                        throw new \Exception('The user is not enrolled in this course');
+                        $debug && error_log($fxn . '::The user is not enrolled in this course, so show nothing');
+                        break;
                 }
 
                 break;
