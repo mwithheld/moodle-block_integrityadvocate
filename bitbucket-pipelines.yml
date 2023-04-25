@@ -16,8 +16,8 @@ buildZip: &buildZip
       - repodir=$(pwd -LP)
       - pluginver=$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')
       # Tag this version as a release.
-      - git tag -a "${pluginver}" -m "Tag ${pluginver}"
-      - git push origin "${pluginver}":"${pluginver}"
+      - git tag --force -a "${pluginver}" -m "Tag ${pluginver}"
+      - git push -f origin "${pluginver}":"${pluginver}"
       # Upload to Moodle plugins repo Ref https://docs.moodle.org/dev/Plugins_directory_API
       #TOKEN="d41d8cd98f00b204e9800998ecf8427e"
       # Set the full component name of the plugin.
