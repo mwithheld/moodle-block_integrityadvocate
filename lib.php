@@ -60,10 +60,10 @@ const INTEGRITYADVOCATE_BASEURL_API = 'https://ca.integrityadvocateserver.com';
 /** @var string Path relative to baseurl of the API with no trailing slash. */
 const INTEGRITYADVOCATE_API_PATH = '/api';
 
-/** @var string Base url for the API with no trailing slash. */
+/** @var string Base url for the API with no trailing slash. Putting a trailing slash here will break OAuth signatures. */
 const INTEGRITYADVOCATE_BASEURL_LTI = 'https://www.integrityadvocateserver.com';
 
-/** @var string Path relative to baseurl of the LTI endpoint with no trailing slash. */
+/** @var string Path relative to baseurl of the LTI endpoint with a leading slash but no trailing slash. */
 const INTEGRITYADVOCATE_LTI_PATH = '/integration/lti';
 
 /** @var string Email address for privacy api data cleanup requests */
