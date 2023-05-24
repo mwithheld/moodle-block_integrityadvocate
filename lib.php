@@ -125,7 +125,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  *            [clickiamherecount] =>
  *            [end] => 1605913685
  *            [exitfullscreencount] =>
- *            [id] => 04fda967-25df-4ce0-945f-72a244b862de
+ *            [id] => 04fda967-25df-4ce0-9f82-72a244b862de
  *            [overridedate] => -1
  *            [overridelmsuserfirstname] =>
  *            [overridelmsuserid] =>
@@ -139,9 +139,9 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  *            [participant] => block_integrityadvocate\Participant Object (
  *                    [courseid] => 2
  *                    [created] => -1
- *                    [email] => vhmark@gmail.com
- *                    [firstname] => Mark
- *                    [lastname] => van Hoek
+ *                    [email] => somedude@someemail.com
+ *                    [firstname] => Some
+ *                    [lastname] => Dude
  *                    [modified] => -1
  *                    [overridedate] => -1
  *                    [overridelmsuserfirstname] =>
