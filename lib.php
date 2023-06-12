@@ -204,7 +204,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
     // Invert the array so sessions are collected for each participant.
     $participants = [];
     foreach ($participantsessions as $s) {
-        error_log($fxn . '::Looking at $s=' . ia_u::var_dump($s));
+        $debug && error_log($fxn . '::Looking at $s=' . ia_u::var_dump($s));
         if (!isset($participants[$s->participant->participantidentifier]) || ia_u::is_empty($thisparticipant = $participants[$s->participant->participantidentifier])) {
             $thisparticipant = $s->participant;
             $participants[$s->participant->participantidentifier] = $thisparticipant;
@@ -212,7 +212,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
 
         if (isset($thisparticipant->sessions[$s->id])) {
             $msg = $fxn . "::Attempting to overwrite an existing session (id={$s->id}) -- this should not happen";
-            error_log($fxn . "::{$msg}; \$participantsessions=" . ia_u::var_dump($participantsessions));
+            $debug && error_log($fxn . "::{$msg}; \$participantsessions=" . ia_u::var_dump($participantsessions));
             throw new Exception($msg);
         }
 
