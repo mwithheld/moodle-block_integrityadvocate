@@ -156,25 +156,6 @@ class MoodleUtility
     }
 
     /**
-     * Return HTML for a button.
-     *
-     * @param \context $context The context to display the button in.
-     * @param string $label Text to show on the button.
-     * @param string $url URL the button should go to. Always uses GET method.
-     * @param array $options HTML attributes for the HTML button tag.
-     * @return string
-     */
-    public static function get_button_html(\context $context, string $label, string $url, array $options = []): string
-    {
-        $page = new \moodle_page();
-        $page->set_url('/user/profile.php');
-        $page->set_context($context->get_course_context());
-        $output = $page->get_renderer('core', 'course');
-        $button = new \single_button(new \moodle_url($url), $label, 'get', false, $options);
-        return $output->render($button);
-    }
-
-    /**
      * Get all instances of block_integrityadvocate in the Moodle site.
      * If there are multiple blocks in a single parent context just return the first from that context.
      *
