@@ -24,6 +24,7 @@
 
 namespace block_integrityadvocate;
 
+use context_module;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
@@ -48,23 +49,23 @@ switch (true) {
         // The above line throws an error if $moduleid is not passed as an integer.
         // But we get here if $moduleid is zero or negative.
         throw new \InvalidArgumentException("Invalid moduleid={$moduleid}");
-    case(!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
+    case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
         $debug && error_log(__FILE__ . '::Checked required capability: overview');
         break;
-    case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
+    case ((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
         throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
-    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1])):
+    case (!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1])):
         // The above line throws an error if $overrideuserid cannot access the module.
         // But we get here if $cm is empty.
         throw new \InvalidArgumentException('Invalid $cm found');
-    case(empty($modulecontext = $blockinstance->context->get_parent_context())):
+    case (empty($modulecontext = $blockinstance->context->get_parent_context())):
         throw new \InvalidArgumentException('Failed to find a valid parent context');
-    case($modulecontext->contextlevel != \CONTEXT_MODULE):
+    case ($modulecontext->contextlevel != \CONTEXT_MODULE):
         // Must be enrolled in the module to see this page.
         throw new \InvalidArgumentException("The passed-in moduleid={$moduleid} is not at the module context");
-    case(!empty(\require_capability('block/integrityadvocate:overview', $modulecontext))):
+    case (!empty(\require_capability('block/integrityadvocate:overview', $modulecontext))):
         // The above line throws an error if the current user is not enrolled as an instructor in the module.
         // Note this capability check is on the parent, not the block instance.
         break;
@@ -72,10 +73,12 @@ switch (true) {
         $debug && error_log(__FILE__ . '::All requirements are met');
 }
 
-// Show basic module info at the top.  Adapted from course/classes/output/course_module_name.php:export_for_template().
-echo \html_writer::start_tag('div', ['class' => \INTEGRITYADVOCATE_BLOCK_NAME . '_overview_module_moduleinfo']);
-echo $PAGE->get_renderer('core', 'course')->course_section_cm_name_title($cm);
-echo \html_writer::end_tag('div');
+// Check privs and set page layout to 'module'.
+require_login($course, false, $cm);
+
+// Show basic module name and icon.
+$PAGE->set_context(context_module::instance($cm->id));
+echo $OUTPUT->context_header();
 
 /**
  * Code here is adapted from https://gist.github.com/matthanger/1171921 .
@@ -123,17 +126,17 @@ $launchdata = [
 $m = null;
 foreach ($modules as $key => $thismodule) {
     if ((int) ($thismodule['id']) === (int) $moduleid) {
-        $m = $modules[$key];
+        $module = $modules[$key];
         break;
     }
 }
-if (ia_u::is_empty($m)) {
+if (ia_u::is_empty($module)) {
     $msg = 'This module is not an IA module';
     $debug && error_log(__FILE__ . "::{$msg}");
     throw new \InvalidArgumentException($msg);
 }
+$activities = [(object) ['Id' => $module['id'], 'Name' => $module['modulename'] . ': ' . $module['name']]];
 
-$activities = [(object) ['Id' => $m['id'], 'Name' => $m['modulename'] . ': ' . $m['name']]];
 $launchdata['custom_activities'] = \json_encode($activities, \JSON_PARTIAL_OUTPUT_ON_ERROR);
 
 // We only need launch the LTI.
