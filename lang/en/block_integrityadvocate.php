@@ -34,7 +34,7 @@ $string['column_latestparticipantleveldata'] = 'Latest Integrity Advocate data';
 $string['completion_not_enabled'] = 'Completion tracking is not enabled on this site.';
 $string['completion_not_enabled_course'] = 'Completion tracking is not enabled in this course.';
 
-$string['config_apikey'] = 'Api Key';
+$string['config_apikey'] = 'API key';
 $string['config_appid'] = 'Application Id';
 $string['config_blockversion'] = 'Version';
 $string['config_debuginfo'] = 'Debug info';
@@ -54,7 +54,7 @@ $string['error_curlcloseia'] = 'Curl error closing the IA session';
 $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info. If this is not valid, check the API key and app id are valid.';
 $string['error_invalidappid'] = 'Invalid Application Id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538';
 $string['error_invalidapikey'] = 'Invalid API Key - it is a code that looks a bit like this: c5oMspfrqaUuYX+3/Pem/7/8VnxS385tlmqoV2/bVcA=';
-$string['error_noapikey'] = 'No Api key is set';
+$string['error_noapikey'] = 'No API key is set';
 $string['error_noappid'] = 'No Application Id is set';
 $string['error_nousers'] = 'No users found';
 $string['error_notenrolled'] = 'You are not enrolled in this course';
@@ -92,12 +92,12 @@ $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
 
-$string['btn_overview_course'] = 'Course Overview';
-$string['btn_overview_module'] = 'Module Overview';
-$string['btn_overview_user'] = 'User Overview';
-$string['overview_course'] = 'Integrity Advocate Course Overview';
-$string['overview_module'] = 'Integrity Advocate Module Overview';
-$string['overview_user'] = 'Integrity Advocate User Overview';
+$string['btn_overview_course'] = 'Course overview';
+$string['btn_overview_module'] = 'Module overview';
+$string['btn_overview_user'] = 'User overview';
+$string['overview_course'] = 'Integrity Advocate course overview';
+$string['overview_module'] = 'Integrity Advocate module overview';
+$string['overview_user'] = 'Integrity Advocate user overview';
 $string['flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
@@ -121,7 +121,7 @@ $string['privacy:metadata:block_integrityadvocate:tableexplanation'] = 'Integrit
 $string['privacy:metadata:block_integrityadvocate:user_video'] = 'A video (with audio) recording of you completing an activity.';
 $string['privacy:metadata:block_integrityadvocate:userid'] = 'Your database user id number.';
 
-$string['process_integrityadvocate'] = 'Integrity Advocate - Process';
+$string['process_integrityadvocate'] = 'Integrity Advocate - process';
 $string['progress'] = '# proctor sessions';
 $string['resubmit_link'] = 'Resubmit your ID';
 $string['session_start'] = 'Start';
@@ -139,7 +139,7 @@ $string['status_notstarted'] = 'Not started';
 $string['status_in_progress'] = 'In progress';
 $string['status_invalid_id'] = 'Invalid (ID)';
 $string['status_invalid_override'] = 'Invalid';
-$string['status_invalid_rules'] = 'Invalid (Rules)';
+$string['status_invalid_rules'] = 'Invalid (rules)';
 $string['status_valid'] = 'Valid';
 
 $string['submitted'] = 'Submitted';
