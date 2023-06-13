@@ -18,7 +18,7 @@
  * Integrity Advocate block English language translation
  *
  * @package    block_integrityadvocate
- * @copyright  Integrity Advocate.com
+ * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Integrity Advocate';
