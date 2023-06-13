@@ -54,6 +54,7 @@ $debug && error_log(\basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->ur
 $debug && ($CFG->debug = $debugbackup);
 
 \require_login();
+confirm_sesskey();
 
 // Gather form data.
 // Used for the APIkey and AppId.
