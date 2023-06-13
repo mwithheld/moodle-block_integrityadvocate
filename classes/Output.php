@@ -178,7 +178,7 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        $params = ['instanceid' => $blockinstance->instance->id, 'courseid' => $courseid];
+        $params = ['sesskey' => sesskey(), 'instanceid' => $blockinstance->instance->id, 'courseid' => $courseid];
 
         // If we have a userid we must be a teacher looking at a user profile, so show the view user details button.
         if ($userid) {
@@ -200,7 +200,7 @@ class Output {
         }
 
         $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $params);
-        $options = ['class' => 'block_integrityadvocate_overview_btn_overview_user'];
+        $options = ['class' => 'block_integrityadvocate_overview_btn_overview_course'];
 
         global $OUTPUT;
         $output = $OUTPUT->single_button($url, $label, 'get', $options);
@@ -235,7 +235,7 @@ class Output {
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
 
-        $params = ['instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid];
+        $params = ['sesskey' => sesskey(), 'instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid];
         if ($userid) {
             $debug && error_log($fxn . "::We have a \$userid={$userid} so label the button with view details");
             $params += ['userid' => $userid];
@@ -253,7 +253,11 @@ class Output {
             return $cachedvalue;
         }
 
-        $output = ia_mu::get_button_html($blockcontext, $label, new \moodle_url('/blocks/integrityadvocate/overview.php', $params), ['class' => 'block_integrityadvocate_overview_btn_overview_user']);
+        $url = new \moodle_url('/blocks/integrityadvocate/overview.php', $params);
+        $options = ['class' => 'block_integrityadvocate_overview_btn_overview_module'];
+
+        global $OUTPUT;
+        $output = $OUTPUT->single_button($url, $label, 'get', $options);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
