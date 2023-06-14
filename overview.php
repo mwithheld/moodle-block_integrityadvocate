@@ -81,11 +81,6 @@ $debug && debugging("Got courseid={$course->id}");
 // Set up which overview page we should produce: -user, -module, or -course.
 // Specific sanity/security checks for each one are included in each file.
 switch (true) {
-    case ($userid):
-        $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
-            'userid' => $userid,
-        ];
-        break;
     case ($courseid && $moduleid):
         $debug && debugging(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
@@ -137,19 +132,21 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
 // Set up page parameters.
 $PAGE->set_course($course);
 $PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/styles.css');
+$PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
 // Used to build the page URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
 $PAGE->set_context($coursecontext);
-$title = \get_string(\str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
-$PAGE->set_title($title);
-$PAGE->set_pagelayout('report');
+
+$page = \get_string(\str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
+$title = format_string($course->fullname) . ': ' . $page;
 
 $PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
-
+$PAGE->set_pagelayout('report');
+$PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->navbar->add($title);
-$PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
+$PAGE->navbar->add(format_string($course->fullname), "$CFG->wwwroot/course/view.php?id=$courseid");
+$PAGE->navbar->add($page);
 
 // Start page output.
 // All header parts like JS, CSS must be above this.
