@@ -28,7 +28,7 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 // Security check - this file must be included from overview.php.
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
@@ -96,7 +96,7 @@ if ($continue) {
         // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
         'launch_presentation_locale' => \current_language(),
         // 2020Dec: roles appears to be unused. 0 = admin; 3=learner.
-        'roles' => ($hascapability_overview ? 0 : 3),
+        'roles' => ($hascapabilityOverview ? 0 : 3),
         // This should always be 1.
         'resource_link_id' => '1',
         // Who is requesting this info?.

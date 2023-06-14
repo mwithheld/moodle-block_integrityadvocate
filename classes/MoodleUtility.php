@@ -27,7 +27,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Utility functions not specific to this module that interact with Moodle core.
@@ -51,7 +51,7 @@ class MoodleUtility
         $debug && error_log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
 
         $blockmanager->load_blocks(true);
-        $blockname_clean = ia_u::remove_prefix('block_', $block->instance->blockname);
+        $blocknameClean = ia_u::remove_prefix('block_', $block->instance->blockname);
 
         $requiredbythemeblocks = $blockmanager->get_required_by_theme_block_types();
         foreach ($blockmanager->get_regions() as $region) {
@@ -60,8 +60,8 @@ class MoodleUtility
                     continue;
                 }
                 $debug && error_log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
-                if ($instance->instance->blockname == $blockname_clean && intval($instance->instance->id) != intval($block->instance->id)) {
-                    if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
+                if ($instance->instance->blockname == $blocknameClean && intval($instance->instance->id) != intval($block->instance->id)) {
+                    if ($instance->instance->requiredbytheme && !in_array($blocknameClean, $requiredbythemeblocks)) {
                         continue;
                     }
                     $debug && error_log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id . ' that does not match the passed in block id=' . $block->instance->id);
@@ -88,7 +88,7 @@ class MoodleUtility
         $debug && error_log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
 
         $blockmanager->load_blocks(true);
-        $blockname_clean = ia_u::remove_prefix('block_', $block->instance->blockname);
+        $blocknameClean = ia_u::remove_prefix('block_', $block->instance->blockname);
 
         $requiredbythemeblocks = $blockmanager->get_required_by_theme_block_types();
         // This goes through the blocks in their display order.
@@ -98,8 +98,8 @@ class MoodleUtility
                     continue;
                 }
                 $debug && error_log($fxn . '::Looking at visible=' . $instance->instance->visible . '; blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
-                if ($instance->instance->visible && $instance->instance->blockname == $blockname_clean) {
-                    if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
+                if ($instance->instance->visible && $instance->instance->blockname == $blocknameClean) {
+                    if ($instance->instance->requiredbytheme && !in_array($blocknameClean, $requiredbythemeblocks)) {
                         continue;
                     }
                     if (intval($instance->instance->id) === intval($block->instance->id)) {
@@ -132,7 +132,7 @@ class MoodleUtility
         $debug && error_log($fxn . '::Started with $blockname=' . $blockname);
 
         $blockmanager->load_blocks(true);
-        $blockname_clean = ia_u::remove_prefix('block_', $blockname);
+        $blocknameClean = ia_u::remove_prefix('block_', $blockname);
 
         $requiredbythemeblocks = $blockmanager->get_required_by_theme_block_types();
         $count = 0;
@@ -142,8 +142,8 @@ class MoodleUtility
                     continue;
                 }
                 $debug && error_log($fxn . '::Looking at blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
-                if ($instance->instance->blockname == $blockname_clean) {
-                    if ($instance->instance->requiredbytheme && !in_array($blockname_clean, $requiredbythemeblocks)) {
+                if ($instance->instance->blockname == $blocknameClean) {
+                    if ($instance->instance->requiredbytheme && !in_array($blocknameClean, $requiredbythemeblocks)) {
                         continue;
                     }
                     $debug && error_log($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
@@ -407,20 +407,20 @@ class MoodleUtility
         $filteredmodules = [];
         $modinfo = \get_fast_modinfo($courseid, $userid);
         $coursecontext = \CONTEXT_COURSE::instance($courseid);
-        $hascapability_viewhiddenactivities = \has_capability('moodle/course:viewhiddenactivities', $coursecontext, $userid);
+        $hascapabilityViewhiddenactivities = \has_capability('moodle/course:viewhiddenactivities', $coursecontext, $userid);
 
         // Keep only modules that are visible.
         foreach ($modules as $m) {
             $coursemodule = $modinfo->cms[$m['id']];
 
             // Check visibility in course.
-            if (!$coursemodule->visible && !$hascapability_viewhiddenactivities) {
+            if (!$coursemodule->visible && !$hascapabilityViewhiddenactivities) {
                 continue;
             }
 
             // Check availability, allowing for visible, but not accessible items.
             if (!empty($cfg->enableavailability)) {
-                if ($hascapability_viewhiddenactivities) {
+                if ($hascapabilityViewhiddenactivities) {
                     $m['available'] = true;
                 } else {
                     if (isset($coursemodule->available) && !$coursemodule->available && empty($coursemodule->availableinfo)) {
@@ -955,10 +955,10 @@ class MoodleUtility
      * @ref https://cssjockey.com/how-to-get-current-url-in-php-with-or-without-query-string
      * @return string The current URL, optionally withut the querystring.
      */
-    public function get_current_url(bool $trim_query_string = false): string
+    public function get_current_url(bool $trimQuerystring = false): string
     {
         $pageURL = \filter_var((self::is_ssl() ? 'https' : 'http') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}", FILTER_SANITIZE_URL);
-        if (!$trim_query_string) {
+        if (!$trimQuerystring) {
             return $pageURL;
         } else {
             $url = explode('?', $pageURL);

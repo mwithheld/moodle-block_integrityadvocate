@@ -29,7 +29,7 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 // Security check - this file must be included from overview.php.
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();

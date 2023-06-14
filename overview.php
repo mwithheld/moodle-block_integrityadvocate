@@ -162,7 +162,7 @@ echo $OUTPUT->heading($title . '&nbsp;' . $OUTPUT->image_icon('i/reload', \get_s
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
 // Gather capabilities for later use.
-$hascapability_overview = \has_capability('block/integrityadvocate:overview', $blockcontext);
+$hascapabilityOverview = \has_capability('block/integrityadvocate:overview', $blockcontext);
 $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $blockcontext);
 
 // Check for errors that mean we should not show any overview page.
@@ -170,7 +170,7 @@ switch (true) {
     case ($configerrors = $blockinstance->get_config_errors()):
         $debug && error_log(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
-        if ($hascapability_overview) {
+        if ($hascapabilityOverview) {
             \core\notification::error(\implode(ia_output::BRNL, $configerrors));
         }
         break;
@@ -182,7 +182,7 @@ switch (true) {
         }
         break;
 
-    case(!$hascapability_overview && !$hascapability_selfview):
+    case(!$hascapabilityOverview && !$hascapability_selfview):
         $msg = 'No permissions to see anything in the block';
         $debug && error_log(__FILE__ . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);

@@ -25,7 +25,7 @@
 
 namespace block_integrityadvocate;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 // Polyfill for PHP7.1 b/c we use is_countable().
 require_once('polyfills.php');

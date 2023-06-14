@@ -21,7 +21,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-\defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
 
 // Ref https://docs.moodle.org/dev/Web_services_API.
 // Ref https://docs.moodle.org/dev/Adding_a_web_service_to_a_plugin.

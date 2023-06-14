@@ -24,7 +24,7 @@
 
 namespace block_integrityadvocate;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Class to represent a single IA participant session flag.

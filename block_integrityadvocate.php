@@ -28,7 +28,7 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 require_once(__DIR__ . '/lib.php');
 
@@ -438,16 +438,16 @@ class block_integrityadvocate extends block_base
         $this->page->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
 
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
-        $hascapability_overview = \has_capability('block/integrityadvocate:overview', $this->context);
-        $debug && error_log($fxn . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapability_overview);
+        $hascapabilityOverview = \has_capability('block/integrityadvocate:overview', $this->context);
+        $debug && error_log($fxn . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapabilityOverview);
         $debug && error_log($fxn . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
 
-        if ($hascapability_overview) {
+        if ($hascapabilityOverview) {
             $this->content->footer = $this->get_footer();
         }
 
         if ($setuperrors) {
-            if ($hascapability_overview) {
+            if ($hascapabilityOverview) {
                 foreach ($setuperrors as $err) {
                     $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
                 }
@@ -458,7 +458,7 @@ class block_integrityadvocate extends block_base
 
         if (!ia_mu::is_first_visible_block_of_type($this->page->blocks, $this)) {
             $debug && error_log($fxn . '::Found another_blockinstance_exists=true so refuse to show the content for this one');
-            if ($hascapability_overview) {
+            if ($hascapabilityOverview) {
                 $this->content->text = get_string('error_twoblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
             $this->visible = false;
@@ -471,7 +471,7 @@ class block_integrityadvocate extends block_base
         $modules = ia_mu::filter_for_visible($CFG, $modules, $USER->id, $COURSE->id, $exclusions);
         $debug && error_log($fxn . '::Modules found=' . ia_u::count_if_countable($modules));
         if (empty($modules)) {
-            if ($hascapability_overview) {
+            if ($hascapabilityOverview) {
                 $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
             $debug && error_log($fxn . '::No modules, so skip it');
@@ -486,7 +486,7 @@ class block_integrityadvocate extends block_base
             $debug && error_log($fxn . '::Error: ' . ia_u::var_dump($configerrors, true));
 
             // Error output is visible only to instructors.
-            if ($hascapability_overview) {
+            if ($hascapabilityOverview) {
                 $this->content->text .= \implode(ia_output::BRNL, $configerrors);
             }
             return;
@@ -499,7 +499,7 @@ class block_integrityadvocate extends block_base
             case CONTEXT_COURSE:
                 $debug && error_log($fxn . '::Context=CONTEXT_COURSE');
                 switch (true) {
-                    case $hascapability_overview:
+                    case $hascapabilityOverview:
                         $debug && error_log($fxn . '::Teacher viewing a course student profile: Show latest student info');
                         $isparticipantspage = str_contains($this->page->url, '/user/view.php?');
                         if ($isparticipantspage && ia\FeatureControl::OVERVIEW_USER_LTI) {
@@ -547,7 +547,7 @@ class block_integrityadvocate extends block_base
             case CONTEXT_MODULE:
                 $debug && error_log($fxn . '::Context=CONTEXT_MODULE');
                 switch (true) {
-                    case $hascapability_overview:
+                    case $hascapabilityOverview:
                         $debug && error_log($fxn . '::Teacher viewing a module: Show the overview module button AND the overview course button');
                         ia\FeatureControl::OVERVIEW_MODULE_LTI && $this->content->text .= ia_output::get_button_overview_module($this);
                         ia\FeatureControl::OVERVIEW_COURSE_LTI && $this->content->text .= ia_output::get_button_overview_course($this);

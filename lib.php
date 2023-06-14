@@ -30,7 +30,7 @@ use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 $blockintegrityadvocatewwwroot = \dirname(__FILE__, 3);
 require_once($blockintegrityadvocatewwwroot . '/user/lib.php');

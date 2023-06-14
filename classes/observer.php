@@ -26,7 +26,7 @@ use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 
@@ -201,8 +201,8 @@ class block_integrityadvocate_observer
         }
 
         // Instructors do not get the proctoring UI so never need to close the session.
-        $hascapability_overview = \has_capability('block/integrityadvocate:overview', $modulecontext);
-        if ($hascapability_overview) {
+        $hascapabilityOverview = \has_capability('block/integrityadvocate:overview', $modulecontext);
+        if ($hascapabilityOverview) {
             return null;
         }
 
