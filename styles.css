@@ -1,6 +1,6 @@
 .block_integrityadvocate .footer {
     margin-top: .5em;
-}   
+}
 .block_integrityadvocate .content {
     text-align: left;
 }
@@ -12,4 +12,7 @@
 }
 .block_integrityadvocate_modulelist_div_title {
     padding-top:1em;
+}
+.block_integrityadvocate_overview_participant_summary_img img{
+    max-width:100%
 }
