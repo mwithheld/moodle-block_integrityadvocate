@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -36,8 +35,7 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  * @copyright IntegrityAdvocate.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_integrityadvocate_observer
-{
+class block_integrityadvocate_observer {
 
     /**
      * Parse the triggered event and decide if and how to act on it.
@@ -46,8 +44,7 @@ class block_integrityadvocate_observer
      * @param \core\event\base $event Event to maybe act on
      * @return bool True if attempted to close the remote IA session; else false.
      */
-    public static function process_event(\core\event\base $event): bool
-    {
+    public static function process_event(\core\event\base $event): bool {
         $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
 
@@ -84,26 +81,26 @@ class block_integrityadvocate_observer
          */
         switch (true) {
             case ia_u::strposabool($event->eventname,
-                [
-                    '\\mod_chat\\event\\',
-                    '\\mod_data\\event\\',
-                    '\\mod_glossary\\event\\',
-                    '\\mod_lesson\\event\\',
-                    '\\mod_wiki\\event\\',
-            ]):
+                    [
+                        '\\mod_chat\\event\\',
+                        '\\mod_data\\event\\',
+                        '\\mod_glossary\\event\\',
+                        '\\mod_lesson\\event\\',
+                        '\\mod_wiki\\event\\',
+                    ]):
             // None of the event names starting with these strings correspond to finishing a module.
             case \preg_match('/mod_forum\\\\event\\\\.*created$/i', $event->eventname):
             // None of the \mod_forum\*created events correspond to finishing an module...
             // They probably just posted to the forum or added a discussion but that's not finishing with forums.
             case \in_array($event->eventname,
-                [
-                    '\\assignsubmission_onlinetext\\event\\submission_updated',
-                    '\\mod_assign\\event\\submission_duplicated',
-                    '\\mod_quiz\\event\\attempt_becameoverdue',
-                    '\\mod_quiz\\event\\attempt_started',
-                    '\\mod_quiz\\event\\attempt_viewed',
-                    '\\mod_workshop\\event\\submission_reassessed',
-                ], true):
+                    [
+                        '\\assignsubmission_onlinetext\\event\\submission_updated',
+                        '\\mod_assign\\event\\submission_duplicated',
+                        '\\mod_quiz\\event\\attempt_becameoverdue',
+                        '\\mod_quiz\\event\\attempt_started',
+                        '\\mod_quiz\\event\\attempt_viewed',
+                        '\\mod_workshop\\event\\submission_reassessed',
+                    ], true):
                 // None of these exact string matches on event names correspond to finishing an module.
                 $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
@@ -120,16 +117,16 @@ class block_integrityadvocate_observer
          */
         switch (true) {
             case \in_array($event->eventname,
-                [
-                    '\\mod_assign\\event\\assessable_submitted',
-                    '\\mod_choice\\event\\answer_created',
-                    '\\mod_feedback\\event\\response_submitted',
-                    // This is blocklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
-                    '\\mod_scorm\\event\\scoreraw_submitted',
-                    '\\mod_quiz\\event\\attempt_abandoned',
-                    '\\mod_quiz\\event\\attempt_reviewed',
-                    '\\mod_quiz\\event\\attempt_submitted',
-                ], true):
+                    [
+                        '\\mod_assign\\event\\assessable_submitted',
+                        '\\mod_choice\\event\\answer_created',
+                        '\\mod_feedback\\event\\response_submitted',
+                        // This is blocklisted in wildcards above: '\\mod_lesson\\event\\lesson_ended',.
+                        '\\mod_scorm\\event\\scoreraw_submitted',
+                        '\\mod_quiz\\event\\attempt_abandoned',
+                        '\\mod_quiz\\event\\attempt_reviewed',
+                        '\\mod_quiz\\event\\attempt_submitted',
+                    ], true):
                 $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
@@ -149,8 +146,7 @@ class block_integrityadvocate_observer
      * @param \core\event\base $event Event to maybe act on
      * @return bool True if attempted to close the remote IA session; else false.
      */
-    protected static function close_module_user_session(\core\event\base $event): bool
-    {
+    protected static function close_module_user_session(\core\event\base $event): bool {
         $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
         $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
@@ -170,8 +166,7 @@ class block_integrityadvocate_observer
      * @param \core\event\base $event Triggered event.
      * @return block_integrityadvocate Null if should not close the remote IA session; else returns the $blockinstance.
      */
-    protected static function check_should_close_user_ia(\core\event\base $event): ?\block_integrityadvocate
-    {
+    protected static function check_should_close_user_ia(\core\event\base $event): ?\block_integrityadvocate {
         $debug = false;
 
         $modulecontext = $event->get_context();
@@ -217,8 +212,7 @@ class block_integrityadvocate_observer
      * @param int $userid The Moodle userid to close the session for
      * @return bool true if remote session is closed; else false.
      */
-    protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool
-    {
+    protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
         $debug = false;
         $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
 
