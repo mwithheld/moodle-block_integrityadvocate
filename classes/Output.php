@@ -180,7 +180,7 @@ class Output {
             throw new \InvalidArgumentException($msg);
         }
 
-        $params = ['sesskey' => sesskey(), 'instanceid' => $blockinstance->instance->id, 'courseid' => $courseid];
+        $params = ['instanceid' => $blockinstance->instance->id, 'courseid' => $courseid];
 
         // If we have a userid we must be a teacher looking at a user profile, so show the view user details button.
         if ($userid) {
@@ -205,7 +205,7 @@ class Output {
         $options = ['class' => 'block_integrityadvocate_overview_btn_overview_course'];
 
         global $OUTPUT;
-        $output = $OUTPUT->single_button($url, $label, 'post', $options);
+        $output = $OUTPUT->single_button($url, $label, 'get', $options);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
@@ -237,7 +237,7 @@ class Output {
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
 
-        $params = ['sesskey' => sesskey(), 'instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid];
+        $params = ['instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid];
         if ($userid) {
             $debug && debugging($fxn . "::We have a \$userid={$userid} so label the button with view details");
             $params += ['userid' => $userid];
@@ -259,7 +259,7 @@ class Output {
         $options = ['class' => 'block_integrityadvocate_overview_btn_overview_module'];
 
         global $OUTPUT;
-        $output = $OUTPUT->single_button($url, $label, 'post', $options);
+        $output = $OUTPUT->single_button($url, $label, 'get', $options);
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
