@@ -49,5 +49,4 @@ class HttpException extends \Exception {
         $this->uri = $uri;
         parent::__construct($message, $httpstatus, $previous);
     }
-
 }

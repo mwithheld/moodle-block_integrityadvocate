@@ -51,5 +51,4 @@ class Flag {
 
     /** @var string Unique ID assigned to this flag */
     public $id;
-
 }
