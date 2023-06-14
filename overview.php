@@ -42,7 +42,7 @@ require_once($CFG->libdir . '/tablelib.php');
 /** @var int How many users per page to show by default. */
 const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 
-// bool Flag to tell the overview-course.php page the include is legit.
+// bool Flag to tell the overview-course.php and overview-user.php pages the include is legit.
 \define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false;
@@ -60,6 +60,8 @@ $debug && ($CFG->debug = $debugbackup);
 $blockinstanceid = \required_param('instanceid', PARAM_INT);
 // Used for all overview pages.
 $courseid = \required_param('courseid', PARAM_INT);
+// Used for overview-user page.
+$userid = \optional_param('userid', 0, PARAM_INT);
 // Used for overview-module page.
 $moduleid = \optional_param('moduleid', 0, PARAM_INT);
 
