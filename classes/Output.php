@@ -68,7 +68,7 @@ class Output {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) .
                         '; $blockinstance->context->contextlevel=' . $blockinstance->context->contextlevel .
-                ' vs \CONTEXT_BLOCK=' . \CONTEXT_BLOCK . '; $proctorjsurl=' . $proctorjsurl);
+                        ' vs \CONTEXT_BLOCK=' . \CONTEXT_BLOCK . '; $proctorjsurl=' . $proctorjsurl);
 
         // If the user is not enrolled as a student, $proctorjsurl is a string error message, so simply return an empty result.
         if (!\filter_var($proctorjsurl, \FILTER_VALIDATE_URL)) {
@@ -556,7 +556,8 @@ class Output {
                         return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
                     }
 
-                    return self::get_participant_summary_output($blockinstance, $participant, $showphoto, $showoverviewbutton, $showstatus);
+                    return self::get_participant_summary_output($blockinstance, $participant, $showphoto,
+                                    $showoverviewbutton, $showstatus);
 
                 case ((int) (\CONTEXT_MODULE)):
                     // If block is in a module, show the module's latest status, photo, start, end.
@@ -569,10 +570,16 @@ class Output {
                     }
                     $participant = $latestsession->participant;
                     return self::get_summary_html(
-                                    $participant->participantidentifier, $latestsession->status, $latestsession->start, $latestsession->end,
+                                    $participant->participantidentifier,
+                                    $latestsession->status,
+                                    $latestsession->start,
+                                    $latestsession->end,
                                     ($showphoto ? self::get_participant_photo_output($participant->participantidentifier,
-                                            ($latestsession->participantphoto ?: ''), $latestsession->status, $participant->email) : ''),
-                                    ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
+                                            ($latestsession->participantphoto ?: ''),
+                                            $latestsession->status, $participant->email) : ''),
+                                    ($showoverviewbutton ?
+                                    self::get_button_overview($blockinstance, $participant->participantidentifier) :
+                                    ''),
                                     $showstatus
                     );
 
@@ -601,11 +608,13 @@ class Output {
         $debugvars = $fxn . "::Started with \$url={$url}; \$signature={$signature}; \$data=" . ia_u::var_dump($data);
         $debug && debugging($debugvars);
 
-        $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" method="POST" target="iframelaunch" style="display:none" action="' . $url . '">'];
+        $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" '
+            . 'method="POST" target="iframelaunch" style="display:none" action="' . $url . '">'];
         foreach ($data as $k => $v) {
             $output[] = '<input type="hidden" name="' . $k . '" value="' . \htmlspecialchars($v, \ENT_QUOTES, 'UTF-8') . '">';
         }
-        $output[] = '<input type="hidden" name="oauth_signature" value="' . $signature . '"><button type="submit">Launch</button></form>';
+        $output[] = '<input type="hidden" name="oauth_signature" value="' . $signature . '">'
+                . '<button type="submit">Launch</button></form>';
         $output[] = '<iframe id="iframelaunch" '
                 . 'name="iframelaunch" src="" '
                 . 'style="width:100%;height:800px" '
