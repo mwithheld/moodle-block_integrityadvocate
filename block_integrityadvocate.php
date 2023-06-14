@@ -194,6 +194,12 @@ class block_integrityadvocate extends block_base {
         return $errors;
     }
 
+    /**
+     * Check if the input API key is valid.
+     * 
+     * @param string $apikey The API key to check.
+     * @return bool True if valid.
+     */
     public static function is_valid_apikey(string $apikey): bool {
         // Cache bc this can be called many times even in one request.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
@@ -211,6 +217,12 @@ class block_integrityadvocate extends block_base {
         return $returnthis;
     }
 
+    /**
+     * Check if the AppId is valid.
+     * 
+     * @param string $appid The AppId to check.
+     * @return bool True if valid.
+     */
     public static function is_valid_appid(string $appid): bool {
         return ia_u::is_guid($appid);
     }
