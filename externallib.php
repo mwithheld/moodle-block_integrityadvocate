@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -29,8 +28,7 @@ require_once($CFG->libdir . '/externallib.php');
 /**
  * Answers AJAX calls for this block.
  */
-class block_integrityadvocate_external extends \external_api
-{
+class block_integrityadvocate_external extends \external_api {
 
     use \block_integrityadvocate\external_ia_session_tracking;
 
@@ -39,14 +37,13 @@ class block_integrityadvocate_external extends \external_api
      *
      * @return external_single_structure
      */
-    protected static function returns_boolean_submitted(): \external_single_structure
-    {
+    protected static function returns_boolean_submitted(): \external_single_structure {
         return new \external_single_structure(
-            [
+                [
             // Usage: external_value($type, $desc, $required, $default, $allownull).
             'submitted' => new \external_value(PARAM_BOOL, 'submitted', true, false, false),
             'warnings' => new \external_warnings()
-            ]
+                ]
         );
     }
 }

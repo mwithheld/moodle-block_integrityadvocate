@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die;
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
 $debug = false;
-$debug && error_log(\basename(__FILE__) . "::Started with courseid={$courseid}");
+$debug && debugging(\basename(__FILE__) . "::Started with courseid={$courseid}");
 
 // Check all requirements.
 switch (true) {
@@ -41,13 +41,13 @@ switch (true) {
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
-        $debug && error_log(__FILE__ . '::Checked required capability: overview');
+        $debug && debugging(__FILE__ . '::Checked required capability: overview');
         break;
     default:
-        $debug && error_log(__FILE__ . '::All requirements are met');
+        $debug && debugging(__FILE__ . '::All requirements are met');
 }
 
-/**
+/*
  * Code here is adapted from https://gist.github.com/matthanger/1171921 .
  */
 $launchurl = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participants';

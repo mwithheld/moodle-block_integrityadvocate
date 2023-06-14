@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -38,16 +37,14 @@ require_once(__DIR__ . '/lib.php');
  * @copyright IntegrityAdvocate.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_integrityadvocate extends block_base
-{
+class block_integrityadvocate extends block_base {
 
     /**
      * Sets the block title.
      *
      * @return void
      */
-    public function init()
-    {
+    public function init() {
         $this->title = \get_string('config_default_title', \INTEGRITYADVOCATE_BLOCK_NAME);
     }
 
@@ -56,8 +53,7 @@ class block_integrityadvocate extends block_base
      *
      * @return bool True if we have global config/settings data.
      */
-    public function has_config(): bool
-    {
+    public function has_config(): bool {
         return false;
     }
 
@@ -66,18 +62,17 @@ class block_integrityadvocate extends block_base
      *
      * @return bool True if we have additional initializations.
      */
-    public function instance_create()
-    {
+    public function instance_create() {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
-        $debug && error_log($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
+        $debug && debugging($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
 
         // Get the first IA block with APIKey and APPId, and use it for this block.
         global $COURSE;
         $blocks = ia_mu::get_all_course_blocks($COURSE->id, INTEGRITYADVOCATE_SHORTNAME);
-        $debug && error_log($fxn . '::Got count(blocks)=' . ia_u::count_if_countable($blocks));
+        $debug && debugging($fxn . '::Got count(blocks)=' . ia_u::count_if_countable($blocks));
         foreach ($blocks as $key => $b) {
-            $debug && error_log($fxn . "::Looking at block_instance.id={$key}");
+            $debug && debugging($fxn . "::Looking at block_instance.id={$key}");
 
             // Only look in other blocks, and skip those with apikey/appid errors.
             if (($this->instance->id === $b->instance->id) || $b->get_apikey_appid_errors()) {
@@ -93,17 +88,17 @@ class block_integrityadvocate extends block_base
         }
 
         // If this is a quiz, auto-configure the quiz to...
-        $debug && error_log($fxn . "::Looking at pagetype={$this->page->pagetype}");
+        $debug && debugging($fxn . "::Looking at pagetype={$this->page->pagetype}");
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             // A. Show blocks during quiz attempt; and...
             $modulecontext = $this->context->get_parent_context();
-            $debug && error_log($fxn . '::Got $modulecontext=' . ia_u::var_dump($modulecontext, true));
+            $debug && debugging($fxn . '::Got $modulecontext=' . ia_u::var_dump($modulecontext, true));
             $modinfo = \get_fast_modinfo($COURSE, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
-            $debug && error_log($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
+            $debug && debugging($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
             global $DB;
             $record = $DB->get_record('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
-            $debug && error_log($fxn . '::Got record=' . ia_u::var_dump($record, true));
+            $debug && debugging($fxn . '::Got record=' . ia_u::var_dump($record, true));
             if ($record->showblocks < 1) {
                 $record->showblocks = 1;
                 $DB->update_record('quiz', $record);
@@ -111,7 +106,7 @@ class block_integrityadvocate extends block_base
 
             // B. By default show the block on all quiz pages.
             $DB->set_field('block_instances', 'pagetypepattern', 'mod-quiz-*', ['id' => $this->instance->id]);
-            $debug && error_log($fxn . '::Set DB [pagetypepattern] = mod-quiz-*');
+            $debug && debugging($fxn . '::Set DB [pagetypepattern] = mod-quiz-*');
         }
 
         return true;
@@ -122,8 +117,7 @@ class block_integrityadvocate extends block_base
      *
      * @return void.
      */
-    public function specialization()
-    {
+    public function specialization() {
         if (isset($this->config->progressTitle) && \trim($this->config->progressTitle) != '') {
             $this->title = \format_string($this->config->progressTitle);
         }
@@ -134,8 +128,7 @@ class block_integrityadvocate extends block_base
      *
      * @return bool True if multiple instances of the block are allowed on a page.
      */
-    public function instance_allow_multiple(): bool
-    {
+    public function instance_allow_multiple(): bool {
         return false;
     }
 
@@ -144,8 +137,7 @@ class block_integrityadvocate extends block_base
      *
      * @return bool True if the block is configurable.
      */
-    public function instance_allow_config(): bool
-    {
+    public function instance_allow_config(): bool {
         return true;
     }
 
@@ -154,22 +146,21 @@ class block_integrityadvocate extends block_base
      *
      * @return array<string, mixed> where key=location; value=whether it can be added.
      */
-    public function applicable_formats(): array
-    {
+    public function applicable_formats(): array {
         return ['admin' => false,
             'course-view' => true,
             'mod' => true,
             'my' => false,
             'site' => false,
-            // Unused: 'all'.
-            // Unused: 'course'.
-            // Unused: 'course-view-social'.
-            // Unused: 'course-view-topics'.
-            // Unused: 'course-view-weeks'.
-            // Unused: 'mod-quiz'.
-            // Unused: 'site-index'.
-            // Unused: 'tag'.
-            // Unused: 'user-profile'.
+                // Unused: 'all'.
+                // Unused: 'course'.
+                // Unused: 'course-view-social'.
+                // Unused: 'course-view-topics'.
+                // Unused: 'course-view-weeks'.
+                // Unused: 'mod-quiz'.
+                // Unused: 'site-index'.
+                // Unused: 'tag'.
+                // Unused: 'user-profile'.
         ];
     }
 
@@ -178,34 +169,32 @@ class block_integrityadvocate extends block_base
      *
      * @return string[] Array of error messages from lang file: error_*.  Empty array if no errors.
      */
-    public function get_apikey_appid_errors(): array
-    {
+    public function get_apikey_appid_errors(): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
-        $debug && error_log($fxn . '::Started');
+        $debug && debugging($fxn . '::Started');
 
         $errors = [];
         $hasblockconfig = isset($this->config) && !ia_u::is_empty($this->config);
 
         if (!$hasblockconfig) {
-            $debug && error_log($fxn . '::Error: This block has no config');
+            $debug && debugging($fxn . '::Error: This block has no config');
             $errors = ['This block has no config'];
         }
 
         if (!isset($this->config->apikey) || !self::is_valid_apikey($this->config->apikey)) {
             $errors['config_apikey'] = \get_string('error_noapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
-            $debug && error_log($fxn . '::' . $errors['config_apikey']);
+            $debug && debugging($fxn . '::' . $errors['config_apikey']);
         }
         if (!isset($this->config->appid) || !self::is_valid_appid($this->config->appid)) {
             $errors['config_appid'] = \get_string('error_noappid', \INTEGRITYADVOCATE_BLOCK_NAME);
-            $debug && error_log($fxn . '::' . $errors['config_appid']);
+            $debug && debugging($fxn . '::' . $errors['config_appid']);
         }
 
         return $errors;
     }
 
-    public static function is_valid_apikey(string $apikey): bool
-    {
+    public static function is_valid_apikey(string $apikey): bool {
         // Cache bc this can be called many times even in one request.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $apikey]));
@@ -222,8 +211,7 @@ class block_integrityadvocate extends block_base
         return $returnthis;
     }
 
-    public static function is_valid_appid(string $appid): bool
-    {
+    public static function is_valid_appid(string $appid): bool {
         return ia_u::is_guid($appid);
     }
 
@@ -232,8 +220,7 @@ class block_integrityadvocate extends block_base
      *
      * @return array<string, string> Config error array where field = error field; message=error message.
      */
-    public function get_config_errors(): array
-    {
+    public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $this->instance->id]));
         if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
@@ -287,12 +274,11 @@ class block_integrityadvocate extends block_base
      *
      * @return void.
      */
-    private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true)
-    {
+    private function add_proctor_js(\stdClass $user, bool $hidemodulecontent = true) {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         global $OUTPUT;
-        $debug && error_log($fxn . '::Started with $user=' . $user->id);
+        $debug && debugging($fxn . '::Started with $user=' . $user->id);
 
         $this->page->requires->string_for_js('proctorjs_load_failed', INTEGRITYADVOCATE_BLOCK_NAME);
         $this->page->requires->string_for_js('exitactivity', 'scorm');
@@ -301,15 +287,16 @@ class block_integrityadvocate extends block_base
         // These styles are removed in the js by simply removing this element.
         if ($hidemodulecontent) {
             $this->content->text .= '<style id="block_integrityadvocate_hidemodulecontent">'
-                . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
-                . "#user-notifications{height:100px;background:center no-repeat url('" . $OUTPUT->image_url('i/loading') . "')}\n"
-                . '</style>';
+                    . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
+                    . "#user-notifications{height:100px;background:center no-repeat url('" .
+                    $OUTPUT->image_url('i/loading') . "')}\n"
+                    . '</style>';
         }
 
         // This must hold some content, otherwise this function runs twice.
         $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
 
-        $debug && error_log($fxn . '::About to add_block_js() with $user=' . $user->id);
+        $debug && debugging($fxn . '::About to add_block_js() with $user=' . $user->id);
         ia_output::add_block_js($this, ia_output::get_proctor_js_url($this, $user));
     }
 
@@ -318,11 +305,10 @@ class block_integrityadvocate extends block_base
      *
      * @return bool True if some output was built.
      */
-    private function populate_course_modulelist(): bool
-    {
+    private function populate_course_modulelist(): bool {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
-        $debug && error_log($fxn . '::Started');
+        $debug && debugging($fxn . '::Started');
 
         // Security check.
         if (!$this->page->user_allowed_editing()) {
@@ -334,10 +320,11 @@ class block_integrityadvocate extends block_base
         $iamodulesexist = ($blockcount = ia_u::count_if_countable($iablocksinthiscourse)) > 0;
 
         $this->content->text .= \html_writer::start_tag('div', ['class' => "{$prefix}_div"]);
-        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME, (string)$blockcount), ['class' => "{$prefix}_div_title"]);
+        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME,
+                                (string) $blockcount), ['class' => "{$prefix}_div_title"]);
 
         if (!$iamodulesexist) {
-            $debug && error_log($fxn . '::No modules exist');
+            $debug && debugging($fxn . '::No modules exist');
             $this->content->text .= \html_writer::end_tag('div');
             return true;
         }
@@ -351,10 +338,10 @@ class block_integrityadvocate extends block_base
         $formstart .= '<input type="hidden" name="edit" value="on">';
 
         $userisediting = $this->page->user_is_editing();
-        $debug && error_log($fxn . '::Course editing mode=' . ($userisediting ? 1 : 0));
+        $debug && debugging($fxn . '::Course editing mode=' . ($userisediting ? 1 : 0));
 
         foreach ($iablocksinthiscourse as $blockinstance) {
-            $debug && error_log($fxn . '::Looking at block $b=' . ia_u::var_dump($blockinstance));
+            $debug && debugging($fxn . '::Looking at block $b=' . ia_u::var_dump($blockinstance));
 
             // Get the parent module.
             $parentcontext = $blockinstance->context->get_parent_context();
@@ -371,18 +358,26 @@ class block_integrityadvocate extends block_base
                         $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
                         if ($userisediting) {
                             // Output a link to module's block config.
-                            $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $module['id'] . '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                            $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $module['id'] .
+                                    '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' .
+                                    $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' .
+                                    $blocktitle . '"></i></a>';
                         } else {
                             // We need a form to turn course editing on; then go to block config.
-                            $this->content->text .= $formstart . '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $module['id'] . '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
-                            $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();e.preventDefault();return false;"><i class="' . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
+                            $this->content->text .= $formstart .
+                                    '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $module['id'] .
+                                    '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
+                            $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();'
+                                    . 'e.preventDefault();return false;"><i class="'
+                                    . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' .
+                                    $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
                             $this->content->text .= '</form>';
                         }
                     }
                     break;
                 default:
                     $msg = $fxn . '::Found unexpected contextlevel=' . $parentcontext->contextlevel;
-                    error_log($msg);
+                    debugging($msg);
                     throw new \Exception($msg);
             }
             $this->content->text .= ia_output::BRNL;
@@ -397,8 +392,7 @@ class block_integrityadvocate extends block_base
      *
      * @return \context_block The context for this block.
      */
-    public function get_context(): \context_block
-    {
+    public function get_context(): \context_block {
         return $this->context;
     }
 
@@ -407,12 +401,12 @@ class block_integrityadvocate extends block_base
      *
      * @return void.
      */
-    public function get_content()
-    {
+    public function get_content() {
         global $USER, $COURSE, $DB, $CFG;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
-        $debug && error_log($fxn . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id . '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
+        $debug && debugging($fxn . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id .
+                        '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
         if (\is_object($this->content) && isset($this->content->text) && !empty(\trim($this->content->text))) {
             return;
@@ -421,44 +415,44 @@ class block_integrityadvocate extends block_base
         $this->content = new \stdClass;
         $this->content->text = '';
         $this->content->footer = '';
-        $debug && error_log($fxn . '::Done setting up $this->content');
+        $debug && debugging($fxn . '::Done setting up $this->content');
 
         // Guests do not have any IA use. Don't show them the block.
         if (!\isloggedin() || \isguestuser()) {
-            $debug && error_log($fxn . '::Not logged in or is guest user, so skip it');
+            $debug && debugging($fxn . '::Not logged in or is guest user, so skip it');
             return;
         }
 
         // The block is hidden so don't show anything.
         if (!$this->is_visible()) {
-            $debug && error_log($fxn . '::This block is not visible, so skip it');
+            $debug && debugging($fxn . '::This block is not visible, so skip it');
             return;
         }
 
         $this->page->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
 
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
-        $hascapabilityOverview = \has_capability('block/integrityadvocate:overview', $this->context);
-        $debug && error_log($fxn . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapabilityOverview);
-        $debug && error_log($fxn . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
+        $hascapabilityoverview = \has_capability('block/integrityadvocate:overview', $this->context);
+        $debug && debugging($fxn . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapabilityoverview);
+        $debug && debugging($fxn . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
 
-        if ($hascapabilityOverview) {
+        if ($hascapabilityoverview) {
             $this->content->footer = $this->get_footer();
         }
 
         if ($setuperrors) {
-            if ($hascapabilityOverview) {
+            if ($hascapabilityoverview) {
                 foreach ($setuperrors as $err) {
                     $this->content->text .= get_string($err, \INTEGRITYADVOCATE_BLOCK_NAME) . ia_output::BRNL;
                 }
             }
-            $debug && error_log($fxn . '::Setup errors, so skip it');
+            $debug && debugging($fxn . '::Setup errors, so skip it');
             return;
         }
 
         if (!ia_mu::is_first_visible_block_of_type($this->page->blocks, $this)) {
-            $debug && error_log($fxn . '::Found another_blockinstance_exists=true so refuse to show the content for this one');
-            if ($hascapabilityOverview) {
+            $debug && debugging($fxn . '::Found another_blockinstance_exists=true so refuse to show the content for this one');
+            if ($hascapabilityoverview) {
                 $this->content->text = get_string('error_twoblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
             $this->visible = false;
@@ -469,24 +463,24 @@ class block_integrityadvocate extends block_base
         $exclusions = ia_mu::get_gradebook_exclusions($DB, $COURSE->id);
         $modules = ia_mu::get_modules_with_completion($COURSE->id);
         $modules = ia_mu::filter_for_visible($CFG, $modules, $USER->id, $COURSE->id, $exclusions);
-        $debug && error_log($fxn . '::Modules found=' . ia_u::count_if_countable($modules));
+        $debug && debugging($fxn . '::Modules found=' . ia_u::count_if_countable($modules));
         if (empty($modules)) {
-            if ($hascapabilityOverview) {
+            if ($hascapabilityoverview) {
                 $this->content->text .= get_string('no_modules_config_message', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
-            $debug && error_log($fxn . '::No modules, so skip it');
+            $debug && debugging($fxn . '::No modules, so skip it');
             return;
         }
 
-        $hascapability_view = \has_capability('block/integrityadvocate:view', $this->context);
-        $hascapability_selfview = \has_capability('block/integrityadvocate:selfview', $this->context);
+        $hascapabilityview = \has_capability('block/integrityadvocate:view', $this->context);
+        $hascapabilityselfview = \has_capability('block/integrityadvocate:selfview', $this->context);
 
         // Check if there is any errors.
         if ($configerrors = $this->get_config_errors()) {
-            $debug && error_log($fxn . '::Error: ' . ia_u::var_dump($configerrors, true));
+            $debug && debugging($fxn . '::Error: ' . ia_u::var_dump($configerrors, true));
 
             // Error output is visible only to instructors.
-            if ($hascapabilityOverview) {
+            if ($hascapabilityoverview) {
                 $this->content->text .= \implode(ia_output::BRNL, $configerrors);
             }
             return;
@@ -497,15 +491,16 @@ class block_integrityadvocate extends block_base
 
         switch ($parentcontext->contextlevel) {
             case CONTEXT_COURSE:
-                $debug && error_log($fxn . '::Context=CONTEXT_COURSE');
+                $debug && debugging($fxn . '::Context=CONTEXT_COURSE');
                 switch (true) {
-                    case $hascapabilityOverview:
-                        $debug && error_log($fxn . '::Teacher viewing a course student profile: Show latest student info');
+                    case $hascapabilityoverview:
+                        $debug && debugging($fxn . '::Teacher viewing a course student profile: Show latest student info');
                         $isparticipantspage = str_contains($this->page->url, '/user/view.php?');
                         if ($isparticipantspage && ia\FeatureControl::OVERVIEW_USER_LTI) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
-                            $debug && error_log($fxn . '::This is the course-user page, so in the block show the IA proctor summary for this course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
+                            $debug && debugging($fxn . '::This is the course-user page, so in the block show the IA proctor summary for this '
+                                            . 'course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
 
                             // Check the user is enrolled in this course, even if inactive.
                             if (!\is_enrolled($parentcontext, $targetuserid)) {
@@ -513,16 +508,18 @@ class block_integrityadvocate extends block_base
                             }
 
                             // Do not show the latest status.
-                            $participant = ia_api::get_participant($this->config->apikey, $this->config->appid, $this->get_course()->id, $targetuserid, $this->instance->id);
+                            $participant = ia_api::get_participant($this->config->apikey, $this->config->appid,
+                                            $this->get_course()->id, $targetuserid, $this->instance->id);
                             if (ia_u::is_empty($participant)) {
-                                $debug && error_log($fxn . '::Got empty participant, so return empty result');
+                                $debug && debugging($fxn . '::Got empty participant, so return empty result');
                                 $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
                             } else {
-                                $this->content->text .= ia_output::get_participant_summary_output($this, $participant, /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
+                                $this->content->text .= ia_output::get_participant_summary_output($this, $participant,
+                                                /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
                             }
                         }
 
-                        $debug && error_log($fxn . '::Teacher viewing a course: Show the overview button and the module list.');
+                        $debug && debugging($fxn . '::Teacher viewing a course: Show the overview button and the module list.');
                         if (ia\FeatureControl::OVERVIEW_COURSE_LTI) {
                             $this->content->text .= ia_output::get_button_overview_course($this);
                         }
@@ -531,13 +528,13 @@ class block_integrityadvocate extends block_base
                             $this->populate_course_modulelist();
                         }
                         break;
-                    case $hascapability_selfview:
+                    case $hascapabilityselfview:
                         // Check the user is enrolled in this course, but they must be active.
                         if (!\is_role_switched($this->get_course()->id) && !\is_enrolled($parentcontext, $USER, null, true)) {
                             throw new \Exception('That user is not in this course');
                         }
 
-                        $debug && error_log($fxn . '::Student viewing a course: show the overview button only');
+                        $debug && debugging($fxn . '::Student viewing a course: show the overview button only');
                         // Do not show the latest status.
                         $this->content->text .= ia_output::get_user_summary_output($this, $USER->id);
                         break;
@@ -545,14 +542,16 @@ class block_integrityadvocate extends block_base
 
                 break;
             case CONTEXT_MODULE:
-                $debug && error_log($fxn . '::Context=CONTEXT_MODULE');
+                $debug && debugging($fxn . '::Context=CONTEXT_MODULE');
                 switch (true) {
-                    case $hascapabilityOverview:
-                        $debug && error_log($fxn . '::Teacher viewing a module: Show the overview module button AND the overview course button');
+                    case $hascapabilityoverview:
+                        $debug && debugging($fxn . '::Teacher viewing a module: Show the overview module button AND '
+                                        . 'the overview course button');
                         ia\FeatureControl::OVERVIEW_MODULE_LTI && $this->content->text .= ia_output::get_button_overview_module($this);
                         ia\FeatureControl::OVERVIEW_COURSE_LTI && $this->content->text .= ia_output::get_button_overview_course($this);
                         break;
-                    case $hascapability_view && (\is_role_switched($this->get_course()->id) || \is_enrolled($parentcontext, $USER, null, true)):
+                    case $hascapabilityview && (\is_role_switched($this->get_course()->id) ||
+                    \is_enrolled($parentcontext, $USER, null, true)):
                         // This is someone in a student role.
                         switch (true) {
                             case (str_starts_with($this->page->pagetype, 'mod-scorm-')):
@@ -560,15 +559,18 @@ class block_integrityadvocate extends block_base
                                 if (!isset($scorm)) {
                                     throw new \moodle_exception('Failed to find the global $scorm variable');
                                 }
-                                $debug && error_log($fxn . '::Student viewing a module: Show the proctoring UI maybe');
-                                // If this is the entry page for a SCORM "new window" instance, we launch the IA proctoring on the SCORM entry page.
+                                $debug && debugging($fxn . '::Student viewing a module: Show the proctoring UI maybe');
+                                // If this is the entry page for a SCORM "new window" instance, we launch the
+                                // IA proctoring on the SCORM entry page.
                                 if ($scorm->popup) {
                                     if ($this->page->pagetype === 'mod-scorm-view') {
                                         $this->add_proctor_js($USER, false);
                                     } else {
-                                        // The SCORM popup window (mod-scorm-view) does not load any blocks or JS, so we ignore that possibility.
+                                        // The SCORM popup window (mod-scorm-view) does not load any blocks or JS, so
+                                        // we ignore that possibility.
                                         // Other pages should show the overview.
-                                        $this->content->text .= ia_output::get_user_summary_output($this, $USER->id, true, true, true);
+                                        $this->content->text .= ia_output::get_user_summary_output($this, $USER->id,
+                                                        true, true, true);
                                     }
                                 } else {
                                     // Else it is a SCORM "same window" instance.
@@ -584,33 +586,33 @@ class block_integrityadvocate extends block_base
                             case(str_starts_with($this->page->pagetype, 'mod-quiz-')):
                                 // If we are in a quiz, only show the JS proctoring UI if on the quiz attempt page.
                                 // Other pages should show the summary.
-                                if ($this->page->pagetype == 'mod-quiz-attempt' || ($this->page->pagetype == 'mod-quiz-view' && (isset($this->config->proctorquizinfopage) && $this->config->proctorquizinfopage))) {
-                                    $debug && error_log($fxn . '::Quiz:Student should see proctoring JS');
+                                if ($this->page->pagetype == 'mod-quiz-attempt' || ($this->page->pagetype == 'mod-quiz-view' &&
+                                        (isset($this->config->proctorquizinfopage) && $this->config->proctorquizinfopage))) {
+                                    $debug && debugging($fxn . '::Quiz:Student should see proctoring JS');
                                     $this->add_proctor_js($USER);
-                                } else if ($hascapability_selfview) {
-                                    $debug && error_log($fxn . '::Quiz:Student should see summary info');
+                                } else if ($hascapabilityselfview) {
+                                    $debug && debugging($fxn . '::Quiz:Student should see summary info');
                                     $this->content->text .= ia_output::get_user_summary_output($this, $USER->id, true, true, true);
                                 }
                                 break;
                             default:
-                                $debug && error_log($fxn . '::default:Student should see proctoring JS');
+                                $debug && debugging($fxn . '::default:Student should see proctoring JS');
                                 $this->add_proctor_js($USER);
                                 break;
                         }
                         break;
                     default:
-                        $debug && error_log($fxn . '::The user is not enrolled in this course, so show nothing');
+                        $debug && debugging($fxn . '::The user is not enrolled in this course, so show nothing');
                         break;
                 }
 
                 break;
             default:
-                $debug && error_log($fxn . '::In some unknown context, so show nothing');
+                $debug && debugging($fxn . '::In some unknown context, so show nothing');
                 break;
         }
 
-
-        $debug && error_log($fxn . '::Done');
+        $debug && debugging($fxn . '::Done');
     }
 
     /**
@@ -618,8 +620,7 @@ class block_integrityadvocate extends block_base
      *
      * @return string Footer HTML.
      */
-    private function get_footer()
-    {
+    private function get_footer() {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $this->instance->id, isset($this->config->appid) ? $this->config->appid : '']));
         if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
@@ -629,9 +630,11 @@ class block_integrityadvocate extends block_base
         global $CFG;
         $returnthis = '';
         $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
-        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' .
+                "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
         $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
-        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' . "{$lanstring} " . (isset($this->config->appid) ? $this->config->appid : '') . '</div>';
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' .
+                $lanstring . '">' . "{$lanstring} " . (isset($this->config->appid) ? $this->config->appid : '') . '</div>';
 
         if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
             throw new \Exception('Failed to set value in the cache');
@@ -645,8 +648,7 @@ class block_integrityadvocate extends block_base
      *
      * @return \stdClass The $COURSE object.
      */
-    public function get_course(): \stdClass
-    {
+    public function get_course(): \stdClass {
         global $COURSE;
         return $COURSE;
     }
@@ -656,8 +658,7 @@ class block_integrityadvocate extends block_base
      *
      * @return \stdClass The $USER object.
      */
-    public function get_user(): stdClass
-    {
+    public function get_user(): stdClass {
         global $USER;
         return $USER;
     }
@@ -667,8 +668,7 @@ class block_integrityadvocate extends block_base
      *
      * @return \block_integrityadvocate Block instance.
      */
-    public function get_instance(): \block_integrityadvocate
-    {
+    public function get_instance(): \block_integrityadvocate {
         return $this->instance;
     }
 
@@ -677,8 +677,7 @@ class block_integrityadvocate extends block_base
      *
      * @return int Block instance id.
      */
-    public function get_id(): int
-    {
+    public function get_id(): int {
         return $this->instance->id;
     }
 
@@ -687,8 +686,7 @@ class block_integrityadvocate extends block_base
      *
      * @return bool True if the block is configured to be visible.
      */
-    public function is_visible(): bool
-    {
+    public function is_visible(): bool {
         if (\property_exists($this, 'visible') && isset($this->visible) && \is_bool($this->visible)) {
             return $this->visible;
         }
