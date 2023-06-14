@@ -441,7 +441,7 @@ class block_integrityadvocate extends block_base {
             return;
         }
 
-        $this->page->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
+        $this->page->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/styles.css');
 
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
         $hascapabilityoverview = \has_capability('block/integrityadvocate:overview', $this->context);

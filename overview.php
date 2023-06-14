@@ -141,7 +141,7 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
 
 // Set up page parameters.
 $PAGE->set_course($course);
-$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/css/styles.css');
+$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/styles.css');
 // Used to build the page URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
