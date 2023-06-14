@@ -134,7 +134,6 @@ $PAGE->set_pagelayout('report');
 $PAGE->set_course($course);
 $PAGE->set_context($coursecontext);
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
-$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/styles.css');
 $PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
 
 // Used to build the page URL.
