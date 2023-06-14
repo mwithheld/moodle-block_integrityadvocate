@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -84,11 +83,10 @@ const INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX = \INTEGRITYADVOCATE_BLOCK_N
  * @param \context $blockcontext Block context to get IA Participants data for.
  * @return array<block_integrityadvocate\Participant> Array of Participant objects.
  */
-function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array
-{
+function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false;
-    $debug && error_log($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
+    $debug && debugging($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
 
     // We only have user data where the block_integrityadvocate is added to a module.
     // In these cases we have existing code to get the user data from the blockinstance.
@@ -107,7 +105,7 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
 
     // Get IA participant data from the remote API.
     $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $coursecontext->instanceid);
-    $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+    $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
 
     return $participants;
 }
@@ -159,27 +157,26 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  *        ), ...
  * )
  */
-function block_integrityadvocate_get_course_sessions(string $apikey, string $appid, int $courseid)
-{
+function block_integrityadvocate_get_course_sessions(string $apikey, string $appid, int $courseid) {
     $debug = false;
     $fxn = __FILE__ . '::' . __FUNCTION__;
     $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
-    $debug && error_log($debugvars);
+    $debug && debugging($debugvars);
 
     $modules = block_integrityadvocate_get_course_ia_modules($courseid, ['configured' => 1, 'appid' => $appid]);
-    $debug && error_log($fxn . '::Got $modules=' . ia_u::var_dump($modules));
+    $debug && debugging($fxn . '::Got $modules=' . ia_u::var_dump($modules));
 
     $participantsessions = [];
     foreach ($modules as $m) {
-        $debug && error_log($fxn . '::Looking at moduleid=' . $m['id']);
-        // Disabled on purpose: $debug && error_log($fxn . '::Looking at module=' . ia_u::var_dump($m));
+        $debug && debugging($fxn . '::Looking at moduleid=' . $m['id']);
+        // Disabled on purpose: $debug && debugging($fxn . '::Looking at module=' . ia_u::var_dump($m));
         // Get participant sessions for all users.
         $modulesessions = ia_api::get_participantsessions($apikey, $appid, $courseid, $m['id']);
-        $debug && error_log($fxn . '::Got $modulesessions=' . ia_u::var_dump($modulesessions));
+        $debug && debugging($fxn . '::Got $modulesessions=' . ia_u::var_dump($modulesessions));
         $participantsessions = \array_merge($participantsessions, $modulesessions);
     }
 
-    $debug && error_log($fxn . '::About to return $participantsessions=' . ia_u::var_dump($participantsessions));
+    $debug && debugging($fxn . '::About to return $participantsessions=' . ia_u::var_dump($participantsessions));
     return $participantsessions;
 }
 
@@ -191,20 +188,19 @@ function block_integrityadvocate_get_course_sessions(string $apikey, string $app
  * @param int $courseid The course id.
  * @return array Array of Participants, each with the sessions attribute sorted by start date ascending.
  */
-function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid)
-{
+function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid) {
     $debug = false;
     $fxn = __FILE__ . '::' . __FUNCTION__;
     $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
-    $debug && error_log($debugvars);
+    $debug && debugging($debugvars);
 
     $participantsessions = block_integrityadvocate_get_course_sessions($apikey, $appid, $courseid);
-    $debug && error_log($fxn . '::Got $participantsessions=' . ia_u::var_dump($participantsessions));
+    $debug && debugging($fxn . '::Got $participantsessions=' . ia_u::var_dump($participantsessions));
 
     // Invert the array so sessions are collected for each participant.
     $participants = [];
     foreach ($participantsessions as $s) {
-        $debug && error_log($fxn . '::Looking at $s=' . ia_u::var_dump($s));
+        $debug && debugging($fxn . '::Looking at $s=' . ia_u::var_dump($s));
         if (!isset($participants[$s->participant->participantidentifier]) || ia_u::is_empty($thisparticipant = $participants[$s->participant->participantidentifier])) {
             $thisparticipant = $s->participant;
             $participants[$s->participant->participantidentifier] = $thisparticipant;
@@ -212,21 +208,21 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
 
         if (isset($thisparticipant->sessions[$s->id])) {
             $msg = $fxn . "::Attempting to overwrite an existing session (id={$s->id}) -- this should not happen";
-            $debug && error_log($fxn . "::{$msg}; \$participantsessions=" . ia_u::var_dump($participantsessions));
+            $debug && debugging($fxn . "::{$msg}; \$participantsessions=" . ia_u::var_dump($participantsessions));
             throw new Exception($msg);
         }
 
         $thisparticipant->sessions[$s->id] = $s;
     }
-    $debug && error_log($fxn . '::Built $participants=' . ia_u::var_dump($participants));
+    $debug && debugging($fxn . '::Built $participants=' . ia_u::var_dump($participants));
 
     // Sort each participant's sessions.
     foreach ($participants as &$p) {
-        $debug && error_log($fxn . "::Find latest session: Looking at \$p->participantidentifier={$p->participantidentifier}");
+        $debug && debugging($fxn . "::Find latest session: Looking at \$p->participantidentifier={$p->participantidentifier}");
         \usort($p->sessions, ['\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc']);
     }
 
-    $debug && error_log($fxn . '::About to return $participants=' . ia_u::var_dump($participants));
+    $debug && debugging($fxn . '::About to return $participants=' . ia_u::var_dump($participants));
     return $participants;
 }
 
@@ -238,30 +234,29 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
  * @param array<string, mixed> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
  * @return string|array Array of modules that match; else string error identifier.
  */
-function block_integrityadvocate_get_course_ia_modules($course, $filter = [])
-{
+function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false;
 
     // Massage the course input if needed.
     $course = ia_mu::get_course_as_obj($course);
     if (!$course) {
-        $debug && error_log($fxn . '::No $course specified');
+        $debug && debugging($fxn . '::No $course specified');
         return 'no_course';
     }
-    $debug && error_log($fxn . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : ia_u::var_dump($filter, true)));
+    $debug && debugging($fxn . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : ia_u::var_dump($filter, true)));
 
     // Get modules in this course.
     $modules = ia_mu::get_modules_with_completion($course->id);
     if (empty($modules)) {
-        $debug && error_log($fxn . '::No course modules found');
+        $debug && debugging($fxn . '::No course modules found');
         return 'no_modules_message';
     }
-    $debug && error_log($fxn . '::Found ' . ia_u::count_if_countable($modules) . ' modules in this course');
+    $debug && debugging($fxn . '::Found ' . ia_u::count_if_countable($modules) . ' modules in this course');
 
     // Filter for modules that use an IA block.
     $modules = block_integrityadvocate_filter_modules_use_ia_block($modules, $filter);
-    $debug && error_log($fxn . '::Found ' . ia_u::count_if_countable($modules) . ' modules that use IA');
+    $debug && debugging($fxn . '::Found ' . ia_u::count_if_countable($modules) . ' modules that use IA');
 
     if (!$modules) {
         return 'no_modules_config_message';
@@ -324,15 +319,14 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = [])
  *                   [page] => ...
  *  )
  */
-function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array
-{
+function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false;
-    $debug && error_log($fxn . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
+    $debug && debugging($fxn . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
 
     // Since we update the modules in this loop, the $m is purposely by reference.
     foreach ($modules as $key => &$m) {
-        $debug && error_log($fxn . '::Looking at module=' . ia_u::var_dump($m));
+        $debug && debugging($fxn . '::Looking at module=' . ia_u::var_dump($m));
         $modulecontext = $m['context'];
         $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, isset($filter['visible']) && (bool) $filter['visible']);
 
@@ -343,15 +337,16 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         }
 
         $blockinstanceid = $blockinstance->instance->id;
-        $debug && error_log($fxn . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' . $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
+        $debug && debugging($fxn . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' .
+                        $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
 
         // Init the result to false.
         if (isset($filter['configured']) && $filter['configured'] && $blockinstance->get_config_errors()) {
-            $debug && error_log($fxn . '::This blockinstance is not fully configured');
+            $debug && debugging($fxn . '::This blockinstance is not fully configured');
             unset($modules[$key]);
             continue;
         }
-        $debug && error_log($fxn . '::The blockinstance is configured');
+        $debug && debugging($fxn . '::The blockinstance is configured');
 
         $requireapikey = false;
         if (isset($filter['apikey']) && $filter['apikey']) {
@@ -364,19 +359,19 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         }
         if ($requireapikey || $requireappid) {
             // Filter for modules with matching apikey and appid.
-            $debug && error_log($fxn . '::Looking to filter for apikey and appid');
+            $debug && debugging($fxn . '::Looking to filter for apikey and appid');
 
             if ($requireapikey && ($blockinstance->config->apikey !== $requireapikey)) {
-                $debug && error_log($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $requireapikey);
+                $debug && debugging($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested apikey=' . $requireapikey);
                 unset($modules[$key]);
                 continue;
             }
             if ($requireappid && ($blockinstance->config->appid !== $requireappid)) {
-                $debug && error_log($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $requireappid);
+                $debug && debugging($fxn . '::Found $blockinstance->config->apikey=' . $blockinstance->config->apikey . ' does not match requested appid=' . $requireappid);
                 unset($modules[$key]);
                 continue;
             }
-            $debug && error_log($fxn . '::After filtering for apikey/appid, count($modules)=' . ia_u::count_if_countable($modules));
+            $debug && debugging($fxn . '::After filtering for apikey/appid, count($modules)=' . ia_u::count_if_countable($modules));
         }
 
         // Add the blockinstance data to the $amodules array to be returned.
@@ -390,27 +385,26 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
 /**
  * Check the course contains a block with the matching APIKey and AppId.
  */
-function block_integrityadvocate_get_first_course_ia_block(int $courseid, string $apikey, string $appid): ?block_integrityadvocate
-{
+function block_integrityadvocate_get_first_course_ia_block(int $courseid, string $apikey, string $appid): ?block_integrityadvocate {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false;
-    $debug && error_log($fxn . "::Started with \$courseid={$courseid}; \$apikey={$apikey}; \$appid={$appid}");
+    $debug && debugging($fxn . "::Started with \$courseid={$courseid}; \$apikey={$apikey}; \$appid={$appid}");
 
     $blocks = ia_mu::get_all_course_blocks($courseid, INTEGRITYADVOCATE_SHORTNAME);
-    $debug && error_log($fxn . '::Got count(blocks)=' . ia_u::count_if_countable($blocks));
+    $debug && debugging($fxn . '::Got count(blocks)=' . ia_u::count_if_countable($blocks));
 
     foreach ($blocks as $key => &$b) {
-        $debug && error_log($fxn . "::Looking at block_instance.id={$key}");
+        $debug && debugging($fxn . "::Looking at block_instance.id={$key}");
 
         // Look for a block in the course specified by courseid with matching APIKey and AppId.
         if (
-            $b->config->apikey == $apikey && $b->config->appid == $appid
+                $b->config->apikey == $apikey && $b->config->appid == $appid
         ) {
-            $debug && error_log($fxn . "::Found a courseid={$courseid} block_instance.id={$key} with matching apikey and appid");
+            $debug && debugging($fxn . "::Found a courseid={$courseid} block_instance.id={$key} with matching apikey and appid");
             return $b;
         }
     }
 
-    $debug && error_log($fxn . "::No courseid={$courseid} block_instance.id={$key} matches apikey and appid");
+    $debug && debugging($fxn . "::No courseid={$courseid} block_instance.id={$key} matches apikey and appid");
     return null;
 }

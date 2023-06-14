@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -36,20 +35,19 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  * @copyright IntegrityAdvocate.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_integrityadvocate_edit_form extends block_edit_form
-{
+class block_integrityadvocate_edit_form extends block_edit_form {
 
     /**
      * Overridden to create any form fields specific to this type of block.
      * We can't add a type check here without causing a warning b/c the parent class does not have the type check.
      *
      * Note: Do not add a type declaration MoodleQuickForm $mform b/c it causes a...
-     *       "Warning: Declaration of block_integrityadvocate_edit_form::specific_definition(MoodleQuickForm $mform) should be compatible with block_edit_form::specific_definition($mform)"
+     *       "Warning: Declaration of block_integrityadvocate_edit_form::specific_definition(MoodleQuickForm $mform)
+     *       should be compatible with block_edit_form::specific_definition($mform)"
      *
      * @param \stdClass|MoodleQuickForm $mform the form being built.
      */
-    protected function specific_definition($mform)
-    {
+    protected function specific_definition($mform) {
         if (!($mform instanceof MoodleQuickForm)) {
             throw new InvalidArgumentException('$mform must be an instance of MoodleQuickForm and it appears to be a ' . \gettype($mform));
         }
@@ -65,9 +63,9 @@ class block_integrityadvocate_edit_form extends block_edit_form
      *
      * @param MoodleQuickForm $mform the form being built.
      */
-    protected function specific_definition_ia(MoodleQuickForm $mform)
-    {
-        $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME), get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME), ['hidden' => true]);
+    protected function specific_definition_ia(MoodleQuickForm $mform) {
+        $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME),
+                get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME), ['hidden' => true]);
 
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 39]);
         $mform->setType('config_appid', PARAM_ALPHANUMEXT);
@@ -96,8 +94,7 @@ class block_integrityadvocate_edit_form extends block_edit_form
      * values. This method is called after definition(), data submission and set_data().
      * All form setup that is dependent on form values should go in here.
      */
-    public function definition_after_data()
-    {
+    public function definition_after_data() {
         parent::definition_after_data();
         $mform = & $this->_form;
 
@@ -125,15 +122,14 @@ class block_integrityadvocate_edit_form extends block_edit_form
      * @return object[] of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
-    public function validation($data, $unused): array
-    {
+    public function validation($data, $unused): array {
         if (!\is_array($data)) {
             throw new InvalidArgumentException('$data must be an array and it appears to be a ' . \gettype($data));
         }
 
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
+        $debug && debugging($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
 
         $errors = [];
 

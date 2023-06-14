@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die;
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
 $debug = false;
-$debug && error_log(__FILE__ . '::Started with $moduleid=' . $moduleid);
+$debug && debugging(__FILE__ . '::Started with $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER;
 $userid = $USER->id;
@@ -52,7 +52,7 @@ switch (true) {
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
-        $debug && error_log(__FILE__ . '::Checked required capability: overview');
+        $debug && debugging(__FILE__ . '::Checked required capability: overview');
         break;
     case ((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
         throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
@@ -70,7 +70,7 @@ switch (true) {
         // Note this capability check is on the parent, not the block instance.
         break;
     default:
-        $debug && error_log(__FILE__ . '::All requirements are met');
+        $debug && debugging(__FILE__ . '::All requirements are met');
 }
 
 // Check privs and set page layout to 'module'.
@@ -80,7 +80,7 @@ require_login($course, false, $cm);
 $PAGE->set_context(context_module::instance($cm->id));
 echo $OUTPUT->context_header();
 
-/**
+/*
  * Code here is adapted from https://gist.github.com/matthanger/1171921 .
  */
 $launchurl = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participants';
@@ -132,7 +132,7 @@ foreach ($modules as $key => $thismodule) {
 }
 if (ia_u::is_empty($module)) {
     $msg = 'This module is not an IA module';
-    $debug && error_log(__FILE__ . "::{$msg}");
+    $debug && debugging(__FILE__ . "::{$msg}");
     throw new \InvalidArgumentException($msg);
 }
 $activities = [(object) ['Id' => $module['id'], 'Name' => $module['modulename'] . ': ' . $module['name']]];

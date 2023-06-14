@@ -38,13 +38,13 @@ switch (true) {
     case (!FeatureControl::OVERVIEW_USER_LTI):
         throw new \Exception('This feature is disabled');
     default:
-        $debug && error_log(__FILE__ . '::All requirements are met');
+        $debug && debugging(__FILE__ . '::All requirements are met');
 }
 // This is only optional_param() in overview.php.
 $userid = \required_param('userid', \PARAM_INT);
 
 $debug = false;
-$debug && error_log(__FILE__ . '::Started with $userid=' . $userid);
+$debug && debugging(__FILE__ . '::Started with $userid=' . $userid);
 
 $parentcontext = $blockcontext->get_parent_context();
 
@@ -75,7 +75,7 @@ if (!\is_array($coursemodules)) {
 $user = ia_mu::get_user_as_obj($userid);
 if (ia_u::is_empty($user)) {
     $msg = "Failed to find a Moodle user with id={$userid}";
-    error_log(__FILE__ . '::' . $msg);
+    debugging(__FILE__ . '::' . $msg);
     throw new \Exception($msg);
 }
 
@@ -85,7 +85,7 @@ if ($continue) {
     echo $OUTPUT->user_picture($user, ['size' => 35, 'courseid' => $courseid, 'includefullname' => true]);
     echo \html_writer::end_tag('div');
 
-    /**
+    /*
      * Code here is adapted from https://gist.github.com/matthanger/1171921 .
      */
     $launchurl = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participant';
@@ -96,7 +96,7 @@ if ($continue) {
         // 2020Dec: launch_presentation_locale appears to be unused, LTIConsumer example was en-US.
         'launch_presentation_locale' => \current_language(),
         // 2020Dec: roles appears to be unused. 0 = admin; 3=learner.
-        'roles' => ($hascapabilityOverview ? 0 : 3),
+        'roles' => ($hascapabilityoverview ? 0 : 3),
         // This should always be 1.
         'resource_link_id' => '1',
         // Who is requesting this info?.
