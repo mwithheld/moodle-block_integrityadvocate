@@ -92,7 +92,7 @@ class block_integrityadvocate_observer
                     '\\mod_wiki\\event\\',
             ]):
             // None of the event names starting with these strings correspond to finishing a module.
-            case \preg_match('/\\mod_forum\\event\\.*created$/i', $event->eventname):
+            case \preg_match('/mod_forum\\\\event\\\\.*created$/i', $event->eventname):
             // None of the \mod_forum\*created events correspond to finishing an module...
             // They probably just posted to the forum or added a discussion but that's not finishing with forums.
             case \in_array($event->eventname,
