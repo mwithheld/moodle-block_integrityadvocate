@@ -65,15 +65,16 @@ const INTEGRITYADVOCATE_BASEURL_LTI = 'https://www.integrityadvocateserver.com';
 /** @var string Path relative to baseurl of the LTI endpoint with a leading slash but no trailing slash. */
 const INTEGRITYADVOCATE_LTI_PATH = '/integration/lti';
 
-/** @var string Email address for privacy api data cleanup requests */
+/** @var string Email address for privacy api data cleanup requests. */
 const INTEGRITYADVOCATE_PRIVACY_EMAIL = 'admin@integrityadvocate.com';
 
 /** @var string Regex to check a string is a Data URI ref ref https://css-tricks.com/data-uris/. */
 const INTEGRITYADVOCATE_REGEX_DATAURI = '#data:image.?\/[a-zA-z-]*;base64,\s*[^"\s$]*#';
 
-/** @var string String part to denote a session started key */
+/** @var string String Part to denote a session started key. */
 const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
 
+/** @var string String Part of the name for consistent reuse. */
 const INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX = \INTEGRITYADVOCATE_BLOCK_NAME . '\\';
 
 /**
@@ -232,7 +233,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
  *
  * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up.
  * @param array<string, mixed> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
- * @return string|array Array of modules that match; else string error identifier.
+ * @return string|array<mixed> Array of modules that match; else string error identifier.
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
@@ -255,14 +256,14 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
     $debug && debugging($fxn . '::Found ' . ia_u::count_if_countable($modules) . ' modules in this course');
 
     // Filter for modules that use an IA block.
-    $modules = block_integrityadvocate_filter_modules_use_ia_block($modules, $filter);
+    $modulesusingia = block_integrityadvocate_filter_modules_use_ia_block($modules, $filter);
     $debug && debugging($fxn . '::Found ' . ia_u::count_if_countable($modules) . ' modules that use IA');
 
-    if (!$modules) {
+    if (!$modulesusingia) {
         return 'no_modules_config_message';
     }
 
-    return $modules;
+    return $modulesusingia;
 }
 
 /**
@@ -384,6 +385,11 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
 
 /**
  * Check the course contains a block with the matching APIKey and AppId.
+ *
+ * @param int $courseid The course id.
+ * @param string $apikey The API key.
+ * @param string $appid The App Id.
+ * @return block_integrityadvocate|null The first IA block in the course.
  */
 function block_integrityadvocate_get_first_course_ia_block(int $courseid, string $apikey, string $appid): ?block_integrityadvocate {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
