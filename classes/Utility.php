@@ -101,21 +101,6 @@ class Utility {
     }
 
     /**
-     * Sort the object by the start property in descending order.
-     * Type hints commented out for PHP7.1 compat.
-     *
-     * @param object $a The first object to sort.
-     * @param object $b The second object to sort.
-     * @return int 0 if the same; -1 if $a->start exceeds $b->start; else 1.
-     */
-    public static function sort_by_start_desc(/* object */ $a, /* object */ $b): int {
-        if ($a->start == $b->start) {
-            return 0;
-        }
-        return ($a->start > $b->start) ? -1 : 1;
-    }
-
-    /**
      * Just wraps print_r(), but defaults to returning as a string.  If $expression is an object that has implemented __toString() then this is used.
      *
      * @param mixed $expression <p>The expression to be printed.</p>
