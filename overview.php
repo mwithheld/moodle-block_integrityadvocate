@@ -130,22 +130,24 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
 }
 
 // Set up page parameters.
+$PAGE->set_pagelayout('report');
 $PAGE->set_course($course);
-$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/styles.css');
+$PAGE->set_context($coursecontext);
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
+$PAGE->requires->css('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/styles.css');
+$PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
+
 // Used to build the page URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
-$PAGE->set_context($coursecontext);
 
 $page = \get_string(\str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
 $title = format_string($course->fullname) . ': ' . $page;
+$courseurl = new \moodle_url('/course/view.php', array('id' => $courseid));
 
-$PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
-$PAGE->set_pagelayout('report');
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->navbar->add(format_string($course->fullname), "$CFG->wwwroot/course/view.php?id=$courseid");
+$PAGE->navbar->add(format_string($course->fullname), $courseurl);
 $PAGE->navbar->add($page);
 
 // Start page output.
@@ -197,4 +199,9 @@ switch (true) {
 }
 
 echo $OUTPUT->container_end();
+// On the module overview page, show the "Back to course" button.
+if ($courseid && $moduleid) {
+    echo ia_output::get_button_overview_course($blockinstance);
+}
+echo $OUTPUT->single_button($courseurl, get_string('btn_backto_course', INTEGRITYADVOCATE_BLOCK_NAME));
 echo $OUTPUT->footer();
