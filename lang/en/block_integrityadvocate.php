@@ -92,6 +92,7 @@ $string['no_user'] = 'No matching user found';
 $string['not_all_expected_set'] = 'Not all activities with completion have an "{$a}" date set.';
 $string['now_indicator'] = 'NOW';
 
+$string['btn_backto_course'] = 'Back to course';
 $string['btn_overview_course'] = 'Course overview';
 $string['btn_overview_module'] = 'Module overview';
 $string['btn_overview_user'] = 'User overview';
