@@ -196,7 +196,7 @@ class block_integrityadvocate extends block_base {
 
     /**
      * Check if the input API key is valid.
-     * 
+     *
      * @param string $apikey The API key to check.
      * @return bool True if valid.
      */
@@ -219,7 +219,7 @@ class block_integrityadvocate extends block_base {
 
     /**
      * Check if the AppId is valid.
-     * 
+     *
      * @param string $appid The AppId to check.
      * @return bool True if valid.
      */
@@ -467,7 +467,7 @@ class block_integrityadvocate extends block_base {
             if ($hascapabilityoverview) {
                 $this->content->text = get_string('error_twoblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
-            $this->visible = false;
+            $this->instance->visible = false;
             return;
         }
 
@@ -699,11 +699,11 @@ class block_integrityadvocate extends block_base {
      * @return bool True if the block is configured to be visible.
      */
     public function is_visible(): bool {
-        if (\property_exists($this, 'visible') && isset($this->visible) && \is_bool($this->visible)) {
-            return $this->visible;
-        }
         if (\property_exists($this->instance, 'visible') && isset($this->instance->visible) && \is_bool($this->instance->visible)) {
             return $this->instance->visible;
+        }
+        if (\property_exists($this, 'visible') && isset($this->visible) && \is_bool($this->visible)) {
+            return $this->visible;
         }
 
         $parentcontext = $this->context->get_parent_context();
