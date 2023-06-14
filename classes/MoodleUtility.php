@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,8 +31,7 @@ defined('MOODLE_INTERNAL') || die;
 /**
  * Utility functions not specific to this module that interact with Moodle core.
  */
-class MoodleUtility
-{
+class MoodleUtility {
 
     /**
      * Return true if there are other block instances of the same name (e.g. "navigation" or "block_navigation") on the $page (where "other" means having a different instance id).
@@ -44,8 +42,7 @@ class MoodleUtility
      * @param \block_base $block The block instance to look for other instances of the same name/type.
      * @return bool True if there are other block instances of the same name (e.g. "navigation" or "block_navigation") on the $page.
      */
-    public static function another_blockinstance_exists(\block_manager $blockmanager, \block_base $block): bool
-    {
+    public static function another_blockinstance_exists(\block_manager $blockmanager, \block_base $block): bool {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
@@ -81,8 +78,7 @@ class MoodleUtility
      * @param \block_base $block The block instance to look for other instances of the same name/type.
      * @return bool True if the block passed in is the first (by display order) visible block of that type on the $page.
      */
-    public static function is_first_visible_block_of_type(\block_manager $blockmanager, \block_base $block): bool
-    {
+    public static function is_first_visible_block_of_type(\block_manager $blockmanager, \block_base $block): bool {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . '::Started with $block->name=' . $block->instance->blockname . '; $block->id=' . $block->instance->id);
@@ -125,8 +121,7 @@ class MoodleUtility
      * @param string $blockname The name of a block (e.g. "navigation" or "block_navigation").
      * @return int Count of matching blocks on the page.
      */
-    public static function count_blocks(\block_manager $blockmanager, string $blockname): int
-    {
+    public static function count_blocks(\block_manager $blockmanager, string $blockname): int {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . '::Started with $blockname=' . $blockname);
@@ -163,8 +158,7 @@ class MoodleUtility
      * @param bool $visibleonly Set to true to return only visible instances.
      * @return array<\block_base> Array of block_integrityadvocate instances with key=block instance id.
      */
-    public static function get_all_blocks(string $blockname, bool $visibleonly = true): array
-    {
+    public static function get_all_blocks(string $blockname, bool $visibleonly = true): array {
         global $DB;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
@@ -213,8 +207,7 @@ class MoodleUtility
      * @param bool $visibleonly True to return only blocks visible to the student.
      * @return array where key=block_instances.id; val=block_instance object.
      */
-    private static function get_blocks_in_context(int $contextid, string $blockname, bool $visibleonly = false): array
-    {
+    private static function get_blocks_in_context(int $contextid, string $blockname, bool $visibleonly = false): array {
         global $DB;
 
         $blockinstances = [];
@@ -239,8 +232,7 @@ class MoodleUtility
      * @param bool $visibleonly True to return only blocks visible to the student.
      * @return array where key=block_instances.id; val=block_instance object.
      */
-    public static function get_all_course_blocks(int $courseid, string $blockname, bool $visibleonly = false): array
-    {
+    public static function get_all_course_blocks(int $courseid, string $blockname, bool $visibleonly = false): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . "::Started with courseid={$courseid}; \$blockname={$blockname}; \$visibleonly={$visibleonly}");
@@ -273,8 +265,7 @@ class MoodleUtility
      *
      * @return bool True if Moodle is in testing mode, e.g. Behat.
      */
-    public static function is_testingmode(): bool
-    {
+    public static function is_testingmode(): bool {
         return \defined('BEHAT_SITE_RUNNING');
     }
 
@@ -285,8 +276,7 @@ class MoodleUtility
      * @param object[] $b array of event information
      * @return int Is less than 0, 0 or greater than 0 depending on order of modules on course page
      */
-    protected static function modules_compare_events($a, $b): int
-    {
+    protected static function modules_compare_events($a, $b): int {
         if ($a['section'] != $b['section']) {
             return (int) ($a['section'] - $b['section']);
         } else {
@@ -301,8 +291,7 @@ class MoodleUtility
      * @param object[] $b array of event information
      * @return int Is less than 0, 0 or greater than 0 depending on time then order of modules.
      */
-    protected static function modules_compare_times($a, $b): int
-    {
+    protected static function modules_compare_times($a, $b): int {
         if ($a['expected'] != 0 && $b['expected'] != 0 && $a['expected'] != $b['expected']) {
             return (int) ($a['expected'] - $b['expected']);
         } else if ($a['expected'] != 0 && $b['expected'] == 0) {
@@ -320,8 +309,7 @@ class MoodleUtility
      * @param \context $context The course context.
      * @return array<roleid, rolename>.
      */
-    public static function get_roles_for_select(\context $context): array
-    {
+    public static function get_roles_for_select(\context $context): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . "::Started with \$context->id={$context->id}");
@@ -359,8 +347,7 @@ class MoodleUtility
      * @param int $courseid The id of the course.
      * @return array Modules with completion settings in the course in the format [module[name-value]].
      */
-    public static function get_modules_with_completion(int $courseid): array
-    {
+    public static function get_modules_with_completion(int $courseid): array {
         $modinfo = \get_fast_modinfo($courseid, -1);
         // Used for sorting.
         $sections = $modinfo->get_sections();
@@ -402,8 +389,7 @@ class MoodleUtility
      * @param array $exclusions Array of integers. Assignment exemptions for students in the course.
      * @return array Array of objects representing the input modules without the restricted modules.
      */
-    public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, array $exclusions): array
-    {
+    public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, array $exclusions): array {
         $filteredmodules = [];
         $modinfo = \get_fast_modinfo($courseid, $userid);
         $coursecontext = \CONTEXT_COURSE::instance($courseid);
@@ -457,8 +443,7 @@ class MoodleUtility
      * @param int $blockinstanceid The block instance id
      * @return bool true if the block is visible in the given context
      */
-    public static function is_block_visibile(int $parentcontextid, int $blockinstanceid): bool
-    {
+    public static function is_block_visibile(int $parentcontextid, int $blockinstanceid): bool {
         global $DB;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
@@ -480,8 +465,7 @@ class MoodleUtility
      * @param int|object $course Optional courseid or course object to check. If not specified, only site-level completion is checked.
      * @return array<string> of error identifier strings
      */
-    public static function get_completion_setup_errors($course = null): array
-    {
+    public static function get_completion_setup_errors($course = null): array {
         global $CFG;
         $errors = [];
 
@@ -507,8 +491,7 @@ class MoodleUtility
      * @param int $cmid The CMID to look up.
      * @return int The courseid if found, else -1.
      */
-    public static function get_courseid_from_cmid(int $cmid): int
-    {
+    public static function get_courseid_from_cmid(int $cmid): int {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . "::Started with \$cmid={$cmid}");
@@ -550,8 +533,7 @@ class MoodleUtility
      * @param int $id The course id.
      * @return bool False if no course found; else true.
      */
-    public static function couse_exists(int $id): bool
-    {
+    public static function couse_exists(int $id): bool {
         global $DB;
         $exists = false;
         try {
@@ -569,8 +551,7 @@ class MoodleUtility
      * @param int|\stdClass $course The course object or courseid to check
      * @return null|\stdClass False if no course found; else Moodle course object.
      */
-    public static function get_course_as_obj($course): ?\stdClass
-    {
+    public static function get_course_as_obj($course): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . '::Started with type(\$course)=' . \gettype($course));
@@ -607,8 +588,7 @@ class MoodleUtility
      * @param int $courseid The ID of the course containing grade items.
      * @return array of exclusions as module-user pairs.
      */
-    public static function get_gradebook_exclusions(\moodle_database $db, int $courseid): array
-    {
+    public static function get_gradebook_exclusions(\moodle_database $db, int $courseid): array {
         $query = 'SELECT g.id, ' . $db->sql_concat('i.itemmodule', "'-'", 'i.iteminstance', "'-'", 'g.userid') . ' as exclusion
                    FROM {grade_grades} g, {grade_items} i
                   WHERE i.courseid = :courseid
@@ -629,8 +609,7 @@ class MoodleUtility
      * @param \context $coursecontext Course context in which to get the default role.
      * @return int the role id that is for student archetype in this course.
      */
-    public static function get_default_course_role(\context $coursecontext): int
-    {
+    public static function get_default_course_role(\context $coursecontext): int {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . "::Started with \$coursecontext={$coursecontext->instanceid}");
@@ -669,8 +648,7 @@ class MoodleUtility
      * @param bool $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
      * @return \block_integrityadvocate Null if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
-    public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false): ?\block_integrityadvocate
-    {
+    public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false): ?\block_integrityadvocate {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; \$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
@@ -722,8 +700,7 @@ class MoodleUtility
      * @param int|\stdClass $user The user object or id to convert
      * @return null|\stdClass False if no user found; else moodle user object.
      */
-    public static function get_user_as_obj($user): ?\stdClass
-    {
+    public static function get_user_as_obj($user): ?\stdClass {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . '::Started with type($user)=' . \gettype($user));
@@ -767,8 +744,7 @@ class MoodleUtility
      * @param array $params Optional e.g ['courseid' => $courseid].
      * @return string User picture URL - it will not include fullname, size, img tag, or anything else.
      */
-    public static function get_user_picture(\stdClass $user, array $params = []): string
-    {
+    public static function get_user_picture(\stdClass $user, array $params = []): string {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && error_log($fxn . "::Started with \$user->id={$user->id}; \$params=" . \serialize($params));
@@ -813,8 +789,7 @@ class MoodleUtility
      * @param int $courseid The course id to look in.
      * @return int User last access unix time.
      */
-    public static function get_user_last_access(int $userid, int $courseid): int
-    {
+    public static function get_user_last_access(int $userid, int $courseid): int {
         global $DB;
         return $DB->get_field('user_lastaccess', 'timeaccess', ['courseid' => $courseid, 'userid' => $userid]);
     }
@@ -825,8 +800,7 @@ class MoodleUtility
      * @param int $courseid The courseid to look in.
      * @return int User last access unix time.
      */
-    public static function get_course_lastaccess(int $courseid): int
-    {
+    public static function get_course_lastaccess(int $courseid): int {
         $courseidcleaned = \filter_var($courseid, \FILTER_VALIDATE_INT);
         if (!\is_numeric($courseidcleaned)) {
             throw new \InvalidArgumentException('Input $courseid must be an integer');
@@ -834,7 +808,7 @@ class MoodleUtility
 
         global $DB;
         $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
-            [$courseidcleaned], \IGNORE_MISSING);
+                [$courseidcleaned], \IGNORE_MISSING);
 
         // Convert false to int 0.
         return (int) $lastaccess;
@@ -847,8 +821,7 @@ class MoodleUtility
      * @param string $str the string to test.
      * @return bool true if the input $str is base64-encoded.
      */
-    public static function is_base64(string $str): bool
-    {
+    public static function is_base64(string $str): bool {
         return !empty(\clean_param($str, \PARAM_BASE64));
     }
 
@@ -858,8 +831,7 @@ class MoodleUtility
      * @param string $key The string to use for the key.
      * @return string The cache key.
      */
-    public static function get_cache_key(string $key): string
-    {
+    public static function get_cache_key(string $key): string {
         return \sha1(\get_config('block_integrityadvocate', 'version') . $key);
     }
 
@@ -869,8 +841,7 @@ class MoodleUtility
      * @param string $key Key for the nonce that is stored in $SESSION.
      * @return int Unix timestamp The value of the nonce.
      */
-    public static function nonce_set(string $key): int
-    {
+    public static function nonce_set(string $key): int {
         global $SESSION;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
@@ -890,8 +861,7 @@ class MoodleUtility
      * @param bool $returntrueifexists True means: Return true if the nonce key exists, ignoring the timeout..
      * @return bool $returntrueifexists=false: True if the nonce key exists, is not empty (unixtime=0), and is not timed out.  $returntrueifexists=true: Returns true if the nonce key exists and is not empty (unixtime=0).
      */
-    public static function nonce_validate(string $key, bool $returntrueifexists = false): bool
-    {
+    public static function nonce_validate(string $key, bool $returntrueifexists = false): bool {
         global $SESSION;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
@@ -928,8 +898,7 @@ class MoodleUtility
      *
      * @return bool True if SSL, otherwise false.
      */
-    public static function is_ssl()
-    {
+    public static function is_ssl() {
         global $CFG;
         if (strpos($CFG->wwwroot, 'https://') === 0) {
             return true;
@@ -955,13 +924,12 @@ class MoodleUtility
      * @ref https://cssjockey.com/how-to-get-current-url-in-php-with-or-without-query-string
      * @return string The current URL, optionally withut the querystring.
      */
-    public function get_current_url(bool $trimQuerystring = false): string
-    {
-        $pageURL = \filter_var((self::is_ssl() ? 'https' : 'http') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}", FILTER_SANITIZE_URL);
+    public function get_current_url(bool $trimQuerystring = false): string {
+        $pageurl = \filter_var((self::is_ssl() ? 'https' : 'http') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}", FILTER_SANITIZE_URL);
         if (!$trimQuerystring) {
-            return $pageURL;
+            return $pageurl;
         } else {
-            $url = explode('?', $pageURL);
+            $url = explode('?', $pageurl);
             return $url[0];
         }
     }
