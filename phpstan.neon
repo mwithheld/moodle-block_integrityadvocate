@@ -46,7 +46,7 @@ parameters:
         - overview-module.php
         - overview-user.php
     -
-      message: '#Variable \$(blockcontext|blockinstance|blockinstanceid|cm|course|coursecontext|courseid|debug|hascapability_overview|moduleid|modules) might not be defined\.#'
+      message: '#Variable \$(blockcontext|blockinstance|blockinstanceid|cm|course|coursecontext|courseid|debug|hascapabilityOverview|moduleid|modules) might not be defined\.#'
       paths:
         - overview.php
         - overview-course.php
