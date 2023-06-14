@@ -84,7 +84,6 @@ switch (true) {
     case ($userid):
         $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
         $requestedpage = 'overview-user';
-        $params += [
             'userid' => $userid,
         ];
         break;
