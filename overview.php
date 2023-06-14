@@ -83,7 +83,6 @@ $debug && debugging("Got courseid={$course->id}");
 switch (true) {
     case ($userid):
         $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
-        $requestedpage = 'overview-user';
             'userid' => $userid,
         ];
         break;
