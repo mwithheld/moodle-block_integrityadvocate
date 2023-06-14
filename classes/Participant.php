@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Minimal Participant object used when caching participants.

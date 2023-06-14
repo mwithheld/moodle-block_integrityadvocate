@@ -32,14 +32,13 @@ use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Functions to interact with the IntegrityAdvocate API.
  */
-class Api
-{
-    // API ref https://integrityadvocate.com/Developers#aEndpointMethods
+class Api {
+    // API ref https://integrityadvocate.com/Developers#aEndpointMethods .
 
     /** @var string URI to ping IA and see if there is a good response */
     private const ENDPOINT_PING = '/ping';
@@ -79,15 +78,15 @@ class Api
      *
      * @return array<int remote_ip, int http_response_code, string response_body, int total_time>. Numeric values are cleaned but the response body is unchanged.
      */
-    public static function ping(): array
-    {
+    public static function ping(): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . '::Started';
         $debug && error_log($debugvars);
 
         $curl = new \curl();
-        $curl->setopt(['CURLOPT_CERTINFO' => 1,
+        $curl->setopt([
+            'CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0
@@ -114,8 +113,7 @@ class Api
      * @param int $userid The user id
      * @return bool true if the remote API close says it succeeded; else false
      */
-    public static function close_remote_session(string $appid, int $courseid, int $moduleid, int $userid): bool
-    {
+    public static function close_remote_session(string $appid, int $courseid, int $moduleid, int $userid): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
@@ -140,7 +138,8 @@ class Api
 
         // Do not cache these requests.
         $curl = new \curl();
-        $curl->setopt(['CURLOPT_CERTINFO' => 1,
+        $curl->setopt([
+            'CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0
@@ -176,8 +175,7 @@ class Api
      * @param array $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
-    private static function get(string $endpoint, string $apikey, string $appid, array $params = [])
-    {
+    private static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
@@ -231,7 +229,8 @@ class Api
 
         // Set cache to false, otherwise caches for the duration of $CFG->curlcache.
         $curl = new \curl(['cache' => false]);
-        $curl->setopt(['CURLOPT_CERTINFO' => 1,
+        $curl->setopt([
+            'CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_RETURNTRANSFER' => 1,
@@ -255,10 +254,10 @@ class Api
         $responsecode = (int) ($responseinfo['http_code']);
 
         $debug && error_log($fxn .
-                '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
-                '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
-                '; $response=' . ia_u::var_dump($response, true) .
-                '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
+            '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
+            '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
+            '; $response=' . ia_u::var_dump($response, true) .
+            '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
 
         $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
@@ -288,16 +287,17 @@ class Api
      * @param \stdClass $user The user.
      * @return \moodle_url The IA proctoring JS url.
      */
-    public static function get_js_url(string $appid, int $courseid, int $cmid, \stdClass $user): \moodle_url
-    {
-        return new \moodle_url(INTEGRITYADVOCATE_BASEURL_API . '/participants/integrity',
-            ['appid' => $appid,
-            'courseid' => $courseid,
-            'activityid' => $cmid,
-            'participantidentifier' => $user->id,
-            'participantfirstname' => $user->firstname,
-            'participantlastname' => $user->lastname,
-            'participantemail' => $user->email,
+    public static function get_js_url(string $appid, int $courseid, int $cmid, \stdClass $user): \moodle_url {
+        return new \moodle_url(
+            INTEGRITYADVOCATE_BASEURL_API . '/participants/integrity',
+            [
+                'appid' => $appid,
+                'courseid' => $courseid,
+                'activityid' => $cmid,
+                'participantidentifier' => $user->id,
+                'participantfirstname' => $user->firstname,
+                'participantlastname' => $user->lastname,
+                'participantemail' => $user->email,
             ]
         );
     }
@@ -310,8 +310,7 @@ class Api
      * @param int $limit How many records to return; default 0=all.
      * @return array<Session> Array of Sessions; Empty array if nothing found.
      */
-    public static function get_module_user_sessions(\context $modulecontext, int $userid, int $limit = 0): array
-    {
+    public static function get_module_user_sessions(\context $modulecontext, int $userid, int $limit = 0): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}; \$limit={$limit}";
@@ -354,8 +353,7 @@ class Api
      * @param int $blockinstanceid The block instance id.
      * @return null|Participant Null if nothing found; else the parsed Participant object.
      */
-    public static function get_participant(string $apikey, string $appid, int $courseid, int $userid, int $blockinstanceid): ?Participant
-    {
+    public static function get_participant(string $apikey, string $appid, int $courseid, int $userid, int $blockinstanceid): ?Participant {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$userid={$userid}";
@@ -398,8 +396,7 @@ class Api
      * @param int $courseid Get info for this course.
      * @return array<int moodleuserid, Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
-    public static function get_participants(string $apikey, string $appid, int $courseid): array
-    {
+    public static function get_participants(string $apikey, string $appid, int $courseid): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}";
@@ -489,8 +486,7 @@ class Api
      * @param string $nexttoken The next token to get subsequent results from the API.
      * @return array<moodleuserid, Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle user ids.
      */
-    private static function get_participants_data(string $apikey, string $appid, array $params, $nexttoken = null): array
-    {
+    private static function get_participants_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
@@ -570,8 +566,7 @@ class Api
      * @param int $limit Optionally limit to this number of results.  Min 0; max 10; default=IA API default (10).
      * @return array Empty array if nothing found; Else array of Session objects.
      */
-    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, int $userid = -1, int $limit = 0): array
-    {
+    public static function get_participantsessions(string $apikey, string $appid, int $courseid, int $moduleid, int $userid = -1, int $limit = 0): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}; \$limit={$limit}";
@@ -622,8 +617,7 @@ class Api
      * @param string $nexttoken The next token to get subsequent results from the API.
      * @return array Empty array if nothing found; Else array of Session objects.
      */
-    private static function get_participantsessions_data(string $apikey, string $appid, array $params, $nexttoken = null): array
-    {
+    private static function get_participantsessions_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
@@ -639,7 +633,8 @@ class Api
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
+        if (
+            !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
             !isset($params['courseid']) || !\is_number($params['courseid']) ||
             !isset($params['activityid']) || !\is_number($params['activityid']) ||
             (isset($params['participantidentifier']) && !\is_number($params['participantidentifier']))
@@ -707,8 +702,7 @@ class Api
      * @param array $participantsessionsraw An array representing the ParticipantSession response body from the IA API.
      * @return array ParticipantSession An array of parsed ParticipantSession objects with parent attribute populated with mock Participant objects.
      */
-    private static function attach_sessions_to_mock_participants(int $courseid, int $moduleid, int $userid, array $participantsessionsraw): array
-    {
+    private static function attach_sessions_to_mock_participants(int $courseid, int $moduleid, int $userid, array $participantsessionsraw): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$courseid={$courseid}; \$moduleid={$moduleid}; \$participantsessionsraw=" . ia_u::var_dump($participantsessionsraw, true);
@@ -756,22 +750,22 @@ class Api
             if (!isset($participants[$participantidentifier])) {
                 $debug && error_log($fxn . '::$user=' . ia_u::var_dump($user = ia_mu::get_user_as_obj($participantidentifier)));
                 switch (true) {
-                    case(ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
+                    case (ia_u::is_empty($user = ia_mu::get_user_as_obj($participantidentifier))):
                         $debug && error_log($fxn . "::Moodle has no user matching user->id={$participantidentifier}");
                         continue 2;
-                    case(!isset($pr->Course_Id) || (int) ($pr->Course_Id) !== (int) $courseid):
+                    case (!isset($pr->Course_Id) || (int) ($pr->Course_Id) !== (int) $courseid):
                         $debug && error_log($fxn . "::The participant Course_Id={$pr->Course_Id} is invalid or does not match this Moodle course={$courseid}");
                         continue 2;
-                    case(!isset($pr->Activity_Id) || (int) ($pr->Activity_Id) !== (int) $moduleid):
+                    case (!isset($pr->Activity_Id) || (int) ($pr->Activity_Id) !== (int) $moduleid):
                         $debug && error_log($fxn . "::The participant Activity_Id={$pr->Activity_Id} is invalid or does not match this Moodle moduleid={$moduleid}");
                         continue 2;
-                    case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
+                    case ((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
                         $debug && error_log($fxn . "::The moduleid={$moduleid} is not part of the course with id={$courseid}");
                         continue 2;
-                    case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the participant cannot access the module */)[1])):
+                    case (!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid /* Include even if the participant cannot access the module */)[1])):
                         $debug && error_log($fxn . "::Failed to get the course module from cmid={$moduleid} or the current Moodle user cannot access this module");
                         continue 2;
-                    case(!\is_enrolled($cm->context, $user /* Include inactive enrolments. */)):
+                    case (!\is_enrolled($cm->context, $user /* Include inactive enrolments. */)):
                         $debug && error_log($fxn . "::The user with id={$user->id} is no longer enrolled in this course");
                         continue 2;
                 }
@@ -823,8 +817,7 @@ class Api
      * @param int $limit Optionally limit to this number of results.  Min=0; max=10; default=IA API default if 0 = 10.
      * @return array Empty array if nothing found; Else array of Session objects with no photo info.
      */
-    public static function get_participantsessions_activity(string $apikey, string $appid, int $courseid, int $moduleid, int $userid, int $limit = 0): array
-    {
+    public static function get_participantsessions_activity(string $apikey, string $appid, int $courseid, int $moduleid, int $userid, int $limit = 0): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}; \$limit={$limit}";
@@ -882,8 +875,7 @@ class Api
      * @param string $nexttoken The next token to get subsequent results from the API.
      * @return array Empty array if nothing found; Else array of Session objects.
      */
-    private static function get_participantsessions_activity_data(string $apikey, string $appid, array $params, $nexttoken = null): array
-    {
+    private static function get_participantsessions_activity_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$params=" . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR) . " \$nexttoken={$nexttoken}";
@@ -899,7 +891,8 @@ class Api
 
         // Sanity check.
         // We are not validating $nexttoken b/c I don't actually care what the value is - only the remote API does.
-        if (!ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
+        if (
+            !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) ||
             !isset($params['courseid']) || !\is_number($params['courseid']) ||
             !isset($params['activityid']) || !\is_number($params['activityid']) ||
             !isset($params['participantidentifier']) || !\is_number($params['participantidentifier'])
@@ -971,16 +964,17 @@ class Api
      * @param string $appid App ID for the block instance.
      * @return string The request signature to be sent in the header of the request.
      */
-    public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string
-    {
+    public static function get_request_signature(string $requesturi, string $requestmethod, int $requesttimestamp, string $nonce, string $apikey, string $appid): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$requesturi={$requesturi}; \$requestmethod={$requestmethod}; \$requesttimestamp={$requesttimestamp}; \$nonce={$nonce}; \$apikey={$apikey}; \$appid={$appid}";
         $debug && error_log($debugvars);
 
         // Sanity check.
-        if (!\filter_var($requesturi, \FILTER_VALIDATE_URL) || \mb_strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !\is_string($nonce) ||
-            !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
+        if (
+            !\filter_var($requesturi, \FILTER_VALIDATE_URL) || \mb_strlen($requestmethod) < 3 || !\is_number($requesttimestamp) || $requesttimestamp < 0 || empty($nonce) || !\is_string($nonce) ||
+            !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid)
+        ) {
             $msg = 'Input params are invalid: ' . $debugvars;
             error_log($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -1017,8 +1011,7 @@ class Api
      * @param int $userid The userid to get participant info for.
      * @return null|Session Null if nothing found; else the most recent session for that user in that activity.
      */
-    public static function get_module_session_latest(\context $modulecontext, int $userid): ?Session
-    {
+    public static function get_module_session_latest(\context $modulecontext, int $userid): ?Session {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
@@ -1065,8 +1058,7 @@ class Api
      * @param int $userid The userid to get IA info for.
      * @return int A block_integrityadvocate\Status status constant _INT value.
      */
-    public static function get_module_status(\context $modulecontext, int $userid): int
-    {
+    public static function get_module_status(\context $modulecontext, int $userid): int {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
@@ -1122,8 +1114,7 @@ class Api
      * @param int $userid The user id to look for.
      * @return bool True if the status value for the user in the module represents "In Progress".
      */
-    public static function is_status_inprogress(\context $modulecontext, int $userid): bool
-    {
+    public static function is_status_inprogress(\context $modulecontext, int $userid): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
@@ -1147,8 +1138,7 @@ class Api
      * @param int $userid The user id to look for.
      * @return bool True if the status value for the user in the module represents "Invalid".
      */
-    public static function is_status_invalid(\context $modulecontext, int $userid): bool
-    {
+    public static function is_status_invalid(\context $modulecontext, int $userid): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
@@ -1174,8 +1164,7 @@ class Api
      * @param int $userid The user id to look for.
      * @return bool True if the status value for the user in the module represents "Valid".
      */
-    public static function is_status_valid(\context $modulecontext, int $userid): bool
-    {
+    public static function is_status_valid(\context $modulecontext, int $userid): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
@@ -1199,8 +1188,7 @@ class Api
      * @param \stdClass $input API flag data
      * @return null|Flag Null if failed to parse; otherwise a Flag object.
      */
-    private static function parse_flag(\stdClass $input): ?Flag
-    {
+    private static function parse_flag(\stdClass $input): ?Flag {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
@@ -1266,8 +1254,7 @@ class Api
      * @param string $photostring String to parse.
      * @return string A URL or a base64-encoded image and return it, else return empty string.
      */
-    private static function parse_participantphoto(string $photostring): string
-    {
+    private static function parse_participantphoto(string $photostring): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $photostring=' . ia_u::var_dump($photostring, true));
@@ -1291,8 +1278,7 @@ class Api
      * @param ia_participant $participant Parent Participant object.
      * @return null|Session Null if failed to parse, otherwise a parsed Session object.
      */
-    private static function parse_session(\stdClass $input, ia_participant $participant): ?Session
-    {
+    private static function parse_session(\stdClass $input, ia_participant $participant): ?Session {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
@@ -1397,8 +1383,7 @@ class Api
      * @param \stdClass $input API participant data
      * @return null|Participant Null if failed to parse, otherwise the parsed Participant object.
      */
-    public static function parse_participant(\stdClass $input): ?Participant
-    {
+    public static function parse_participant(\stdClass $input): ?Participant {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
@@ -1444,13 +1429,13 @@ class Api
             $userid = $output->participantidentifier;
             $courseid = $output->courseid;
             switch (true) {
-                case(!($user = ia_mu::get_user_as_obj($userid))) :
+                case (!($user = ia_mu::get_user_as_obj($userid))):
                     $debug && error_log($fxn . "::User not found for participantidentifier={$userid}");
                     return null;
                 case (ia_u::is_empty(\get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))):
                     $debug && error_log($fxn . "::Invalid \$courseid={$courseid} specified or course context not found");
                     return null;
-                case(!\is_enrolled($coursecontext, $user /* Include inactive enrolments. */)) :
+                case (!\is_enrolled($coursecontext, $user /* Include inactive enrolments. */)):
                     $debug && error_log($fxn . "::User {$user->id} is not enrolled in courseid={$courseid}");
                     return null;
             }
@@ -1535,8 +1520,7 @@ class Api
      * @param array $params Key-value array of params being sent to the API endpoint.
      * @return bool True if everything seems valid.
      */
-    public static function validate_endpoint_params(string $endpoint, array $params = []): bool
-    {
+    public static function validate_endpoint_params(string $endpoint, array $params = []): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && error_log($fxn . "::Started with \$endpoint={$endpoint}; \$args=" . ($params ? ia_u::var_dump($params, true) : ''));

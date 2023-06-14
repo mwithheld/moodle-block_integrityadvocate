@@ -33,7 +33,7 @@ use core_privacy\local\request\userlist;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 

@@ -30,7 +30,7 @@ use block_integrityadvocate\Participant as ia_participant;
 use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Functions for generating user-visible output.
@@ -73,7 +73,7 @@ class Output {
             error_log($fxn . '::The incoming $proctorjsurl is not a valid url it is '.ia_u::var_dump($proctorjsurl));
             return '';
         }
-        
+
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
             $msg = 'Input params are invalid';
@@ -99,7 +99,7 @@ class Output {
 
         $blockinstance->page->requires->jquery_plugin('jquery');
         $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl], false, $jsmodule);
-        
+
         $debug && error_log($fxn . '::Done requiring IA JS and doing init call; had jsmodule='.serialize($jsmodule));
         return '';
     }
@@ -546,7 +546,8 @@ class Output {
                         return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
                     }
                     $participant = $latestsession->participant;
-                    //get_summary_html(int $userid, int $status, int $start, int $end, string $photohtml = '', string $overviewbuttonhtml = '', bool $showstatus = false)
+                    // phpcs:ignore .
+                    // Usage example: get_summary_html(int $userid, int $status, int $start, int $end, string $photohtml = '', string $overviewbuttonhtml = '', bool $showstatus = false).
                     return self::get_summary_html(
                                     $participant->participantidentifier, $latestsession->status, $latestsession->start, $latestsession->end,
                                     ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, ($latestsession->participantphoto ?: ''), $latestsession->status, $participant->email) : ''),

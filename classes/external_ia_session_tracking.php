@@ -24,7 +24,7 @@
 
 namespace block_integrityadvocate;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 require_once(\dirname(__DIR__) . '/lib.php');
 require_once($CFG->libdir . '/externallib.php');
 

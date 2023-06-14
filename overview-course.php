@@ -26,7 +26,7 @@ namespace block_integrityadvocate;
 
 use block_integrityadvocate\Output as ia_output;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 // Security check - this file must be included from overview.php.
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();

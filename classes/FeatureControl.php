@@ -25,13 +25,12 @@
 
 namespace block_integrityadvocate;
 
-\defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Feature control: Enable/disable features easily.
  */
-class FeatureControl
-{
+class FeatureControl {
 
     /** @var bool True to allow caching using MUC. */
     public const CACHE = true;
@@ -53,5 +52,4 @@ class FeatureControl
 
     /** @var bool True to keep track of when session are started. */
     public const SESSION_STARTED_TRACKING = true;
-
 }
