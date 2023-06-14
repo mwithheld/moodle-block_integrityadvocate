@@ -47,10 +47,6 @@ switch (true) {
         $debug && debugging(__FILE__ . '::All requirements are met');
 }
 
-// Show course name.
-$PAGE->set_heading($course->fullname);
-echo $OUTPUT->context_header();
-
 /*
  * Code here is adapted from https://gist.github.com/matthanger/1171921 .
  */
