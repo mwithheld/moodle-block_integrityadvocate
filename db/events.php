@@ -23,9 +23,34 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+$blockintegrityadvocateprocessevent = 'block_integrityadvocate_observer::process_event';
 $observers = [
     [
-        'eventname' => '*',
-        'callback' => 'block_integrityadvocate_observer::process_event',
+        'eventname' => '\\mod_assign\\event\\assessable_submitted',
+        'callback' => $blockintegrityadvocateprocessevent,
+    ],
+    [
+        'eventname' => '\\mod_choice\\event\\answer_created',
+        'callback' => $blockintegrityadvocateprocessevent,
+    ],
+    [
+        'eventname' => '\\mod_feedback\\event\\response_submitted',
+        'callback' => $blockintegrityadvocateprocessevent,
+    ],
+    [
+        'eventname' => '\\mod_scorm\\event\\scoreraw_submitted',
+        'callback' => $blockintegrityadvocateprocessevent,
+    ],
+    [
+        'eventname' => '\\mod_quiz\\event\\attempt_abandoned',
+        'callback' => $blockintegrityadvocateprocessevent,
+    ],
+    [
+        'eventname' => '\\mod_quiz\\event\\attempt_reviewed',
+        'callback' => $blockintegrityadvocateprocessevent,
+    ],
+    [
+        'eventname' => '\\mod_quiz\\event\\attempt_submitted',
+        'callback' => $blockintegrityadvocateprocessevent,
     ],
 ];
