@@ -237,8 +237,8 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
  * Optionally filtered to IA blocks having a matching apikey and appid or visible.
  *
  * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up.
- * @param array<string, mixed> $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
- * @return string|array<mixed> Array of modules that match; else string error identifier.
+ * @param array{string|mixed} $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @return string|array{mixed} Array of modules that match; else string error identifier.
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
