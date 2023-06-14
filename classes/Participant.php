@@ -49,7 +49,6 @@ class ParticipantsCache {
     public function __construct(int $courseid) {
         $this->courseid = $courseid;
     }
-
 }
 
 /**
@@ -180,5 +179,4 @@ class Participant {
         }
         return \json_encode($self, \JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
-
 }

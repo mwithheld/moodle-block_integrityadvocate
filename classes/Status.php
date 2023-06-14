@@ -104,7 +104,7 @@ class Status {
                 break;
             default:
                 $error = 'Invalid participant review status value=' . \serialize($statusstring);
-                error_log($error);
+                debugging($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -208,7 +208,7 @@ class Status {
                 break;
             default:
                 $error = 'Invalid participant review status value=' . $statusint;
-                error_log($error);
+                debugging($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -243,7 +243,7 @@ class Status {
                 break;
             default:
                 $error = __FUNCTION__ . '::Invalid participant review status value=' . $statusint;
-                error_log($error);
+                debugging($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -291,12 +291,12 @@ class Status {
     public static function is_status_int(int $statusint): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . "::Started with \$statusint={$statusint}");
+        $debug && debugging($fxn . "::Started with \$statusint={$statusint}");
         $statusints = \array_keys(self::get_statuses());
-        $debug && error_log($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
+        $debug && debugging($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
 
         $returnthis = \in_array($statusint, $statusints, true);
-        $debug && error_log($fxn . "::About to return \$returnthis=$returnthis");
+        $debug && debugging($fxn . "::About to return \$returnthis=$returnthis");
         return $returnthis;
     }
 
