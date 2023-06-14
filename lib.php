@@ -220,7 +220,12 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
     // Sort each participant's sessions.
     foreach ($participants as &$p) {
         $debug && debugging($fxn . "::Find latest session: Looking at \$p->participantidentifier={$p->participantidentifier}");
-        \usort($p->sessions, ['\\' . INTEGRITYADVOCATE_BLOCK_NAME . '\Utility', 'sort_by_start_desc']);
+        \usort($p->sessions, function (/* object */ $a, /* object */ $b): int {
+            if ($a->start == $b->start) {
+                return 0;
+            }
+            return ($a->start > $b->start) ? -1 : 1;
+        });
     }
 
     $debug && debugging($fxn . '::About to return $participants=' . ia_u::var_dump($participants));
