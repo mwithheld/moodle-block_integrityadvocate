@@ -918,19 +918,4 @@ class MoodleUtility {
 
         return false;
     }
-
-    /**
-     * Get the current URL, optionally withut the querystring.
-     * @ref https://cssjockey.com/how-to-get-current-url-in-php-with-or-without-query-string
-     * @return string The current URL, optionally withut the querystring.
-     */
-    public function get_current_url(bool $trimQuerystring = false): string {
-        $pageurl = \filter_var((self::is_ssl() ? 'https' : 'http') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}", FILTER_SANITIZE_URL);
-        if (!$trimQuerystring) {
-            return $pageurl;
-        } else {
-            $url = explode('?', $pageurl);
-            return $url[0];
-        }
-    }
 }
