@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -40,10 +39,7 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 /**
  * Privacy Subsystem for block_integrityadvocate.
  */
-class provider implements \core_privacy\local\metadata\provider,
-    \core_privacy\local\request\core_userlist_provider,
-    \core_privacy\local\request\plugin\provider
-{
+class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\core_userlist_provider, \core_privacy\local\request\plugin\provider {
 
     /** @var string Re-usable name for this medatadata */
     private const PRIVACYMETADATA_STR = 'privacy:metadata';
@@ -58,11 +54,10 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param  collection $collection An object for storing metadata.
      * @return collection The metadata.
      */
-    public static function get_metadata(collection $collection): collection
-    {
+    public static function get_metadata(collection $collection): collection {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $collection=' . \var_export($collection, true));
+        $debug && debugging($fxn . '::Started with $collection=' . \var_export($collection, true));
 
         $privacyitems = [
             // Course info.
@@ -93,8 +88,8 @@ class provider implements \core_privacy\local\metadata\provider,
         }
 
         $collection->add_external_location_link(INTEGRITYADVOCATE_BLOCK_NAME, $privacyitemsarr,
-            self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation');
-        $debug && error_log('About to return $collection=' . \var_export($collection, true));
+                self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation');
+        $debug && debugging('About to return $collection=' . \var_export($collection, true));
 
         return $collection;
     }
@@ -105,11 +100,10 @@ class provider implements \core_privacy\local\metadata\provider,
      *
      * @param userlist $userlist   The userlist containing the list of users who have data in this context/plugin combination.
      */
-    public static function get_users_in_context(userlist $userlist)
-    {
+    public static function get_users_in_context(userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
+        $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -128,11 +122,10 @@ class provider implements \core_privacy\local\metadata\provider,
      *
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
-    public static function delete_data_for_users(approved_userlist $userlist)
-    {
+    public static function delete_data_for_users(approved_userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $userlist=' . \var_export($userlist, true));
+        $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -145,7 +138,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Get IA participant data from the remote API.
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants) || ia_u::is_empty($userlist) || ia_u::is_empty($userids = $userlist->get_userids())) {
             return;
         }
@@ -159,11 +152,10 @@ class provider implements \core_privacy\local\metadata\provider,
      *
      * @param \context $context Context to delete data from.
      */
-    public static function delete_data_for_all_users_in_context(\context $context)
-    {
+    public static function delete_data_for_all_users_in_context(\context $context) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $context=' . \var_export($context, true));
+        $debug && debugging($fxn . '::Started with $context=' . \var_export($context, true));
 
         if (!($context instanceof \context_module)) {
             return;
@@ -171,7 +163,7 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Get IA participant data from the remote API.
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return;
         }
@@ -180,8 +172,8 @@ class provider implements \core_privacy\local\metadata\provider,
         $coursecontext = $context->get_course_context(true);
         $modulecontext = $context->get_parent_context();
         self::send_delete_request($modulecontext, 'Please remove all IA participant and overrider data for ' . self::BRNL .
-            '&nbsp;&nbsp;&bull;&nbsp;courseid=' . $coursecontext->instanceid . self::BRNL .
-            '&nbsp;&nbsp;&bull;&nbsp;activityid=' . $modulecontext->instanceid . self::BRNL
+                '&nbsp;&nbsp;&bull;&nbsp;courseid=' . $coursecontext->instanceid . self::BRNL .
+                '&nbsp;&nbsp;&bull;&nbsp;activityid=' . $modulecontext->instanceid . self::BRNL
         );
     }
 
@@ -190,11 +182,10 @@ class provider implements \core_privacy\local\metadata\provider,
      *
      * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
      */
-    public static function delete_data_for_user(approved_contextlist $contextlist)
-    {
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
+        $debug && debugging($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
 
         if (empty($contextlist->count())) {
             return;
@@ -208,7 +199,7 @@ class provider implements \core_privacy\local\metadata\provider,
         foreach ($contextlist->get_contexts() as $context) {
             // Get IA participant data from the remote API.
             $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
-            $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+            $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
             if (ia_u::is_empty($participants)) {
                 continue;
             }
@@ -224,8 +215,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param   int           $userid       The user to search.
      * @return  contextlist   $contextlist  The list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid): contextlist
-    {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         // Gets all IA blocks in the site.
         $blockinstances = ia_mu::get_all_blocks(\INTEGRITYADVOCATE_SHORTNAME, false);
 
@@ -261,8 +251,7 @@ class provider implements \core_privacy\local\metadata\provider,
      *
      * @param   approved_contextlist    $contextlist    The approved contexts to export information for.
      */
-    public static function export_user_data(approved_contextlist $contextlist)
-    {
+    public static function export_user_data(approved_contextlist $contextlist) {
         if (empty($contextlist->count())) {
             return;
         }
@@ -285,6 +274,7 @@ class provider implements \core_privacy\local\metadata\provider,
             }
         }
     }
+
     // Z==========================================================================.
     // IA functions below this line.
     // Z==========================================================================.
@@ -295,14 +285,13 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param context_block $blockcontext The IA block context.
      * @return array<int> Array of unique IA participant Ids and overrider Ids from the remote API.
      */
-    public static function get_participants_from_blockcontext(context_block $blockcontext): array
-    {
+    public static function get_participants_from_blockcontext(context_block $blockcontext): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && error_log($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
+        $debug && debugging($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
 
         $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
-        $debug && error_log($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return [];
         }
@@ -336,8 +325,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param array $useridstodelete Array of integer userid to send deletion requests for. If empty, requests are sent for all participants.
      * @return bool True on success.
      */
-    public static function delete_participants(context_block $blockcontext, array $participants, array $useridstodelete = []): bool
-    {
+    public static function delete_participants(context_block $blockcontext, array $participants, array $useridstodelete = []): bool {
         // Prevent multiple messages for the same user by tracking the IDs we have sent to.
         $participantmessagesent = [];
         $overridemessagesent = [];
@@ -345,26 +333,26 @@ class provider implements \core_privacy\local\metadata\provider,
         foreach ($participants as $p) {
             // Check the participant is one we should delete.
             if (isset($p->participantidentifier) && !empty($p->participantidentifier) &&
-                (ia_u::is_empty($useridstodelete) || \in_array($p->participantidentifier, $useridstodelete, true))
+                    (ia_u::is_empty($useridstodelete) || \in_array($p->participantidentifier, $useridstodelete, true))
             ) {
                 // Request participant data delete.
                 $useridentifier = $blockcontext->instanceid . '-' . $p->participantidentifier;
                 if (!\in_array($useridentifier, $participantmessagesent, true)) {
                     self::send_delete_request($blockcontext, 'Please remove IA participant data for ' . self::BRNL .
-                        self::get_participant_info_for_deletion($p));
+                            self::get_participant_info_for_deletion($p));
                     $participantmessagesent[] = $useridentifier;
                 }
             }
 
             // Check the override user is one we should delete.
             if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) &&
-                (ia_u::is_empty($useridstodelete) || \in_array($p->overridelmsuserid, $useridstodelete, true))
+                    (ia_u::is_empty($useridstodelete) || \in_array($p->overridelmsuserid, $useridstodelete, true))
             ) {
                 $useridentifier = $blockcontext->instanceid . '-' . $p->overridelmsuserid;
                 // Request override instructor data delete.
                 if (!\in_array($useridentifier, $overridemessagesent, true)) {
                     self::send_delete_request($blockcontext, 'Please remove IA *overrider* data for ' . self::BRNL .
-                        self::get_override_info_for_deletion($p));
+                            self::get_override_info_for_deletion($p));
                     $overridemessagesent[] = $useridentifier;
                 }
             }
@@ -379,13 +367,12 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param \block_integrityadvocate\Participant $participant
      * @return \stdClass Participant info to for export to the user on request.
      */
-    private static function get_participant_info_for_export(\block_integrityadvocate\Participant $participant): stdClass
-    {
+    private static function get_participant_info_for_export(\block_integrityadvocate\Participant $participant): stdClass {
         $info = $participant;
         // Protect privacy of the overrider.
         unset($info['overridelmsuserfirstname'],
-            $info['overridelmsuserlastname'],
-            $info['overridelmsuserid']
+                $info['overridelmsuserlastname'],
+                $info['overridelmsuserid']
         );
 
         // Remove info set on the remote API side that is not really needed or useful.
@@ -402,8 +389,8 @@ class provider implements \core_privacy\local\metadata\provider,
 
             // Protect privacy of the overrider.
             unset($info['overridelmsuserfirstname'],
-                $info['overridelmsuserlastname'],
-                $info['overridelmsuserid']
+                    $info['overridelmsuserlastname'],
+                    $info['overridelmsuserid']
             );
         }
 
@@ -416,8 +403,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param \block_integrityadvocate\Participant $participant
      * @return string HTML Participant info to uniquely identify the entry to IntegrityAdvocate.
      */
-    private static function get_participant_info_for_deletion(\block_integrityadvocate\Participant $participant): string
-    {
+    private static function get_participant_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
         $usefulfields = [
             'cmid',
             'courseid',
@@ -450,8 +436,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param \block_integrityadvocate\Participant $participant
      * @return string HTML Participant and override info to uniquely identify the entry to IntegrityAdvocate.
      */
-    private static function get_override_info_for_deletion(\block_integrityadvocate\Participant $participant): string
-    {
+    private static function get_override_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
         $usefulfields = [
             'cmid',
             'courseid',
@@ -489,8 +474,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param string $msg Text to add to the email.
      * @return bool True on emailing success; else false.
      */
-    private static function send_delete_request(context_block $blockcontext, string $msg): bool
-    {
+    private static function send_delete_request(context_block $blockcontext, string $msg): bool {
         global $USER, $CFG, $SITE;
 
         // Throws an exception if email is invalid.

@@ -48,19 +48,21 @@ class block_integrityadvocate_observer {
         $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
 
-        // Disabled on purpose: $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; is c/u=" . (\in_array($event->crud, ['c', 'u'], true)));
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
+        // Disabled on purpose: $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Started with event=' . ia_u::var_dump($event, true));.
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; "
+                        . "is c/u=" . (\in_array($event->crud, ['c', 'u'], true)));
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->contextlevel={$event->contextlevel}; "
+                        . "is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
 
         // No CLI events correspond to a user finishing an IA session.
         if (\defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, ['c', 'u'], true)));
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, ['c', 'u'], true)));
             return false;
         }
 
         // If there is no user attached to this event, we can't close the user's IA session, so skip.
         if (!\is_numeric($event->userid)) {
-            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::The event has no user info so skip it; debuginfo={$debuginfo}");
             return false;
         }
 
@@ -68,10 +70,10 @@ class block_integrityadvocate_observer {
         // Note \core\event\user_graded events are contextlevel=50, but there are other events that should close the IA session.
         $iscoursemodulechangeevent = ( $event->contextlevel === CONTEXT_MODULE && \is_numeric($event->courseid) && $event->courseid != SITEID );
         if (!$iscoursemodulechangeevent) {
-            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
             return false;
         }
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::This is a module-level event, so continue');
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::This is a module-level event, so continue');
 
         /*
          * blocklist events to *not* act on.
@@ -88,10 +90,14 @@ class block_integrityadvocate_observer {
                         '\\mod_lesson\\event\\',
                         '\\mod_wiki\\event\\',
                     ]):
-            // None of the event names starting with these strings correspond to finishing a module.
+                // None of the event names starting with these strings correspond to finishing a module.
+                // The false on the next line just makes NetBeans indent this comment block properly.
+                false;
             case \preg_match('/mod_forum\\\\event\\\\.*created$/i', $event->eventname):
-            // None of the \mod_forum\*created events correspond to finishing an module...
-            // They probably just posted to the forum or added a discussion but that's not finishing with forums.
+                // None of the \mod_forum\*created events correspond to finishing an module...
+                // They probably just posted to the forum or added a discussion but that's not finishing with forums.
+                // The false on the next line just makes NetBeans indent this comment block properly.
+                false;
             case \in_array($event->eventname,
                     [
                         '\\assignsubmission_onlinetext\\event\\submission_updated',
@@ -102,11 +108,11 @@ class block_integrityadvocate_observer {
                         '\\mod_workshop\\event\\submission_reassessed',
                     ], true):
                 // None of these exact string matches on event names correspond to finishing an module.
-                $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
+                $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is blocklisted, so skip it; debuginfo={$debuginfo}");
                 return false;
             default:
                 // Do nothing.
-                $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::This eventname is not blocklisted so continue');
+                $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::This eventname is not blocklisted so continue');
         }
 
         /*
@@ -127,10 +133,10 @@ class block_integrityadvocate_observer {
                         '\\mod_quiz\\event\\attempt_reviewed',
                         '\\mod_quiz\\event\\attempt_submitted',
                     ], true):
-                $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
+                $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is allowlisted so act on it; debuginfo={$debuginfo}");
                 break;
             default:
-                $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the allowlist to be acted on, so skip it; debuginfo={$debuginfo}");
+                $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::This eventname is not in the allowlist to be acted on, so skip it; debuginfo={$debuginfo}");
                 return false;
         }
 
@@ -149,13 +155,13 @@ class block_integrityadvocate_observer {
     protected static function close_module_user_session(\core\event\base $event): bool {
         $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Started with \$debuginfo={$debuginfo}");
 
         if (!($blockinstance = self::check_should_close_user_ia($event))) {
             return false;
         }
 
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::About to close_session() for \$debuginfo={$debuginfo}");
         return self::close_session($blockinstance, $event->userid);
     }
 
@@ -172,32 +178,32 @@ class block_integrityadvocate_observer {
         $modulecontext = $event->get_context();
         if ($modulecontext->contextlevel != CONTEXT_MODULE) {
             $msg = 'The passed-in event is not from a module context level';
-            error_log(__CLASS__ . '::' . __FUNCTION__ . "::{$msg}");
+            debugging(__CLASS__ . '::' . __FUNCTION__ . "::{$msg}");
             throw new \InvalidArgumentException($msg);
         }
 
         if (!\is_enrolled($modulecontext, $event->userid, null, true)) {
-            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::The user has no active enrolment in this course-module so skip it');
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::The user has no active enrolment in this course-module so skip it');
             return null;
         }
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
 
         // Remove the block_ prefix and _observer suffix.
         $debug && $blockname = \implode('_', \array_slice(\explode('_', \mb_substr(__CLASS__, \mb_strrpos(__CLASS__, '\\') + 1)), 1, -1));
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
 
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Maybe we should ask the IA API to close the session');
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Maybe we should ask the IA API to close the session');
 
         // Make sure an IA block instance is present and visible.
         $blockinstance = ia_mu::get_first_block($modulecontext, \INTEGRITYADVOCATE_SHORTNAME);
         if (!$blockinstance || $blockinstance->get_config_errors()) {
-            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::The block is not present or not visible, or has config errors, so skip it');
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::The block is not present or not visible, or has config errors, so skip it');
             return null;
         }
 
         // Instructors do not get the proctoring UI so never need to close the session.
-        $hascapabilityOverview = \has_capability('block/integrityadvocate:overview', $modulecontext);
-        if ($hascapabilityOverview) {
+        $hascapabilityoverview = \has_capability('block/integrityadvocate:overview', $modulecontext);
+        if ($hascapabilityoverview) {
             return null;
         }
 
@@ -214,12 +220,12 @@ class block_integrityadvocate_observer {
      */
     protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
         $debug = false;
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::Started');
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Started');
 
         $appid = isset($blockinstance->config->appid) ? \trim($blockinstance->config->appid) : false;
-        $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
+        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Found appid={$appid}");
         if (!$appid) {
-            $debug && error_log(__CLASS__ . '::' . __FUNCTION__ . '::The block instance has no appid configured, so skip it');
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::The block instance has no appid configured, so skip it');
             return false;
         }
 

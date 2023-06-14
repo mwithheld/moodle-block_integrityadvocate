@@ -110,7 +110,8 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
     if (!\function_exists('get_debug_type')) {
 
         /**
-         * Returns the type of a variable. The new function works in quite a similar way as the gettype function, but get_debug_type returns native type names and resolves class names.
+         * Returns the type of a variable. The new function works in quite a similar way as the gettype function,
+         * but get_debug_type returns native type names and resolves class names.
          *
          * @link https://kinsta.com/blog/php-8/#get_debug_type
          * @param \__PHP_Incomplete_Class $value The variable to get the type of.
@@ -118,14 +119,22 @@ if (\version_compare(\PHP_VERSION, '8', '<')) {
          */
         function get_debug_type($value): string {
             switch (true) {
-                case null == $value: return 'null';
-                case \is_bool($value): return 'bool';
-                case \is_string($value): return 'string';
-                case \is_array($value): return 'array';
-                case \is_int($value): return 'int';
-                case \is_float($value): return 'float';
-                case \is_object($value): break;
-                case $value instanceof \__PHP_Incomplete_Class: return '__PHP_Incomplete_Class';
+                case null == $value:
+                    return 'null';
+                case \is_bool($value):
+                    return 'bool';
+                case \is_string($value):
+                    return 'string';
+                case \is_array($value):
+                    return 'array';
+                case \is_int($value):
+                    return 'int';
+                case \is_float($value):
+                    return 'float';
+                case \is_object($value):
+                    break;
+                case $value instanceof \__PHP_Incomplete_Class:
+                    return '__PHP_Incomplete_Class';
                 default:
                     if (null == $type = @\get_resource_type($value)) {
                         return 'unknown';
