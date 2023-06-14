@@ -38,9 +38,9 @@ buildZip: &buildZip
       # Disable debug mode.
       - find ./ \( -type d -name .git -prune \) -o -type f -name '*.php' -print0 |  xargs -0 sed -i 's#$debug = true;#$debug = false;#g'
       - cd /tmp/iaparent/
-      #Debug: - ls -altrh
+      # Debug: - ls -altrh
       - zipfilepath="${BITBUCKET_CLONE_DIR}/${BITBUCKET_REPO_SLUG}.zip"
-      #Debug:  -$pluginver
+      # Debug:  -$pluginver
       - find . -empty -type d -delete 
       - zip -r9 $zipfilepath ./ -x **/node_modules/**\* -x **/node_modules/\* Gruntfile.js \*.yml
       - curl -vvvv -s -u "${BB_AUTH_STRING}" -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files="@$zipfilepath"
