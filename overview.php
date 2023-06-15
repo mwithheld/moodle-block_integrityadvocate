@@ -83,6 +83,13 @@ $debug && debugging("Got courseid={$course->id}");
 // Set up which overview page we should produce: -user, -module, or -course.
 // Specific sanity/security checks for each one are included in each file.
 switch (true) {
+    case ($userid):
+        $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
+        $requestedpage = 'overview-user';
+        $params += [
+            'userid' => $userid,
+        ];
+        break;
     case ($courseid && $moduleid):
         $debug && debugging(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
