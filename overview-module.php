@@ -42,6 +42,7 @@ $userid = $USER->id;
 
 // Check all requirements.
 switch (true) {
+    // @phpstan-ignore-next-line booleanNot.alwaysFalse .
     case (!FeatureControl::OVERVIEW_MODULE_LTI):
         throw new \Exception('This feature is disabled');
     case (empty($moduleid) || ($moduleid = \required_param('moduleid', \PARAM_INT)) < 1):
@@ -49,6 +50,7 @@ switch (true) {
         // The above line throws an error if $moduleid is not passed as an integer.
         // But we get here if $moduleid is zero or negative.
         throw new \InvalidArgumentException("Invalid moduleid={$moduleid}");
+    // @phpstan-ignore-next-line .
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
@@ -56,7 +58,7 @@ switch (true) {
         break;
     case ((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
         throw new \InvalidArgumentException("Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid));
-    case (!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1])):
+    case (!($cm = \get_course_and_cm_from_cmid($moduleid, '', $courseid, $userid)[1])):
         // The above line throws an error if $overrideuserid cannot access the module.
         // But we get here if $cm is empty.
         throw new \InvalidArgumentException('Invalid $cm found');
@@ -65,7 +67,7 @@ switch (true) {
     case ($modulecontext->contextlevel != \CONTEXT_MODULE):
         // Must be enrolled in the module to see this page.
         throw new \InvalidArgumentException("The passed-in moduleid={$moduleid} is not at the module context");
-    case (!empty(\require_capability('block/integrityadvocate:overview', $modulecontext))):
+    case (!empty(\require_capability('block/integrityadvocate:overview', $modulecontext))): // @phpstan-ignore-line
         // The above line throws an error if the current user is not enrolled as an instructor in the module.
         // Note this capability check is on the parent, not the block instance.
         break;
@@ -123,6 +125,7 @@ $launchdata = [
 ];
 
 // Setup the LTI UI for one specific module.
+$module = null;
 $m = null;
 foreach ($modules as $key => $thismodule) {
     if ((int) ($thismodule['id']) === (int) $moduleid) {

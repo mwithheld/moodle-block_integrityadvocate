@@ -35,6 +35,7 @@ defined('MOODLE_INTERNAL') || die;
 
 // Check all requirements.
 switch (true) {
+    // @phpstan-ignore-next-line booleanNot.alwaysFalse .
     case (!FeatureControl::OVERVIEW_USER_LTI):
         throw new \Exception('This feature is disabled');
     default:
@@ -89,6 +90,11 @@ if ($continue) {
      * Code here is adapted from https://gist.github.com/matthanger/1171921 .
      */
     $launchurl = INTEGRITYADVOCATE_BASEURL_LTI . INTEGRITYADVOCATE_LTI_PATH . '/Participant';
+
+    // Avoid PHPStan warning: Variable $hascapabilityoverview might not be defined.
+    if (!isset($hascapabilityoverview)) {
+        $hascapabilityoverview = false;
+    }
 
     $launchdata = [
         // Required for Moodle oauth_helper.
