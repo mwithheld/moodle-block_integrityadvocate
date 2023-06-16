@@ -124,7 +124,6 @@ class block_integrityadvocate_observer {
         $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
 
         // Remove the block_ prefix and _observer suffix.
-        $debug && $blockname = \implode('_', \array_slice(\explode('_', \mb_substr(__CLASS__, \mb_strrpos(__CLASS__, '\\') + 1)), 1, -1));
         $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
 
         $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Maybe we should ask the IA API to close the session');
