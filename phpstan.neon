@@ -9,33 +9,46 @@ parameters:
     - lib.php
   scanDirectories:
     - ../../
+
   checkMissingIterableValueType: false
+  # Dynamic properties emits warnings from PHP 8.2 onwards.
+  checkDynamicProperties: true
+  # Do not report unused ignores.
+  reportUnmatchedIgnoredErrors: false
   treatPhpDocTypesAsCertain: false
+
   ignoreErrors:
-    - '#Access to an undefined property block_integrityadvocate::\$(config|instance|visible)\.#'
-    - '#Access to property \$[a-zA-Z_:]+ on an unknown class (block|block_manager|cache|context|core.event.base|stdClass|stdObject)\.#'
-    - '#Cannot call method [a-zA-Z_:]+.. on stdClass\.#'
-    - '#Call to (static )?method [a-zA-Z_:]+.. on an unknown class (CONTEXT_COURSE|context|core.event.base|core.lock.lock_config|core.notification|core.task.manager|html_writer|html_writer\.block_base|MoodleQuickForm|oauth_helper)\.#'
-    - '#Class block_integrityadvocate[a-zA-Z_:]+ extends unknown class [a-zA-Z_:]+\.#'
-    - '#Constant (INTEGRITYADVOCATE_API_PATH|INTEGRITYADVOCATE_BASEURL_API|INTEGRITYADVOCATE_BLOCK_NAME|INTEGRITYADVOCATE_REGEX_DATAURI|INTEGRITYADVOCATE_SESSION_STARTED_KEY|INTEGRITYADVOCATE_SHORTNAME) not found\.#'
-    - '#Constant (CAP_ALLOW|FORMAT_HTML|COMPLETION_TRACKING_NONE|IGNORE_MISSING|IGNORE_MULTIPLE|MEMORY_EXTRA|MEMORY_HUGE|MODE_REQUEST|MODE_SESSION|MOODLE_OFFICIAL_MOBILE_SERVICE|MUST_EXIST|RISK_PERSONAL|SITEID) not found\.#'
-    - '#Constant (CONTEXT|PARAM)_[^_]+ not found\.#'
-    - '#Function (block_instance_by_id|clean_param|confirm_sesskey|cron_prepare_core_renderer|current_language) not found\.#'
-    - '#Function (format_backtrace|fullname|get_config|get_course|get_course_and_cm_from_cmid|get_mailer|get_string|is_enrolled) not found\.#'
-    - '#Function (has_capability|moodle_needs_upgrading|mtrace) not found\.#'
-    - '#(Function|Method) (optional_param|raise_memory_limit|require_admin|require_capability|require_login|required_param|userdate) not found\.#'
-    - '#(Function|Method) [a-zA-Z_:\\]+.. has parameter \$[a-zA-Z_:]+ with no type specified\.#'
-    - '#(Function|Method) [a-zA-Z_:\\]+.. has parameter \$[a-zA-Z_:]+ with no value type specified in iterable type \$[a-zA-Z_:]+\.#'
-    - '#(Function|Method) [a-zA-Z_:\\]+.. return type has no value type specified in iterable type array\.#'
-    - '#(Function|Method) [a-zA-Z_:\\]+.. has no return type specified\.#'
-    - '#If condition is always (false|true)\.#'
-    - '#Instantiated class (coding_exception|external_function_parameters|external_value|external_warnings|moodle_url|oauth_helper) not found\.#'
-    - '#Left side of && is always (false|true)\.#'
-    - '#Parameter \#[0-9]+ \$[a-zA-Z_:]+ of function [a-zA-Z_:]+ expects [a-zA-Z_:]+, null given\.#'
-    - '#Parameter \$[a-zA-Z_:]+ of function [a-zA-Z_:]+.. has invalid type context\.#'
-    - '#Parameter \$[a-zA-Z_:]+ of method [a-zA-Z_:]+.. has invalid type (core.event.base|MoodleQuickForm)\.#'
-    - '#Property .*? in isset.. is not nullable\.#'
-    - '#Throwing object of an unknown class coding_exception\.#'
+    # This catches my $debug statements too much.
+    - '#^Access to property .*? on an unknown class context.*\.$#'
+    - '#^Call to (static )?method [a-zA-Z_:]+.. on an unknown class (CONTEXT_.*|context|context_.*|core.event.base|core.lock.lock_config|core.notification|core.task.manager|html_writer|html_writer\.block_base|MoodleQuickForm|oauth_helper)\.$#'
+    - '#^Left side of && is always false.$#'
+    - '#^Parameter .*? of function .*? has invalid type context.*\.$#'
+    - '#^Variable \$(COURSE|CFG|OUTPUT|PAGE|USER) might not be defined\.$#'
+
+#    - '#Access to an undefined property block_integrityadvocate::\$(config|instance|visible)\.#'
+#    - '#Access to property \$[a-zA-Z_:]+ on an unknown class (block|block_manager|cache|context|core.event.base|stdClass|stdObject)\.#'
+#    - '#Cannot call method [a-zA-Z_:]+.. on stdClass\.#'
+#    - '#Call to (static )?method [a-zA-Z_:]+.. on an unknown class (CONTEXT_COURSE|context|core.event.base|core.lock.lock_config|core.notification|core.task.manager|html_writer|html_writer\.block_base|MoodleQuickForm|oauth_helper)\.#'
+#    - '#Class block_integrityadvocate[a-zA-Z_:]+ extends unknown class [a-zA-Z_:]+\.#'
+#    - '#Constant (INTEGRITYADVOCATE_API_PATH|INTEGRITYADVOCATE_BASEURL_API|INTEGRITYADVOCATE_BLOCK_NAME|INTEGRITYADVOCATE_REGEX_DATAURI|INTEGRITYADVOCATE_SESSION_STARTED_KEY|INTEGRITYADVOCATE_SHORTNAME) not found\.#'
+#    - '#Constant (CAP_ALLOW|FORMAT_HTML|COMPLETION_TRACKING_NONE|IGNORE_MISSING|IGNORE_MULTIPLE|MEMORY_EXTRA|MEMORY_HUGE|MODE_REQUEST|MODE_SESSION|MOODLE_OFFICIAL_MOBILE_SERVICE|MUST_EXIST|RISK_PERSONAL|SITEID) not found\.#'
+#    - '#Constant (CONTEXT|PARAM)_[^_]+ not found\.#'
+#    - '#Function (block_instance_by_id|clean_param|confirm_sesskey|cron_prepare_core_renderer|current_language) not found\.#'
+#    - '#Function (format_backtrace|fullname|get_config|get_course|get_course_and_cm_from_cmid|get_mailer|get_string|is_enrolled) not found\.#'
+#    - '#Function (has_capability|moodle_needs_upgrading|mtrace) not found\.#'
+#    - '#(Function|Method) (optional_param|raise_memory_limit|require_admin|require_capability|require_login|required_param|userdate) not found\.#'
+#    - '#(Function|Method) [a-zA-Z_:\\]+.. has parameter \$[a-zA-Z_:]+ with no type specified\.#'
+#    - '#(Function|Method) [a-zA-Z_:\\]+.. has parameter \$[a-zA-Z_:]+ with no value type specified in iterable type \$[a-zA-Z_:]+\.#'
+#    - '#(Function|Method) [a-zA-Z_:\\]+.. return type has no value type specified in iterable type array\.#'
+#    - '#(Function|Method) [a-zA-Z_:\\]+.. has no return type specified\.#'
+#    - '#If condition is always (false|true)\.#'
+#    - '#Instantiated class (coding_exception|external_function_parameters|external_value|external_warnings|moodle_url|oauth_helper) not found\.#'
+#    - '#Left side of && is always (false|true)\.#'
+#    - '#Parameter \#[0-9]+ \$[a-zA-Z_:]+ of function [a-zA-Z_:]+ expects [a-zA-Z_:]+, null given\.#'
+#    - '#Parameter \$[a-zA-Z_:]+ of function [a-zA-Z_:]+.. has invalid type context\.#'
+#    - '#Parameter \$[a-zA-Z_:]+ of method [a-zA-Z_:]+.. has invalid type (core.event.base|MoodleQuickForm)\.#'
+#    - '#Property .*? in isset.. is not nullable\.#'
+#    - '#Throwing object of an unknown class coding_exception\.#'
 
     -
       message: '#Constant (INTEGRITYADVOCATE_BASEURL_LTI|INTEGRITYADVOCATE_BLOCK_NAME|INTEGRITYADVOCATE_LTI_PATH|INTEGRITYADVOCATE_SHORTNAME) not found\.#'
@@ -52,25 +65,32 @@ parameters:
         - overview-course.php
         - overview-module.php
         - overview-user.php
-
     -
-      message: '#Variable \$(COURSE|CFG|OUTPUT|PAGE|USER) might not be defined\.#'
-      paths:
-        - classes/observer.php
-        - edit_form.php
-        - overview.php
-        - overview-course.php
-        - overview-module.php
-        - overview-user.php
-        - run_scheduled_task.php
-
+      messages:
+#        - '#^Class .*? extends unknown class external_api\.$#'
+        - '#^Instantiated class external_[a-z_]* not found\.$#'
+        - '#^Method .*? has invalid return type external_single_structure\.$#'
+      path: externallib.php
     -
-      message: '#Variable \$DB might not be defined\.#'
+      messages:
+        - '#^Default value of the parameter \#2 \$filter .* of function .* is incompatible with type array.*$#'
+        - '#^Parameter \#2 \$filter of function .*?expects array.*?, array.*? given\.$#'
+      path: lib.php
+    -
+      messages:
+        - '#^Left side of \&\& is always true\.$#'
+        - '#^Property block_base::\$context \(context\) in isset\(\) is not nullable\.$#'
+        - '#^Variable \$debugbackup might not be defined\.$#'
+      path: overview.php
+    -
+      messages:
+        - '#^Parameter \#2 \$filter .*?of function .*? expects array.*$#'
+      path: overview-user.php
+    -
+      message: '#^Variable \$DB might not be defined\.$#'
       path: run_scheduled_task.php
-
     -
-      message: '#Variable \$plugin might not be defined\.#'
-      path: version.php
-    -
-      message: '#Constant MATURITY_STABLE not found\.#'
+      messages:
+        - '#^Constant MATURITY_STABLE not found\.$#'
+        - '#^Variable \$plugin might not be defined\.$#'
       path: version.php
