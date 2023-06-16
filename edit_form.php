@@ -47,6 +47,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *       should be compatible with block_edit_form::specific_definition($mform)"
      *
      * @param \stdClass|MoodleQuickForm $mform the form being built.
+     * @return void.
      */
     protected function specific_definition($mform) {
         if (!($mform instanceof MoodleQuickForm)) {
@@ -63,6 +64,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * Build form fields for this block instance's settings.
      *
      * @param MoodleQuickForm $mform the form being built.
+     * @return void.
      */
     protected function specific_definition_ia(MoodleQuickForm $mform) {
         $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME),
@@ -94,6 +96,8 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * Setup the form depending on current
      * values. This method is called after definition(), data submission and set_data().
      * All form setup that is dependent on form values should go in here.
+     *
+     * @return void.
      */
     public function definition_after_data() {
         parent::definition_after_data();
@@ -120,7 +124,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *
      * @param object[] $data array of ("fieldname"=>value) of submitted data
      * @param object[] $unused Unused array of uploaded files "element_name"=>tmp_file_path
-     * @return object[] of "element_name"=>"error_description" if there are errors,
+     * @return array{mixed} of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $unused): array {
@@ -135,16 +139,21 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $errors = [];
 
         // Since we accept ALPHANUMEXT as input, we need to custom validate it is a GUID.
+        // @phpstan-ignore-next-line .
         if (!empty($data['config_appid']) && !ia_u::is_guid($data['config_appid'])) {
+            // @phpstan-ignore-next-line .
             $data['config_appid'] = \rtrim(\ltrim(\trim($data['config_appid']), '{'), '}');
             $errors['config_appid'] = get_string('error_invalidappid', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
 
+        // @phpstan-ignfsdore-next-line .
         if (!empty($data['config_apikey']) && !ia::is_valid_apikey($data['config_apikey'])) {
+            // @phpstan-ignosdfre-next-line .
             $data['config_apikey'] = \rtrim(\ltrim(\trim($data['config_apikey']), '{'), '}');
             $errors['config_apikey'] = get_string('error_invalidapikey', \INTEGRITYADVOCATE_BLOCK_NAME);
         }
 
+        // @phpstan-ignore-next-line .
         return $errors;
     }
 }
