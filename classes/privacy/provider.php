@@ -51,10 +51,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * Get information about the user data stored by this plugin.
      * This does not include data that is set on the remote API side.
      *
-     * @param  collection $collection An object for storing metadata.
-     * @return collection The metadata.
+     * @param  \collection $collection An object for storing metadata.
+     * @return \collection The metadata.
      */
-    public static function get_metadata(collection $collection): collection {
+    public static function get_metadata(\collection $collection): \collection {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $collection=' . \var_export($collection, true));
@@ -98,9 +98,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * Get the list of users who have data within a context.
      * This will include users who are no longer enrolled in the context if they still have remote IA participant data.
      *
-     * @param userlist $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * @param \userlist $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * @return void.
      */
-    public static function get_users_in_context(userlist $userlist) {
+    public static function get_users_in_context(\userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
@@ -120,9 +121,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Delete multiple users within a single context.
      *
-     * @param approved_userlist $userlist The approved context and user information to delete information for.
+     * @param \approved_userlist $userlist The approved context and user information to delete information for.
+     * @return void.
      */
-    public static function delete_data_for_users(approved_userlist $userlist) {
+    public static function delete_data_for_users(\approved_userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
@@ -151,6 +153,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * Delete all personal data for all users in the specified context.
      *
      * @param \context $context Context to delete data from.
+     * @return void.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         $debug = false;
@@ -180,9 +183,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Delete all user data for the specified user, in the specified contexts.
      *
-     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @param \approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @return void.
      */
-    public static function delete_data_for_user(approved_contextlist $contextlist) {
+    public static function delete_data_for_user(\approved_contextlist $contextlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
@@ -213,9 +217,9 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * Get the list of contexts that contain user information for the specified user.
      *
      * @param   int           $userid       The user to search.
-     * @return  contextlist   $contextlist  The list of contexts used in this plugin.
+     * @return  \contextlist   $contextlist  The list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid): contextlist {
+    public static function get_contexts_for_userid(int $userid): \contextlist {
         // Gets all IA blocks in the site.
         $blockinstances = ia_mu::get_all_blocks(\INTEGRITYADVOCATE_SHORTNAME, false);
 
@@ -249,9 +253,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Export all user data for the specified user, in the specified contexts, using the supplied exporter instance.
      *
-     * @param   approved_contextlist    $contextlist    The approved contexts to export information for.
+     * @param   \approved_contextlist    $contextlist    The approved contexts to export information for.
+     * @return void.
      */
-    public static function export_user_data(approved_contextlist $contextlist) {
+    public static function export_user_data(\approved_contextlist $contextlist) {
         if (empty($contextlist->count())) {
             return;
         }
@@ -282,10 +287,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Get list of unique IA participant and overrider IDs from the remote API.
      *
-     * @param context_block $blockcontext The IA block context.
+     * @param \context_block $blockcontext The IA block context.
      * @return array<int> Array of unique IA participant Ids and overrider Ids from the remote API.
      */
-    public static function get_participants_from_blockcontext(context_block $blockcontext): array {
+    public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
@@ -320,12 +325,12 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * Request delete for the IA participants and overriders from the remote API.
      * One request per userid is sent, even if someone is both participant and overrider.
      *
-     * @param context_block $blockcontext The block context.
+     * @param \context_block $blockcontext The block context.
      * @param array $participants IA Participants associated with the block.
      * @param array $useridstodelete Array of integer userid to send deletion requests for. If empty, requests are sent for all participants.
      * @return bool True on success.
      */
-    public static function delete_participants(context_block $blockcontext, array $participants, array $useridstodelete = []): bool {
+    public static function delete_participants(\context_block $blockcontext, array $participants, array $useridstodelete = []): bool {
         // Prevent multiple messages for the same user by tracking the IDs we have sent to.
         $participantmessagesent = [];
         $overridemessagesent = [];
@@ -367,7 +372,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * @param \block_integrityadvocate\Participant $participant
      * @return \stdClass Participant info to for export to the user on request.
      */
-    private static function get_participant_info_for_export(\block_integrityadvocate\Participant $participant): stdClass {
+    private static function get_participant_info_for_export(\block_integrityadvocate\Participant $participant): \stdClass {
         $info = $participant;
         // Protect privacy of the overrider.
         unset($info['overridelmsuserfirstname'],
@@ -470,11 +475,11 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Email the user data delete request to INTEGRITYADVOCATE_PRIVACY_EMAIL
      *
-     * @param context_block $blockcontext The block context.
+     * @param \context_block $blockcontext The block context.
      * @param string $msg Text to add to the email.
      * @return bool True on emailing success; else false.
      */
-    private static function send_delete_request(context_block $blockcontext, string $msg): bool {
+    private static function send_delete_request(\context_block $blockcontext, string $msg): bool {
         global $USER, $CFG, $SITE;
 
         // Throws an exception if email is invalid.
@@ -485,7 +490,8 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         if (empty($mailfrom) && !empty($CFG->supportemail)) {
             $mailfrom = $CFG->supportemail;
         }
-        if (empty($mailfrom) && !empty($siteadmin = \get_admin()) && !empty($siteadmin->email)) {
+        $siteadmin = \get_admin();
+        if (empty($mailfrom) && !empty($siteadmin) && !empty($siteadmin->email)) {
             $mailfrom = $siteadmin->email;
         }
         if (empty($mailfrom)) {
