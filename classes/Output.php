@@ -21,7 +21,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-declare(strict_types=1);
+
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\Api as ia_api;
