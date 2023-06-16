@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 // phpcs:ignore Generic.Files.LineLength
-
+declare(strict_types=1);
 namespace block_integrityadvocate;
 
 use block_integrityadvocate as ia;
