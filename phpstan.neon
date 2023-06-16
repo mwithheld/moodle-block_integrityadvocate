@@ -20,9 +20,10 @@ parameters:
   ignoreErrors:
     # This catches my $debug statements too much.
     - '#^Access to property .*? on an unknown class context.*\.$#'
-    - '#^Call to (static )?method [a-zA-Z_:]+.. on an unknown class (CONTEXT_.*|context|context_.*|core.event.base|core.lock.lock_config|core.notification|core.task.manager|html_writer|html_writer\.block_base|MoodleQuickForm|oauth_helper)\.$#'
+    - '#^Call to (static )?method [a-zA-Z_:]+.. on an unknown class (approved_[a-z]list|CONTEXT_.*|context|context_.*|core.event.base|core.lock.lock_config|core.notification|core.task.manager|html_writer|html_writer\.block_base|MoodleQuickForm|oauth_helper)\.$#'
     - '#^Left side of && is always false.$#'
-    - '#^Parameter .*? of function .*? has invalid type context.*\.$#'
+    - '#^Method .*? has invalid return type (collection|contextlist)\.$#'
+    - '#^Parameter .*? of (function|method) .*? has invalid type (collection|context.*)\.$#'
     - '#^Variable \$(COURSE|CFG|OUTPUT|PAGE|USER) might not be defined\.$#'
 
 #    - '#Access to an undefined property block_integrityadvocate::\$(config|instance|visible)\.#'
@@ -94,3 +95,6 @@ parameters:
         - '#^Constant MATURITY_STABLE not found\.$#'
         - '#^Variable \$plugin might not be defined\.$#'
       path: version.php
+    -
+      message: '#^Left side of && is always true.$#'
+      path: classes/Status.php
