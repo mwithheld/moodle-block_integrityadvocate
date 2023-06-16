@@ -4,3 +4,4 @@ package-lock.json
 /cypress
 /.lh/
 /workspace.code-workspace
+phpstan.phar
