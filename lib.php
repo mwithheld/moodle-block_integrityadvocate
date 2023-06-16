@@ -238,7 +238,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
  * Optionally filtered to IA blocks having a matching apikey and appid or visible.
  *
  * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up.
- * @param array{string|int|mixed} $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @param array{null|string|int|mixed} $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
  * @return string|array{mixed} Array of modules that match; else string error identifier.
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
@@ -345,7 +345,7 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
 
         $blockinstanceid = $blockinstance->instance->id;
         $debug && debugging($fxn . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' .
-                        $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id));
+                        $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id)); // @phpstan-ignore-line .
 
         // Init the result to false.
         if (isset($filter['configured']) && $filter['configured'] && $blockinstance->get_config_errors()) {
@@ -405,6 +405,7 @@ function block_integrityadvocate_get_first_course_ia_block(int $courseid, string
     $blocks = ia_mu::get_all_course_blocks($courseid, INTEGRITYADVOCATE_SHORTNAME);
     $debug && debugging($fxn . '::Got count(blocks)=' . ia_u::count_if_countable($blocks));
 
+    $key = null;
     foreach ($blocks as $key => &$b) {
         $debug && debugging($fxn . "::Looking at block_instance.id={$key}");
 
