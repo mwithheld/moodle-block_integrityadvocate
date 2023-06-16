@@ -21,7 +21,6 @@
  * @copyright IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-declare(strict_types=1);
 defined('MOODLE_INTERNAL') || die();
 
 // Ref https://docs.moodle.org/dev/Cache_API_-_Quick_reference#Invalidating_keys_from_a_cache .

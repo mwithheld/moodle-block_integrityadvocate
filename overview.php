@@ -26,7 +26,7 @@
  * ATM with IA APIv2 we cannot label and get back proctoring results per module,
  * so we are just getting results for all students associated with the API key and displaying them.
  */
-declare(strict_types=1);
+
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
