@@ -12,7 +12,8 @@ php phpcs.phar -p -v --ignore=*/vendor/*,*/node_modules/*,*/tests/*,*/cypress/* 
 PHPCSStandards
 ----
 cd <blah>/moodle/blocks/integrityadvocate
-curl -OL https://github.com/phpstan/phpstan/releases/download/1.1.0/phpstan.phar
+#Note the config in phpstan.neon
+curl -OL https://github.com/phpstan/phpstan/releases/download/1.10.18/phpstan.phar
 php phpstan.phar analyse --memory-limit=1G ./
 
 
