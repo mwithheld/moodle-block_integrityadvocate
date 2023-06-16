@@ -123,11 +123,6 @@ class block_integrityadvocate_observer {
         }
         $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::The user has an active enrolment in this course-module so continue');
 
-        // Remove the block_ prefix and _observer suffix.
-        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . "::Found blockname={$blockname}");
-
-        $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Maybe we should ask the IA API to close the session');
-
         // Make sure an IA block instance is present and visible.
         $blockinstance = ia_mu::get_first_block($modulecontext, \INTEGRITYADVOCATE_SHORTNAME);
         if (!$blockinstance || $blockinstance->get_config_errors()) {
