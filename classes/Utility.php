@@ -174,25 +174,4 @@ class Utility {
     public static function filepath_relative_to_plugin(string $filepath): string {
         return \ltrim(\str_replace(\dirname(__DIR__), '', $filepath), '/');
     }
-
-    /**
-     * In the unlikely case apache_request_headers() does not exist, attempt fallback functionality.
-     * @return Array Array of headers as key-value strings.
-     */
-    public static function get_request_headers(): array {
-        if (function_exists('apache_request_headers')) {
-            return apache_request_headers();
-        } else {
-            // Ref https://www.php.net/manual/en/function.apache-request-headers.php#116645 .
-            foreach ($_SERVER as $key => $val) {
-                $a = explode('_', $key);
-                if (array_shift($a) == 'HTTP') {
-                    array_walk($a, function (&$v) {
-                        $v = ucfirst(strtolower($v));
-                    });
-                    $retval[join('-', $a)] = $val;
-                }
-            } return $retval;
-        }
-    }
 }
