@@ -117,7 +117,7 @@ class block_integrityadvocate_observer {
             throw new \InvalidArgumentException($msg);
         }
 
-        if (!\is_enrolled($modulecontext, $event->userid, null, true)) {
+        if (!\is_enrolled($modulecontext, $event->userid, '', true)) {
             $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::The user has no active enrolment in this course-module so skip it');
             return null;
         }
