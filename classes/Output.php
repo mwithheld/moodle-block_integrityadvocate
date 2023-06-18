@@ -618,7 +618,7 @@ class Output {
         $output[] = '<iframe id="iframelaunch" '
                 . 'name="iframelaunch" src="" '
                 . 'style="width:100%;height:800px" '
-                . 'sandbox="allow-same-origin allow-forms allow-scripts allow-modals allow-downloads">'
+                . 'sandbox="allow-same-origin allow-forms allow-scripts allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox">'
                 . '</iframe>';
         $output[] = '<script>document.getElementById("ltiLaunchForm").submit();</script>';
         return \implode('', $output);
