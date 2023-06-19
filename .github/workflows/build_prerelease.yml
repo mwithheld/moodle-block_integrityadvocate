@@ -1,0 +1,67 @@
+name: Build zip and prerelease
+
+on:
+  # Allows you to run this workflow manually from the Actions tab IFF the workflow yaml is in the default branch.
+  workflow_dispatch:
+
+jobs:
+  Build_zip_and_prerelease:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+    steps:
+      - name: Job info
+        run: |
+          echo "Build on repo ${{ github.event.repository.name }} branch ${{ github.ref }} triggered by a ${{ github.event_name }} event"
+      
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        
+#       - name: List files in the repository
+#         run: |
+#           ls ${{ github.workspace }}
+
+      - name: "Get the plugin version"
+        id: set_pluginver
+        run: |
+          echo "::set-output name=pluginver::$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')"
+
+      - name: "Check pluginver"
+        run: |
+          echo "Built pluginver=${{steps.set_pluginver.outputs.pluginver}}"
+      
+      - name: Move files into a subdir
+        run: |
+          mkdir -p /tmp/iaparent/integrityadvocate
+          rsync -av ${{ github.workspace }}/ /tmp/iaparent/integrityadvocate --exclude .git/ --exclude .github/ --exclude screenshots/ --exclude .gitignore
+
+      # Ref https://github.com/marketplace/actions/zip-release .
+      - name: Zip Release
+        uses: TheDoctor0/zip-release@0.7.1
+        with:
+          # Filename for archive
+          filename: ${{ github.event.repository.name }}.zip
+          # Base path for archive files
+          #path: # optional, default is .
+          # Working directory before zipping
+          directory: /tmp/iaparent/
+          # List of excluded files / directories
+          exclusions: '**/.git/* **/.github/* **/screenshots/* **/.shifter.json **/*.yml **/cypress.json **/Gruntfile.js **/phpstan.neon **/README_DEVELOPER.txt'
+          # List of excluded files / directories with recursive wildcards (only applies on Windows with `zip` type)
+          #recursive_exclusions: # optional, default is 
+          # Provide any custom parameters to the command
+          #custom: # optional, default is 
+          # Tool to use for archiving
+          #type: # optional, default is zip
+      
+      # Ref https://github.com/marketplace/actions/create-release .
+      - name: Attach zip to latest release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "/tmp/iaparent/${{ github.event.repository.name }}.zip"
+          tag: "${{steps.set_pluginver.outputs.pluginver}}"
+          allowUpdates: true
+          prerelease: true
+          replacesArtifacts: true
+          updateOnlyUnreleased: true
+#           token: ${{ secrets.GITHUB_TOKEN }}
