@@ -5,3 +5,4 @@ package-lock.json
 /.lh/
 /workspace.code-workspace
 phpstan.phar
+.php_cs.cache
