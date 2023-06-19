@@ -1,8 +1,7 @@
 name: Build zip and prerelease
 
-on:
-  # Allows you to run this workflow manually from the Actions tab IFF the workflow yaml is in the default branch.
-  workflow_dispatch:
+# Allows you to run this workflow manually from the Actions tab IFF the workflow yaml is in the default branch.
+on: workflow_dispatch
 
 jobs:
   Build_zip_and_prerelease:
