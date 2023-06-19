@@ -59,8 +59,8 @@ Requirements for installation
 -----------------------------
 
 *   Purchase an API key and App ID from [Integrity Advocate](https://www.integrityadvocate.com/partners/moodle).
-*   PHP 7.2 or higher - see [Moodle PHP doc](https://docs.moodle.org/35/en/PHP).  
-    
+*   PHP 7.2 or higher - see [Moodle PHP doc](https://docs.moodle.org/35/en/PHP).
+
 *   Moodle 3.5 and above - see [What version of Moodle am I using?](https://docs.moodle.org/en/Moodle_version#What_version_of_Moodle_am_I_using)
 *   You need administrator privileges in your Moodle instance.
 *   Completion must be enabled at the site level and course level - see [Enabling course completion](https://docs.moodle.org/en/Course_completion_settings#Enabling_course_completion).
@@ -81,8 +81,7 @@ The [block](https://moodle.org/plugins/block_integrityadvocate) can be added to 
 
 The optional [availability restriction (condition)](https://moodle.org/plugins/availability_integrityadvocate) prevents access to a course module depending on the Integrity Advocate results in another module.
 
-Potential privacy issues  
-
+Potential privacy issues
 ---------------------------
 
 Integrity Advocate, when appropriately applied, can mitigate the majority of the privacy concerns that organizations can face when using monitoring technology. Please see the Privacy section in the Description and/or contact [Integrity Advocate](https://www.integrityadvocate.com/partners/moodle) for more details.
