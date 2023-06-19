@@ -9,9 +9,9 @@ Use of this plugin requires purchasing a paid service - please visit [Integrity 
 
 The Integrity Advocate plugins allow Moodle to show a proctoring interface to students, interact with the Integrity Advocate service, and show monitoring results to instructors.
 
-The [Integrity Advocate block plugin](https://moodle.org/plugins/block_integrityadvocate) can be added to Moodle activities and makes the Integrity Advocate proctoring interface show up for students, and gives instructors a way to view Integrity Advocate results. See also [What are Moodle blocks?](https://docs.moodle.org/en/Blocks)
+This plugin, [Integrity Advocate block plugin](https://moodle.org/plugins/block_integrityadvocate) can be added to Moodle activities and makes the Integrity Advocate proctoring interface show up for students, and gives instructors a way to view Integrity Advocate results. See also [What are Moodle blocks?](https://docs.moodle.org/en/Blocks)
 
-The [Integrity Advocate restrict access plugin](https://moodle.org/plugins/availability_integrityadvocate) can be added to a Moodle activities and prevents access to activities and resources depending on the Integrity Advocate results in another activity. It requires the [Integrity Advocate block plugin](https://moodle.org/plugins/block_integrityadvocate). See also [What are activity restrictions?](https://docs.moodle.org/38/en/Using_restrict_access)
+The accompanying plugin, [Integrity Advocate restrict access plugin](https://moodle.org/plugins/availability_integrityadvocate) can be added to a Moodle activities and prevents access to activities and resources depending on the Integrity Advocate results in another activity. It requires the [Integrity Advocate block plugin](https://moodle.org/plugins/block_integrityadvocate). See also [What are activity restrictions?](https://docs.moodle.org/38/en/Using_restrict_access)
 
 Support
 -------
@@ -25,7 +25,7 @@ A nice feature is that the Integrity Advocate App will automatically change its 
 Bugs / Issue Tracker
 --------------------
 
-We welcome reports of bugs, code contributions via the Bitbucket repos for [block\_integrityadvocate](https://bitbucket.org/mwebv/moodle-block_integrityadvocate/issues) and [availability\_integrityadvocate](https://bitbucket.org/mwebv/moodle-availability_integrityadvocate/issues).
+We welcome reports of bugs, code contributions via the Bitbucket repos for [block\_integrityadvocate](https://github.com/mwithheld/moodle-block_integrityadvocate) and [availability\_integrityadvocate](https://github.com/mwithheld/moodle-availability_integrityadvocate/issues).
 
 We take privacy and security seriously. Any security issues can most responsibly be disclosed to admin@integrityadvocate.com
 
@@ -91,7 +91,7 @@ Useful links
 ------------
 
 *   [More documentation on this plugin](https://iapartners.zendesk.com/hc/en-ca/sections/360012118873-Moodle)
-*   [Website URL](https://www.integrityadvocate.com)
-*   [Source control URL](https://bitbucket.org/mwebv/moodle-availability_integrityadvocate/src)
-*   [Bug tracker](https://bitbucket.org/mwebv/moodle-availability_integrityadvocate/issues?status=new&status=open)
+*   [Website URL]([https://www.integrityadvocate.com](https://github.com/mwithheld/moodle-block_integrityadvocate))
+*   [Source control URL](https://github.com/mwithheld/moodle-block_integrityadvocate)
+*   [Bug tracker](https://github.com/mwithheld/moodle-block_integrityadvocate/issues)
 *   [Accessibility management reading](https://www.integrityadvocate.com/blog/three-ways-your-online-proctoring-software-isnt-meeting-accessibility-requirements)
