@@ -23,11 +23,11 @@ jobs:
       - name: "Get the plugin version"
         id: set_pluginver
         run: |
-          echo "::set-output name=pluginver::$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')"
+          echo "pluginver=$(fgrep 'version =' version.php | cut -f3 -d' ' | tr -d ';')" >> "$GITHUB_ENV"
 
       - name: "Check pluginver"
         run: |
-          echo "Built pluginver=${{steps.set_pluginver.outputs.pluginver}}"
+          echo "Built pluginver=${{env.pluginver}}"
       
       - name: Move files into a subdir
         run: |
@@ -58,7 +58,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "/tmp/iaparent/${{ github.event.repository.name }}.zip"
-          tag: "${{steps.set_pluginver.outputs.pluginver}}"
+          tag: "${{env.pluginver}}"
           allowUpdates: true
           prerelease: true
           replacesArtifacts: true
