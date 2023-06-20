@@ -90,7 +90,7 @@ Useful links
 ------------
 
 *   [More documentation on this plugin](https://iapartners.zendesk.com/hc/en-ca/sections/360012118873-Moodle)
-*   [Website URL]([https://www.integrityadvocate.com](https://github.com/mwithheld/moodle-block_integrityadvocate))
+*   [Website URL](https://www.integrityadvocate.com)
 *   [Source control URL](https://github.com/mwithheld/moodle-block_integrityadvocate)
 *   [Bug tracker](https://github.com/mwithheld/moodle-block_integrityadvocate/issues)
 *   [Accessibility management reading](https://www.integrityadvocate.com/blog/three-ways-your-online-proctoring-software-isnt-meeting-accessibility-requirements)
