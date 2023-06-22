@@ -24,13 +24,15 @@
 
 namespace block_integrityadvocate\privacy;
 
-use core_privacy\local\metadata\collection;
-use core_privacy\local\request\approved_contextlist;
-use core_privacy\local\request\approved_userlist;
-use core_privacy\local\request\contextlist;
-use core_privacy\local\request\userlist;
 use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Participant;
+use block_integrityadvocate\Status;
 use block_integrityadvocate\Utility as ia_u;
+use core_privacy\local\metadata\provider as provider2;
+use core_privacy\local\request\contextlist;
+use core_privacy\local\request\core_userlist_provider;
+use core_privacy\local\request\plugin\provider;
+use core_privacy\local\request\writer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -39,7 +41,7 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 /**
  * Privacy Subsystem for block_integrityadvocate.
  */
-class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\core_userlist_provider, \core_privacy\local\request\plugin\provider {
+class provider implements provider2, core_userlist_provider, provider {
 
     /** @var string Re-usable name for this medatadata */
     private const PRIVACYMETADATA_STR = 'privacy:metadata';
@@ -139,7 +141,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Get IA participant data from the remote API.
-        $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
+        $participants = block_integrityadvocate_get_participants_for_blockcontext($context);
         $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants) || ia_u::is_empty($userlist) || ia_u::is_empty($userids = $userlist->get_userids())) {
             return;
@@ -165,7 +167,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Get IA participant data from the remote API.
-        $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
+        $participants = block_integrityadvocate_get_participants_for_blockcontext($context);
         $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return;
@@ -202,7 +204,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         foreach ($contextlist->get_contexts() as $context) {
             // Get IA participant data from the remote API.
-            $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
+            $participants = block_integrityadvocate_get_participants_for_blockcontext($context);
             $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
             if (ia_u::is_empty($participants)) {
                 continue;
@@ -221,7 +223,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      */
     public static function get_contexts_for_userid(int $userid): \contextlist {
         // Gets all IA blocks in the site.
-        $blockinstances = ia_mu::get_all_blocks(\INTEGRITYADVOCATE_SHORTNAME, false);
+        $blockinstances = ia_mu::get_all_blocks(INTEGRITYADVOCATE_SHORTNAME, false);
 
         $contextlist = new contextlist();
         if (empty($blockinstances)) {
@@ -237,7 +239,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             if ((int) ($parentcontext->contextlevel) !== (int) CONTEXT_MODULE) {
                 continue;
             }
-            if (\is_enrolled($parentcontext, $userid)) {
+            if (is_enrolled($parentcontext, $userid)) {
                 $contextids[] = $b->context->id;
             }
         }
@@ -267,7 +269,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         foreach ($contextlist->get_contexts() as $context) {
             // Get IA participant data from the remote API.
-            $participants = \block_integrityadvocate_get_participants_for_blockcontext($context);
+            $participants = block_integrityadvocate_get_participants_for_blockcontext($context);
             if (ia_u::is_empty($participants)) {
                 continue;
             }
@@ -275,7 +277,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             // If we got participants, we are in the block context and the parent is a module.
             if (isset($participants[$user->id]) && !empty($p = $participants[$user->id])) {
                 $data = (object) self::get_participant_info_for_export($p);
-                \core_privacy\local\request\writer::with_context($context)->export_data([INTEGRITYADVOCATE_BLOCK_NAME], $data);
+                writer::with_context($context)->export_data([INTEGRITYADVOCATE_BLOCK_NAME], $data);
             }
         }
     }
@@ -295,7 +297,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
 
-        $participants = \block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
+        $participants = block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
         $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return [];
@@ -369,10 +371,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Gather IA participant info to send in the delete request.
      *
-     * @param \block_integrityadvocate\Participant $participant
-     * @return \stdClass Participant info to for export to the user on request.
+     * @param Participant $participant
+     * @return stdClass Participant info to for export to the user on request.
      */
-    private static function get_participant_info_for_export(\block_integrityadvocate\Participant $participant): \stdClass {
+    private static function get_participant_info_for_export(Participant $participant): stdClass {
         $info = $participant;
         // Protect privacy of the overrider.
         unset($info['overridelmsuserfirstname'],
@@ -384,13 +386,13 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         unset($info['resubmiturl']);
 
         // Translate data into user-readable strings - first at the participant level.
-        $info->status = \block_integrityadvocate\Status::get_status_lang($participant->status);
-        $info->overridestatus = \block_integrityadvocate\Status::get_status_lang($participant->overridestatus);
+        $info->status = Status::get_status_lang($participant->status);
+        $info->overridestatus = Status::get_status_lang($participant->overridestatus);
 
         // Translate data into user-readable strings - in each session.
         foreach ($participant->session as $s) {
-            $s->status = \block_integrityadvocate\Status::get_status_lang($s->status);
-            $s->overridestatus = \block_integrityadvocate\Status::get_status_lang($s->overridestatus);
+            $s->status = Status::get_status_lang($s->status);
+            $s->overridestatus = Status::get_status_lang($s->overridestatus);
 
             // Protect privacy of the overrider.
             unset($info['overridelmsuserfirstname'],
@@ -405,10 +407,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Gather IA participant info to send in the delete request.
      *
-     * @param \block_integrityadvocate\Participant $participant
+     * @param Participant $participant
      * @return string HTML Participant info to uniquely identify the entry to IntegrityAdvocate.
      */
-    private static function get_participant_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
+    private static function get_participant_info_for_deletion(Participant $participant): string {
         $usefulfields = [
             'cmid',
             'courseid',
@@ -425,7 +427,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $info = [];
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
-                $val = \block_integrityadvocate\Status::get_status_lang($participant->{$property});
+                $val = Status::get_status_lang($participant->{$property});
             } else {
                 $val = $participant->{$property};
             }
@@ -438,10 +440,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Gather IA override user info to send in the delete request.
      *
-     * @param \block_integrityadvocate\Participant $participant
+     * @param Participant $participant
      * @return string HTML Participant and override info to uniquely identify the entry to IntegrityAdvocate.
      */
-    private static function get_override_info_for_deletion(\block_integrityadvocate\Participant $participant): string {
+    private static function get_override_info_for_deletion(Participant $participant): string {
         $usefulfields = [
             'cmid',
             'courseid',
@@ -462,7 +464,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $info = [];
         foreach ($usefulfields as $property) {
             if ($property == 'status') {
-                $val = \block_integrityadvocate\Status::get_status_lang($participant->{$property});
+                $val = Status::get_status_lang($participant->{$property});
             } else {
                 $val = $participant->{$property};
             }
@@ -490,7 +492,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         if (empty($mailfrom) && !empty($CFG->supportemail)) {
             $mailfrom = $CFG->supportemail;
         }
-        $siteadmin = \get_admin();
+        $siteadmin = get_admin();
         if (empty($mailfrom) && !empty($siteadmin) && !empty($siteadmin->email)) {
             $mailfrom = $siteadmin->email;
         }
