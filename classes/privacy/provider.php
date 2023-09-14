@@ -28,10 +28,11 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant;
 use block_integrityadvocate\Status;
 use block_integrityadvocate\Utility as ia_u;
-use core_privacy\local\metadata\provider as provider2;
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
-use core_privacy\local\request\core_userlist_provider;
-use core_privacy\local\request\plugin\provider;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
 defined('MOODLE_INTERNAL') || die();
@@ -41,7 +42,12 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 /**
  * Privacy Subsystem for block_integrityadvocate.
  */
-class provider implements provider2, core_userlist_provider, provider {
+class provider implements
+    // The block_comments block stores user provided data.
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    // The block_comments block provides data directly to core.
+    \core_privacy\local\request\plugin\provider {
 
     /** @var string Re-usable name for this medatadata */
     private const PRIVACYMETADATA_STR = 'privacy:metadata';
@@ -53,10 +59,10 @@ class provider implements provider2, core_userlist_provider, provider {
      * Get information about the user data stored by this plugin.
      * This does not include data that is set on the remote API side.
      *
-     * @param  \collection $collection An object for storing metadata.
-     * @return \collection The metadata.
+     * @param  collection $collection An object for storing metadata.
+     * @return collection The metadata.
      */
-    public static function get_metadata(\collection $collection): \collection {
+    public static function get_metadata(collection $collection): collection {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $collection=' . \var_export($collection, true));
@@ -89,8 +95,11 @@ class provider implements provider2, core_userlist_provider, provider {
             $privacyitemsarr[$key] = self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':' . $key;
         }
 
-        $collection->add_external_location_link(INTEGRITYADVOCATE_BLOCK_NAME, $privacyitemsarr,
-                self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation');
+        $collection->add_external_location_link(
+            INTEGRITYADVOCATE_BLOCK_NAME,
+            $privacyitemsarr,
+            self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation'
+        );
         $debug && debugging('About to return $collection=' . \var_export($collection, true));
 
         return $collection;
@@ -100,10 +109,10 @@ class provider implements provider2, core_userlist_provider, provider {
      * Get the list of users who have data within a context.
      * This will include users who are no longer enrolled in the context if they still have remote IA participant data.
      *
-     * @param \userlist $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * @param userlist $userlist   The userlist containing the list of users who have data in this context/plugin combination.
      * @return void.
      */
-    public static function get_users_in_context(\userlist $userlist) {
+    public static function get_users_in_context(userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
@@ -123,10 +132,10 @@ class provider implements provider2, core_userlist_provider, provider {
     /**
      * Delete multiple users within a single context.
      *
-     * @param \approved_userlist $userlist The approved context and user information to delete information for.
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
      * @return void.
      */
-    public static function delete_data_for_users(\approved_userlist $userlist) {
+    public static function delete_data_for_users(approved_userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
@@ -176,7 +185,9 @@ class provider implements provider2, core_userlist_provider, provider {
         // If we got participants, we are in the block context and the parent is a module.
         $coursecontext = $context->get_course_context(true);
         $modulecontext = $context->get_parent_context();
-        self::send_delete_request($modulecontext, 'Please remove all IA participant and overrider data for ' . self::BRNL .
+        self::send_delete_request(
+            $modulecontext,
+            'Please remove all IA participant and overrider data for ' . self::BRNL .
                 '&nbsp;&nbsp;&bull;&nbsp;courseid=' . $coursecontext->instanceid . self::BRNL .
                 '&nbsp;&nbsp;&bull;&nbsp;activityid=' . $modulecontext->instanceid . self::BRNL
         );
@@ -185,10 +196,10 @@ class provider implements provider2, core_userlist_provider, provider {
     /**
      * Delete all user data for the specified user, in the specified contexts.
      *
-     * @param \approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
      * @return void.
      */
-    public static function delete_data_for_user(\approved_contextlist $contextlist) {
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
@@ -219,9 +230,9 @@ class provider implements provider2, core_userlist_provider, provider {
      * Get the list of contexts that contain user information for the specified user.
      *
      * @param   int           $userid       The user to search.
-     * @return  \contextlist   $contextlist  The list of contexts used in this plugin.
+     * @return  \core_privacy\local\request\contextlist   $contextlist  The list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid): \contextlist {
+    public static function get_contexts_for_userid(int $userid): \core_privacy\local\request\contextlist {
         // Gets all IA blocks in the site.
         $blockinstances = ia_mu::get_all_blocks(INTEGRITYADVOCATE_SHORTNAME, false);
 
@@ -255,10 +266,10 @@ class provider implements provider2, core_userlist_provider, provider {
     /**
      * Export all user data for the specified user, in the specified contexts, using the supplied exporter instance.
      *
-     * @param   \approved_contextlist    $contextlist    The approved contexts to export information for.
+     * @param   approved_contextlist    $contextlist    The approved contexts to export information for.
      * @return void.
      */
-    public static function export_user_data(\approved_contextlist $contextlist) {
+    public static function export_user_data(approved_contextlist $contextlist) {
         if (empty($contextlist->count())) {
             return;
         }
@@ -339,27 +350,29 @@ class provider implements provider2, core_userlist_provider, provider {
 
         foreach ($participants as $p) {
             // Check the participant is one we should delete.
-            if (isset($p->participantidentifier) && !empty($p->participantidentifier) &&
-                    (ia_u::is_empty($useridstodelete) || \in_array($p->participantidentifier, $useridstodelete, true))
+            if (
+                isset($p->participantidentifier) && !empty($p->participantidentifier) &&
+                (ia_u::is_empty($useridstodelete) || \in_array($p->participantidentifier, $useridstodelete, true))
             ) {
                 // Request participant data delete.
                 $useridentifier = $blockcontext->instanceid . '-' . $p->participantidentifier;
                 if (!\in_array($useridentifier, $participantmessagesent, true)) {
                     self::send_delete_request($blockcontext, 'Please remove IA participant data for ' . self::BRNL .
-                            self::get_participant_info_for_deletion($p));
+                        self::get_participant_info_for_deletion($p));
                     $participantmessagesent[] = $useridentifier;
                 }
             }
 
             // Check the override user is one we should delete.
-            if (isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) &&
-                    (ia_u::is_empty($useridstodelete) || \in_array($p->overridelmsuserid, $useridstodelete, true))
+            if (
+                isset($p->overridelmsuserid) && !empty($p->overridelmsuserid) &&
+                (ia_u::is_empty($useridstodelete) || \in_array($p->overridelmsuserid, $useridstodelete, true))
             ) {
                 $useridentifier = $blockcontext->instanceid . '-' . $p->overridelmsuserid;
                 // Request override instructor data delete.
                 if (!\in_array($useridentifier, $overridemessagesent, true)) {
                     self::send_delete_request($blockcontext, 'Please remove IA *overrider* data for ' . self::BRNL .
-                            self::get_override_info_for_deletion($p));
+                        self::get_override_info_for_deletion($p));
                     $overridemessagesent[] = $useridentifier;
                 }
             }
@@ -372,14 +385,15 @@ class provider implements provider2, core_userlist_provider, provider {
      * Gather IA participant info to send in the delete request.
      *
      * @param Participant $participant
-     * @return stdClass Participant info to for export to the user on request.
+     * @return \stdClass Participant info to for export to the user on request.
      */
-    private static function get_participant_info_for_export(Participant $participant): stdClass {
+    private static function get_participant_info_for_export(Participant $participant): \stdClass {
         $info = $participant;
         // Protect privacy of the overrider.
-        unset($info['overridelmsuserfirstname'],
-                $info['overridelmsuserlastname'],
-                $info['overridelmsuserid']
+        unset(
+            $info['overridelmsuserfirstname'],
+            $info['overridelmsuserlastname'],
+            $info['overridelmsuserid']
         );
 
         // Remove info set on the remote API side that is not really needed or useful.
@@ -395,9 +409,10 @@ class provider implements provider2, core_userlist_provider, provider {
             $s->overridestatus = Status::get_status_lang($s->overridestatus);
 
             // Protect privacy of the overrider.
-            unset($info['overridelmsuserfirstname'],
-                    $info['overridelmsuserlastname'],
-                    $info['overridelmsuserid']
+            unset(
+                $info['overridelmsuserfirstname'],
+                $info['overridelmsuserlastname'],
+                $info['overridelmsuserid']
             );
         }
 
