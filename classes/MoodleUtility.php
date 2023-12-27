@@ -28,6 +28,8 @@ use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once($CFG->libdir . '/blocklib.php');
+
 /**
  * Utility functions not specific to this module that interact with Moodle core.
  */
