@@ -519,8 +519,15 @@ class block_integrityadvocate extends block_base {
                             }
 
                             // Do not show the latest status.
-                            $participant = ia_api::get_participant($this->config->apikey, $this->config->appid,
-                                            $this->get_course()->id, $targetuserid, $this->instance->id);
+                            try {
+                                $participant = ia_api::get_participant($this->config->apikey, $this->config->appid,
+                                                $this->get_course()->id, $targetuserid, $this->instance->id);
+                            } catch(ia\HttpException $e) {
+                                // Ignore so that the Participants page can still render.
+                                debugging($fxn . "::Get of participant info failed using appid={$this->config->appid}; courseid={$courseid}; targetuserid={$targetuserid}; exception=".$e->getMessage());
+                                $participant = null;
+                            }
+
                             if (ia_u::is_empty($participant)) {
                                 $debug && debugging($fxn . '::Got empty participant, so return empty result');
                                 $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
