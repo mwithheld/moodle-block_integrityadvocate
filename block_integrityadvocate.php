@@ -522,9 +522,11 @@ class block_integrityadvocate extends block_base {
                             try {
                                 $participant = ia_api::get_participant($this->config->apikey, $this->config->appid,
                                                 $this->get_course()->id, $targetuserid, $this->instance->id);
-                            } catch(ia\HttpException $e) {
+                            } catch (ia\HttpException $e) {
                                 // Ignore so that the Participants page can still render.
-                                debugging($fxn . "::Get of participant info failed using appid={$this->config->appid}; courseid={$courseid}; targetuserid={$targetuserid}; exception=".$e->getMessage());
+                                $msg = "::Get of participant info failed using appid={$this->config->appid}; courseid={$courseid}; ";
+                                $msg += "targetuserid={$targetuserid}; exception=".$e->getMessage();
+                                debugging($fxn . $msg);
                                 $participant = null;
                             }
 
