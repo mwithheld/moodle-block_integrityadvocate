@@ -153,7 +153,7 @@ M.block_integrityadvocate = {
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Started with proctorjsurl=', proctorjsurl);
         if (!/^https:\/\/ca\.integrityadvocateserver\.com\/participants\/integrity\?appid=.*/.test(proctorjsurl)) {
-            window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param');
+            window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param proctorjsurl=', proctorjsurl);
             return;
         }
         debug && window.console.log('M.block_integrityadvocate.loadProctorUi::About to check for window.IntegrityAdvocate=', window.IntegrityAdvocate);
