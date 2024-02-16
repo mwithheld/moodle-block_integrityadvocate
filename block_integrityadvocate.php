@@ -474,15 +474,16 @@ class block_integrityadvocate extends block_base {
         $exclusions = ia_mu::get_gradebook_exclusions($DB, $COURSE->id);
         $nomodulesreasons = [];
         $modules = ia_mu::get_modules_with_completion($COURSE->id);
+        $debug && debugging($fxn . '::Modules with completion=' . ia_u::count_if_countable($modules));
         if(empty($modules)) {
             $nomodulesreasons[] = get_string('no_modules_with_completion', \INTEGRITYADVOCATE_BLOCK_NAME);
         } else {
             $modules = ia_mu::filter_for_visible($CFG, $modules, $USER->id, $COURSE->id, $exclusions);
+            $debug && debugging($fxn . '::Modules after filter_for_visible=' . ia_u::count_if_countable($modules));
             if(empty($modules)) {
                 $nomodulesreasons[] = get_string('no_modules_visible', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
         }
-        $debug && debugging($fxn . '::Modules found=' . ia_u::count_if_countable($modules));
         if (empty($modules)) {
             $nomodulesreasonsstr = implode('; ', $nomodulesreasons);
             $debug && debugging($fxn . '::Got nomodulesreasonsstr=' . $nomodulesreasonsstr);
