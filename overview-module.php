@@ -34,6 +34,9 @@ defined('MOODLE_INTERNAL') || die;
 // Security check - this file must be included from overview.php.
 \defined('INTEGRITYADVOCATE_OVERVIEW_INTERNAL') || die();
 
+// Make sure we have this blocks constants defined.
+require_once(__DIR__ . '/lib.php');
+
 $debug = false;
 $debug && debugging(__FILE__ . '::Started with $moduleid=' . $moduleid);
 

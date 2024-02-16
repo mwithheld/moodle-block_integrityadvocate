@@ -35,7 +35,8 @@ use block_integrityadvocate\Utility as ia_u;
 
 // Include required files.
 require_once(\dirname(__FILE__, 3) . '/config.php');
-require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
+// Make sure we have this blocks constants defined.
+require_once(__DIR__ . '/lib.php');
 require_once($CFG->dirroot . '/notes/lib.php');
 require_once($CFG->libdir . '/tablelib.php');
 
