@@ -152,10 +152,19 @@ M.block_integrityadvocate = {
         var debug = false;
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Started with proctorjsurl=', proctorjsurl);
-        if (!/^https:\/\/ca\.integrityadvocateserver\.com\/participants\/integrity\?appid=.*/.test(proctorjsurl)) {
+
+        // Source: https://stackoverflow.com/a/5717133 .
+        var pattern = new RegExp('^(https?:\\/\\/)?' + // Protocol.
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // Domain name.
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address.
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // Port and path.
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // Query string.
+            '(\\#[-a-z\\d_]*)?$', 'i'); // Fragment locator.
+        if (!pattern.test(proctorjsurl)) {
             window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param proctorjsurl=', proctorjsurl);
             return;
         }
+
         debug && window.console.log('M.block_integrityadvocate.loadProctorUi::About to check for window.IntegrityAdvocate=', window.IntegrityAdvocate);
         // To prevent double-loading of the IA logic, check if IA is already loaded in this window.
         if (typeof window.IntegrityAdvocate !== 'undefined') {
