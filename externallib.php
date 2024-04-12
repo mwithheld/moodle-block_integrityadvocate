@@ -42,7 +42,7 @@ class block_integrityadvocate_external extends \external_api {
                 [
             // Usage: external_value($type, $desc, $required, $default, $allownull).
             'submitted' => new \external_value(PARAM_BOOL, 'submitted', VALUE_REQUIRED, false, NULL_NOT_ALLOWED),
-            'warnings' => new \external_warnings()
+            'warnings' => new \external_warnings(),
                 ]
         );
     }
