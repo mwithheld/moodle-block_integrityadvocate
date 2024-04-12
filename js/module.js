@@ -52,8 +52,8 @@ M.block_integrityadvocate = {
                 },
                 fail: function(xhr_unused, textStatus, errorThrown) {
                     debug && window.console.log('M.block_integrityadvocate.sessionOpen::ajax.fail');
-                    console.log('textStatus', textStatus);
-                    console.log('errorThrown', errorThrown);
+                    window.console.log('textStatus', textStatus);
+                    window.console.log('errorThrown', errorThrown);
                     alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionOpen::ajax.fail');
                 }
             }]);
@@ -81,8 +81,8 @@ M.block_integrityadvocate = {
                 },
                 fail: function(xhr_unused, textStatus, errorThrown) {
                     debug && window.console.log('M.block_integrityadvocate.sessionClose::ajax.fail');
-                    console.log('textStatus', textStatus);
-                    console.log('errorThrown', errorThrown);
+                    window.console.log('textStatus', textStatus);
+                    window.console.log('errorThrown', errorThrown);
                     window.IntegrityAdvocate.endSession();
                     alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionClose::ajax.fail');
                 }
@@ -119,7 +119,7 @@ M.block_integrityadvocate = {
                     debug && window.console.log('M.block_integrityadvocate.exitactivity.on(click)::started');
                     self.sessionClose(function() {
                         debug && window.console.log('M.block_integrityadvocate.exitactivity.promise.done::started');
-                        elt.off('click.block_integrityadvocate')
+                        elt.off('click.block_integrityadvocate');
                         elt[0].click();
                     });
                     e.preventDefault();
@@ -186,13 +186,13 @@ M.block_integrityadvocate = {
                     window.console.log('M.block_integrityadvocate.loadProctorUi::IA_Ready done');
                 });
                 // Quiz navigation sidebar "Finish attempt button".
-                $('a.endtestlink').on('click.block_integrityadvocate', function(e) {
+                $('a.endtestlink').on('click.block_integrityadvocate', function() {
                     debug && window.console.log('M.block_integrityadvocate.a.endtestlink.on(click)::started');
                     window.IntegrityAdvocate.endSession();
 
                     // These are commented out bc we DO want the default actions to happen.
-                    //e.preventDefault();
-                    //return false;
+                    // Z- e.preventDefault();.
+                    // Z- return false;.
                 });
                 //Quiz "Next / Finish attempt" button, but only if this is the last page of the quiz.
                 var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]')
@@ -202,8 +202,8 @@ M.block_integrityadvocate = {
                         window.IntegrityAdvocate.endSession();
 
                         // These are commented out bc we DO want the default actions to happen.
-                        //e.preventDefault();
-                        //return false;
+                        // Z- e.preventDefault(); .
+                        // Z- return false; .
                     });
                 }
             })
@@ -252,7 +252,7 @@ M.block_integrityadvocate = {
         switch (true) {
             case (self.isQuizAttempt):
                 debug && window.console.log('M.block_integrityadvocate.blockinit::This is a quiz attempt page');
-                // Disables the Next button until IA JS is loaded
+                // Disables the Next button until IA JS is loaded.
                 self.eltQuizNextButtonSet.attr('disabled', 1).on('click.block_integrityadvocate.disable', false);
                 self.loadProctorUi(proctorjsurl);
                 break;
