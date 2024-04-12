@@ -23,7 +23,7 @@
  */
 $string['pluginname'] = 'Integrity Advocate';
 $string['proctorjs_load_failed'] = 'The Integrity Advocate proctoring module failed to load - contact your instructor for assistance.';
-$string['studentmessage'] = 'This page uses the Integrity Advocate proctoring service.<br /><a href="https://www.integrityadvocate.com/privacy-policy-for-end-users" target="_blank">Privacy</a><br /><a href="https://support.integrityadvocate.com/" target="_blank">Support</a>';
+$string['studentmessage'] = '<span class="block_integrityadvocate_studentmessage_body">This page uses the Integrity Advocate proctoring service.</span><br /><a class="block_integrityadvocate_studentmessage_link block_integrityadvocate_studentmessage_link_privacy" href="https://www.integrityadvocate.com/privacy-policy-for-end-users" target="_blank">Privacy</a><br /><a class="block_integrityadvocate_studentmessage_link block_integrityadvocate_studentmessage_link_support" href="https://support.integrityadvocate.com/" target="_blank">Support</a>';
 
 $string['cachedef_perrequest'] = 'Remember values during a single request';
 $string['cachedef_persession'] = 'Remember values during the user session';
@@ -41,7 +41,7 @@ $string['config_debuginfo'] = 'Debug info';
 $string['config_default_title'] = 'Integrity Advocate';
 $string['config_proctorquizinfopage'] = 'Show students proctoring on the quiz info page';
 $string['config_topnote'] = 'Config note';
-$string['config_topnote_help'] = 'Use of this plugin requires purchasing a paid service - please visit <a href="https://integrityadvocate.com/" target="_blank">IntegrityAdvocate</a> to get the credentials needed to be able to use this plugin.';
+$string['config_topnote_help'] = '<span class="block_integrityadvocate_topnote_help">Use of this plugin requires purchasing a paid service - please visit <a href="https://integrityadvocate.com/" target="_blank">IntegrityAdvocate</a> to get the credentials needed to be able to use this plugin.</span>';
 
 $string['created'] = 'First seen';
 $string['disabled_editingmode'] = 'Course editing mode is enabled, so video monitoring is disabled';
