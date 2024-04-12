@@ -90,7 +90,7 @@ class Api {
             'CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
-            'CURLOPT_HEADER' => 0
+            'CURLOPT_HEADER' => 0,
         ]);
         $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_PING;
         $response = $curl->get($requesturi);
@@ -144,7 +144,7 @@ class Api {
             'CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
-            'CURLOPT_HEADER' => 0
+            'CURLOPT_HEADER' => 0,
         ]);
         $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_CLOSE_SESSION . '?' .
                 'appid=' . \urlencode($appid) .
@@ -374,8 +374,15 @@ class Api {
         }
 
         // This gets a json-decoded object of the IA API curl result.
-        $participantraw = self::get(self::ENDPOINT_PARTICIPANT, $apikey, $appid, ['courseid' => $courseid,
-                    'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid]);
+        $participantraw = self::get(
+            self::ENDPOINT_PARTICIPANT,
+            $apikey,
+            $appid,
+            [
+                'courseid' => $courseid,
+                'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid
+            ],
+        );
         $debug && debugging($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
         if (ia_u::is_empty($participantraw) || !($participantraw instanceof \stdClass)) {
             $debug && debugging($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -1547,7 +1554,7 @@ class Api {
             case self::ENDPOINT_PARTICIPANT:
                 $validparams = [
                     'participantidentifier' => \PARAM_INT,
-                    'courseid' => \PARAM_INT
+                    'courseid' => \PARAM_INT,
                 ];
                 // All params are required.
                 $requiredparams = \array_keys($validparams);
