@@ -32,9 +32,9 @@ $capabilities = [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-            'coursecreator' => CAP_ALLOW
+            'coursecreator' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+        'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
     // Can view their own info in the block.
     'block/integrityadvocate:selfview' => [
@@ -44,7 +44,7 @@ $capabilities = [
         'archetypes' => [
             'student' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'moodle/grade:view'
+        'clonepermissionsfrom' => 'moodle/grade:view',
     ],
     // Can use the IA block.
     'block/integrityadvocate:view' => [
@@ -54,7 +54,7 @@ $capabilities = [
         'archetypes' => [
             'student' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'moodle/grade:view'
+        'clonepermissionsfrom' => 'moodle/grade:view',
     ],
     'block/integrityadvocate:addinstance' => [
         'riskbitmask' => RISK_PERSONAL,
@@ -63,9 +63,9 @@ $capabilities = [
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-            'coursecreator' => CAP_ALLOW
+            'coursecreator' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+        'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
     'block/integrityadvocate:myaddinstance' => [
         'riskbitmask' => RISK_PERSONAL,
@@ -74,8 +74,8 @@ $capabilities = [
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-            'coursecreator' => CAP_ALLOW
+            'coursecreator' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+        'clonepermissionsfrom' => 'moodle/my:manageblocks',
     ],
 ];
