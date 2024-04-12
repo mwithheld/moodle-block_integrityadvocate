@@ -73,5 +73,3 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     Then I should not see "No Api Key is set" in the "block_integrityadvocate" "block"
     And I should not see "No Application Id is set" in the "block_integrityadvocate" "block"
     And "Overview" "button" should be visible
-
-
