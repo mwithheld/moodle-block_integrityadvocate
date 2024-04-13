@@ -175,7 +175,7 @@ class Api {
      * @param string $endpoint One of the self::ENDPOINT* constants.
      * @param string $apikey The API Key to get data for
      * @param string $appid The AppId to get data for
-     * @param array $params API params per the URL above.  e.g. array('participantidentifier'=>$user_identifier).
+     * @param array $params API params per the URL above.  e.g. ['participantidentifier'=>$user_identifier].
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
     private static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
@@ -380,7 +380,7 @@ class Api {
             $appid,
             [
                 'courseid' => $courseid,
-                'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid
+                'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid,
             ],
         );
         $debug && debugging($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
