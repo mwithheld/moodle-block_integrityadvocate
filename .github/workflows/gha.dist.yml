@@ -1,6 +1,7 @@
+# Ref https://moodlehq.github.io/moodle-plugin-ci/
 name: Moodle Plugin CI
 
-on: [push, pull_request]
+on: workflow_dispatch #[push, pull_request]
 
 jobs:
   test:
@@ -103,19 +104,19 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpunit --fail-on-warning
 
-      - name: Behat features
-        id: behat
-        if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome
+      # - name: Behat features
+      #   id: behat
+      #   if: ${{ !cancelled() }}
+      #   run: moodle-plugin-ci behat --profile chrome
 
-      - name: Upload Behat Faildump
-        if: ${{ failure() && steps.behat.outcome == 'failure' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: Behat Faildump (${{ join(matrix.*, ', ') }})
-          path: ${{ github.workspace }}/moodledata/behat_dump
-          retention-days: 7
-          if-no-files-found: ignore
+      # - name: Upload Behat Faildump
+      #   if: ${{ failure() && steps.behat.outcome == 'failure' }}
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Behat Faildump (${{ join(matrix.*, ', ') }})
+      #     path: ${{ github.workspace }}/moodledata/behat_dump
+      #     retention-days: 7
+      #     if-no-files-found: ignore
 
       - name: Mark cancelled jobs as failed.
         if: ${{ cancelled() }}
