@@ -544,7 +544,7 @@ class MoodleUtility {
         global $DB;
         $exists = false;
         try {
-            $exists = $DB->record_exists('course', array('id' => $id));
+            $exists = $DB->record_exists('course', ['id' => $id]);
         } catch (\dml_missing_record_exception $e) {
             // Ignore these - the false is only to make the Moodle CodeChecker happy.
             false;

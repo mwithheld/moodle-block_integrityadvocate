@@ -43,7 +43,7 @@ require_once($CFG->libdir . '/tablelib.php');
 /** @var int How many users per page to show by default. */
 const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
 
-// bool Flag to tell the overview-course.php and overview-user.php pages the include is legit.
+// Bool flag to tell the overview-course.php and overview-user.php pages the include is legit.
 \define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false;
@@ -152,7 +152,7 @@ $PAGE->set_url($baseurl);
 
 $page = \get_string(\str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
 $title = format_string($course->fullname) . ': ' . $page;
-$courseurl = new \moodle_url('/course/view.php', array('id' => $courseid));
+$courseurl = new \moodle_url('/course/view.php', ['id' => $courseid]);
 
 $PAGE->set_title($title);
 $PAGE->set_heading($title);

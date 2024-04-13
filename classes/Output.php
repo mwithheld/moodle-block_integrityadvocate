@@ -496,7 +496,7 @@ class Output {
         $outarr = [];
         $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_summary_img_div']);
         if ($photo) {
-            $spanproperties = ['class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' . ($status === ia_status::VALID_INT ? '' : 'in') . 'valid']; 
+            $spanproperties = ['class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' . ($status === ia_status::VALID_INT ? '' : 'in') . 'valid'];
             $outarr[] = \html_writer::start_tag('span', $spanproperties) .
                     \html_writer::img($photo, $email) .
                     \html_writer::end_tag('span');

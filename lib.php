@@ -237,7 +237,7 @@ function block_integrityadvocate_get_latest_participant_sessions(string $apikey,
  * Optionally filtered to IA blocks having a matching apikey and appid or visible.
  *
  * @param \stdClass|int $course The course to get modules from; if int the course object will be looked up.
- * @param array{null|string|int|mixed} $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @param array{null|string|int|mixed} $filter e.g. ['visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo'].
  * @return string|array{mixed} Array of modules that match; else string error identifier.
  */
 function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
@@ -275,7 +275,7 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
  * Filter the input Moodle modules array for ones that use an IA block.
  *
  * @param array $modules Array of \stdClass course modules to check.
- * @param array $filter e.g. array('visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo').
+ * @param array $filter e.g. ['visible'=>1, 'appid'=>'blah', 'apikey'=>'bloo'].
  * @return array Array of course modules, each as an array. E.g. each entry is like this:
  *  (
  *   [type] => quiz

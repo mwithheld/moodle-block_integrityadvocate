@@ -40,7 +40,7 @@ require_once(__DIR__ . '/lib.php');
 $debug = false;
 $debug && debugging(__FILE__ . '::Started with $moduleid=' . $moduleid);
 
-// The "user" here is always the current $USER;
+// The "user" here is always the current $USER.
 $userid = $USER->id;
 
 // Check all requirements.
