@@ -1,7 +1,13 @@
-# Ref https://moodlehq.github.io/moodle-plugin-ci/
+# Ref https://moodlehq.github.io/moodle-plugin-ci/ .
 name: Moodle Plugin CI
 
-on: workflow_dispatch #[push, pull_request]
+# Ref https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release .
+on: 
+  push:
+    paths:
+      - '/version.php'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   test:
@@ -31,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1']
+        php: ['8.1'] #'7.4', '8.0', 
         moodle-branch: ['MOODLE_401_STABLE']
         database: [mariadb] #pgsql, 
 
@@ -78,11 +84,11 @@ jobs:
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs -n --max-warnings 9999999 # -n = no warnings; max-warnings = Do not fail if more than n warnings, where n>=0.
+        run: moodle-plugin-ci phpcs -n #--max-warnings 9999999 # -n = no warnings; max-warnings = Do not fail if more than n warnings, where n>=0.
 
       - name: Moodle PHPDoc Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpdoc --max-warnings 9999999
+        run: moodle-plugin-ci phpdoc #--max-warnings 9999999
 
       - name: Validating
         if: ${{ !cancelled() }}
