@@ -625,13 +625,14 @@ class Output {
     /**
      * Returns the HTML message shown in the block when in an activity.
      *
+     * @param bool $nolinks True to remove the http links in the output.
      * @return string The HTML.
      */
-    public static function get_student_message(bool $hidelinks = false): string {
+    public static function get_student_message(bool $nolinks = false): string {
         $messagelines = [
             get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME),
         ];
-        if (!$hidelinks) {
+        if (!$nolinks) {
             $messagelines[] = get_string('studentmessagelinks', INTEGRITYADVOCATE_BLOCK_NAME);
         }
         return \implode(self::BRNL, $messagelines);
