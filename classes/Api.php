@@ -254,7 +254,7 @@ class Api {
         // Remove certinfo b/c it too much info and we do not need it for debugging.
         unset($responseinfo['certinfo']);
         $debug && debugging($fxn . '::$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = (int) ($responseinfo['http_code']);
+        $responsecode = isset($responseinfo['http_code']) ? ((int) ($responseinfo['http_code'])) : -1;
 
         $debug && debugging($fxn .
                         '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
