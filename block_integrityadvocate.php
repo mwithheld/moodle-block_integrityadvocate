@@ -307,7 +307,8 @@ class block_integrityadvocate extends block_base {
         }
 
         // This must hold some content, otherwise this function runs twice.
-        $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+        $showstudentmessage = isset($this->config->hidelinksinstudentmessage) && $this->config->hidelinksinstudentmessage;
+        $this->content->text .= ia_output::get_student_message($showstudentmessage);
 
         $debug && debugging($fxn . '::About to add_block_js() with $user=' . $user->id);
         ia_output::add_block_js($this, ia_output::get_proctor_js_url($this, $user));
