@@ -551,7 +551,7 @@ class Output {
 
                     if (ia_u::is_empty($participant)) {
                         $debug && debugging($fxn . '::Got empty participant, so return empty result');
-                        return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                        return self::get_student_message();
                     }
 
                     return self::get_participant_summary_output($blockinstance, $participant, $showphoto,
@@ -564,7 +564,7 @@ class Output {
                     $debug && debugging($fxn . '::Got $latestsession=' . ia_u::is_empty($latestsession) ? '' : $latestsession->__toString());
                     if (ia_u::is_empty($latestsession)) {
                         $debug && debugging($fxn . '::Got empty $latestsession, so return empty result');
-                        return get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                        return self::get_student_message();
                     }
                     $participant = $latestsession->participant;
                     return self::get_summary_html(
@@ -620,5 +620,21 @@ class Output {
                 . '</iframe>';
         $output[] = '<script>document.getElementById("ltiLaunchForm").submit();</script>';
         return \implode('', $output);
+    }
+
+    /**
+     * Returns the HTML message shown in the block when in an activity.
+     *
+     * @return string The HTML.
+     */
+    public static function get_student_message(bool $hidelinks = false): string {
+        $messagelines = [
+            get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME),
+        ];
+        if (!$hidelinks) {
+            $messagelines[] = get_string('studentmessagelinks', INTEGRITYADVOCATE_BLOCK_NAME);
+        }
+        debugging(serialize($messagelines));
+        return \implode(self::BRNL, $messagelines);
     }
 }

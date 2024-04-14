@@ -544,7 +544,7 @@ class block_integrityadvocate extends block_base {
 
                             if (ia_u::is_empty($participant)) {
                                 $debug && debugging($fxn . '::Got empty participant, so return empty result');
-                                $this->content->text .= get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME);
+                                $this->content->text .= ia_output::get_student_message();
                             } else {
                                 $this->content->text .= ia_output::get_participant_summary_output($this, $participant,
                                                 /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
