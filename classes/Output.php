@@ -634,7 +634,6 @@ class Output {
         if (!$hidelinks) {
             $messagelines[] = get_string('studentmessagelinks', INTEGRITYADVOCATE_BLOCK_NAME);
         }
-        debugging(serialize($messagelines));
         return \implode(self::BRNL, $messagelines);
     }
 }
