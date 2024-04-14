@@ -37,6 +37,7 @@ $string['completion_not_enabled_course'] = 'Completion tracking is not enabled i
 
 $string['config_apikey'] = 'API key';
 $string['config_appid'] = 'Application Id';
+$string['config_blockid'] = 'Block Id';
 $string['config_blockversion'] = 'Version';
 $string['config_debuginfo'] = 'Debug info';
 $string['config_default_title'] = 'Integrity Advocate';
