@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * JS for when the block is shown.
+ * JS for when the block is shown.  Assumes JQuery is included in the code that pulls in this JS.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
@@ -153,14 +153,7 @@ M.block_integrityadvocate = {
         var self = M.block_integrityadvocate;
         debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Started with proctorjsurl=', proctorjsurl);
 
-        // Source: https://stackoverflow.com/a/5717133 .
-        var pattern = new RegExp('^(https?:\\/\\/)?' + // Protocol.
-            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // Domain name.
-            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address.
-            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // Port and path.
-            '(\\?[;&a-z\\d%_.~+=-]*)?' + // Query string.
-            '(\\#[-a-z\\d_]*)?$', 'i'); // Fragment locator.
-        if (!pattern.test(proctorjsurl)) {
+        if (!self.isHttpUrl(proctorjsurl)) {
             window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param proctorjsurl=', proctorjsurl);
             return;
         }
@@ -282,5 +275,11 @@ M.block_integrityadvocate = {
                 self.loadProctorUi(proctorjsurl);
         }
 
-    }
+    },
+    isHttpUrl: function(str) {
+        // Source: Adapted from https://thispointer.com/javascript-check-if-string-is-url/ .
+        // Disabled for now: return /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str); .
+        // Source: https://mathiasbynens.be/demo/url-regex > @diegoperini.
+        return /%^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\x{00a1}-\x{ffff}][a-z0-9\x{00a1}-\x{ffff}_-]{0,62})?[a-z0-9\x{00a1}-\x{ffff}]\.)+(?:[a-z\x{00a1}-\x{ffff}]{2,}\.?))(?::\d{2,5})?(?:[/?#]\S*)?$%iuS/.test(str);
+      }
 };
