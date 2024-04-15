@@ -184,7 +184,7 @@ M.block_integrityadvocate = {
         }
         $.getScript(self.decodeEntities(proctorjsurl))
             .done(function () {
-                window.console.log(fxn + '::Proctoring JS loaded');
+                window.console.log(fxn + '.getScript.done::Proctoring JS loaded');
                 $(document).bind('IA_Ready', function () {
                     // Remember that we have started a session so we only close it once.
                     self.sessionOpen();
@@ -192,14 +192,14 @@ M.block_integrityadvocate = {
                     // Hide the loading gif and show the main content.
                     self.proctorUILoaded();
 
-                    window.console.log(fxn + '::IA_Ready done');
+                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready done');
                 });
                 if (self.isQuizAttempt) {
-                    debug && window.console.log(fxn + '::This is a quiz attempt');
+                    debug && window.console.log(fxn + '.getScript.done::This is a quiz attempt');
 
                     // Quiz navigation sidebar "Finish attempt button".
                     $('a.endtestlink').on('click.block_integrityadvocate', function () {
-                        window.console.log(fxn + '::a.endtestlink.on(click)::started: About to IntegrityAdvocate.endSession()');
+                        window.console.log(fxn + '.getScript.done::a.endtestlink.on(click)::started: About to IntegrityAdvocate.endSession()');
                         window.IntegrityAdvocate.endSession();
 
                         // These are commented out bc we DO want the default actions to happen.
@@ -207,13 +207,13 @@ M.block_integrityadvocate = {
                         // Z- return false;.
                     });
                     if (!self.proctorquizreviewpages) {
-                        debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Next/Finish attempt button');
+                        debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=false so attach endSession to Next/Finish attempt button');
 
                         // Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
                         var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]')
                         if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
                             self.eltQuizNextButton.on('click.block_integrityadvocate', function (e) {
-                                window.console.log(fxn + '::#mod_quiz-next-nav.on(click)::started: Next/Finish atttempt: About to IntegrityAdvocate.endSession()');
+                                window.console.log(fxn + '.getScript.done::#mod_quiz-next-nav.on(click)::started: Next/Finish atttempt: About to IntegrityAdvocate.endSession()');
                                 window.IntegrityAdvocate.endSession();
 
                                 // These are commented out bc we DO want the default actions to happen.
@@ -223,14 +223,14 @@ M.block_integrityadvocate = {
                         }
                     }
                 } else if (document.body.id === 'page-mod-quiz-review') {
-                    debug && window.console.log(fxn + '::Found a quiz review page');
+                    debug && window.console.log(fxn + '.getScript.done::Found a quiz review page');
 
                     if (self.proctorquizreviewpages) {
-                        debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Finish review button');
+                        debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=false so attach endSession to Finish review button');
 
                         // Quiz body "Finish review" button.
                         self.eltQuizNextButtonSet.on('click.block_integrityadvocate', function (e) {
-                            window.console.log(fxn + '::#mod_quiz-next-nav.on(click)::started: Finish review: About to IntegrityAdvocate.endSession()');
+                            window.console.log(fxn + '.getScript.done::#mod_quiz-next-nav.on(click)::started: Finish review: About to IntegrityAdvocate.endSession()');
                             window.IntegrityAdvocate.endSession();
 
                             // These are commented out bc we DO want the default actions to happen.
@@ -252,7 +252,7 @@ M.block_integrityadvocate = {
                     msg += "Error details:\n" + exception.toString();
                 }
 
-                window.console.log(fxn + '::', msg, 'args=', arguments);
+                window.console.log(fxn + '.getScript.fail::', msg, 'args=', arguments);
                 self.eltUserNotifications.html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
             });
     },
@@ -331,7 +331,7 @@ M.block_integrityadvocate = {
      * Test if str is an http(s) URL.
      * 
      * @param {string} str 
-     * @returns {bool} True if str is an http(s) URL
+     * @returns {bool} True if str is an http(s) URL.
      */
     isHttpUrl: function (str) {
         // Source: Adapted from https://thispointer.com/javascript-check-if-string-is-url/ .
