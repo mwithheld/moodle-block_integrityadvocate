@@ -28,17 +28,23 @@ M.block_integrityadvocate = {
      * @param {type} encodedString
      * @returns {.document@call;createElement.value|textArea.value}
      */
-    decodeEntities: function(encodedString) {
+    decodeEntities: function (encodedString) {
         var textArea = document.createElement('textarea');
         textArea.innerHTML = encodedString;
         return textArea.value;
     },
-    sessionOpen: function() {
+    /**
+     * Open an IA proctoring session.
+     *
+     * @returns {null} Nothing.
+     */
+    sessionOpen: function () {
         var debug = false;
-        debug && window.console.log('M.block_integrityadvocate.sessionOpen::Started');
+        var fxn = 'M.block_integrityadvocate.sessionOpen';
+        debug && window.console.log(fxn + '::Started');
         var self = M.block_integrityadvocate;
 
-        require(['core/ajax'], function(ajax) {
+        require(['core/ajax'], function (ajax) {
             ajax.call([{
                 methodname: 'block_integrityadvocate_session_open',
                 args: {
@@ -47,26 +53,33 @@ M.block_integrityadvocate = {
                     moduleid: self.activityid,
                     userid: self.participantidentifier
                 },
-                done: function() {
-                    debug && window.console.log('M.block_integrityadvocate.sessionOpen::ajax.done');
+                done: function () {
+                    debug && window.console.log(fxn + '::ajax.done');
                 },
-                fail: function(xhr_unused, textStatus, errorThrown) {
-                    debug && window.console.log('M.block_integrityadvocate.sessionOpen::ajax.fail');
+                fail: function (xhr_unused, textStatus, errorThrown) {
+                    debug && window.console.log(fxn + '::ajax.fail');
                     window.console.log('textStatus', textStatus);
                     window.console.log('errorThrown', errorThrown);
-                    alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionOpen::ajax.fail');
+                    alert(M.util.get_string('unknownerror', 'moodle') + ' ' + fxn + '::ajax.fail');
                 }
             }]);
         });
 
-        debug && window.console.log('M.block_integrityadvocate.sessionOpen::Done');
+        debug && window.console.log(fxn + '::Done');
     },
-    sessionClose: function(callback) {
+    /**
+     * Close an IA proctoring session.
+     *
+     * @param {function} callback Function to call when done.
+     * @returns {null} Nothing.
+     */
+    sessionClose: function (callback) {
         var debug = false;
-        debug && window.console.log('M.block_integrityadvocate.sessionClose::Started');
+        var fxn = 'M.block_integrityadvocate.sessionClose';
+        debug && window.console.log(fxn + '::Started');
         var self = M.block_integrityadvocate;
 
-        require(['core/ajax'], function(ajax) {
+        require(['core/ajax'], function (ajax) {
             ajax.call([{
                 methodname: 'block_integrityadvocate_session_close',
                 args: {
@@ -75,12 +88,12 @@ M.block_integrityadvocate = {
                     moduleid: self.activityid,
                     userid: self.participantidentifier
                 },
-                done: function() {
-                    debug && window.console.log('M.block_integrityadvocate.sessionClose::ajax.done');
+                done: function () {
+                    debug && window.console.log(fxn + '::::ajax.done');
                     typeof callback === 'function' && callback();
                 },
-                fail: function(xhr_unused, textStatus, errorThrown) {
-                    debug && window.console.log('M.block_integrityadvocate.sessionClose::ajax.fail');
+                fail: function (xhr_unused, textStatus, errorThrown) {
+                    debug && window.console.log(fxn + '::::ajax.fail');
                     window.console.log('textStatus', textStatus);
                     window.console.log('errorThrown', errorThrown);
                     window.IntegrityAdvocate.endSession();
@@ -89,35 +102,36 @@ M.block_integrityadvocate = {
             }]);
         });
 
-        debug && window.console.log('M.block_integrityadvocate.sessionClose::Done');
+        debug && window.console.log(fxn + '::::Done');
     },
     /**
      * Stuff to do when the proctor UI is loaded.
      * Hide the loading gif and show the main content.
      *
-     * @returns nothing.
+     * @returns {null} Nothing.
      */
-    proctorUILoaded: function() {
+    proctorUILoaded: function () {
         var debug = false;
-        debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::Started');
+        var fxn = 'M.block_integrityadvocate.proctorUILoaded';
+        debug && window.console.log(fxn + '::::Started');
         var self = M.block_integrityadvocate;
         self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
         var eltMainContent = $('#responseform, #scormpage, div[role="main"]');
         switch (true) {
             case self.isQuizAttempt:
-                debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::On quizzes, disable the submit button and hide the questions until IA is ready', self.eltQuizNextButtonSet);
+                debug && window.console.log(fxn + '::::On quizzes, disable the submit button and hide the questions until IA is ready', self.eltQuizNextButtonSet);
                 self.eltQuizNextButtonSet.removeAttr('disabled').off('click.block_integrityadvocate.disable');
                 $('#block_integrityadvocate_hidequiz').remove();
                 eltMainContent.show();
                 break;
             case self.isScormPlayerSameWindow:
-                debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::On SCORM samewindow, show the content and monitor for page close');
+                debug && window.console.log(fxn + '::::On SCORM samewindow, show the content and monitor for page close');
                 eltMainContent.show();
 
                 var elt = $('a.btn-secondary[title="' + M.util.get_string('exitactivity', 'scorm') + '"]');
-                elt.on('click.block_integrityadvocate', function(e) {
+                elt.on('click.block_integrityadvocate', function (e) {
                     debug && window.console.log('M.block_integrityadvocate.exitactivity.on(click)::started');
-                    self.sessionClose(function() {
+                    self.sessionClose(function () {
                         debug && window.console.log('M.block_integrityadvocate.exitactivity.promise.done::started');
                         elt.off('click.block_integrityadvocate');
                         elt[0].click();
@@ -127,18 +141,18 @@ M.block_integrityadvocate = {
                 });
                 break;
             case self.isScormEntryNewWindow:
-                debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::On SCORM newwindow, show the Enter form and monitor for page close');
+                debug && window.console.log(fxn + '::::On SCORM newwindow, show the Enter form and monitor for page close');
                 self.eltDivMain.find('*').show();
                 eltMainContent.show();
                 $('#block_integrityadvocate_loading').remove();
-                $(window).on('beforeunload', function() {
-                    debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::Exiting the window - close the IA session');
+                $(window).on('beforeunload', function () {
+                    debug && window.console.log(fxn + '::::Exiting the window - close the IA session');
                     self.sessionClose();
                 });
                 self.eltScormEnter.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
                 break;
             default:
-                debug && window.console.log('M.block_integrityadvocate.proctorUILoaded::This is the default page handler');
+                debug && window.console.log(fxn + '::::This is the default page handler');
                 eltMainContent.show();
         }
     },
@@ -146,61 +160,87 @@ M.block_integrityadvocate = {
      * AJAX-load the proctor UI JS and run anything needed after.
      * The proctorjsurl is per-user and time-encoded unique, so there is no point in tryng to cache it.
      *
-     * @returns null Nothing.
+     * @param {string} proctorjsurl URL to the IA proctor JS.
+     * @returns {null} Nothing.
      */
-    loadProctorUi: function(proctorjsurl) {
+    loadProctorUi: function (proctorjsurl) {
         var debug = false;
+        var fxn = 'M.block_integrityadvocate.blockinit';
+        debug && window.console.log(fxn + '::Started with proctorjsurl=', proctorjsurl);
         var self = M.block_integrityadvocate;
-        debug && window.console.log('M.block_integrityadvocate.loadProctorUi::Started with proctorjsurl=', proctorjsurl);
 
         if (!self.isHttpUrl(proctorjsurl)) {
-            window.console.error('M.block_integrityadvocate.loadProctorUi::Invalid input param proctorjsurl=', proctorjsurl);
+            window.console.error(fxn + '::Invalid input param proctorjsurl=', proctorjsurl);
             return;
         }
 
-        debug && window.console.log('M.block_integrityadvocate.loadProctorUi::About to check for window.IntegrityAdvocate=', window.IntegrityAdvocate);
+        debug && window.console.log(fxn + '::About to check for window.IntegrityAdvocate=', window.IntegrityAdvocate);
         // To prevent double-loading of the IA logic, check if IA is already loaded in this window.
         if (typeof window.IntegrityAdvocate !== 'undefined') {
-            window.console.log('M.block_integrityadvocate.loadProctorUi::IntegrityAdvocate is already loaded');
+            window.console.log(fxn + '::IntegrityAdvocate is already loaded');
             // Hide the loading gif and show the main content.
             self.proctorUILoaded();
             return;
         }
         $.getScript(self.decodeEntities(proctorjsurl))
-            .done(function() {
-                window.console.log('M.block_integrityadvocate.loadProctorUi::Proctoring JS loaded');
-                $(document).bind('IA_Ready', function() {
+            .done(function () {
+                window.console.log(fxn + '::Proctoring JS loaded');
+                $(document).bind('IA_Ready', function () {
                     // Remember that we have started a session so we only close it once.
                     self.sessionOpen();
 
                     // Hide the loading gif and show the main content.
                     self.proctorUILoaded();
 
-                    window.console.log('M.block_integrityadvocate.loadProctorUi::IA_Ready done');
+                    window.console.log(fxn + '::IA_Ready done');
                 });
-                // Quiz navigation sidebar "Finish attempt button".
-                $('a.endtestlink').on('click.block_integrityadvocate', function() {
-                    debug && window.console.log('M.block_integrityadvocate.a.endtestlink.on(click)::started');
-                    window.IntegrityAdvocate.endSession();
+                if (self.isQuizAttempt) {
+                    debug && window.console.log(fxn + '::This is a quiz attempt');
 
-                    // These are commented out bc we DO want the default actions to happen.
-                    // Z- e.preventDefault();.
-                    // Z- return false;.
-                });
-                //Quiz "Next / Finish attempt" button, but only if this is the last page of the quiz.
-                var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]')
-                if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
-                    self.eltQuizNextButton.on('click.block_integrityadvocate', function(e) {
-                        debug && window.console.log('M.block_integrityadvocate.#mod_quiz-next-nav.on(click)::started');
+                    // Quiz navigation sidebar "Finish attempt button".
+                    $('a.endtestlink').on('click.block_integrityadvocate', function () {
+                        window.console.log(fxn + '::a.endtestlink.on(click)::started: About to IntegrityAdvocate.endSession()');
                         window.IntegrityAdvocate.endSession();
 
                         // These are commented out bc we DO want the default actions to happen.
-                        // Z- e.preventDefault(); .
-                        // Z- return false; .
+                        // Z- e.preventDefault();.
+                        // Z- return false;.
                     });
+                    if (!self.proctorquizreviewpages) {
+                        debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Next/Finish attempt button');
+
+                        // Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
+                        var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]')
+                        if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
+                            self.eltQuizNextButton.on('click.block_integrityadvocate', function (e) {
+                                window.console.log(fxn + '::#mod_quiz-next-nav.on(click)::started: Next/Finish atttempt: About to IntegrityAdvocate.endSession()');
+                                window.IntegrityAdvocate.endSession();
+
+                                // These are commented out bc we DO want the default actions to happen.
+                                // Z- e.preventDefault(); .
+                                // Z- return false; .
+                            });
+                        }
+                    }
+                } else if (document.body.id === 'page-mod-quiz-review') {
+                    debug && window.console.log(fxn + '::Found a quiz review page');
+
+                    if (self.proctorquizreviewpages) {
+                        debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Finish review button');
+
+                        // Quiz body "Finish review" button.
+                        self.eltQuizNextButtonSet.on('click.block_integrityadvocate', function (e) {
+                            window.console.log(fxn + '::#mod_quiz-next-nav.on(click)::started: Finish review: About to IntegrityAdvocate.endSession()');
+                            window.IntegrityAdvocate.endSession();
+
+                            // These are commented out bc we DO want the default actions to happen.
+                            // Z- e.preventDefault(); .
+                            // Z- return false; .
+                        });
+                    }
                 }
             })
-            .fail(function(jqxhr, settings, exception) {
+            .fail(function (jqxhr, settings, exception) {
                 // Hide the loading gif.
                 $('#block_integrityadvocate_loading').remove();
                 self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
@@ -212,22 +252,33 @@ M.block_integrityadvocate = {
                     msg += "Error details:\n" + exception.toString();
                 }
 
-                window.console.log('M.block_integrityadvocate.proctorUILoaded::', msg, 'args=', arguments);
+                window.console.log(fxn + '::', msg, 'args=', arguments);
                 self.eltUserNotifications.html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
             });
     },
-    blockinit: function(Y, proctorjsurl) {
+    /**
+     * Init function for this block called from PHP.
+     * Sets up class variables and kick off this block JS functionality.
+     *
+     * @param {class} Y Moodle Yahoo.
+     * @param {string} proctorjsurl URL to the IA proctor JS.
+     * @param {bool} proctorquizreviewpages True to show proctoring on quiz summary and review pages.
+     * @returns {null} Nothing.
+     */
+    blockinit: function (Y, proctorjsurl, proctorquizreviewpages) {
         var debug = false;
+        var fxn = 'M.block_integrityadvocate.blockinit';
+        debug && window.console.log(fxn + '::Started with proctorjsurl=', proctorjsurl);
         var self = M.block_integrityadvocate;
-        debug && window.console.log('M.block_integrityadvocate.blockinit::Started with proctorjsurl=', proctorjsurl);
 
         // Register input vars for re-use.
         var url = new URL(proctorjsurl);
         var params = new URLSearchParams(url.search.replace(/\&amp;/g, '&'));
-        debug && window.console.log('M.block_integrityadvocate.blockinit::Parsed proctorjsurl=', url);
-        params.forEach(function(value, key) {
+        debug && window.console.log(fxn + '::Parsed proctorjsurl=', url);
+        params.forEach(function (value, key) {
             self[decodeURIComponent(key)] = decodeURIComponent(value);
         });
+        self.proctorquizreviewpages = proctorquizreviewpages;
 
         // Register derived vars for re-use.
         self.isQuizAttempt = (document.body.id === 'page-mod-quiz-attempt');
@@ -244,15 +295,15 @@ M.block_integrityadvocate = {
         // Handlers for different kinds of pages - this is for any required setup before the IA JS is loaded.
         switch (true) {
             case (self.isQuizAttempt):
-                debug && window.console.log('M.block_integrityadvocate.blockinit::This is a quiz attempt page');
+                debug && window.console.log(fxn + '::This is a quiz attempt page');
                 // Disables the Next button until IA JS is loaded.
                 self.eltQuizNextButtonSet.attr('disabled', 1).on('click.block_integrityadvocate.disable', false);
                 self.loadProctorUi(proctorjsurl);
                 break;
             case (self.isScormEntryNewWindow):
-                debug && window.console.log('M.block_integrityadvocate.blockinit::This is a SCORM new "popup" entry page');
+                debug && window.console.log(fxn + '::This is a SCORM new "popup" entry page');
                 // Trigger the IA proctoring only on button click.
-                self.eltScormEnter.on('click.block_integrityadvocate', function(e) {
+                self.eltScormEnter.on('click.block_integrityadvocate', function (e) {
                     $('#scormviewform input[type="submit"]').attr('disabled', 'disabled');
                     e.preventDefault();
 
@@ -271,14 +322,20 @@ M.block_integrityadvocate = {
                 });
                 break;
             default:
-                debug && window.console.log('M.block_integrityadvocate.blockinit::This is the default page handler');
+                debug && window.console.log(fxn + '::This is the default page handler');
                 self.loadProctorUi(proctorjsurl);
         }
 
     },
-    isHttpUrl: function(str) {
+    /**
+     * Test if str is an http(s) URL.
+     * 
+     * @param {string} str 
+     * @returns {bool} True if str is an http(s) URL
+     */
+    isHttpUrl: function (str) {
         // Source: Adapted from https://thispointer.com/javascript-check-if-string-is-url/ .
         // This is not meant to be the perfect regex, just a quick sanity check.
         return /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str);
-      }
+    }
 };

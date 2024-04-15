@@ -91,6 +91,9 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             $mform->addElement('selectyesno', 'config_proctorquizinfopage', get_string('config_proctorquizinfopage', INTEGRITYADVOCATE_BLOCK_NAME));
             $mform->setDefault('config_proctorquizinfopage', 0);
+
+            $mform->addElement('selectyesno', 'config_proctorquizreviewpages', get_string('config_proctorquizreviewpages', INTEGRITYADVOCATE_BLOCK_NAME));
+            $mform->setDefault('config_proctorquizreviewpages', 0);
         }
 
         $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));

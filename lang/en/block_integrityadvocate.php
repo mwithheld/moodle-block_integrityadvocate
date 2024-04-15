@@ -42,7 +42,8 @@ $string['config_blockversion'] = 'Version';
 $string['config_debuginfo'] = 'Debug info';
 $string['config_default_title'] = 'Integrity Advocate';
 $string['config_hidelinksinstudentmessage'] = 'Hide Privacy and Support links in the block when proctoring';
-$string['config_proctorquizinfopage'] = 'Show students proctoring on the quiz info page';
+$string['config_proctorquizinfopage'] = 'Enable proctoring on the quiz info page';
+$string['config_proctorquizreviewpages'] = 'Enable proctoring on the quiz summary and review pages';
 $string['config_topnote'] = 'Config note';
 $string['config_topnote_help'] = '<span class="block_integrityadvocate_topnote_help">Use of this plugin requires purchasing a paid service - please visit <a href="https://integrityadvocate.com/" target="_blank">IntegrityAdvocate</a> to get the credentials needed to be able to use this plugin.</span>';
 
