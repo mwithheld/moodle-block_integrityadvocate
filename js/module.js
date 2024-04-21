@@ -89,11 +89,11 @@ M.block_integrityadvocate = {
                     userid: self.participantidentifier
                 },
                 done: function () {
-                    debug && window.console.log(fxn + '::::ajax.done');
+                    debug && window.console.log(fxn + '::ajax.done');
                     typeof callback === 'function' && callback();
                 },
                 fail: function (xhr_unused, textStatus, errorThrown) {
-                    debug && window.console.log(fxn + '::::ajax.fail');
+                    debug && window.console.log(fxn + '::ajax.fail');
                     window.console.log('textStatus', textStatus);
                     window.console.log('errorThrown', errorThrown);
                     window.IntegrityAdvocate.endSession();
@@ -102,7 +102,7 @@ M.block_integrityadvocate = {
             }]);
         });
 
-        debug && window.console.log(fxn + '::::Done');
+        debug && window.console.log(fxn + '::Done');
     },
     /**
      * Stuff to do when the proctor UI is loaded.
@@ -113,19 +113,19 @@ M.block_integrityadvocate = {
     proctorUILoaded: function () {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.proctorUILoaded';
-        debug && window.console.log(fxn + '::::Started');
+        debug && window.console.log(fxn + '::Started');
         var self = M.block_integrityadvocate;
         self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
         var eltMainContent = $('#responseform, #scormpage, div[role="main"]');
         switch (true) {
             case self.isQuizAttempt:
-                debug && window.console.log(fxn + '::::On quizzes, disable the submit button and hide the questions until IA is ready', self.eltQuizNextButtonSet);
+                debug && window.console.log(fxn + '::On quizzes, disable the submit button and hide the questions until IA is ready', self.eltQuizNextButtonSet);
                 self.eltQuizNextButtonSet.removeAttr('disabled').off('click.block_integrityadvocate.disable');
                 $('#block_integrityadvocate_hidequiz').remove();
                 eltMainContent.show();
                 break;
             case self.isScormPlayerSameWindow:
-                debug && window.console.log(fxn + '::::On SCORM samewindow, show the content and monitor for page close');
+                debug && window.console.log(fxn + '::On SCORM samewindow, show the content and monitor for page close');
                 eltMainContent.show();
 
                 var elt = $('a.btn-secondary[title="' + M.util.get_string('exitactivity', 'scorm') + '"]');
@@ -141,18 +141,18 @@ M.block_integrityadvocate = {
                 });
                 break;
             case self.isScormEntryNewWindow:
-                debug && window.console.log(fxn + '::::On SCORM newwindow, show the Enter form and monitor for page close');
+                debug && window.console.log(fxn + '::On SCORM newwindow, show the Enter form and monitor for page close');
                 self.eltDivMain.find('*').show();
                 eltMainContent.show();
                 $('#block_integrityadvocate_loading').remove();
                 $(window).on('beforeunload', function () {
-                    debug && window.console.log(fxn + '::::Exiting the window - close the IA session');
+                    debug && window.console.log(fxn + '::Exiting the window - close the IA session');
                     self.sessionClose();
                 });
                 self.eltScormEnter.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
                 break;
             default:
-                debug && window.console.log(fxn + '::::This is the default page handler');
+                debug && window.console.log(fxn + '::This is the default page handler');
                 eltMainContent.show();
         }
     },
@@ -182,18 +182,42 @@ M.block_integrityadvocate = {
             self.proctorUILoaded();
             return;
         }
+
+        debug && window.console.log(fxn + '::About to getScript()');
         $.getScript(self.decodeEntities(proctorjsurl))
             .done(function () {
-                window.console.log(fxn + '.getScript.done::Proctoring JS loaded');
-                $(document).bind('IA_Ready', function () {
+                window.console.log(fxn + '.getScript.done::Started; this means the proctoring JS was retrieved successfully');
+                $(document).bind('IA_Ready', function (script) {
+                    debug && window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::Started with script=', script);
+
+                    if(typeof window.IntegrityAdvocate != 'object') {
+                        console.error('FAILED to load window.IntegrityAdvocate object');
+                        // Silently exit.
+                        return;
+                    }
+
+                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::window.IntegrityAdvocate=', window.IntegrityAdvocate);
+                    if(typeof window.IntegrityAdvocate.status === 'string' && window.IntegrityAdvocate.status === 'Not Required') {
+                        var identifiers = {
+                            appid: self.appid,
+                            courseid: self.courseid,
+                            moduleid: self.activityid,
+                            userid: self.participantidentifier
+                        };
+                        console.warn('IA is not enabled on the IA side for this activity identifiers shown below.  The admin/teacher should go into module overview > Activities tab to re-set "Enable Integrity Advocate" and re-set some Rules.', identifiers);
+                    }
+
                     // Remember that we have started a session so we only close it once.
                     self.sessionOpen();
 
                     // Hide the loading gif and show the main content.
                     self.proctorUILoaded();
 
-                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready done');
+                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::Done');
                 });
+
+                // For quizzes, close the IA session using window.IntegrityAdvocate.endSession().
+                // For non-quizzes, close the IA session using self.sessionClose() and/or db/events.php.
                 if (self.isQuizAttempt) {
                     debug && window.console.log(fxn + '.getScript.done::This is a quiz attempt');
 
