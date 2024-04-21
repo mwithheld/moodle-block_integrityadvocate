@@ -196,7 +196,7 @@ M.block_integrityadvocate = {
                         return;
                     }
 
-                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::window.IntegrityAdvocate=', window.IntegrityAdvocate);
+                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::Got window.IntegrityAdvocate=', window.IntegrityAdvocate);
                     if(typeof window.IntegrityAdvocate.status === 'string' && window.IntegrityAdvocate.status === 'Not Required') {
                         var identifiers = {
                             appid: self.appid,
