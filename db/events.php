@@ -24,6 +24,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $blockintegrityadvocateprocessevent = 'block_integrityadvocate_observer::process_event';
+
+
+/*
+* Purposely omitted bc these are done in JS::window.IntegrityAdvocate.endSession().
+*        'eventname' => '\\mod_quiz\\event\\attempt_reviewed',
+*        'eventname' => '\\mod_quiz\\event\\attempt_submitted',
+*/
 $observers = [
     [
         'eventname' => '\\mod_assign\\event\\assessable_submitted',
@@ -43,14 +50,6 @@ $observers = [
     ],
     [
         'eventname' => '\\mod_quiz\\event\\attempt_abandoned',
-        'callback' => $blockintegrityadvocateprocessevent,
-    ],
-    [
-        'eventname' => '\\mod_quiz\\event\\attempt_reviewed',
-        'callback' => $blockintegrityadvocateprocessevent,
-    ],
-    [
-        'eventname' => '\\mod_quiz\\event\\attempt_submitted',
         'callback' => $blockintegrityadvocateprocessevent,
     ],
 ];
