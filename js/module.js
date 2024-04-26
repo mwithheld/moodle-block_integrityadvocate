@@ -293,6 +293,7 @@ M.block_integrityadvocate = {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.blockinit';
         debug && window.console.log(fxn + '::Started with proctorjsurl=', proctorjsurl);
+        debug && window.console.log(fxn + '::Started with proctorquizreviewpages=', proctorquizreviewpages);
         var self = M.block_integrityadvocate;
 
         // Register input vars for re-use.
@@ -302,7 +303,7 @@ M.block_integrityadvocate = {
         params.forEach(function (value, key) {
             self[decodeURIComponent(key)] = decodeURIComponent(value);
         });
-        self.proctorquizreviewpages = proctorquizreviewpages;
+        self.proctorquizreviewpages = proctorquizreviewpages === '1';
 
         // Register derived vars for re-use.
         self.isQuizAttempt = (document.body.id === 'page-mod-quiz-attempt');
@@ -315,6 +316,8 @@ M.block_integrityadvocate = {
         self.eltDivMain = $('div[role="main"]');
         self.eltQuizNextButton = $('#mod_quiz-next-nav');
         self.eltQuizNextButtonSet = $('.mod_quiz-next-nav');
+
+        debug && window.console.log(fxn + '::After gathering vars, this block self=', self);
 
         // Handlers for different kinds of pages - this is for any required setup before the IA JS is loaded.
         switch (true) {
