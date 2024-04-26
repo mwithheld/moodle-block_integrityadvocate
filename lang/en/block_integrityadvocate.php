@@ -73,9 +73,7 @@ $string['flags_none'] = 'None';
 
 $string['fullname'] = 'Full course name';
 
-$string['integrityadvocate:addinstance'] = 'Add new Integrity Advocate block';
 $string['integrityadvocate:addinstance'] = 'Add a new Integrity Advocate block';
-$string['integrityadvocate:myaddinstance'] = 'Add a new Integrity Advocate block to the desired page';
 $string['integrityadvocate:myaddinstance'] = 'Add a Integrity Advocate block to My home page';
 $string['integrityadvocate:overview'] = 'View course overview of Integrity Advocate results';
 $string['integrityadvocate:selfview'] = 'View own Integrity Advocate results';
