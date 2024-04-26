@@ -220,18 +220,20 @@ M.block_integrityadvocate = {
                 // For non-quizzes, close the IA session using self.sessionClose() and/or db/events.php.
                 if (self.isQuizAttempt) {
                     debug && window.console.log(fxn + '.getScript.done::This is a quiz attempt');
-
-                    // Quiz navigation sidebar "Finish attempt button".
-                    $('a.endtestlink').on('click.block_integrityadvocate', function () {
-                        window.console.log(fxn + '.getScript.done::a.endtestlink.on(click)::started: About to IntegrityAdvocate.endSession()');
-                        window.IntegrityAdvocate.endSession();
-
-                        // These are commented out bc we DO want the default actions to happen.
-                        // Z- e.preventDefault();.
-                        // Z- return false;.
-                    });
-                    if (!self.proctorquizreviewpages) {
+                    if (self.proctorquizreviewpages) {
+                        debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=true');
+                    } else {
                         debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=false so attach endSession to Next/Finish attempt button');
+                        
+                        // Quiz navigation sidebar "Finish attempt button".
+                        $('a.endtestlink').on('click.block_integrityadvocate', function () {
+                            window.console.log(fxn + '.getScript.done::a.endtestlink.on(click)::started: About to IntegrityAdvocate.endSession()');
+                            window.IntegrityAdvocate.endSession();
+
+                            // These are commented out bc we DO want the default actions to happen.
+                            // Z- e.preventDefault();.
+                            // Z- return false;.
+                        });
 
                         // Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
                         var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]')
@@ -252,7 +254,7 @@ M.block_integrityadvocate = {
                     if (self.proctorquizreviewpages) {
                         debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=false so attach endSession to Finish review button');
 
-                        // Quiz body "Finish review" button.
+                        // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
                         self.eltQuizNextButtonSet.on('click.block_integrityadvocate', function (e) {
                             window.console.log(fxn + '.getScript.done::#mod_quiz-next-nav.on(click)::started: Finish review: About to IntegrityAdvocate.endSession()');
                             window.IntegrityAdvocate.endSession();
