@@ -381,7 +381,7 @@ class Api {
             [
                 'courseid' => $courseid,
                 'participantidentifier' => $userid, 'blockinstanceid' => $blockinstanceid,
-            ],
+            ]
         );
         $debug && debugging($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
         if (ia_u::is_empty($participantraw) || !($participantraw instanceof \stdClass)) {
