@@ -219,7 +219,7 @@ M.block_integrityadvocate = {
                 // For quizzes, close the IA session using window.IntegrityAdvocate.endSession().
                 // For non-quizzes, close the IA session using self.sessionClose() and/or db/events.php.
                 if (self.isQuizAttempt) {
-                    debug && window.console.log(fxn + '.getScript.done::This is a quiz attempt');
+                    window.console.log(fxn + '.getScript.done::This is a quiz attempt');
                     if (self.proctorquizreviewpages) {
                         debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=true');
                     } else {
@@ -249,7 +249,7 @@ M.block_integrityadvocate = {
                         }
                     }
                 } else if (document.body.id === 'page-mod-quiz-review') {
-                    debug && window.console.log(fxn + '.getScript.done::Found a quiz review page');
+                    window.console.log(fxn + '.getScript.done::This is a quiz review page');
 
                     if (self.proctorquizreviewpages) {
                         debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=false so attach endSession to Finish review button');
