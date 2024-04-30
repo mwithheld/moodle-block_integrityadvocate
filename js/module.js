@@ -186,85 +186,7 @@ M.block_integrityadvocate = {
         debug && window.console.log(fxn + '::About to getScript()');
         $.getScript(self.decodeEntities(proctorjsurl))
             .done(function () {
-                window.console.log(fxn + '.getScript.done::Started; this means the proctoring JS was retrieved successfully');
-                $(document).bind('IA_Ready', function (script) {
-                    debug && window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::Started with script=', script);
-
-                    if(typeof window.IntegrityAdvocate != 'object') {
-                        console.error('FAILED to load window.IntegrityAdvocate object');
-                        // Silently exit.
-                        return;
-                    }
-
-                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::Got window.IntegrityAdvocate=', window.IntegrityAdvocate);
-                    if(typeof window.IntegrityAdvocate.status === 'string' && window.IntegrityAdvocate.status === 'Not Required') {
-                        var identifiers = {
-                            appid: self.appid,
-                            courseid: self.courseid,
-                            moduleid: self.activityid,
-                            userid: self.participantidentifier
-                        };
-                        console.warn('IA is not enabled on the IA side for this activity identifiers shown below.  The admin/teacher should go into module overview > Activities tab to re-set "Enable Integrity Advocate" and re-set some Rules.', identifiers);
-                    }
-
-                    // Remember that we have started a session so we only close it once.
-                    self.sessionOpen();
-
-                    // Hide the loading gif and show the main content.
-                    self.proctorUILoaded();
-
-                    window.console.log(fxn + '.getScript.done.document.bind::IA_Ready::Done');
-                });
-
-                // For quizzes, close the IA session using window.IntegrityAdvocate.endSession().
-                // For non-quizzes, close the IA session using self.sessionClose() and/or db/events.php.
-                if (self.isQuizAttempt) {
-                    window.console.log(fxn + '.getScript.done::This is a quiz attempt');
-                    if (self.proctorquizreviewpages) {
-                        debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=true');
-                    } else {
-                        debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=false so attach endSession to Next/Finish attempt button');
-                        
-                        // Quiz navigation sidebar "Finish attempt button".
-                        $('a.endtestlink').on('click.block_integrityadvocate', function () {
-                            window.console.log(fxn + '.getScript.done::a.endtestlink.on(click)::started: About to IntegrityAdvocate.endSession()');
-                            window.IntegrityAdvocate.endSession();
-
-                            // These are commented out bc we DO want the default actions to happen.
-                            // Z- e.preventDefault();.
-                            // Z- return false;.
-                        });
-
-                        // Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
-                        var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]')
-                        if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
-                            self.eltQuizNextButton.on('click.block_integrityadvocate', function (e) {
-                                window.console.log(fxn + '.getScript.done::#mod_quiz-next-nav.on(click)::started: Next/Finish atttempt: About to IntegrityAdvocate.endSession()');
-                                window.IntegrityAdvocate.endSession();
-
-                                // These are commented out bc we DO want the default actions to happen.
-                                // Z- e.preventDefault(); .
-                                // Z- return false; .
-                            });
-                        }
-                    }
-                } else if (document.body.id === 'page-mod-quiz-review') {
-                    window.console.log(fxn + '.getScript.done::This is a quiz review page');
-
-                    if (self.proctorquizreviewpages) {
-                        debug && window.console.log(fxn + '.getScript.done::proctorquizreviewpages=false so attach endSession to Finish review button');
-
-                        // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
-                        self.eltQuizNextButtonSet.on('click.block_integrityadvocate', function (e) {
-                            window.console.log(fxn + '.getScript.done::#mod_quiz-next-nav.on(click)::started: Finish review: About to IntegrityAdvocate.endSession()');
-                            window.IntegrityAdvocate.endSession();
-
-                            // These are commented out bc we DO want the default actions to happen.
-                            // Z- e.preventDefault(); .
-                            // Z- return false; .
-                        });
-                    }
-                }
+                self.getProctorJsDone();
             })
             .fail(function (jqxhr, settings, exception) {
                 // Hide the loading gif.
@@ -281,6 +203,123 @@ M.block_integrityadvocate = {
                 window.console.log(fxn + '.getScript.fail::', msg, 'args=', arguments);
                 self.eltUserNotifications.html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
             });
+    },
+    /**
+     * Runs when the IA JS is loaded.
+     *
+     * @returns {null} Nothing.
+     */
+    getProctorJsDone: function () {
+        var debug = false;
+        var fxn = 'M.block_integrityadvocate.getProctorJsDone';
+        window.console.log(fxn + '::Started');
+        var self = M.block_integrityadvocate;
+
+        $(document).bind('IA_Ready', function (script) {
+            self.handleEventIAReady(script);
+        });
+
+        self.setupQuiz();
+    },
+    /**
+     * Runs when the IA's JS-created IA_Ready event fires.
+     *
+     * @returns {null} Nothing.
+     */
+    handleEventIAReady: function (script) {
+        var debug = false;
+        var fxn = 'M.block_integrityadvocate.handleEventIAReady';
+        debug && window.console.log(fxn + 'Started with script=', script);
+        var self = M.block_integrityadvocate;
+
+        if (typeof window.IntegrityAdvocate != 'object') {
+            console.error('FAILED to load window.IntegrityAdvocate object');
+            // Silently exit.
+            return;
+        }
+
+        window.console.log(fxn + '::Got window.IntegrityAdvocate=', window.IntegrityAdvocate);
+        if (typeof window.IntegrityAdvocate.status === 'string' && window.IntegrityAdvocate.status === 'Not Required') {
+            var identifiers = {
+                appid: self.appid,
+                courseid: self.courseid,
+                moduleid: self.activityid,
+                userid: self.participantidentifier
+            };
+            console.warn('IA is not enabled on the IA side for this activity identifiers shown below.  The admin/teacher should go into module overview > Activities tab to re-set "Enable Integrity Advocate" and re-set some Rules.', identifiers);
+        }
+
+        // Remember that we have started a session so we only close it once.
+        self.sessionOpen();
+
+        // Hide the loading gif and show the main content.
+        self.proctorUILoaded();
+
+        window.console.log(fxn + '::IA_Ready::Done');
+    },
+    /**
+     * Setup JS needed for quiz IA functionality.
+     *
+     * @returns {null} Nothing.
+     */
+    setupQuiz: function () {
+        var debug = false;
+        var fxn = 'M.block_integrityadvocate.setupQuiz';
+        debug && window.console.log(fxn + '::Started');
+        var self = M.block_integrityadvocate;
+
+        // For quizzes, close the IA session using window.IntegrityAdvocate.endSession().
+        // For non-quizzes, close the IA session using self.sessionClose() and/or db/events.php.  This is setup in loadProctorUi().
+        if (self.isQuizAttempt) {
+            window.console.log(fxn + '::This is a quiz attempt');
+            if (self.proctorquizreviewpages) {
+                debug && window.console.log(fxn + '::proctorquizreviewpages=true');
+            } else {
+                debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Next/Finish attempt button');
+
+                // Quiz navigation sidebar "Finish attempt button".
+                $('a.endtestlink').on('click.block_integrityadvocate', function () {
+                    var fxn = 'M.block_integrityadvocate.setupQuiz.a.endtestlink.click';
+                    window.console.log(fxn + '::Started');
+                    e.preventDefault();
+                    window.IntegrityAdvocate.endSession(() => {
+                        window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
+                    });
+                    e.target.click();
+                });
+
+                // Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
+                var eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]');
+                if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
+                    self.eltQuizNextButton.on('click.block_integrityadvocate', function (e) {
+                        var fxn = 'M.block_integrityadvocate.setupQuiz.eltNextPageArr.click';
+                        window.console.log(fxn + '::Started');
+                        e.preventDefault();
+                        window.IntegrityAdvocate.endSession(() => {
+                            window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
+                        });
+                        e.target.click();
+                    });
+                }
+            }
+        } else if (document.body.id === 'page-mod-quiz-review') {
+            window.console.log(fxn + '::This is a quiz review page');
+
+            if (self.proctorquizreviewpages) {
+                debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Finish review button');
+
+                // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
+                self.eltQuizNextButtonSet.one('click.block_integrityadvocate', function (e,) {
+                    var fxn = 'M.block_integrityadvocate.setupQuiz.eltQuizNextButtonSet.click';
+                    window.console.log(fxn + '::Started');
+                    e.preventDefault();
+                    window.IntegrityAdvocate.endSession(() => {
+                        window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
+                    });
+                    e.target.click();
+                });
+            }
+        }
     },
     /**
      * Init function for this block called from PHP.
@@ -358,8 +397,8 @@ M.block_integrityadvocate = {
     },
     /**
      * Test if str is an http(s) URL.
-     * 
-     * @param {string} str 
+     *
+     * @param {string} str
      * @returns {bool} True if str is an http(s) URL.
      */
     isHttpUrl: function (str) {
