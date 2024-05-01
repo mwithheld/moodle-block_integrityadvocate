@@ -397,13 +397,14 @@ M.block_integrityadvocate = {
     },
     /**
      * Test if str is an http(s) URL.
+     * Adapted from https://thispointer.com/javascript-check-if-string-is-url/ .
+     * This is not meant to be the perfect regex, just a quick sanity check.
      *
      * @param {string} str
      * @returns {bool} True if str is an http(s) URL.
      */
     isHttpUrl: function (str) {
-        // Source: Adapted from https://thispointer.com/javascript-check-if-string-is-url/ .
-        // This is not meant to be the perfect regex, just a quick sanity check.
         return /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str);
     }
 };
+
