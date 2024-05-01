@@ -282,10 +282,8 @@ M.block_integrityadvocate = {
                     var fxn = 'M.block_integrityadvocate.setupQuiz.a.endtestlink.click';
                     window.console.log(fxn + '::Started');
                     e.preventDefault();
-                    window.IntegrityAdvocate.endSession(() => {
-                        window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
-                    });
-                    e.target.click();
+                    const promise = self.iaEndSession(e).then(e => { e.target.click(); });
+                    debug && window.console.log(fxn + '::Done call to iaEndSession, result=', promise);
                 });
 
                 // Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
@@ -295,10 +293,9 @@ M.block_integrityadvocate = {
                         var fxn = 'M.block_integrityadvocate.setupQuiz.eltNextPageArr.click';
                         window.console.log(fxn + '::Started');
                         e.preventDefault();
-                        window.IntegrityAdvocate.endSession(() => {
-                            window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
-                        });
-                        e.target.click();
+                        const promise = self.iaEndSession(e).then(e => { e.target.click(); });
+                        debug && window.console.log(fxn + '::Done call to iaEndSession, result=', promise);
+
                     });
                 }
             }
@@ -313,13 +310,28 @@ M.block_integrityadvocate = {
                     var fxn = 'M.block_integrityadvocate.setupQuiz.eltQuizNextButtonSet.click';
                     window.console.log(fxn + '::Started');
                     e.preventDefault();
-                    window.IntegrityAdvocate.endSession(() => {
-                        window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
-                    });
-                    e.target.click();
+                    const promise = self.iaEndSession(e).then(e => { e.target.click(); });
+                    debug && window.console.log(fxn + '::Done call to iaEndSession, result=', promise);
                 });
             }
         }
+    },
+    /**
+     * Async wrapper around the IA JS call to end the IA session.
+     * Sets up class variables and kick off this block JS functionality.
+     *
+     * @param {event} The event that triggered this action e.g. a click event.
+     * @returns {event} The event you passed in, so you can trigger it in a .then().
+     */
+    iaEndSession: async function (e) {
+        var debug = false;
+        var fxn = 'M.block_integrityadvocate.iaEndSession';
+        debug && window.console.log(fxn + '::Started');
+        await window.IntegrityAdvocate.endSession(() => {
+            window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
+        });
+        debug && window.console.log(fxn + '::Done');
+        return e;
     },
     /**
      * Init function for this block called from PHP.
@@ -407,4 +419,5 @@ M.block_integrityadvocate = {
         return /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str);
     }
 };
+
 
