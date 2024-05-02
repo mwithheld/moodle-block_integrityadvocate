@@ -100,7 +100,7 @@ class Output {
         ];
 
         $blockinstance->page->requires->jquery_plugin('jquery');
-        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl, $blockinstance->config->proctorquizreviewpages], false, $jsmodule);
+        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl, $blockinstance->config->proctorquizinfopage, $blockinstance->config->proctorquizreviewpages], false, $jsmodule);
 
         $debug && debugging($fxn . '::Done requiring IA JS and doing init call; had jsmodule=' . serialize($jsmodule));
         return '';
