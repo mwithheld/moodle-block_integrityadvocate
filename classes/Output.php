@@ -67,8 +67,8 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && debugging($fxn . '::Started with ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) .
-                        '; $blockinstance->context->contextlevel=' . $blockinstance->context->contextlevel .
-                        ' vs \CONTEXT_BLOCK=' . \CONTEXT_BLOCK . '; $proctorjsurl=' . $proctorjsurl);
+            '; $blockinstance->context->contextlevel=' . $blockinstance->context->contextlevel .
+            ' vs \CONTEXT_BLOCK=' . \CONTEXT_BLOCK . '; $proctorjsurl=' . $proctorjsurl);
 
         // If the user is not enrolled as a student, $proctorjsurl is a string error message, so simply return an empty result.
         if (!\filter_var($proctorjsurl, \FILTER_VALIDATE_URL)) {
@@ -93,14 +93,20 @@ class Output {
         }
 
         // Organize access to JS.
-        $jsmodule = ['name' => INTEGRITYADVOCATE_BLOCK_NAME,
+        $jsmodule = [
+            'name' => INTEGRITYADVOCATE_BLOCK_NAME,
             'fullpath' => self::BLOCK_JS_PATH . '/module.js',
             'requires' => [],
             'strings' => [],
         ];
 
         $blockinstance->page->requires->jquery_plugin('jquery');
-        $blockinstance->page->requires->js_init_call('M.block_integrityadvocate.blockinit', [$proctorjsurl, $blockinstance->config->proctorquizinfopage, $blockinstance->config->proctorquizreviewpages], false, $jsmodule);
+        $blockinstance->page->requires->js_init_call(
+            'M.block_integrityadvocate.blockinit',
+            [$proctorjsurl, $blockinstance->config->proctorquizinfopage, $blockinstance->config->proctorquizreviewpages],
+            false,
+            $jsmodule
+        );
 
         $debug && debugging($fxn . '::Done requiring IA JS and doing init call; had jsmodule=' . serialize($jsmodule));
         return '';
@@ -305,8 +311,9 @@ class Output {
      */
     public static function get_resubmit_html(string $resubmiturl, string $prefix): string {
         return \html_writer::span(
-                        \format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', \INTEGRITYADVOCATE_BLOCK_NAME), ['target' => '_blank']), \FORMAT_HTML),
-                        $prefix . '_resubmit_link');
+            \format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', \INTEGRITYADVOCATE_BLOCK_NAME), ['target' => '_blank']), \FORMAT_HTML),
+            $prefix . '_resubmit_link'
+        );
     }
 
     /**
@@ -364,14 +371,18 @@ class Output {
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output.
      */
-    public static function get_participant_summary_output(\block_integrityadvocate $blockinstance,
-            ia_participant $participant, bool $showphoto = true, bool $showoverviewbutton = true,
-            bool $showstatus = false): string {
+    public static function get_participant_summary_output(
+        \block_integrityadvocate $blockinstance,
+        ia_participant $participant,
+        bool $showphoto = true,
+        bool $showoverviewbutton = true,
+        bool $showstatus = false
+    ): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; "
-                . "\$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; "
-                . "\$showstatus={$showstatus}; \$participant->status={$participant->status}";
+            . "\$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; "
+            . "\$showstatus={$showstatus}; \$participant->status={$participant->status}";
         $debug && debugging($debugvars);
 
         // Sanity check.
@@ -379,7 +390,7 @@ class Output {
             $msg = $fxn . '::Input params are invalid; \$debugvars=' . $debugvars;
             debugging($fxn . '::' . $msg);
             debugging($fxn . '::ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) . '; ia_u::is_empty($participant)=' .
-                    ia_u::is_empty($participant) . '; ia_status::is_status_int($participant->status)=' . ia_status::is_status_int($participant->status));
+                ia_u::is_empty($participant) . '; ia_status::is_status_int($participant->status)=' . ia_status::is_status_int($participant->status));
             throw new \InvalidArgumentException($msg);
         }
 
@@ -392,20 +403,28 @@ class Output {
         }
 
         $status = Status::NOTSTARTED_INT;
-        if ($showstatus &&
-                ($blockcontext = $blockinstance->context) &&
-                ($modulecontext = $blockcontext->get_parent_context()) &&
-                ($modulecontext->contextlevel == CONTEXT_MODULE)
+        if (
+            $showstatus &&
+            ($blockcontext = $blockinstance->context) &&
+            ($modulecontext = $blockcontext->get_parent_context()) &&
+            ($modulecontext->contextlevel == CONTEXT_MODULE)
         ) {
             $status = ia_api::get_module_status($modulecontext, $blockinstance->get_user()->id);
         }
 
         $out = self::get_summary_html(
-                        $participant->participantidentifier, $status, $participant->created, $participant->modified,
-                        ($showphoto ? self::get_participant_photo_output($participant->participantidentifier, ($participant->participantphoto ?: ''),
-                                $participant->status, $participant->email) : ''),
-                        ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
-                        $showstatus
+            $participant->participantidentifier,
+            $status,
+            $participant->created,
+            $participant->modified,
+            ($showphoto ? self::get_participant_photo_output(
+                $participant->participantidentifier,
+                ($participant->participantphoto ?: ''),
+                $participant->status,
+                $participant->email
+            ) : ''),
+            ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
+            $showstatus
         );
 
         if (FeatureControl::CACHE && !$cache->set($cachekey, $out)) {
@@ -426,12 +445,19 @@ class Output {
      * @param bool $showstatus
      * @return string
      */
-    public static function get_summary_html(int $userid, int $status, int $start, int $end,
-            string $photohtml = '', string $overviewbuttonhtml = '', bool $showstatus = false): string {
+    public static function get_summary_html(
+        int $userid,
+        int $status,
+        int $start,
+        int $end,
+        string $photohtml = '',
+        string $overviewbuttonhtml = '',
+        bool $showstatus = false
+    ): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$userid={$userid}; \$status={$status}; \$start={$start}; \$end={$end}; "
-                . "\$photohtml={$photohtml}; \$overviewbuttonhtml={$overviewbuttonhtml}; \$showstatus={$showstatus}";
+            . "\$photohtml={$photohtml}; \$overviewbuttonhtml={$overviewbuttonhtml}; \$showstatus={$showstatus}";
         $debug && debugging($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
@@ -441,20 +467,20 @@ class Output {
 
         if ($showstatus) {
             $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_status']) .
-                    \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                    self::get_status_html($status, $prefix) .
-                    \html_writer::end_tag('div');
+                \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
+                self::get_status_html($status, $prefix) .
+                \html_writer::end_tag('div');
         }
 
         $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_start']) .
-                \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                ($start ? \userdate($start) : '') .
-                \html_writer::end_tag('div');
+            \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
+            ($start ? \userdate($start) : '') .
+            \html_writer::end_tag('div');
 
         $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_end']) .
-                \html_writer::span(\get_string('last_modified', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                ($end ? \userdate($end) : '') .
-                \html_writer::end_tag('div');
+            \html_writer::span(\get_string('last_modified', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
+            ($end ? \userdate($end) : '') .
+            \html_writer::end_tag('div');
 
         if ($overviewbuttonhtml) {
             $outarr[] = $overviewbuttonhtml;
@@ -498,8 +524,8 @@ class Output {
         if ($photo) {
             $spanproperties = ['class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' . ($status === ia_status::VALID_INT ? '' : 'in') . 'valid'];
             $outarr[] = \html_writer::start_tag('span', $spanproperties) .
-                    \html_writer::img($photo, $email) .
-                    \html_writer::end_tag('span');
+                \html_writer::img($photo, $email) .
+                \html_writer::end_tag('span');
         }
         // Close .block_integrityadvocate_overview_participant_summary_img_div.
         $outarr[] = \html_writer::end_tag('div');
@@ -518,12 +544,17 @@ class Output {
      * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output showing latest status, flags, and photos.
      */
-    public static function get_user_summary_output(\block_integrityadvocate $blockinstance, int $userid,
-            bool $showphoto = true, bool $showoverviewbutton = true, bool $showstatus = false): string {
+    public static function get_user_summary_output(
+        \block_integrityadvocate $blockinstance,
+        int $userid,
+        bool $showphoto = true,
+        bool $showoverviewbutton = true,
+        bool $showstatus = false
+    ): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$userid={$userid}; "
-                . "\$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . \gettype($showstatus);
+            . "\$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . \gettype($showstatus);
         $debug && debugging($debugvars);
 
         // Sanity check.
@@ -542,11 +573,11 @@ class Output {
                     // If the block is in a course, show the participant-level latest status, photo, last seen, etc.
                     $debug && debugging($fxn . '::Am in a module context');
                     $participant = ia_api::get_participant(
-                                    $blockinstance->config->apikey,
-                                    $blockinstance->config->appid,
-                                    $blockinstance->get_course()->id,
-                                    $userid,
-                                    $blockinstance->instance->id
+                        $blockinstance->config->apikey,
+                        $blockinstance->config->appid,
+                        $blockinstance->get_course()->id,
+                        $userid,
+                        $blockinstance->instance->id
                     );
 
                     if (ia_u::is_empty($participant)) {
@@ -554,8 +585,13 @@ class Output {
                         return self::get_student_message();
                     }
 
-                    return self::get_participant_summary_output($blockinstance, $participant, $showphoto,
-                                    $showoverviewbutton, $showstatus);
+                    return self::get_participant_summary_output(
+                        $blockinstance,
+                        $participant,
+                        $showphoto,
+                        $showoverviewbutton,
+                        $showstatus
+                    );
 
                 case ((int) (\CONTEXT_MODULE)):
                     // If block is in a module, show the module's latest status, photo, start, end.
@@ -568,17 +604,20 @@ class Output {
                     }
                     $participant = $latestsession->participant;
                     return self::get_summary_html(
-                                    $participant->participantidentifier,
-                                    $latestsession->status,
-                                    $latestsession->start,
-                                    $latestsession->end,
-                                    ($showphoto ? self::get_participant_photo_output($participant->participantidentifier,
-                                            ($latestsession->participantphoto ?: ''),
-                                            $latestsession->status, $participant->email) : ''),
-                                    ($showoverviewbutton ?
-                                    self::get_button_overview($blockinstance, $participant->participantidentifier) :
-                                    ''),
-                                    $showstatus
+                        $participant->participantidentifier,
+                        $latestsession->status,
+                        $latestsession->start,
+                        $latestsession->end,
+                        ($showphoto ? self::get_participant_photo_output(
+                            $participant->participantidentifier,
+                            ($latestsession->participantphoto ?: ''),
+                            $latestsession->status,
+                            $participant->email
+                        ) : ''),
+                        ($showoverviewbutton ?
+                            self::get_button_overview($blockinstance, $participant->participantidentifier) :
+                            ''),
+                        $showstatus
                     );
 
                 default:
@@ -612,12 +651,12 @@ class Output {
             $output[] = '<input type="hidden" name="' . $k . '" value="' . \htmlspecialchars($v, \ENT_QUOTES, 'UTF-8') . '">';
         }
         $output[] = '<input type="hidden" name="oauth_signature" value="' . $signature . '">'
-                . '<button type="submit">Launch</button></form>';
+            . '<button type="submit">Launch</button></form>';
         $output[] = '<iframe id="iframelaunch" '
-                . 'name="iframelaunch" src="" '
-                . 'style="width:100%;height:800px" '
-                . 'sandbox="allow-same-origin allow-forms allow-scripts allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox">'
-                . '</iframe>';
+            . 'name="iframelaunch" src="" '
+            . 'style="width:100%;height:800px" '
+            . 'sandbox="allow-same-origin allow-forms allow-scripts allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox">'
+            . '</iframe>';
         $output[] = '<script>document.getElementById("ltiLaunchForm").submit();</script>';
         return \implode('', $output);
     }
