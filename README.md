@@ -16,16 +16,16 @@ The accompanying plugin, [Integrity Advocate restrict access plugin](https://moo
 Support
 -------
 
-Please visit [Support for Integrity Advocate](https://support.integrityadvocate.com/hc/en-us).
+Please visit [Support for Integrity Advocate](https://www.integrityadvocate.com/supporthttps://support.integrityadvocate.com/hc/en-us "https://www.integrityadvocate.com/supporthttps://support.integrityadvocate.com/hc/en-us").
 
-Integrity Advocate provides both administrator ([support@integrityadvocate.com](mailto:%73upp%6f%72%74@in%74%65%67r%69t%79a%64%76%6fca%74%65%2e%63%6f%6d)) and end-user (learner) support 24/7/365 via chat, email, phone and through an [online support portal](https://support.integrityadvocate.com/hc/en-us).
+Integrity Advocate provides both administrator ([support@integrityadvocate.com](mailto:support@integrityadvocate.com)) and end-user (learner) support 24/7/365 via chat, email, phone and through an [online support portal](https://www.integrityadvocate.com/support "https://www.integrityadvocate.com/support").
 
 A nice feature is that the Integrity Advocate App will automatically change its language to that of the user's browser settings (over 64 languages supported).
 
 Bugs / Issue Tracker
 --------------------
 
-We welcome reports of bugs, code contributions via the repos for [block\_integrityadvocate](https://github.com/mwithheld/moodle-block_integrityadvocate) and [availability\_integrityadvocate](https://github.com/mwithheld/moodle-availability_integrityadvocate/issues).
+We welcome reports of bugs, code contributions via the repos for [block\_integrityadvocate](https://github.com/mwithheld/moodle-block_integrityadvocate/issues "https://github.com/mwithheld/moodle-block_integrityadvocate/issues") and [availability\_integrityadvocate](https://github.com/mwithheld/moodle-availability_integrityadvocate/issues).
 
 We take privacy and security seriously. Any security issues can most responsibly be disclosed to admin@integrityadvocate.com
 
@@ -60,7 +60,6 @@ Requirements for installation
 
 *   Purchase an API key and App ID from [Integrity Advocate](https://www.integrityadvocate.com/partners/moodle).
 *   PHP 7.2 or higher - see [Moodle PHP doc](https://docs.moodle.org/35/en/PHP).
-
 *   Moodle 3.5 and above - see [What version of Moodle am I using?](https://docs.moodle.org/en/Moodle_version#What_version_of_Moodle_am_I_using)
 *   You need administrator privileges in your Moodle instance.
 *   Completion must be enabled at the site level and course level - see [Enabling course completion](https://docs.moodle.org/en/Course_completion_settings#Enabling_course_completion).
@@ -82,15 +81,15 @@ The [block](https://moodle.org/plugins/block_integrityadvocate) can be added to 
 The optional [availability restriction (condition)](https://moodle.org/plugins/availability_integrityadvocate) prevents access to a course module depending on the Integrity Advocate results in another module.
 
 Potential privacy issues
----------------------------
+------------------------
 
 Integrity Advocate, when appropriately applied, can mitigate the majority of the privacy concerns that organizations can face when using monitoring technology. Please see the Privacy section in the Description and/or contact [Integrity Advocate](https://www.integrityadvocate.com/partners/moodle) for more details.
 
 Useful links
 ------------
 
-*   [More documentation on this plugin](https://iapartners.zendesk.com/hc/en-ca/sections/360012118873-Moodle)
 *   [Website URL](https://www.integrityadvocate.com)
+*   [Online support portal](https://www.integrityadvocate.com/support "https://www.integrityadvocate.com/support")
 *   [Source control URL](https://github.com/mwithheld/moodle-block_integrityadvocate)
 *   [Bug tracker](https://github.com/mwithheld/moodle-block_integrityadvocate/issues)
 *   [Accessibility management reading](https://www.integrityadvocate.com/blog/three-ways-your-online-proctoring-software-isnt-meeting-accessibility-requirements)
