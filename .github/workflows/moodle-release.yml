@@ -1,10 +1,8 @@
-#
-# Whenever a new tag starting with "v" is pushed, add the tagged version
-# to the Moodle Plugins directory at https://moodle.org/plugins
-#
+# Adapated from:
+# ref: https://github.com/moodlehq/moodle-plugin-release/blob/main/moodle-release.yml
 # revision: 2021070201
 #
-name: Releasing in the Plugins directory
+name: Push moodle.org/plugins release
 
 on:
   # push:
