@@ -355,6 +355,10 @@ class MoodleUtility {
      * @return array Modules with completion settings in the course in the format [module[name-value]].
      */
     public static function get_modules_with_completion(int $courseid): array {
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false;
+        $debug && debugging($fxn . "::Started with \$parentcontextid={$parentcontextid}; \$blockinstanceid={$blockinstanceid}");
+
         $modinfo = \get_fast_modinfo($courseid, -1);
         // Used for sorting.
         $sections = $modinfo->get_sections();
@@ -362,7 +366,11 @@ class MoodleUtility {
         foreach ($modinfo->instances as $module => $instances) {
             $modulename = \get_string('pluginname', $module);
             foreach ($instances as $cm) {
-                if ($cm->completion != \COMPLETION_TRACKING_NONE) {
+                if ($cm->completion != \COMPLETION_TRACKING_NONE && $module != 'label') {
+                    $debug && debugging($fxn . '::Looking at module=' . ia_u::var_dump($module));
+                    $debug && debugging($fxn . '::Looking at cm->url=' . ia_u::var_dump($cm->url));
+                    $debug && debugging($fxn . '::Looking at cm-completion=' . ia_u::var_dump($cm->completion));
+
                     $modules[] = [
                         'type' => $module,
                         'modulename' => $modulename,
