@@ -48,7 +48,7 @@ class MoodleUtility {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && debugging($fxn . '::Started with $block->name=' . $block->instance->blockname .
-                        '; $block->id=' . $block->instance->id);
+            '; $block->id=' . $block->instance->id);
 
         $blockmanager->load_blocks(true);
         $blocknameclean = ia_u::remove_prefix('block_', $block->instance->blockname);
@@ -65,7 +65,7 @@ class MoodleUtility {
                         continue;
                     }
                     $debug && debugging($fxn . '::Found blockname=' . $instance->instance->blockname .
-                                    '; instance->id=' . $instance->instance->id . ' that does not match the passed in block id=' . $block->instance->id);
+                        '; instance->id=' . $instance->instance->id . ' that does not match the passed in block id=' . $block->instance->id);
                     return true;
                 }
             }
@@ -86,7 +86,7 @@ class MoodleUtility {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && debugging($fxn . '::Started with $block->name=' . $block->instance->blockname .
-                        '; $block->id=' . $block->instance->id);
+            '; $block->id=' . $block->instance->id);
 
         $blockmanager->load_blocks(true);
         $blocknameclean = ia_u::remove_prefix('block_', $block->instance->blockname);
@@ -99,14 +99,14 @@ class MoodleUtility {
                     continue;
                 }
                 $debug && debugging($fxn . '::Looking at visible=' . $instance->instance->visible . '; blockname=' .
-                                $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
+                    $instance->instance->blockname . '; instance->id=' . $instance->instance->id);
                 if ($instance->instance->visible && $instance->instance->blockname == $blocknameclean) {
                     if ($instance->instance->requiredbytheme && !in_array($blocknameclean, $requiredbythemeblocks)) {
                         continue;
                     }
                     if (intval($instance->instance->id) === intval($block->instance->id)) {
                         $debug && debugging($fxn . '::Found blockname=' . $instance->instance->blockname . '; instance->id=' .
-                                        $instance->instance->id . ' that matches the passed in block id=' . $block->instance->id);
+                            $instance->instance->id . ' that matches the passed in block id=' . $block->instance->id);
                         return true;
                     } else {
                         return false;
@@ -363,7 +363,8 @@ class MoodleUtility {
             $modulename = \get_string('pluginname', $module);
             foreach ($instances as $cm) {
                 if ($cm->completion != \COMPLETION_TRACKING_NONE) {
-                    $modules[] = ['type' => $module,
+                    $modules[] = [
+                        'type' => $module,
                         'modulename' => $modulename,
                         'id' => $cm->id,
                         'instance' => $cm->instance,
@@ -372,7 +373,7 @@ class MoodleUtility {
                         'section' => $cm->sectionnum,
                         // Used for sorting.
                         'position' => \array_search($cm->id, $sections[$cm->sectionnum], true),
-                        'url' => \method_exists($cm->url, 'out') ? $cm->url->out() : '',
+                        'url' => is_object($cm->url) && (\method_exists($cm->url, 'out') ? $cm->url->out() : ''),
                         'context' => $cm->context,
                         // Removed b/c it caused error with developer debug display on: 'icon' => $cm->get_icon_url().
                         'available' => $cm->available,
@@ -660,7 +661,7 @@ class MoodleUtility {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && debugging($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; "
-                        . "\$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
+            . "\$visibleonly={$visibleonly}; \$rownotinstance={$rownotinstance}");
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = ['blockname' => \preg_replace('/^block_/', '', $blockname), 'parentcontextid' => $modulecontext->id];
@@ -816,8 +817,11 @@ class MoodleUtility {
         }
 
         global $DB;
-        $lastaccess = $DB->get_field_sql('SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
-                [$courseidcleaned], \IGNORE_MISSING);
+        $lastaccess = $DB->get_field_sql(
+            'SELECT MAX("timeaccess") lastaccess FROM {user_lastaccess} WHERE courseid=?',
+            [$courseidcleaned],
+            \IGNORE_MISSING
+        );
 
         // Convert false to int 0.
         return (int) $lastaccess;
@@ -922,7 +926,7 @@ class MoodleUtility {
             if ('1' == $_SERVER['HTTPS']) {
                 return true;
             }
-        } else if (isset($_SERVER['SERVER_PORT']) && ( '443' == $_SERVER['SERVER_PORT'] )) {
+        } else if (isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT'])) {
             return true;
         }
 
