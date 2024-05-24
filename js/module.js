@@ -266,7 +266,7 @@ M.block_integrityadvocate = {
     onEventIaReadySetupQuiz: function () {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz';
-        debug && window.console.log(fxn + '::Started');
+        debug && window.console.log(fxn + '::Started with document.body.id=', document.body.id);
         var self = M.block_integrityadvocate;
 
         // For quizzes, close the IA session using window.IntegrityAdvocate.endSession().
@@ -274,7 +274,7 @@ M.block_integrityadvocate = {
         if (self.isQuizAttempt) {
             window.console.log(fxn + '::This is a quiz attempt');
             if (self.proctorquizreviewpages) {
-                debug && window.console.log(fxn + '::proctorquizreviewpages' + self.proctorquizreviewpages + ' so do nothing');
+                debug && window.console.log(fxn + '::proctorquizreviewpages=' + self.proctorquizreviewpages + ' so do nothing');
             } else {
                 debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Next/Finish attempt button');
 
@@ -304,7 +304,7 @@ M.block_integrityadvocate = {
             window.console.log(fxn + '::This is a quiz review page');
 
             if (self.proctorquizreviewpages) {
-                debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to Finish review button');
+                debug && window.console.log(fxn + '::Attach endSession to Finish review button');
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
                 self.eltQuizNextButtonSet.one('click.block_integrityadvocate', function (e) {
@@ -313,6 +313,26 @@ M.block_integrityadvocate = {
                     e.preventDefault();
                     const promise = self.endIaSession(e).then(e => { e.target.click(); });
                     debug && window.console.log(fxn + '::Done call to endIaSession, result=', promise);
+                });
+            }
+        } else if (document.body.id === 'page-mod-quiz-summary') {
+            window.console.log(fxn + '::This is a quiz summary page AND self.quizshowsreviewpage=', self.quizshowsreviewpage);
+
+            if (self.proctorquizreviewpages && !self.quizshowsreviewpage) {
+                // We get here if the quiz is configured to not show a review page.
+                debug && window.console.log(fxn + '::Quiz review page will not show so attach endSession to Submit all and Finish button');
+
+                // Moodle ~3.5 "Submit all and finish button" throws up a confirmation modal with another "Submit all and finish button".
+                var selectorModal = '.modal-dialog-scrollable .btn-primary, .moodle-dialogue-confirm .btn-primary'
+                self.waitForElt(selectorModal).then(() => {
+                    window.console.log(fxn + '::Found selectorModal=', selectorModal);
+                    $(selectorModal).one('click.block_integrityadvocate', function (e) {
+                        var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.modalSubmitAllAndFinish.click';
+                        window.console.log(fxn + '::Started with e=', e);
+                        e.preventDefault();
+                        const promise = self.endIaSession(e).then(e => { e.target.click(); });
+                        debug && window.console.log(fxn + '::Done call to iaEndSession, result=', promise);
+                    });
                 });
             }
         }
@@ -341,12 +361,13 @@ M.block_integrityadvocate = {
      * @param {class} Y Moodle Yahoo.
      * @param {string} proctorjsurl URL to the IA proctor JS.
      * @param {bool} proctorquizreviewpages True to show proctoring on quiz summary and review pages.
+     * @param {bool} quizshowsreviewpage True if the quiz shows the review page after the summary page.
      * @returns {null} Nothing.
      */
-    blockinit: function (Y, proctorjsurl, proctorquizinfopage, proctorquizreviewpages) {
+    blockinit: function (Y, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.blockinit';
-        debug && window.console.log(fxn + '::Started with proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages=' + proctorquizreviewpages + '; proctorjsurl=' + proctorjsurl);
+        debug && window.console.log(fxn + '::Started with proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages=' + proctorquizreviewpages + '; quizshowsreviewpage=' + quizshowsreviewpage + '; proctorjsurl=' + proctorjsurl);
         var self = M.block_integrityadvocate;
 
         // Register input vars for re-use.
@@ -357,8 +378,9 @@ M.block_integrityadvocate = {
             self[decodeURIComponent(key)] = decodeURIComponent(value);
         });
         self.proctorjsurl = proctorjsurl;
-        self.proctorquizinfopage = proctorquizinfopage === '1';
-        self.proctorquizreviewpages = proctorquizreviewpages === '1';
+        self.proctorquizinfopage = parseInt(proctorquizinfopage) === 1;
+        self.proctorquizreviewpages = parseInt(proctorquizreviewpages) === 1;
+        self.quizshowsreviewpage = parseInt(quizshowsreviewpage) === 1;
 
         // Register derived vars for re-use.
         self.isQuizAttempt = (document.body.id === 'page-mod-quiz-attempt');
