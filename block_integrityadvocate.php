@@ -98,7 +98,7 @@ class block_integrityadvocate extends block_base {
             $cm = $modinfo->get_cm($modulecontext->instanceid);
             $debug && debugging($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
             global $DB;
-            $record = $DB->get_record('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
+            $record = ia_mu::get_record_cached('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
             $debug && debugging($fxn . '::Got record=' . ia_u::var_dump($record, true));
             if ($record->showblocks < 1) {
                 $record->showblocks = 1;
@@ -262,11 +262,10 @@ class block_integrityadvocate extends block_base {
         /*
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
-        global $DB;
         if (str_starts_with($modulecontext->get_context_name(), 'quiz')) {
             $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
-            $record = $DB->get_record('quiz', ['id' => $cm->instance], 'id, showblocks', \MUST_EXIST);
+            $record = ia_mu::get_record_cached('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
             if ($record->showblocks < 1) {
                 $errors['config_quiz_showblocks'] = get_string('error_quiz_showblocks', \INTEGRITYADVOCATE_BLOCK_NAME);
             }
