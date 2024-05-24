@@ -93,12 +93,6 @@ trait external_ia_session_tracking {
                     'message' => \get_string('confirmsesskeybad'),
                 ];
                 break;
-            case(!\block_integrityadvocate\FeatureControl::SESSION_STARTED_TRACKING) :
-                $result['warnings'][] = [
-                    'warningcode' => \implode('a', [$blockversion, __LINE__]),
-                    'message' => 'This feature is disabled',
-                ];
-                break;
             case(!ia_u::is_guid($appid)):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),

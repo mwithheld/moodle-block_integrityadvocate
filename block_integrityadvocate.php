@@ -205,13 +205,13 @@ class block_integrityadvocate extends block_base {
         // Cache bc this can be called many times even in one request.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $apikey]));
-        if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
 
         $returnthis = strlen($apikey) > 40 && ia_mu::is_base64($apikey);
 
-        if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
+        if (!$cache->set($cachekey, $returnthis)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -236,7 +236,7 @@ class block_integrityadvocate extends block_base {
     public function get_config_errors(): array {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $this->instance->id]));
-        if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
 
@@ -248,7 +248,7 @@ class block_integrityadvocate extends block_base {
         // Check the context we got is module context and not course context.
         // If this is a course-level block, just return what errors we have so far.
         if (ia_u::is_empty($modulecontext) || $modulecontext->contextlevel !== \CONTEXT_MODULE) {
-            if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $errors)) {
+            if (!$cache->set($cachekey, $errors)) {
                 throw new \Exception('Failed to set value in the cache');
             }
             return $errors;
@@ -272,7 +272,7 @@ class block_integrityadvocate extends block_base {
             }
         }
 
-        if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $errors)) {
+        if (!$cache->set($cachekey, $errors)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -374,27 +374,6 @@ class block_integrityadvocate extends block_base {
                     // Output a link to the module.
                     $module = \context_module::instance($parentcontext->instanceid);
                     $this->content->text .= \html_writer::link($module->get_url(), $module->get_context_name(false));
-
-                    if (ia\FeatureControl::MODULE_LIST_CONFIGLINK && \has_capability('moodle/block:edit', $blockinstance->context)) {
-                        $blocktitle = get_string('configureblock', 'block', $blockinstance->title);
-                        if ($userisediting) {
-                            // Output a link to module's block config.
-                            $this->content->text .= '<a href="' . $CFG->wwwroot . '/mod/quiz/view.php?id=' . $module['id'] .
-                                    '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">&nbsp;<i class="' .
-                                    $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' . $blocktitle . '" aria-label="' .
-                                    $blocktitle . '"></i></a>';
-                        } else {
-                            // We need a form to turn course editing on; then go to block config.
-                            $this->content->text .= $formstart .
-                                    '<input type="hidden" name="return" value="/mod/quiz/view.php?id=' . $module['id'] .
-                                    '&sesskey=' . \sesskey() . '&bui_editid=' . $blockinstance->get_id() . '">';
-                            $this->content->text .= '<a href="#" onclick="javascript:$(this).closest(\'form\').submit();'
-                                    . 'e.preventDefault();return false;"><i class="'
-                                    . $prefix . '_blockconfig icon fa fa-cog fa-fw " title="' .
-                                    $blocktitle . '" aria-label="' . $blocktitle . '"></i></a>';
-                            $this->content->text .= '</form>';
-                        }
-                    }
                     break;
                 default:
                     $msg = $fxn . '::Found unexpected contextlevel=' . $parentcontext->contextlevel;
@@ -527,7 +506,7 @@ class block_integrityadvocate extends block_base {
                     case $hascapabilityoverview:
                         $debug && debugging($fxn . '::Teacher viewing a course student profile: Show latest student info');
                         $isparticipantspage = str_contains($this->page->url, '/user/view.php?');
-                        if ($isparticipantspage && ia\FeatureControl::OVERVIEW_USER_LTI) {
+                        if ($isparticipantspage) {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && debugging($fxn . '::This is the course-user page, so in the block show the IA proctor summary for this '
@@ -560,13 +539,9 @@ class block_integrityadvocate extends block_base {
                         }
 
                         $debug && debugging($fxn . '::Teacher viewing a course: Show the overview button and the module list.');
-                        if (ia\FeatureControl::OVERVIEW_COURSE_LTI) {
-                            $this->content->text .= ia_output::get_button_overview_course($this);
-                        }
-                        if (!$isparticipantspage && ia\FeatureControl::MODULE_LIST) {
-                            // Adds to $this->context->text and $this->context->footer.
-                            $this->populate_course_modulelist();
-                        }
+                        $this->content->text .= ia_output::get_button_overview_course($this);
+                        // Adds to $this->context->text and $this->context->footer.
+                        $this->populate_course_modulelist();
                         break;
                     case $hascapabilityselfview:
                         // Check the user is enrolled in this course, but they must be active.
@@ -586,8 +561,8 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapabilityoverview:
                         $debug && debugging($fxn . '::Teacher viewing a module: Show the overview module button AND the overview course button');
-                        ia\FeatureControl::OVERVIEW_MODULE_LTI && $this->content->text .= ia_output::get_button_overview_module($this);
-                        ia\FeatureControl::OVERVIEW_COURSE_LTI && $this->content->text .= ia_output::get_button_overview_course($this);
+                        $this->content->text .= ia_output::get_button_overview_module($this);
+                        $this->content->text .= ia_output::get_button_overview_course($this);
                         break;
                     case $hascapabilityview && (\is_role_switched($this->get_course()->id) ||
                         \is_enrolled($parentcontext, $USER, null, true)):
@@ -719,7 +694,7 @@ class block_integrityadvocate extends block_base {
 
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $this->instance->id, isset($this->config->appid) ? $this->config->appid : '']));
-        if (ia\FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
 
@@ -740,7 +715,7 @@ class block_integrityadvocate extends block_base {
             $lanstring . '">' . "{$lanstring} " . $this->instance->id . '</div>';
         }
 
-        if (ia\FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
+        if (!$cache->set($cachekey, $returnthis)) {
             throw new \Exception('Failed to set value in the cache');
         }
 

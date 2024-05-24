@@ -36,14 +36,6 @@ defined('MOODLE_INTERNAL') || die;
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
 
-// Check all requirements.
-switch (true) {
-    // @phpstan-ignore-next-line booleanNot.alwaysFalse .
-    case (!FeatureControl::OVERVIEW_USER_LTI):
-        throw new \Exception('This feature is disabled');
-    default:
-        $debug && debugging(__FILE__ . '::All requirements are met');
-}
 // This is only optional_param() in overview.php.
 $userid = \required_param('userid', \PARAM_INT);
 

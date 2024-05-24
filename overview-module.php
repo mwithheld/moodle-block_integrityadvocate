@@ -45,9 +45,6 @@ $userid = $USER->id;
 
 // Check all requirements.
 switch (true) {
-    // @phpstan-ignore-next-line booleanNot.alwaysFalse .
-    case (!FeatureControl::OVERVIEW_MODULE_LTI):
-        throw new \Exception('This feature is disabled');
     case (empty($moduleid) || ($moduleid = \required_param('moduleid', \PARAM_INT)) < 1):
         // This is only an optional_param in overview.php.
         // The above line throws an error if $moduleid is not passed as an integer.

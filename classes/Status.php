@@ -121,13 +121,13 @@ class Status {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__);
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             return $cachedvalue;
         }
 
         $statuses = \array_replace([self::NOTSTARTED_INT => self::get_status_lang(self::NOTSTARTED_INT)], self::get_inprogress(), self::get_valids(), self::get_invalids());
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $statuses)) {
+        if (!$cache->set($cachekey, $statuses)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
