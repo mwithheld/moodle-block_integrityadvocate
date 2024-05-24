@@ -990,4 +990,37 @@ class MoodleUtility {
 
         return $attemptobj;
     }
+
+    /**
+     * Return true if the quiz will show the review page after the attempt.
+     */
+    public static function quiz_shows_review_page_after_attempt(int $courseid, int $attemptid, int $cmid): bool {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && debugging($fxn . '::Started with $attemptid='.$attemptid.'; $cmid='.$cmid);
+
+        $returnthisdefault = true;
+
+        if($attemptid < 0 && $cmid <0) {
+            return $returnthisdefault;
+        }
+
+        $cm = \get_course_and_cm_from_cmid($cmid, 'quiz', $courseid /* Include even if the participant cannot access the module */)[1];
+        $debug && debugging($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
+
+        $quizrecord = self::get_record_cached('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
+        // Disabled bc TMI: $debug && debugging($fxn . '::Got $quizrecord=' . ia_u::var_dump($quizrecord, true));.
+        $debug && debugging($fxn . '::Got $quizrecord->reviewattempt dec=' . $quizrecord->reviewattempt . '; hex=' . dechex($quizrecord->reviewattempt));
+
+        if(
+            $quizrecord->reviewattempt & \mod_quiz_display_options::IMMEDIATELY_AFTER /** Within 2 mins of clicking Submit all and finish. */
+            // Disabled I do not think we need it: || $quizrecord->reviewattempt & \mod_quiz_display_options::LATER_WHILE_OPEN /** After 2 mins but before the quiz close date. */
+            ) {
+            $debug && debugging($fxn . '::Quiz review is enabled');
+            return true;
+        } else {
+            $debug && debugging($fxn . '::Quiz review is disabled');
+            return false;
+        }
+    }
 }
