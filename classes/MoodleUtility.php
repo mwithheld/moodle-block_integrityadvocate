@@ -324,7 +324,7 @@ class MoodleUtility {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $context->id);
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -341,7 +341,7 @@ class MoodleUtility {
             $rolestodisplay[$role->id] = $role->localname;
         }
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $rolestodisplay)) {
+        if (!$cache->set($cachekey, $rolestodisplay)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -516,7 +516,7 @@ class MoodleUtility {
         $cache = \cache::make('block_integrityadvocate', 'perrequest');
         $cachekey = self::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . $cmid);
         $debug && debugging($fxn . "::Built cachekey={$cachekey}");
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -536,7 +536,7 @@ class MoodleUtility {
             $returnthis = $course->id;
         }
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $returnthis)) {
+        if (!$cache->set($cachekey, $returnthis)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -577,14 +577,14 @@ class MoodleUtility {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key($fxn . '_' . \json_encode($course, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-            if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            if ($cachedvalue = $cache->get($cachekey)) {
                 $debug && debugging($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
 
             $course = \get_course((int) $course);
 
-            if (FeatureControl::CACHE && !$cache->set($cachekey, $course)) {
+            if (!$cache->set($cachekey, $course)) {
                 throw new \Exception('Failed to set value in the cache');
             }
         }
@@ -727,7 +727,7 @@ class MoodleUtility {
             // Cache so multiple calls don't repeat the same work.
             $cache = \cache::make('block_integrityadvocate', 'perrequest');
             $cachekey = self::get_cache_key($fxn . '_' . \json_encode($user, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-            if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+            if ($cachedvalue = $cache->get($cachekey)) {
                 $debug && debugging($fxn . '::Found a cached value, so return that');
                 return $cachedvalue;
             }
@@ -744,7 +744,7 @@ class MoodleUtility {
                 return null;
             }
 
-            if (FeatureControl::CACHE && !$cache->set($cachekey, $user)) {
+            if (!$cache->set($cachekey, $user)) {
                 throw new \Exception('Failed to set value in the cache');
             }
         }
@@ -770,7 +770,7 @@ class MoodleUtility {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = self::get_cache_key($fxn . '_' . \json_encode($user, \JSON_PARTIAL_OUTPUT_ON_ERROR) . '_' . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -794,7 +794,7 @@ class MoodleUtility {
         }
         $picture = $userpicture->get_url($page, $page->get_renderer('core'))->out(false);
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $picture)) {
+        if (!$cache->set($cachekey, $picture)) {
             throw new \Exception('Failed to set value in the cache');
         }
         return $picture;

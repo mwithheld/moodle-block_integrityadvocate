@@ -128,14 +128,12 @@ class Api {
             throw new \InvalidArgumentException($msg);
         }
 
-        if (FeatureControl::SESSION_STARTED_TRACKING) {
-            if (!ia_mu::nonce_validate(\implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid]), true)) {
-                $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Found no session_started value - do not close the session');
-                return false;
-            } else {
-                $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Found a session_started value so close the session and clear the session_started flag');
-                // Just fall out of the if-else.
-            }
+        if (!ia_mu::nonce_validate(\implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY, $appid, $courseid, $moduleid, $userid]), true)) {
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Found no session_started value - do not close the session');
+            return false;
+        } else {
+            $debug && debugging(__CLASS__ . '::' . __FUNCTION__ . '::Found a session_started value so close the session and clear the session_started flag');
+            // Just fall out of the if-else.
         }
 
         // Do not cache these requests.
@@ -211,7 +209,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $endpoint, $appid]) . \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -275,7 +273,7 @@ class Api {
             throw new \Exception('Failed to json_decode: ' . $msg);
         }
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $responseparsed)) {
+        if (!$cache->set($cachekey, $responseparsed)) {
             throw new \Exception('Failed to set value in the cache');
         }
         return $responseparsed;
@@ -428,7 +426,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $debugvars]));
-        if (FeatureControl::CACHE && ($participantscached = $cache->get($cachekey)) && isset($participantscached->modified) && $participantscached->modified > 0) {
+        if (($participantscached = $cache->get($cachekey)) && isset($participantscached->modified) && $participantscached->modified > 0) {
             // We have a cached participants set, so get only those modified after the modified timestamp.
             $params += ['lastmodified' => $participantscached->modified];
             $debug && debugging($fxn . '::Got some $participantscached=' . ia_u::var_dump($participantscached));
@@ -444,7 +442,7 @@ class Api {
 
         if (ia_u::is_empty($participantscached->participantsraw)) {
             $debug && debugging($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
-            FeatureControl::CACHE && $cache->delete($cachekey);
+            $cache->delete($cachekey);
             return [];
         }
 
@@ -482,10 +480,10 @@ class Api {
         }
 
         // Cache the participants list so we can just get the "modified since x time" ones next time.
-        if (FeatureControl::CACHE && !ia_u::is_empty($participantscached->participantsraw) && !$cache->set($cachekey, $participantscached)) {
+        if (!ia_u::is_empty($participantscached->participantsraw) && !$cache->set($cachekey, $participantscached)) {
             throw new \Exception('Failed to set value in the cache');
         }
-        $debug && FeatureControl::CACHE && debugging($fxn . "::Cached the participants list with \$participantscached->modified={$participantscached->modified}");
+        $debug && debugging($fxn . "::Cached the participants list with \$participantscached->modified={$participantscached->modified}");
         $debug && debugging($fxn . '::About to return count($participantsparsed)=' . ia_u::count_if_countable($participantsparsed));
 
         return $participantsparsed;
@@ -741,7 +739,7 @@ class Api {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $courseid, $moduleid, $userid]) .
                         \json_encode($participantsessionsraw, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -816,7 +814,7 @@ class Api {
             $parsedparticipantsessions[$participantsession->id] = $participantsession;
         }
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $parsedparticipantsessions)) {
+        if (!$cache->set($cachekey, $parsedparticipantsessions)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -1224,7 +1222,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__]) . \json_encode($input, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -1263,7 +1261,7 @@ class Api {
             }
         }
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
+        if (!$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -1315,7 +1313,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__]) . \json_encode($input, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -1393,7 +1391,7 @@ class Api {
         // Link in the parent Participant object.
         $output->participant = $participant;
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
+        if (!$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
 
@@ -1428,7 +1426,7 @@ class Api {
         // Cache so multiple calls don't repeat the same work.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, \json_encode($input, \JSON_PARTIAL_OUTPUT_ON_ERROR)]));
-        if (FeatureControl::CACHE && $cachedvalue = $cache->get($cachekey)) {
+        if ($cachedvalue = $cache->get($cachekey)) {
             $debug && debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
@@ -1530,7 +1528,7 @@ class Api {
             $debug && debugging($fxn . '::No sessions found');
         }
 
-        if (FeatureControl::CACHE && !$cache->set($cachekey, $output)) {
+        if (!$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
         $debug && debugging($fxn . '::Done sessions fields. About to return $participant=' . ia_u::var_dump($output, true));
