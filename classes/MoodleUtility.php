@@ -993,15 +993,20 @@ class MoodleUtility {
 
     /**
      * Return true if the quiz will show the review page after the attempt.
+     *
+     * @param int $courseid The course id.
+     * @param int $attemptid The quiz attempt id.
+     * @param int $cmid The module id.
+     * @return bool true if the quiz will show the review page after the attempt.
      */
     public static function quiz_shows_review_page_after_attempt(int $courseid, int $attemptid, int $cmid): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $attemptid='.$attemptid.'; $cmid='.$cmid);
+        $debug && debugging($fxn . '::Started with $attemptid=' . $attemptid . '; $cmid=' . $cmid);
 
         $returnthisdefault = true;
 
-        if($attemptid < 0 && $cmid <0) {
+        if ($attemptid < 0 && $cmid < 0) {
             return $returnthisdefault;
         }
 
@@ -1012,10 +1017,11 @@ class MoodleUtility {
         // Disabled bc TMI: $debug && debugging($fxn . '::Got $quizrecord=' . ia_u::var_dump($quizrecord, true));.
         $debug && debugging($fxn . '::Got $quizrecord->reviewattempt dec=' . $quizrecord->reviewattempt . '; hex=' . dechex($quizrecord->reviewattempt));
 
-        if(
-            $quizrecord->reviewattempt & \mod_quiz_display_options::IMMEDIATELY_AFTER /** Within 2 mins of clicking Submit all and finish. */
+        if (
+            $quizrecord->reviewattempt & \mod_quiz_display_options::IMMEDIATELY_AFTER
+            // Within 2 mins of clicking 'Submit all and finish'.
             // Disabled I do not think we need it: || $quizrecord->reviewattempt & \mod_quiz_display_options::LATER_WHILE_OPEN /** After 2 mins but before the quiz close date. */
-            ) {
+        ) {
             $debug && debugging($fxn . '::Quiz review is enabled');
             return true;
         } else {
