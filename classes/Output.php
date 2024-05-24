@@ -100,10 +100,24 @@ class Output {
             'strings' => [],
         ];
 
+        $quizshowsreviewpage = true;
+        if ($blockinstance->page->pagetype === 'mod-quiz-summary') {
+            $attemptid = \optional_param('attempt', -1, PARAM_INT);
+            $cmid      = \optional_param('cmid', -1, PARAM_INT);
+            $debug && debugging($fxn . '::Got attemptid=' . $attemptid . '; cmid=' . $cmid);
+            $quizshowsreviewpage = ia_mu::quiz_shows_review_page_after_attempt($blockinstance->get_course()->id, $attemptid, $cmid);
+        }
+        $debug && debugging($fxn . '::Got quizshowsreviewpage=' . $quizshowsreviewpage);
+
         $blockinstance->page->requires->jquery_plugin('jquery');
         $blockinstance->page->requires->js_init_call(
             'M.block_integrityadvocate.blockinit',
-            [$proctorjsurl, $blockinstance->config->proctorquizinfopage, $blockinstance->config->proctorquizreviewpages],
+            [
+                $proctorjsurl,
+                (int)$blockinstance->config->proctorquizinfopage,
+                (int)$blockinstance->config->proctorquizreviewpages,
+                (int)$quizshowsreviewpage,
+            ],
             false,
             $jsmodule
         );
