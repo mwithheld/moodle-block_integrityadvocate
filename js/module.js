@@ -466,8 +466,12 @@ M.block_integrityadvocate = {
      * @returns {*} A resovled promise.
      */
     waitForElt: function (selector) {
+        var debug = false;
+        var fxn = 'M.block_integrityadvocate.waitForElt';
+        debug && window.console.log(fxn + '::Started with selector=', selector);
         return new Promise(resolve => {
             if (document.querySelector(selector)) {
+                debug && window.console.log(fxn + '::Found the selector=', selector);
                 return resolve(document.querySelector(selector));
             }
 
