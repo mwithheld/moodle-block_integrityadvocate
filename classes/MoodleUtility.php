@@ -940,4 +940,46 @@ class MoodleUtility {
 
         return false;
     }
+
+    /**
+     * Get a single database record as an object where all the given conditions met.
+     * This version caches per request, and just calls moodle_database.php file moodle_database->get_record().
+     *
+     * @param string $table The table to select from.
+     * @param array $conditions optional array $fieldname=>requestedvalue with AND in between
+     * @param string $fields A comma separated list of fields to be returned from the chosen table.
+     * @param int $strictness IGNORE_MISSING means compatible mode, false returned if record not found, debug message if more found;
+     *                        IGNORE_MULTIPLE means return first, ignore multiple records found(not recommended);
+     *                        MUST_EXIST means we will throw an exception if no record or multiple records found.
+     *
+     * @return mixed a fieldset object containing the first matching record, false or exception if error not found depending on mode
+     * @throws dml_exception A DML specific exception is thrown for any errors.
+     */
+    public static function get_record_cached($table, array $conditions, $fields='*', $strictness=IGNORE_MISSING) {
+        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
+        $cachekey = self::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $table, json_encode($conditions), $fields, $strictness]));
+        if ($cachedvalue = $cache->get($cachekey)) {
+            return $cachedvalue;
+        }
+
+        global $DB;
+        $returnthis = $DB->get_record($table, $conditions, $fields, $strictness);
+
+        if (!$cache->set($cachekey, $returnthis)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+
+        return $returnthis;
+    }
+
+    public static function get_quiz_attemptobj(int $attemptid, int $cmid) {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/quiz/locallib.php');
+        $attemptobj = \quiz_create_attempt_handling_errors($attemptid, $cmid);
+        
+        // Security check.
+        $attemptobj->check_review_capability();
+
+        return $attemptobj;
+    }
 }
