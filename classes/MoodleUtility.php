@@ -955,7 +955,7 @@ class MoodleUtility {
      * @return mixed a fieldset object containing the first matching record, false or exception if error not found depending on mode
      * @throws dml_exception A DML specific exception is thrown for any errors.
      */
-    public static function get_record_cached($table, array $conditions, $fields='*', $strictness=IGNORE_MISSING) {
+    public static function get_record_cached($table, array $conditions, $fields = '*', $strictness = IGNORE_MISSING) {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = self::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $table, json_encode($conditions), $fields, $strictness]));
         if ($cachedvalue = $cache->get($cachekey)) {
@@ -972,11 +972,19 @@ class MoodleUtility {
         return $returnthis;
     }
 
-    public static function get_quiz_attemptobj(int $attemptid, int $cmid) {
+    /**
+     * Get a quiz attempt object.
+     * This does call a security check via $attemptobj->check_review_capability().
+     *
+     * @param int $attemptid The attempt id.
+     * @param int $cmid The module id.
+     * @return \quiz_attempt $attemptobj all the data about the quiz attempt.
+     */
+    public static function get_quiz_attemptobj(int $attemptid, int $cmid): \quiz_attempt {
         global $CFG;
         require_once($CFG->dirroot . '/mod/quiz/locallib.php');
         $attemptobj = \quiz_create_attempt_handling_errors($attemptid, $cmid);
-        
+
         // Security check.
         $attemptobj->check_review_capability();
 
