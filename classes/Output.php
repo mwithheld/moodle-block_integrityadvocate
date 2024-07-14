@@ -114,8 +114,8 @@ class Output {
             'M.block_integrityadvocate.blockinit',
             [
                 $proctorjsurl,
-                (int)$blockinstance->config->proctorquizinfopage,
-                (int)$blockinstance->config->proctorquizreviewpages,
+                (int)(isset($blockinstance->config->proctorquizinfopage)?$blockinstance->config->proctorquizinfopage:0),
+                (int)(isset($blockinstance->config->proctorquizreviewpages)?$blockinstance->config->proctorquizreviewpages:0),
                 (int)$quizshowsreviewpage,
             ],
             false,
