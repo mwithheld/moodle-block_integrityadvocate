@@ -120,10 +120,11 @@ M.block_integrityadvocate = {
         var eltMainContent = $('#responseform, #scormpage, div[role="main"]');
         switch (true) {
             case self.isQuizAttempt:
-                debug && window.console.log(fxn + '::On quizzes, disable the submit button and hide the questions until IA is ready', self.eltQuizNextButtonSet);
+                window.console.log(fxn + '.isQuizAttempt::IA is ready: Enable the submit button', self.eltQuizNextButtonSet);
                 self.eltQuizNextButtonSet.removeAttr('disabled').off('click.block_integrityadvocate.disable');
                 $('#block_integrityadvocate_hidequiz').remove();
-                eltMainContent.show();
+                window.console.log(fxn + '.isQuizAttempt::IA is ready: Show the quiz questions', eltMainContent);
+                eltMainContent.show(0, function() { window.console.log(fxn + 'isQuizAttempt: Done: Enable the submit button and show the main content'); });
                 break;
             case self.isScormPlayerSameWindow:
                 debug && window.console.log(fxn + '::On SCORM samewindow, show the content and monitor for page close');
