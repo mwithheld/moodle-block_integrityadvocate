@@ -1019,8 +1019,8 @@ class MoodleUtility {
 
         if (
             $quizrecord->reviewattempt & \mod_quiz_display_options::IMMEDIATELY_AFTER
-            // Within 2 mins of clicking 'Submit all and finish'.
-            // Disabled I do not think we need it: || $quizrecord->reviewattempt & \mod_quiz_display_options::LATER_WHILE_OPEN /** After 2 mins but before the quiz close date. */
+            // IMMEDIATELY_AFTER = within 2 mins of clicking 'Submit all and finish'.
+            // Disabled bc not needed: || $quizrecord->reviewattempt & \mod_quiz_display_options::LATER_WHILE_OPEN /** After 2 mins but before the quiz close date. */
         ) {
             $debug && debugging($fxn . '::Quiz review is enabled');
             return true;
