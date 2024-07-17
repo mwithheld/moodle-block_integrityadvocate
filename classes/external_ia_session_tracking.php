@@ -233,7 +233,7 @@ trait external_ia_session_tracking {
     }
 
     /**
-     * Describes the session_open return value.
+     * Describes the session_close return value.
      *
      * @return \external_single_structure
      */
