@@ -23,8 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$blockintegrityadvocateprocessevent = 'block_integrityadvocate_observer::process_event';
-
+$blockintegrityadvocatecheckeventandcloseiasession = 'block_integrityadvocate_observer::check_event_and_close_ia_session';
 
 /*
 * Purposely omitted bc these are done in JS::window.IntegrityAdvocate.endSession().
@@ -33,23 +32,23 @@ $blockintegrityadvocateprocessevent = 'block_integrityadvocate_observer::process
 */
 $observers = [
     [
-        'eventname' => '\\mod_assign\\event\\assessable_submitted',
-        'callback' => $blockintegrityadvocateprocessevent,
-    ],
-    [
         'eventname' => '\\mod_choice\\event\\answer_created',
-        'callback' => $blockintegrityadvocateprocessevent,
+        'callback' => $blockintegrityadvocatecheckeventandcloseiasession,
     ],
     [
-        'eventname' => '\\mod_feedback\\event\\response_submitted',
-        'callback' => $blockintegrityadvocateprocessevent,
-    ],
-    [
-        'eventname' => '\\mod_scorm\\event\\scoreraw_submitted',
-        'callback' => $blockintegrityadvocateprocessevent,
+        'eventname' => '\\mod_assign\\event\\assessable_submitted',
+        'callback' => $blockintegrityadvocatecheckeventandcloseiasession,
     ],
     [
         'eventname' => '\\mod_quiz\\event\\attempt_abandoned',
-        'callback' => $blockintegrityadvocateprocessevent,
+        'callback' => $blockintegrityadvocatecheckeventandcloseiasession,
+    ],
+    [
+        'eventname' => '\\mod_feedback\\event\\response_submitted',
+        'callback' => $blockintegrityadvocatecheckeventandcloseiasession,
+    ],
+    [
+        'eventname' => '\\mod_scorm\\event\\scoreraw_submitted',
+        'callback' => $blockintegrityadvocatecheckeventandcloseiasession,
     ],
 ];
