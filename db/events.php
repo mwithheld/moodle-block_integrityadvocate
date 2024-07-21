@@ -44,6 +44,10 @@ $observers = [
         'callback' => $blockintegrityadvocatecheckeventandcloseiasession,
     ],
     [
+        'eventname' => '\\mod_quiz\\event\\attempt_started',
+        'callback' => '\block_integrityadvocate_observer::setup_quiz_time_extender_nonce',
+    ],
+    [
         'eventname' => '\\mod_feedback\\event\\response_submitted',
         'callback' => $blockintegrityadvocatecheckeventandcloseiasession,
     ],

@@ -24,6 +24,7 @@
 
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
+use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,6 +38,63 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  */
 class block_integrityadvocate_observer {
 
+    public static function setup_quiz_time_extender_nonce(/*\mod_quiz\event\attempt_started*/\core\event\base $event): bool {
+        global $DB;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = true;
+        $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
+
+        $debug && \debugging($fxn . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; "
+            . "is c/u=" . (\in_array($event->crud, ['c', 'u'], true)));
+        $debug && \debugging($fxn . "::Started with event->contextlevel={$event->contextlevel}; "
+            . "is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
+
+        // No CLI events may trigger this event.
+        if (\defined('CLI_SCRIPT') && CLI_SCRIPT) {
+            $debug && \debugging($fxn . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, ['c', 'u'], true)));
+            return false;
+        }
+
+        // There is no user attached to this event, and since everyting below here requires that info, just exit.
+        if (!\is_numeric($event->userid)) {
+            $debug && \debugging($fxn . "::The event has no user info so skip it; debuginfo={$debuginfo}");
+            return false;
+        }
+
+        // Make sure this is a module-level event.
+        $iscoursemoduleevent = ($event->contextlevel === CONTEXT_MODULE && \is_numeric($event->courseid) && $event->courseid != SITEID);
+        if (!$iscoursemoduleevent) {
+            $debug && \debugging($fxn . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
+            return false;
+        }
+        $debug && \debugging($fxn . '::This is a module-level event, so continue');
+
+        // Danger! The quiz_attempt attached objectid and object is the *previous* quiz_attempt, not this one!.
+        // Disabled bc too much info: $debug && \debugging($fxn . '::Got event=' . ia_u::var_dump($event));.
+        $debug && \debugging($fxn . '::Got event->objectid=' . $event->objectid);
+        $attemptid = $event->objectid;
+        if(!is_int($event->objectid) || $event->objectid <= 0) {
+            throw new \Exception('Invalid event->objectid');
+        }
+
+        // Initialize the cache
+        // Here we are not using the cache to store/retrieve a complex value.
+        // By default the requestor cannot reset the timer for this quiz attempt.
+        // We are using it to store a one-time-use flag (a nonce) that allows the requestor is allowed to do this.
+        // Once we use the cached value, we remove it.
+        $cache = \cache::make('block_integrityadvocate', 'persession');
+        $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid]));
+        $debug && \debugging($fxn . '::Got cachekey='.ia_u::var_dump($cachekey));
+        
+        $attempttimestart = $DB->get_field('quiz_attempts', 'timestart', ['id' => $attemptid], MUST_EXIST);
+        if (!$cache->set($cachekey, $attempttimestart)) {
+            throw new \Exception('Failed to set value in the cache');
+        }
+        $debug && \debugging($fxn . '::Set cachedvalue='.ia_u::var_dump($attempttimestart));
+
+        return true;
+    }
+
     /**
      * Parse the triggered event and decide if and how to act on it.
      * User logout and other course events lead to the user's remote IA sessions being closed.
@@ -49,21 +107,21 @@ class block_integrityadvocate_observer {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
 
-        // Disabled on purpose: $debug && debugging($fxn . '::Started with event=' . ia_u::var_dump($event, true));.
-        $debug && debugging($fxn . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; "
+        // Disabled on purpose: $debug && \debugging($fxn . '::Started with event=' . ia_u::var_dump($event, true));.
+        $debug && \debugging($fxn . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; "
             . "is c/u=" . (\in_array($event->crud, ['c', 'u'], true)));
-        $debug && debugging($fxn . "::Started with event->contextlevel={$event->contextlevel}; "
+        $debug && \debugging($fxn . "::Started with event->contextlevel={$event->contextlevel}; "
             . "is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
 
-        // No CLI events correspond to a user finishing an IA session.
+        // No CLI events may trigger this event.
         if (\defined('CLI_SCRIPT') && CLI_SCRIPT) {
-            $debug && debugging($fxn . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, ['c', 'u'], true)));
+            $debug && \debugging($fxn . "::Started with event->crud={$event->crud}; crud match=" . (\in_array($event->crud, ['c', 'u'], true)));
             return false;
         }
 
         // There is no user attached to this event, and since everyting below here requires that info, just exit.
         if (!\is_numeric($event->userid)) {
-            $debug && debugging($fxn . "::The event has no user info so skip it; debuginfo={$debuginfo}");
+            $debug && \debugging($fxn . "::The event has no user info so skip it; debuginfo={$debuginfo}");
             return false;
         }
 
@@ -71,10 +129,10 @@ class block_integrityadvocate_observer {
         // Note \core\event\user_graded events are contextlevel=50, but there are other events that should close the IA session.
         $iscoursemoduleevent = ($event->contextlevel === CONTEXT_MODULE && \is_numeric($event->courseid) && $event->courseid != SITEID);
         if (!$iscoursemoduleevent) {
-            $debug && debugging($fxn . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
+            $debug && \debugging($fxn . "::This is not a module-level event so skip it; debuginfo={$debuginfo}");
             return false;
         }
-        $debug && debugging($fxn . '::This is a module-level event, so continue');
+        $debug && \debugging($fxn . '::This is a module-level event, so continue');
 
         return self::close_module_user_session($event);
     }
@@ -92,13 +150,13 @@ class block_integrityadvocate_observer {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
-        $debug && debugging($fxn . "::Started with \$debuginfo={$debuginfo}");
+        $debug && \debugging($fxn . "::Started with \$debuginfo={$debuginfo}");
 
         if (!($blockinstance = self::check_should_close_user_ia($event))) {
             return false;
         }
 
-        $debug && debugging($fxn . "::About to close_session() for \$debuginfo={$debuginfo}");
+        $debug && \debugging($fxn . "::About to close_session() for \$debuginfo={$debuginfo}");
         return self::close_session($blockinstance, $event->userid);
     }
 
@@ -116,20 +174,20 @@ class block_integrityadvocate_observer {
         $modulecontext = $event->get_context();
         if ($modulecontext->contextlevel != CONTEXT_MODULE) {
             $msg = 'The passed-in event is not from a module context level';
-            debugging($fxn . "::{$msg}");
+            \debugging($fxn . "::{$msg}");
             throw new \InvalidArgumentException($msg);
         }
 
         if (!\is_enrolled($modulecontext, $event->userid, '', true)) {
-            $debug && debugging($fxn . '::The user has no active enrolment in this course-module so skip it');
+            $debug && \debugging($fxn . '::The user has no active enrolment in this course-module so skip it');
             return null;
         }
-        $debug && debugging($fxn . '::The user has an active enrolment in this course-module so continue');
+        $debug && \debugging($fxn . '::The user has an active enrolment in this course-module so continue');
 
         // Make sure an IA block instance is present and visible.
         $blockinstance = ia_mu::get_first_block($modulecontext, \INTEGRITYADVOCATE_SHORTNAME);
         if (!$blockinstance || $blockinstance->get_config_errors()) {
-            $debug && debugging($fxn . '::The block is not present or not visible, or has config errors, so skip it');
+            $debug && \debugging($fxn . '::The block is not present or not visible, or has config errors, so skip it');
             return null;
         }
 
@@ -153,12 +211,12 @@ class block_integrityadvocate_observer {
     protected static function close_session(\block_integrityadvocate $blockinstance, int $userid): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with userid=' . $userid);
+        $debug && \debugging($fxn . '::Started with userid=' . $userid);
 
         $appid = isset($blockinstance->config->appid) ? \trim($blockinstance->config->appid) : false;
-        $debug && debugging($fxn . "::Found appid={$appid}");
+        $debug && \debugging($fxn . "::Found appid={$appid}");
         if (!$appid) {
-            $debug && debugging($fxn . '::The block instance has no appid configured, so skip it');
+            $debug && \debugging($fxn . '::The block instance has no appid configured, so skip it');
             return false;
         }
 
