@@ -135,6 +135,10 @@ class Utility {
             unset($expression['page']);
         }
 
+        if (\is_bool($expression)) {
+            $expression = $expression?'true':'false';
+        }
+
         // Preg_replace prevents dying on base64-encoded images.
         // phpcs:ignore
         return \print_r(\preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', \print_r($expression, true)), $return);
