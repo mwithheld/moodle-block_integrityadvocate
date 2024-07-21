@@ -50,6 +50,18 @@ $services = [
         // Optional – but needed if restrictedusers is set so as to allow logins.
         'shortname' => 'block_integrityadvocate_session_open',
     ],
+    'block_integrityadvocate_start_proctoring' => [
+        'functions' => ['block_integrityadvocate_start_proctoring'],
+        'requiredcapability' => 'block/integrityadvocate:view',
+        // If 1, the administrator must manually select which user can use this service.
+        // Ref (Administration > Plugins > Web services > Manage services > Authorised users).
+        'restrictedusers' => 0,
+        // If 0, then token linked to this service won't work.
+        'enabled' => 1,
+        // The short name used to refer to this service from elsewhere including when fetching a token.
+        // Optional – but needed if restrictedusers is set so as to allow logins.
+        'shortname' => 'block_integrityadvocate_start_proctoring',
+    ],
 ];
 
 $functions = [
@@ -83,7 +95,28 @@ $functions = [
         // Defaults to the service's externalib.php.
         'classpath' => 'blocks/integrityadvocate/externallib.php',
         // Human-readable description of the web service function.
-        'description' => 'Remember that an IntegrityAdvocate session session has started',
+        'description' => 'Remember that an IntegrityAdvocate session has started',
+        // Database rights of the web service function (read, write).
+        'type' => 'write',
+        // Is the service available to 'internal' ajax calls.
+        'ajax' => true,
+        // Optional, only available for Moodle 3.1 onwards.
+        // List of built-in services (by shortname) where the function will be included.
+        // Services created manually via the Moodle interface are not supported.
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+        // Capabilities required by the function.
+        'capabilities' => 'block/integrityadvocate:view',
+    ],
+    'block_integrityadvocate_start_proctoring' => [
+        // Class containing the external function OR namespaced class in classes/external/XXXX.php.
+        'classname' => 'block_integrityadvocate_external',
+        // External function name.
+        'methodname' => 'start_proctoring',
+        // File containing the class/external function - not required if using namespaced auto-loading classes.
+        // Defaults to the service's externalib.php.
+        'classpath' => 'blocks/integrityadvocate/externallib.php',
+        // Human-readable description of the web service function.
+        'description' => 'Signal that an IntegrityAdvocate proctoring session has started',
         // Database rights of the web service function (read, write).
         'type' => 'write',
         // Is the service available to 'internal' ajax calls.
