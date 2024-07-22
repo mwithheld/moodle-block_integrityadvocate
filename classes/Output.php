@@ -66,20 +66,20 @@ class Output {
     public static function add_block_js(\block_integrityadvocate $blockinstance, string $proctorjsurl): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) .
+        $debug && \debugging($fxn . '::Started with ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) .
             '; $blockinstance->context->contextlevel=' . $blockinstance->context->contextlevel .
             ' vs \CONTEXT_BLOCK=' . \CONTEXT_BLOCK . '; $proctorjsurl=' . $proctorjsurl);
 
         // If the user is not enrolled as a student, $proctorjsurl is a string error message, so simply return an empty result.
         if (!\filter_var($proctorjsurl, \FILTER_VALIDATE_URL)) {
-            debugging($fxn . '::The incoming $proctorjsurl is not a valid url it is ' . ia_u::var_dump($proctorjsurl));
+            \debugging($fxn . '::The incoming $proctorjsurl is not a valid url it is ' . ia_u::var_dump($proctorjsurl));
             return '';
         }
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
             $msg = 'Input params are invalid';
-            debugging($fxn . '::' . $msg);
+            \debugging($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -104,10 +104,10 @@ class Output {
         if ($blockinstance->page->pagetype === 'mod-quiz-summary') {
             $attemptid = \optional_param('attempt', -1, PARAM_INT);
             $cmid      = \optional_param('cmid', -1, PARAM_INT);
-            $debug && debugging($fxn . '::Got attemptid=' . $attemptid . '; cmid=' . $cmid);
+            $debug && \debugging($fxn . '::Got attemptid=' . $attemptid . '; cmid=' . $cmid);
             $quizshowsreviewpage = ia_mu::quiz_shows_review_page_after_attempt($blockinstance->get_course()->id, $attemptid, $cmid);
         }
-        $debug && debugging($fxn . '::Got quizshowsreviewpage=' . $quizshowsreviewpage);
+        $debug && \debugging($fxn . '::Got quizshowsreviewpage=' . $quizshowsreviewpage);
 
         $blockinstance->page->requires->jquery_plugin('jquery');
         $blockinstance->page->requires->js_init_call(
@@ -122,7 +122,7 @@ class Output {
             $jsmodule
         );
 
-        $debug && debugging($fxn . '::Done requiring IA JS and doing init call; had jsmodule=' . serialize($jsmodule));
+        $debug && \debugging($fxn . '::Done requiring IA JS and doing init call; had jsmodule=' . serialize($jsmodule));
         return '';
     }
 
@@ -136,12 +136,12 @@ class Output {
     public static function get_proctor_js_url(\block_integrityadvocate $blockinstance, \stdClass $user): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started');
+        $debug && \debugging($fxn . '::Started');
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK) || ia_u::is_empty($user) || !isset($user->id)) {
             $msg = 'Input params are invalid';
-            debugging($fxn . '::' . $msg);
+            \debugging($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -156,26 +156,26 @@ class Output {
 
         $blockcontext = $blockinstance->context;
         $blockparentcontext = $blockcontext->get_parent_context();
-        $debug && debugging($fxn . '::Got $blockparentcontext->id=' . ia_u::var_dump($blockparentcontext->id, true));
+        $debug && \debugging($fxn . '::Got $blockparentcontext->id=' . ia_u::var_dump($blockparentcontext->id, true));
 
         $course = $blockinstance->get_course();
 
         if ($blockparentcontext->contextlevel !== \CONTEXT_MODULE) {
-            debugging($fxn . "::user={$user->id}; courseid={$course->id}: error=This block only shows JS in module context");
+            \debugging($fxn . "::user={$user->id}; courseid={$course->id}: error=This block only shows JS in module context");
             return '';
         }
 
         if (!\is_enrolled($blockparentcontext, $user->id, null, true)) {
             $error = \get_string('error_notenrolled', INTEGRITYADVOCATE_BLOCK_NAME);
             // Teachers and students can see this error.
-            $debug && debugging($fxn . "::user={$user->id}; courseid={$course->id}: error={$error}");
+            $debug && \debugging($fxn . "::user={$user->id}; courseid={$course->id}: error={$error}");
             return $error;
         }
 
         // The moodle_url class stores params non-urlencoded but outputs them encoded.
         // Note $modulecontext->instanceid is the cmid.
         $url = ia_api::get_js_url($blockinstance->config->appid, $course->id, $blockparentcontext->instanceid, $user);
-        $debug && debugging($fxn . "::Built url={$url}");
+        $debug && \debugging($fxn . "::Built url={$url}");
 
         return $url;
     }
@@ -191,12 +191,12 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || !\is_numeric($courseid = $blockinstance->get_course()->id) || (isset($userid) && !\is_int($userid))) {
             $msg = 'Input params are invalid';
-            debugging($fxn . '::' . $msg . '::' . $debugvars);
+            \debugging($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -204,20 +204,20 @@ class Output {
 
         // If we have a userid we must be a teacher looking at a user profile, so show the view user details button.
         if ($userid) {
-            $debug && debugging($fxn . "::We have a \$userid={$userid} so label the button with view details");
+            $debug && \debugging($fxn . "::We have a \$userid={$userid} so label the button with view details");
             $params += ['userid' => $userid];
             $label = \get_string('btn_overview_user', INTEGRITYADVOCATE_BLOCK_NAME);
         } else {
             // Otherwise show the course overview button.
             $label = \get_string('btn_overview_course', INTEGRITYADVOCATE_BLOCK_NAME);
         }
-        $debug && debugging($fxn . '::Built params=' . ia_u::var_dump($params));
+        $debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR)]));
         if ($cachedvalue = $cache->get($cachekey)) {
-            $debug && debugging($fxn . '::Found a cached value, so return that');
+            $debug && \debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
 
@@ -245,12 +245,12 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || !\is_numeric($courseid = $blockinstance->get_course()->id) || (isset($userid) && !\is_int($userid))) {
             $msg = 'Input params are invalid';
-            debugging($fxn . '::' . $msg . '::' . $debugvars);
+            \debugging($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -259,19 +259,19 @@ class Output {
 
         $params = ['instanceid' => $blockinstance->instance->id, 'courseid' => $courseid, 'moduleid' => $parentcontext->instanceid];
         if ($userid) {
-            $debug && debugging($fxn . "::We have a \$userid={$userid} so label the button with view details");
+            $debug && \debugging($fxn . "::We have a \$userid={$userid} so label the button with view details");
             $params += ['userid' => $userid];
             $label = \get_string('btn_overview_user', INTEGRITYADVOCATE_BLOCK_NAME);
         } else {
             $label = \get_string('btn_overview_module', INTEGRITYADVOCATE_BLOCK_NAME);
         }
-        $debug && debugging($fxn . '::Built params=' . ia_u::var_dump($params));
+        $debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
         // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $blockinstance.
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, \json_encode($params, \JSON_PARTIAL_OUTPUT_ON_ERROR)]));
         if ($cachedvalue = $cache->get($cachekey)) {
-            $debug && debugging($fxn . '::Found a cached value, so return that');
+            $debug && \debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
 
@@ -299,20 +299,20 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; \$userid={$userid}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         $blockcontext = $blockinstance->context;
         $parentcontext = $blockcontext->get_parent_context();
         switch ((int) ($parentcontext->contextlevel)) {
             case ((int) (\CONTEXT_COURSE)):
-                $debug && debugging($fxn . '::parentcontext=course');
+                $debug && \debugging($fxn . '::parentcontext=course');
                 return self::get_button_overview_course($blockinstance, $userid);
             case ((int) (\CONTEXT_MODULE)):
-                $debug && debugging($fxn . '::parentcontext=module');
+                $debug && \debugging($fxn . '::parentcontext=module');
                 return self::get_button_overview_module($blockinstance, $userid);
             default:
                 $msg = 'Unrecognized parent context';
-                $debug && debugging($fxn . '::' . $msg);
+                $debug && \debugging($fxn . '::' . $msg);
                 throw new \Exception($msg);
         }
     }
@@ -342,11 +342,11 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$status={$status}; \$prefix={$prefix}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         $statushtml = '';
         $cssclassval = $prefix . '_status_val ';
-        $debug && debugging($fxn . '::Got status=' . $status);
+        $debug && \debugging($fxn . '::Got status=' . $status);
         switch ($status) {
             case ia_status::NOTSTARTED_INT:
                 $statushtml = \html_writer::span(\get_string('status_notstarted', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_notstarted");
@@ -368,7 +368,7 @@ class Output {
                 break;
             default:
                 $error = 'Invalid participant status value=' . \serialize($status);
-                debugging($error);
+                \debugging($error);
                 throw new \InvalidArgumentException($error);
         }
 
@@ -397,13 +397,13 @@ class Output {
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; "
             . "\$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; "
             . "\$showstatus={$showstatus}; \$participant->status={$participant->status}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ia_u::is_empty($participant) || !ia_status::is_status_int($participant->status)) {
             $msg = $fxn . '::Input params are invalid; \$debugvars=' . $debugvars;
-            debugging($fxn . '::' . $msg);
-            debugging($fxn . '::ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) . '; ia_u::is_empty($participant)=' .
+            \debugging($fxn . '::' . $msg);
+            \debugging($fxn . '::ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) . '; ia_u::is_empty($participant)=' .
                 ia_u::is_empty($participant) . '; ia_status::is_status_int($participant->status)=' . ia_status::is_status_int($participant->status));
             throw new \InvalidArgumentException($msg);
         }
@@ -412,7 +412,7 @@ class Output {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $participant->__toString(), \json_encode($debugvars, \JSON_PARTIAL_OUTPUT_ON_ERROR), $debugvars]));
         if ($cachedvalue = $cache->get($cachekey)) {
-            $debug && debugging($fxn . '::Found a cached value, so return that');
+            $debug && \debugging($fxn . '::Found a cached value, so return that');
             return $cachedvalue;
         }
 
@@ -472,7 +472,7 @@ class Output {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$userid={$userid}; \$status={$status}; \$start={$start}; \$end={$end}; "
             . "\$photohtml={$photohtml}; \$overviewbuttonhtml={$overviewbuttonhtml}; \$showstatus={$showstatus}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $outarr = [];
@@ -503,7 +503,7 @@ class Output {
         // Close .block_integrityadvocate_overview_participant_summary_text.
         $outarr[] = \html_writer::end_tag('div');
 
-        $debug && debugging($fxn . '::About to check if should include photo=' . ($photohtml ? 1 : 0));
+        $debug && \debugging($fxn . '::About to check if should include photo=' . ($photohtml ? 1 : 0));
         if ($photohtml) {
             $outarr[] = $photohtml;
         }
@@ -530,7 +530,7 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$userid={$userid}; md5(\$photo)=" . \md5($photo) . "\$status={$status}, \$email={$email}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant';
         $outarr = [];
@@ -569,12 +569,12 @@ class Output {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$userid={$userid}; "
             . "\$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . \gettype($showstatus);
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         // Sanity check.
         if (ia_u::is_empty($blockinstance) || ($blockinstance->context->contextlevel !== \CONTEXT_BLOCK)) {
             $msg = 'Input params are invalid';
-            debugging($fxn . '::' . $msg);
+            \debugging($fxn . '::' . $msg);
             throw new \InvalidArgumentException($msg);
         }
 
@@ -585,7 +585,7 @@ class Output {
             switch ((int) ($parentcontext->contextlevel)) {
                 case ((int) (\CONTEXT_COURSE)):
                     // If the block is in a course, show the participant-level latest status, photo, last seen, etc.
-                    $debug && debugging($fxn . '::Am in a module context');
+                    $debug && \debugging($fxn . '::Am in a module context');
                     $participant = ia_api::get_participant(
                         $blockinstance->config->apikey,
                         $blockinstance->config->appid,
@@ -595,7 +595,7 @@ class Output {
                     );
 
                     if (ia_u::is_empty($participant)) {
-                        $debug && debugging($fxn . '::Got empty participant, so return empty result');
+                        $debug && \debugging($fxn . '::Got empty participant, so return empty result');
                         return self::get_student_message();
                     }
 
@@ -609,11 +609,11 @@ class Output {
 
                 case ((int) (\CONTEXT_MODULE)):
                     // If block is in a module, show the module's latest status, photo, start, end.
-                    $debug && debugging($fxn . '::Am in a module context');
+                    $debug && \debugging($fxn . '::Am in a module context');
                     $latestsession = ia_api::get_module_session_latest($parentcontext, $userid);
-                    $debug && debugging($fxn . '::Got $latestsession=' . ia_u::is_empty($latestsession) ? '' : $latestsession->__toString());
+                    $debug && \debugging($fxn . '::Got $latestsession=' . ia_u::is_empty($latestsession) ? '' : $latestsession->__toString());
                     if (ia_u::is_empty($latestsession)) {
-                        $debug && debugging($fxn . '::Got empty $latestsession, so return empty result');
+                        $debug && \debugging($fxn . '::Got empty $latestsession, so return empty result');
                         return self::get_student_message();
                     }
                     $participant = $latestsession->participant;
@@ -636,11 +636,11 @@ class Output {
 
                 default:
                     $msg = 'Unrecognized parent context';
-                    $debug && debugging($fxn . '::' . $msg);
+                    $debug && \debugging($fxn . '::' . $msg);
                     throw new \Exception($msg);
             }
         } catch (\block_integrityadvocate\HttpException $e) {
-            debugging($fxn . "::{$debugvars}::Ignoring an HttpException so the page display is not broken");
+            \debugging($fxn . "::{$debugvars}::Ignoring an HttpException so the page display is not broken");
             return '';
         }
     }
@@ -657,7 +657,7 @@ class Output {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$url={$url}; \$signature={$signature}; \$data=" . ia_u::var_dump($data);
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" '
             . 'method="POST" target="iframelaunch" style="display:none" action="' . $url . '">'];
