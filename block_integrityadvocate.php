@@ -90,6 +90,7 @@ class block_integrityadvocate extends block_base {
 
         // If this is a quiz, auto-configure the quiz to...
         $debug && debugging($fxn . "::Looking at pagetype={$this->page->pagetype}");
+        // @phpcs:ignore
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             // A. Show blocks during quiz attempt; and...
             $modulecontext = $this->context->get_parent_context();
@@ -262,6 +263,7 @@ class block_integrityadvocate extends block_base {
         /*
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
+        // @phpcs:ignore
         if (str_starts_with($modulecontext->get_context_name(), 'quiz')) {
             $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
@@ -504,6 +506,7 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapabilityoverview:
                         $debug && debugging($fxn . '::Teacher viewing a course student profile: Show latest student info');
+                        // @phpcs:ignore
                         $isparticipantspage = str_contains($this->page->url, '/user/view.php?');
                         if ($isparticipantspage) {
                             $courseid = required_param('course', PARAM_INT);
@@ -567,9 +570,11 @@ class block_integrityadvocate extends block_base {
                         \is_enrolled($parentcontext, $USER, null, true)):
                         // This is someone in a student role.
                         switch (true) {
+                            // @phpcs:ignore
                             case (str_starts_with($this->page->pagetype, 'mod-scorm-')):
                                 $this->content->text .= $this->get_content_scorm();
                                 break;
+                                // @phpcs:ignore
                             case(str_starts_with($this->page->pagetype, 'mod-quiz-')):
                                 $this->content->text .= $this->get_content_quiz($hascapabilityselfview);
                                 break;

@@ -39,7 +39,10 @@ use block_integrityadvocate\Utility as ia_u;
  */
 trait external_ia_start_proctoring {
 
-    // The quiz attempt object.
+    /**
+     *
+     * @var quiz_attempt $attemptThe quiz attempt object.
+     */
     private static $attemptobj;
 
     /**
@@ -242,7 +245,7 @@ trait external_ia_start_proctoring {
         // z- While on the Reviewing Attempt page.
         // z- Invalid quiz attemptid.
         // z- Someone else's quiz attemptid.
-        
+
         $blockversion = \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         if ($cachedvalue = $cache->get($cachekey)) {
             $debug && \debugging($fxn . '::Got cachedvalue=' . ia_u::var_dump($cachedvalue));

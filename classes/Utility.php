@@ -121,8 +121,10 @@ class Utility {
         \raise_memory_limit(\MEMORY_HUGE);
 
         if (\is_object($expression)) {
-            if (\property_exists($expression, 'page') && (\gettype($expression->page) == 'object') &&
-                    \class_exists('moodle_page', false) && $expression->page instanceof \moodle_page) {
+            if (
+                \property_exists($expression, 'page') && (\gettype($expression->page) == 'object') &&
+                \class_exists('moodle_page', false) && $expression->page instanceof \moodle_page
+            ) {
                 $expression->page = null;
             }
             if (\method_exists(\get_class($expression), '__toString')) {
@@ -130,13 +132,15 @@ class Utility {
             }
         }
 
-        if (\is_array($expression) && isset($expression['page']) && (\gettype($expression['page']) == 'object') &&
-                \class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page) {
+        if (
+            \is_array($expression) && isset($expression['page']) && (\gettype($expression['page']) == 'object') &&
+            \class_exists('moodle_page', false) && $expression['page'] instanceof \moodle_page
+        ) {
             unset($expression['page']);
         }
 
         if (\is_bool($expression)) {
-            $expression = $expression?'true':'false';
+            $expression = $expression ? 'true' : 'false';
         }
 
         // Preg_replace prevents dying on base64-encoded images.

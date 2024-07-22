@@ -38,7 +38,19 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  */
 class block_integrityadvocate_observer {
 
-    public static function setup_quiz_time_extender_nonce(/*\mod_quiz\event\attempt_started*/\core\event\base $event): bool {
+    /**
+     * Setup a nonce to extend the quiz time based on the event data.
+     *
+     * Set a one-time-use flag (nonce) that allows the requestor to reset the quiz timer
+     * for a specific quiz attempt. The nonce is stored in the session cache and should be removed once used.
+     * If the MUC Moodle cache is purged the nonce is cleared like this:
+     * z- $cache = \cache::make('block_integrityadvocate', 'persession');
+     * z- $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid]));
+     *
+     * @param \mod_quiz\event\attempt_started $event The attempt_started event object containing information about the quiz attempt.
+     * @return bool True if the nonce is successfully set, false otherwise.
+     */
+    public static function setup_quiz_time_extender_nonce(\mod_quiz\event\attempt_started $event): bool {
         global $DB;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = true;
@@ -73,7 +85,7 @@ class block_integrityadvocate_observer {
         // Disabled bc too much info: $debug && \debugging($fxn . '::Got event=' . ia_u::var_dump($event));.
         $debug && \debugging($fxn . '::Got event->objectid=' . $event->objectid);
         $attemptid = $event->objectid;
-        if(!is_int($event->objectid) || $event->objectid <= 0) {
+        if (!is_int($event->objectid) || $event->objectid <= 0) {
             throw new \Exception('Invalid event->objectid');
         }
 
@@ -84,13 +96,13 @@ class block_integrityadvocate_observer {
         // Once we use the cached value, we remove it.
         $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid]));
-        $debug && \debugging($fxn . '::Got cachekey='.ia_u::var_dump($cachekey));
-        
+        $debug && \debugging($fxn . '::Got cachekey=' . ia_u::var_dump($cachekey));
+
         $attempttimestart = $DB->get_field('quiz_attempts', 'timestart', ['id' => $attemptid], MUST_EXIST);
         if (!$cache->set($cachekey, $attempttimestart)) {
             throw new \Exception('Failed to set value in the cache');
         }
-        $debug && \debugging($fxn . '::Set cachedvalue='.ia_u::var_dump($attempttimestart));
+        $debug && \debugging($fxn . '::Set cachedvalue=' . ia_u::var_dump($attempttimestart));
 
         return true;
     }
