@@ -41,7 +41,7 @@ class block_integrityadvocate_observer {
     /**
      * Setup a nonce to extend the quiz time based on the event data.
      *
-     * Set a one-time-use flag (nonce) that allows the requestor to reset the quiz timer
+     * Set a one-time-use flag (nonce) that allows the requestor to update the quiz timer
      * for a specific quiz attempt. The nonce is stored in the session cache and should be removed once used.
      * If the MUC Moodle cache is purged the nonce is cleared like this:
      * z- $cache = \cache::make('block_integrityadvocate', 'persession');
@@ -60,6 +60,12 @@ class block_integrityadvocate_observer {
             . "is c/u=" . (\in_array($event->crud, ['c', 'u'], true)));
         $debug && \debugging($fxn . "::Started with event->contextlevel={$event->contextlevel}; "
             . "is_contextlevelmatch=" . ($event->contextlevel === CONTEXT_MODULE));
+
+        // Check this feature is enabled.
+        if (!\defined('INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED') || !INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED) {
+            $debug && \debugging($fxn . "::The feature INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED is disabled");
+            return false;
+        }
 
         // No CLI events may trigger this event.
         if (\defined('CLI_SCRIPT') && CLI_SCRIPT) {
@@ -91,7 +97,7 @@ class block_integrityadvocate_observer {
 
         // Initialize the cache
         // Here we are not using the cache to store/retrieve a complex value.
-        // By default the requestor cannot reset the timer for this quiz attempt.
+        // By default the requestor cannot update the timer for this quiz attempt.
         // We are using it to store a one-time-use flag (a nonce) that allows the requestor is allowed to do this.
         // Once we use the cached value, we remove it.
         $cache = \cache::make('block_integrityadvocate', 'persession');

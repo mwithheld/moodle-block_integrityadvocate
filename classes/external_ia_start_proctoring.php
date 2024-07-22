@@ -95,6 +95,13 @@ trait external_ia_start_proctoring {
                     'message' => \get_string('confirmsesskeybad'),
                 ];
                 break;
+            case (!\defined('INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED') || !INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED):
+                \debugging($fxn . '::Failed check: Feature disabled');
+                $result['warnings'][] = [
+                    'warningcode' => \implode('a', [$blockversion, __LINE__]),
+                    'message' => 'Feature is disabled',
+                ];
+                break;
             case (!(self::$attemptobj = \quiz_attempt::create($attemptid)) || get_class(self::$attemptobj) !== 'quiz_attempt'):
                 \debugging($fxn . '::Failed check: Create quiz_attempt');
                 $result['warnings'][] = [
@@ -222,7 +229,7 @@ trait external_ia_start_proctoring {
         }
         $debug && \debugging($fxn . '::No warnings');
 
-        // The user is allowed to reset the quiz timer only once per quiz attempt.
+        // The user is allowed to update the quiz timer only once per quiz attempt.
         $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid, \sesskey()]));
         $debug && \debugging($fxn . '::Got cachekey=' . ia_u::var_dump($cachekey));
