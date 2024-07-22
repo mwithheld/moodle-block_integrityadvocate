@@ -181,7 +181,7 @@ trait external_ia_start_proctoring {
         // If this is not a quiz, do nothing and return success.
 
         // Makes sure the current user may execute functions in this context.
-        self::validate_context($attemptobj->get_cm()->context);
+        self::validate_context(self::$attemptobj->get_quizobj()->get_context());
 
         return $result;
     }
