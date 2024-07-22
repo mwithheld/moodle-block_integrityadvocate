@@ -455,9 +455,10 @@ class MoodleUtility {
     /**
      * Return whether a block is visible in the given context.
      *
-     * @param int $parentcontextid The module context id
-     * @param int $blockinstanceid The block instance id
-     * @return bool true if the block is visible in the given context
+     * @param int $parentcontextid The module context id.
+     * @param int $blockinstanceid The block instance id.
+     * @param string $pagetype The page type this block is on.
+     * @return bool true if the block is visible in the given context.
      */
     public static function is_block_visibile(int $parentcontextid, int $blockinstanceid, string $pagetype = ''): bool {
         global $DB;
