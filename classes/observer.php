@@ -45,7 +45,7 @@ class block_integrityadvocate_observer {
      * for a specific quiz attempt. The nonce is stored in the session cache and should be removed once used.
      * If the MUC Moodle cache is purged the nonce is cleared like this:
      * z- $cache = \cache::make('block_integrityadvocate', 'persession');
-     * z- $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid]));
+     * z- $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid, \sesskey()));
      *
      * @param \mod_quiz\event\attempt_started $event The attempt_started event object containing information about the quiz attempt.
      * @return bool True if the nonce is successfully set, false otherwise.
@@ -95,7 +95,7 @@ class block_integrityadvocate_observer {
         // We are using it to store a one-time-use flag (a nonce) that allows the requestor is allowed to do this.
         // Once we use the cached value, we remove it.
         $cache = \cache::make('block_integrityadvocate', 'persession');
-        $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid]));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid, \sesskey()]));
         $debug && \debugging($fxn . '::Got cachekey=' . ia_u::var_dump($cachekey));
 
         $attempttimestart = $DB->get_field('quiz_attempts', 'timestart', ['id' => $attemptid], MUST_EXIST);

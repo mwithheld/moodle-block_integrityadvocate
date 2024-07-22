@@ -224,7 +224,7 @@ trait external_ia_start_proctoring {
 
         // The user is allowed to reset the quiz timer only once per quiz attempt.
         $cache = \cache::make('block_integrityadvocate', 'persession');
-        $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid]));
+        $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid, \sesskey()]));
         $debug && \debugging($fxn . '::Got cachekey=' . ia_u::var_dump($cachekey));
 
         // Tested the AJAX network (web services) call with these scenarios:.
@@ -243,8 +243,9 @@ trait external_ia_start_proctoring {
         // z- Use back button then click return to quiz attempt.
         // z- While on the Finish Attempt page.
         // z- While on the Reviewing Attempt page.
-        // z- Invalid quiz attemptid.
+        // z- Invalid (future/past) quiz attemptid.
         // z- Someone else's quiz attemptid.
+        // z- Open attempt in another browser.
 
         $blockversion = \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         if ($cachedvalue = $cache->get($cachekey)) {
@@ -263,8 +264,8 @@ trait external_ia_start_proctoring {
                 $cache->delete($cachekey);
             }
         } else {
-            $msg = 'Already done';
-            $debug && debugging($fxn . "::$msg");
+            $msg = 'Not set or already done';
+            $debug && \debugging($fxn . "::$msg");
             $result['warnings'][] = [
                 'warningcode' => \implode('a', [$blockversion, __LINE__]),
                 'message' => $msg,
