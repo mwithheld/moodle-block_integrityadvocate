@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block version details
+ * IntegrityAdvocate block version details.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
@@ -23,7 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2024072014;
+$plugin->version = 2024072102;
 $plugin->release = $plugin->version;
 $plugin->supported = [350, 440];
 $plugin->requires = 2018051700; // Moodle 3.5.0.
