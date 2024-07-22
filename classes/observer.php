@@ -53,7 +53,7 @@ class block_integrityadvocate_observer {
     public static function setup_quiz_time_extender_nonce(\mod_quiz\event\attempt_started $event): bool {
         global $DB;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true;
+        $debug = false;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
 
         $debug && \debugging($fxn . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; "

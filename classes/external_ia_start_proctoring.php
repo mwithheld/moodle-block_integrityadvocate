@@ -67,7 +67,7 @@ trait external_ia_start_proctoring {
     private static function start_proctoring_validate_params(int $attemptid): array {
         global $USER;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true;
+        $debug = false;
         $debugvars = $fxn . "::Started with \$attemptid={$attemptid}";
         $debug && \debugging($debugvars);
 
@@ -86,7 +86,7 @@ trait external_ia_start_proctoring {
         $blockversion = \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         $coursecontext = null;
 
-        \debugging($fxn . '::About to check for things that should make this fail');
+        $debug && \debugging($fxn . '::About to check for things that should make this fail');
         switch (true) {
             case (!\confirm_sesskey()):
                 \debugging($fxn . '::Failed check: confirm_sesskey');
@@ -166,7 +166,7 @@ trait external_ia_start_proctoring {
                 ];
                 break;
             default:
-                \debugging($fxn . '::No cases matched');
+                $debug && \debugging($fxn . '::Found no reason to fail the request');
                 break;
         }
 
@@ -181,7 +181,7 @@ trait external_ia_start_proctoring {
         // If this is not a quiz, do nothing and return success.
 
         // Makes sure the current user may execute functions in this context.
-        // self::validate_context($cm->context);
+        self::validate_context($attemptobj->get_cm()->context);
 
         return $result;
     }
@@ -203,7 +203,7 @@ trait external_ia_start_proctoring {
      */
     public static function start_proctoring(int $attemptid): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug = true;
+        $debug = false;
         $debugvars = $fxn . "::Started with \$attemptid={$attemptid}";
         $debug && \debugging($debugvars);
 
@@ -253,6 +253,19 @@ trait external_ia_start_proctoring {
             $debug && \debugging($fxn . '::Original quiz attempt timestart=' . self::$attemptobj->get_attempt()->timestart);
             $newtimestart = time();
             $result['success'] = ia_mu::quiz_set_timestart(self::$attemptobj->get_attemptid(), $newtimestart);
+
+            // Log this to the Moodle log.
+            $params = array(
+                'objectid' => self::$attemptobj->get_attemptid(),
+                'relateduserid' => self::$attemptobj->get_userid(),
+                'courseid' => self::$attemptobj->get_courseid(),
+                'context' => self::$attemptobj->get_quizobj()->get_context(),
+            );
+            $event = \block_integrityadvocate\event\quizattempt_time_updated::create($params);
+            $event->add_record_snapshot('quiz', self::$attemptobj->get_quizobj()->get_quiz());
+            $event->add_record_snapshot('quiz_attempts', self::$attemptobj->get_attempt());
+            $event->trigger();
+
             if (!$result['success']) {
                 $msg = 'Failed to run start_proctoring items';
                 $result['warnings'][]  = [
