@@ -83,11 +83,13 @@ class block_integrityadvocate_edit_form extends block_edit_form {
         $mform->addRule('config_apikey', $invalidstr, 'regex', '/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}={2})$/', 'client');
 
         // Only show this on activity module pages.
+        // @phpcs:ignore
         if (str_starts_with($this->page->pagetype, 'mod-')) {
             $mform->addElement('selectyesno', 'config_hidelinksinstudentmessage', get_string('config_hidelinksinstudentmessage', INTEGRITYADVOCATE_BLOCK_NAME));
             $mform->setDefault('config_hidelinksinstudentmessage', 0);
         }
 
+        // @phpcs:ignore
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             $mform->addElement('selectyesno', 'config_proctorquizinfopage', get_string('config_proctorquizinfopage', INTEGRITYADVOCATE_BLOCK_NAME));
             $mform->setDefault('config_proctorquizinfopage', 0);

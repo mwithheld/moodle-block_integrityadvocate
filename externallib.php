@@ -31,6 +31,7 @@ require_once($CFG->libdir . '/externallib.php');
 class block_integrityadvocate_external extends \external_api {
 
     use \block_integrityadvocate\external_ia_session_tracking;
+    use \block_integrityadvocate\external_ia_start_proctoring;
 
     /**
      * Describes a return value that just returns submitted = true.

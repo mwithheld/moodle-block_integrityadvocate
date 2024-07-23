@@ -77,6 +77,9 @@ const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
 /** @var string String Part of the name for consistent reuse. */
 const INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX = \INTEGRITYADVOCATE_BLOCK_NAME . '\\';
 
+/** @var bool Enable the feature: When done proctor setup, update the quiz attempt starttime. */
+const INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED = false;
+
 /**
  * Get participants in this block context.
  * Returns empty array if not a block context, if the block is missing APIKey/AppId, or if no participants found.
