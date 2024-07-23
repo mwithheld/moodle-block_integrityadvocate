@@ -172,8 +172,8 @@ M.block_integrityadvocate = {
         var eltMainContent = $('#responseform, #scormpage, div[role="main"]');
         switch (true) {
             case self.isQuizAttempt:
-                window.console.log(fxn + '.isQuizAttempt::IA is ready: Enable the submit button', self.eltQuizNextButtonSet);
-                self.eltQuizNextButtonSet.removeAttr('disabled').off('click.block_integrityadvocate.disable');
+                window.console.log(fxn + '.isQuizAttempt::IA is ready: Enable the submit button', $('.mod_quiz-next-nav'));
+                $('.mod_quiz-next-nav').removeAttr('disabled').off('click.block_integrityadvocate.disable');
                 $('#block_integrityadvocate_hidequiz').remove();
                 window.console.log(fxn + '.isQuizAttempt::IA is ready: Show the quiz questions', eltMainContent);
                 eltMainContent.show(0, function () { window.console.log(fxn + 'isQuizAttempt: Done: Enable the submit button and show the main content'); });
@@ -368,7 +368,7 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::Attach endSession to Finish review button');
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
-                self.eltQuizNextButtonSet.one('click.block_integrityadvocate', function (e) {
+                $('.mod_quiz-next-nav').one('click.block_integrityadvocate', function (e) {
                     var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
                     window.console.log(fxn + '::Started with e=', e);
                     e.preventDefault();
@@ -453,7 +453,6 @@ M.block_integrityadvocate = {
         self.eltUserNotifications = $('#user-notifications');
         self.eltDivMain = $('div[role="main"]');
         self.eltQuizNextButton = $('#mod_quiz-next-nav');
-        self.eltQuizNextButtonSet = $('.mod_quiz-next-nav');
 
         debug && window.console.log(fxn + '::After gathering vars, this block self=', self);
 
@@ -480,7 +479,7 @@ M.block_integrityadvocate = {
         if (document.body.id === 'page-mod-quiz-attempt') {
             debug && window.console.log(fxn + '::This is a quiz attempt page');
             // Disables the Next button until IA JS is loaded.
-            self.eltQuizNextButtonSet.attr('disabled', 1).on('click.block_integrityadvocate.disable', false);
+            $('.mod_quiz-next-nav').attr('disabled', 1).on('click.block_integrityadvocate.disable', false);
             self.loadProctorUi(self.proctorjsurl);
         } else if (document.body.id === 'page-mod-quiz-view') {
             debug && window.console.log(fxn + '::This is a quiz view page with self.proctorquizreviewpages=' + self.proctorquizreviewpages);
