@@ -180,8 +180,8 @@ class block_integrityadvocate extends block_base {
         $hasblockconfig = isset($this->config) && !ia_u::is_empty($this->config);
 
         if (!$hasblockconfig) {
-            $debug && debugging($fxn . '::Error: This block has no config');
-            $errors = ['This block has no config'];
+            $errors['error_missingconfig']  = \get_string('error_missingconfig', \INTEGRITYADVOCATE_BLOCK_NAME);
+            $debug && debugging($fxn . '::' . $errors['error_missingconfig']);
         }
 
         if (!isset($this->config->apikey) || !self::is_valid_apikey($this->config->apikey)) {
@@ -263,6 +263,7 @@ class block_integrityadvocate extends block_base {
         /*
          * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
+        // @phpcs:ignore
         if (str_starts_with($modulecontext->get_context_name(), 'quiz')) {
             $modinfo = \get_fast_modinfo($courseid, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
@@ -505,6 +506,7 @@ class block_integrityadvocate extends block_base {
                 switch (true) {
                     case $hascapabilityoverview:
                         $debug && debugging($fxn . '::Teacher viewing a course student profile: Show latest student info');
+                        // @phpcs:ignore
                         $isparticipantspage = str_contains($this->page->url, '/user/view.php?');
                         if ($isparticipantspage) {
                             $courseid = required_param('course', PARAM_INT);

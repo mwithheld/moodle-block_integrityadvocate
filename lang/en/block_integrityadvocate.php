@@ -58,6 +58,7 @@ $string['error_curlcloseia'] = 'Curl error closing the IA session';
 $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info. If this is not valid, check the API key and app id are valid.';
 $string['error_invalidappid'] = 'Invalid Application Id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538';
 $string['error_invalidapikey'] = 'Invalid API Key - it is a code that looks a bit like this: c5oMspfrqaUuYX+3/Pem/7/8VnxS385tlmqoV2/bVcA=';
+$string['error_missingconfig'] = 'This block is missing config';
 $string['error_noapikey'] = 'No API key is set';
 $string['error_noappid'] = 'No Application Id is set';
 $string['error_nousers'] = 'No users found';
