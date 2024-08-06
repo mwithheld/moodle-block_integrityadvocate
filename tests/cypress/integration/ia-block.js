@@ -16,8 +16,8 @@ const strings = {
     function_delimiter: '--',
     username_admin: 'user',
     password_admin: 'bitnami',
-    appid: '2b5cdd71-aeb1-4f3d-8ac0-1f3acca4efe4',
-    apikey: 'c5oNspfrqaUuYX+3/Res/7/8VnxS385tlmqoU4/bVcA=',
+    appid: '',
+    apikey: '',
 
     baseurl: Cypress.config().baseUrl,
     coursename: 'ia-automated-tests',

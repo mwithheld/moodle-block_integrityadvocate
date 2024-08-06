@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Integrity Advocate block English language translation
+ * Integrity Advocate block English language translation.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
@@ -64,6 +64,8 @@ $string['error_nousers'] = 'No users found';
 $string['error_notenrolled'] = 'You are not enrolled in this course';
 $string['error_quiz_showblocks'] = 'This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...';
 $string['error_twoblocks'] = 'This block is added twice to this page, so skipping the content.  This block will not display to students.';
+
+$string['eventquizattempt_time_updated'] = 'Updated quiz attempt starttime';
 
 $string['flag_comment'] = 'Details';
 $string['photo'] = 'Captured photo';
@@ -120,8 +122,8 @@ $string['privacy:metadata:block_integrityadvocate:override_date'] = 'If applicab
 $string['privacy:metadata:block_integrityadvocate:override_fullname'] = 'If applicable, the full name of the instrucor doing the override.';
 $string['privacy:metadata:block_integrityadvocate:override_reason'] = 'If applicable, the instrucor reason for doing the override.';
 $string['privacy:metadata:block_integrityadvocate:override_status'] = 'If applicable, the Integrity Advocate status applied by the override.';
-$string['privacy:metadata:block_integrityadvocate:session_end'] = 'The time your proctoring session session ends.';
-$string['privacy:metadata:block_integrityadvocate:session_start'] = 'The time your proctoring session session starts.';
+$string['privacy:metadata:block_integrityadvocate:session_end'] = 'The time your proctoring session ends.';
+$string['privacy:metadata:block_integrityadvocate:session_start'] = 'The time your proctoring session starts.';
 $string['privacy:metadata:block_integrityadvocate:tableexplanation'] = 'Integrity Advocate block information is stored here.';
 $string['privacy:metadata:block_integrityadvocate:user_video'] = 'A video (with audio) recording of you completing an activity.';
 $string['privacy:metadata:block_integrityadvocate:userid'] = 'Your database user id number.';

@@ -41,31 +41,35 @@ M.block_integrityadvocate = {
     sessionOpen: function () {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.sessionOpen';
-        debug && window.console.log(fxn + '::Started');
+        window.console.log(fxn + '::Started');
         var self = M.block_integrityadvocate;
 
-        require(['core/ajax'], function (ajax) {
-            ajax.call([{
-                methodname: 'block_integrityadvocate_session_open',
-                args: {
-                    appid: self.appid,
-                    courseid: self.courseid,
-                    moduleid: self.activityid,
-                    userid: self.participantidentifier
-                },
-                done: function () {
-                    debug && window.console.log(fxn + '::ajax.done');
-                },
-                fail: function (xhr_unused, textStatus, errorThrown) {
-                    debug && window.console.log(fxn + '::ajax.fail');
-                    window.console.log('textStatus', textStatus);
-                    window.console.log('errorThrown', errorThrown);
-                    alert(M.util.get_string('unknownerror', 'moodle') + ' ' + fxn + '::ajax.fail');
-                }
-            }]);
-        });
+        try {
+            require(['core/ajax'], function (ajax) {
+                ajax.call([{
+                    methodname: 'block_integrityadvocate_session_open',
+                    args: {
+                        appid: self.appid,
+                        courseid: self.courseid,
+                        moduleid: self.activityid,
+                        userid: self.participantidentifier
+                    },
+                    done: function () {
+                        debug && window.console.log(fxn + '::ajax.done');
+                    },
+                    fail: function (xhr_unused, textStatus, errorThrown) {
+                        debug && window.console.log(fxn + '::ajax.fail');
+                        window.console.log('textStatus', textStatus);
+                        window.console.log('errorThrown', errorThrown);
+                        alert(M.util.get_string('unknownerror', 'moodle') + ' ' + fxn + '::ajax.fail');
+                    }
+                }]);
+            });
+        } catch (error) {
+            window.console.log(fxn + '::Caught an error on the ajax call');
+        }
 
-        debug && window.console.log(fxn + '::Done');
+        window.console.log(fxn + '::Done');
     },
     /**
      * Close an IA proctoring session.
@@ -79,28 +83,76 @@ M.block_integrityadvocate = {
         debug && window.console.log(fxn + '::Started');
         var self = M.block_integrityadvocate;
 
-        require(['core/ajax'], function (ajax) {
-            ajax.call([{
-                methodname: 'block_integrityadvocate_session_close',
-                args: {
-                    appid: self.appid,
-                    courseid: self.courseid,
-                    moduleid: self.activityid,
-                    userid: self.participantidentifier
-                },
-                done: function () {
-                    debug && window.console.log(fxn + '::ajax.done');
-                    typeof callback === 'function' && callback();
-                },
-                fail: function (xhr_unused, textStatus, errorThrown) {
-                    debug && window.console.log(fxn + '::ajax.fail');
-                    window.console.log('textStatus', textStatus);
-                    window.console.log('errorThrown', errorThrown);
-                    window.IntegrityAdvocate.endSession();
-                    alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionClose::ajax.fail');
-                }
-            }]);
-        });
+        try {
+            require(['core/ajax'], function (ajax) {
+                ajax.call([{
+                    methodname: 'block_integrityadvocate_session_close',
+                    args: {
+                        appid: self.appid,
+                        courseid: self.courseid,
+                        moduleid: self.activityid,
+                        userid: self.participantidentifier
+                    },
+                    done: function () {
+                        debug && window.console.log(fxn + '::ajax.done');
+                        typeof callback === 'function' && callback();
+                    },
+                    fail: function (xhr_unused, textStatus, errorThrown) {
+                        debug && window.console.log(fxn + '::ajax.fail');
+                        window.console.log('textStatus', textStatus);
+                        window.console.log('errorThrown', errorThrown);
+                        window.IntegrityAdvocate.endSession();
+                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionClose::ajax.fail');
+                    }
+                }]);
+            });
+        } catch (error) {
+            window.console.log(fxn + '::Caught an error on the ajax call');
+        }
+
+        debug && window.console.log(fxn + '::Done');
+    },
+    /**
+     * Signal we are starting the IA proctoring session.
+     *
+     * @param {function} callback Function to call when done.
+     * @returns {null} Nothing.
+     */
+    startProctoring: function (callback) {
+        var debug = false;
+        var fxn = 'M.block_integrityadvocate.startProctoring';
+        debug && window.console.log(fxn + '::Started');
+        var self = M.block_integrityadvocate;
+
+        var attemptid = new URLSearchParams(new URL(window.location.href).search).get('attempt');
+        if (attemptid == null || !Number.isInteger(Number(attemptid))) {
+            // We are not on a quiz attempt page so do nothing.
+            return;
+        }
+
+        try {
+            require(['core/ajax'], function (ajax) {
+                ajax.call([{
+                    methodname: 'block_integrityadvocate_start_proctoring',
+                    args: {
+                        attemptid: attemptid, // TODO put in the quiz attempt id.
+                    },
+                    done: function () {
+                        debug && window.console.log(fxn + '::ajax.done');
+                        typeof callback === 'function' && callback();
+                    },
+                    fail: function (xhr_unused, textStatus, errorThrown) {
+                        debug && window.console.log(fxn + '::ajax.fail');
+                        window.console.log('textStatus', textStatus);
+                        window.console.log('errorThrown', errorThrown);
+                        window.IntegrityAdvocate.endSession();
+                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.startProctoring::ajax.fail');
+                    }
+                }]);
+            });
+        } catch (error) {
+            window.console.log(fxn + '::Caught an error on the ajax call');
+        }
 
         debug && window.console.log(fxn + '::Done');
     },
@@ -113,17 +165,20 @@ M.block_integrityadvocate = {
     proctorUILoaded: function () {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.proctorUILoaded';
-        debug && window.console.log(fxn + '::Started');
+        window.console.log(fxn + '::Started');
         var self = M.block_integrityadvocate;
 
         self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
         var eltMainContent = $('#responseform, #scormpage, div[role="main"]');
         switch (true) {
             case self.isQuizAttempt:
-                debug && window.console.log(fxn + '::On quizzes, disable the submit button and hide the questions until IA is ready', self.eltQuizNextButtonSet);
-                self.eltQuizNextButtonSet.removeAttr('disabled').off('click.block_integrityadvocate.disable');
+                window.console.log(fxn + '.isQuizAttempt::IA is ready: Enable the submit button', $('.mod_quiz-next-nav'));
+                $('.mod_quiz-next-nav').removeAttr('disabled').off('click.block_integrityadvocate.disable');
                 $('#block_integrityadvocate_hidequiz').remove();
-                eltMainContent.show();
+                window.console.log(fxn + '.isQuizAttempt::IA is ready: Show the quiz questions', eltMainContent);
+                eltMainContent.show(0, function () { window.console.log(fxn + 'isQuizAttempt: Done: Enable the submit button and show the main content'); });
+
+                self.startProctoring();
                 break;
             case self.isScormPlayerSameWindow:
                 debug && window.console.log(fxn + '::On SCORM samewindow, show the content and monitor for page close');
@@ -252,11 +307,17 @@ M.block_integrityadvocate = {
 
         // Remember that we have started a session so we only close it once.
         self.sessionOpen();
+        window.console.log(fxn + '::Done sessionOpen()');
 
-        // Hide the loading gif and show the main content.
-        self.proctorUILoaded();
+        // Things to do when the proctorUI is loaded.
+        try {
+            self.proctorUILoaded();
+            window.console.log(fxn + '::Done sessionOpen()');
+        } catch (error) {
+            window.console.log(fxn + '::Caught an error on proctorUILoaded()');
+        }
 
-        window.console.log(fxn + '::IA_Ready::Done');
+        window.console.log(fxn + '::Done');
     },
     /**
      * Setup JS needed for quiz IA functionality.
@@ -307,7 +368,7 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::Attach endSession to Finish review button');
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
-                self.eltQuizNextButtonSet.one('click.block_integrityadvocate', function (e) {
+                $('.mod_quiz-next-nav').one('click.block_integrityadvocate', function (e) {
                     var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
                     window.console.log(fxn + '::Started with e=', e);
                     e.preventDefault();
@@ -392,7 +453,6 @@ M.block_integrityadvocate = {
         self.eltUserNotifications = $('#user-notifications');
         self.eltDivMain = $('div[role="main"]');
         self.eltQuizNextButton = $('#mod_quiz-next-nav');
-        self.eltQuizNextButtonSet = $('.mod_quiz-next-nav');
 
         debug && window.console.log(fxn + '::After gathering vars, this block self=', self);
 
@@ -419,7 +479,7 @@ M.block_integrityadvocate = {
         if (document.body.id === 'page-mod-quiz-attempt') {
             debug && window.console.log(fxn + '::This is a quiz attempt page');
             // Disables the Next button until IA JS is loaded.
-            self.eltQuizNextButtonSet.attr('disabled', 1).on('click.block_integrityadvocate.disable', false);
+            $('.mod_quiz-next-nav').attr('disabled', 1).on('click.block_integrityadvocate.disable', false);
             self.loadProctorUi(self.proctorjsurl);
         } else if (document.body.id === 'page-mod-quiz-view') {
             debug && window.console.log(fxn + '::This is a quiz view page with self.proctorquizreviewpages=' + self.proctorquizreviewpages);

@@ -188,6 +188,7 @@ class Api {
         }
 
         // Sanity check.
+        // @phpcs:ignore
         if (!\str_starts_with($endpoint, '/') || !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) || !\is_array($params)) {
             $msg = 'Input params are invalid: ' . $debugvars;
             debugging($fxn . '::' . $msg . '::' . $debugvars);

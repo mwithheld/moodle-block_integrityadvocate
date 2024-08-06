@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * IntegrityAdvocate block version details
+ * Block version identification.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+declare(strict_types=1);
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2024052401;
-$plugin->release = 2024052401;
+$plugin->component = 'block_integrityadvocate';
+$plugin->version = 2024072200;
+$plugin->release = $plugin->version;
 $plugin->supported = [350, 440];
 $plugin->requires = 2018051700; // Moodle 3.5.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'block_integrityadvocate';
