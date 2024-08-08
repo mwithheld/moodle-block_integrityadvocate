@@ -239,8 +239,9 @@ M.block_integrityadvocate = {
             return;
         }
 
-        debug && window.console.log(fxn + '::About to getScript()');
-        $.getScript(self.decodeEntities(proctorjsurl))
+        var decodedUrl = self.decodeEntities(proctorjsurl);
+        debug && window.console.log(fxn + '::About to getScript() with decodedUrl=', decodedUrl);
+        $.getScript(decodedUrl)
             .done(function () {
                 debug && window.console.log(fxn + '.getScript().done');
                 self.onProctorJsDone();
