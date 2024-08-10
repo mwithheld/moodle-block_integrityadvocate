@@ -241,6 +241,8 @@ M.block_integrityadvocate = {
 
         var decodedUrl = self.decodeEntities(proctorjsurl);
         debug && window.console.log(fxn + '::About to getScript() with decodedUrl=', decodedUrl);
+        // With $.getScript(....success(response), the response is undefined if the request is from another domain.
+        // Using $.ajax fails bc it blocks CORS.
         $.getScript(decodedUrl)
             .done(function () {
                 debug && window.console.log(fxn + '.getScript().done');
