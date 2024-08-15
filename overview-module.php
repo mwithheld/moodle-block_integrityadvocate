@@ -75,11 +75,13 @@ switch (true) {
         $debug && \debugging(__FILE__ . '::All requirements are met');
 }
 
-// Check privs and set page layout to 'module'.
-require_login($course, false, $cm);
+// Check privs..
+\require_login($course, false, $cm);
 
 // Show basic module name and icon.
-$PAGE->set_context(context_module::instance($cm->id));
+$context = \context_module::instance($cm->id);
+$PAGE->set_context($context);
+\require_capability('mod/quiz:view', $context);
 echo $OUTPUT->context_header();
 
 /*
