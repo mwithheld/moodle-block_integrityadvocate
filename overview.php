@@ -94,6 +94,11 @@ switch (true) {
     case ($courseid && $moduleid):
         $debug && \debugging(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
+
+        // For now, assume the moduleid is valid. We will check it in overview-module.
+        $context = \context_module::instance($moduleid);
+        $PAGE->set_context($context);
+
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
             'moduleid' => $moduleid,
@@ -102,6 +107,8 @@ switch (true) {
     case ($courseid):
         $debug && \debugging(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-course';
+
+        $PAGE->set_context($coursecontext);
 
         // The Moodle Participants table wants lots of params.
         $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
@@ -136,13 +143,12 @@ $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
     throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" .
-                    \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext, true));
+        \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext, true));
 }
 
 // Set up page parameters.
 $PAGE->set_pagelayout('report');
 $PAGE->set_course($course);
-$PAGE->set_context($coursecontext);
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
 $PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
 
