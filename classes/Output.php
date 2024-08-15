@@ -659,8 +659,9 @@ class Output {
         $debugvars = $fxn . "::Started with \$url={$url}; \$signature={$signature}; \$data=" . ia_u::var_dump($data);
         $debug && \debugging($debugvars);
 
-        $output = ['<form id="ltiLaunchForm" name="ltiLaunchForm" '
-            . 'method="POST" target="iframelaunch" style="display:none" action="' . $url . '">'];
+        $output = [];
+        $output[] = '<form id="ltiLaunchForm" name="ltiLaunchForm" '
+            . 'method="POST" target="iframelaunch" style="display:none" action="' . $url . '">';
         foreach ($data as $k => $v) {
             $output[] = '<input type="hidden" name="' . $k . '" value="' . \htmlspecialchars($v, \ENT_QUOTES, 'UTF-8') . '">';
         }

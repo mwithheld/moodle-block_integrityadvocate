@@ -43,7 +43,7 @@ class quizattempt_time_updated extends \core\event\base {
      * Initialize the event data.
      */
     protected function init() {
-        $this->data['crud'] = 'u'; // c(reate), r(ead), u(pdate), d(elete)
+        $this->data['crud'] = 'u'; // Options= c(reate), r(ead), u(pdate), d(elete).
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'quiz_attempts';
     }
@@ -85,7 +85,7 @@ class quizattempt_time_updated extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/quiz/review.php', array('attempt' => $this->objectid));
+        return new \moodle_url('/mod/quiz/review.php', ['attempt' => $this->objectid]);
     }
 
     /**
@@ -117,10 +117,10 @@ class quizattempt_time_updated extends \core\event\base {
     protected function get_legacy_logdata() {
         $attempt = $this->get_record_snapshot('quiz_attempts', $this->objectid);
 
-        return array(
+        return [
             $this->courseid, 'quiz', 'attempt', 'review.php?attempt=' . $this->objectid,
             $attempt->quiz, $this->contextinstanceid,
-        );
+        ];
     }
 
     /**
@@ -140,7 +140,7 @@ class quizattempt_time_updated extends \core\event\base {
      * @return array
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'quiz_attempts', 'restore' => 'quiz_attempt');
+        return ['db' => 'quiz_attempts', 'restore' => 'quiz_attempt'];
     }
 
     /**
@@ -149,8 +149,8 @@ class quizattempt_time_updated extends \core\event\base {
      * @return array
      */
     public static function get_other_mapping() {
-        $othermapped = array();
-        $othermapped['quizid'] = array('db' => 'quiz', 'restore' => 'quiz');
+        $othermapped = [];
+        $othermapped['quizid'] = ['db' => 'quiz', 'restore' => 'quiz'];
 
         return $othermapped;
     }

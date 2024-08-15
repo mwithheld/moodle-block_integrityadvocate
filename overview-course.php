@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once(__DIR__ . '/lib.php');
 
 $debug = false;
-$debug && debugging(\basename(__FILE__) . "::Started with courseid={$courseid}");
+$debug && \debugging(\basename(__FILE__) . "::Started with courseid={$courseid}");
 
 // Check all requirements.
 switch (true) {
@@ -43,10 +43,10 @@ switch (true) {
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
-        $debug && debugging(__FILE__ . '::Checked required capability: overview');
+        $debug && \debugging(__FILE__ . '::Checked required capability: overview');
         break;
     default:
-        $debug && debugging(__FILE__ . '::All requirements are met');
+        $debug && \debugging(__FILE__ . '::All requirements are met');
 }
 
 /*

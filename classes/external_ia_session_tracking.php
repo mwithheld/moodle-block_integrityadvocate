@@ -44,12 +44,12 @@ trait external_ia_session_tracking {
      */
     private static function session_function_params(): \external_function_parameters {
         return new \external_function_parameters(
-                [
-            'appid' => new \external_value(PARAM_ALPHANUMEXT, 'appid'),
-            'courseid' => new \external_value(PARAM_INT, 'courseid'),
-            'moduleid' => new \external_value(PARAM_INT, 'moduleid'),
-            'userid' => new \external_value(PARAM_INT, 'userid'),
-                ]
+            [
+                'appid' => new \external_value(PARAM_ALPHANUMEXT, 'appid'),
+                'courseid' => new \external_value(PARAM_INT, 'courseid'),
+                'moduleid' => new \external_value(PARAM_INT, 'moduleid'),
+                'userid' => new \external_value(PARAM_INT, 'userid'),
+            ]
         );
     }
 
@@ -69,16 +69,18 @@ trait external_ia_session_tracking {
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && debugging($debugvars);
 
-        self::validate_parameters(self::session_function_params(),
-                [
-                    'appid' => $appid,
-                    'courseid' => $courseid,
-                    'moduleid' => $moduleid,
-                    'userid' => $userid,
-                ]
+        self::validate_parameters(
+            self::session_function_params(),
+            [
+                'appid' => $appid,
+                'courseid' => $courseid,
+                'moduleid' => $moduleid,
+                'userid' => $userid,
+            ]
         );
 
-        $result = ['submitted' => false,
+        $result = [
+            'submitted' => false,
             'success' => true,
             'warnings' => [],
         ];
@@ -87,81 +89,81 @@ trait external_ia_session_tracking {
 
         // Check for things that should make this fail.
         switch (true) {
-            case(!\confirm_sesskey()):
+            case (!\confirm_sesskey()):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => \get_string('confirmsesskeybad'),
                 ];
                 break;
-            case(!ia_u::is_guid($appid)):
+            case (!ia_u::is_guid($appid)):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'The input appid is an invalid GUID',
                 ];
                 break;
-            case(!(ia_mu::get_course_as_obj($courseid))):
+            case (!(ia_mu::get_course_as_obj($courseid))):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'The input courseid is an invalid course id',
                 ];
                 break;
-            case(!($coursecontext = \context_course::instance($courseid))):
+            case (!($coursecontext = \context_course::instance($courseid))):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'The course context is invalid',
                 ];
                 break;
-            case(!\is_enrolled($coursecontext, $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
+            case (!\is_enrolled($coursecontext, $userid, 'block/integrityadvocate:view', true /* Only active users */)):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => "Course id={$courseid} does not have targetuserid={$userid} enrolled",
                 ];
                 break;
-            case((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
+            case ((int) (ia_mu::get_courseid_from_cmid($moduleid)) !== (int) $courseid):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => "Moduleid={$moduleid} is not in the course with id={$courseid}; \$get_courseid_from_cmid=" . ia_mu::get_courseid_from_cmid($moduleid),
                 ];
                 break;
-            case(!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1]) ||
-            !($blockinstance = ia_mu::get_first_block($cm->context, INTEGRITYADVOCATE_SHORTNAME, false))):
+            case (!($cm = \get_course_and_cm_from_cmid($moduleid, null, $courseid, $userid)[1]) ||
+                !($blockinstance = ia_mu::get_first_block($cm->context, INTEGRITYADVOCATE_SHORTNAME, false))):
                 // The above line also throws an error if $overrideuserid cannot access the module.
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'The target module must have an instance of ' . \INTEGRITYADVOCATE_SHORTNAME . ' attached',
                 ];
                 break;
-            case($blockinstance->config->appid !== $appid):
+            case ($blockinstance->config->appid !== $appid):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => "The input appid {$blockinstance->config->appid} does not match the block intance appid={$appid}",
                 ];
                 break;
-            case((int) $userid !== (int) ($USER->id)):
+            case ((int) $userid !== (int) ($USER->id)):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'The userid is not the current user',
                 ];
                 break;
-            case(!($user = ia_mu::get_user_as_obj($userid))):
+            case (!($user = ia_mu::get_user_as_obj($userid))):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'The userid is not a valid user',
                 ];
                 break;
-            case($user->deleted || $user->suspended):
+            case ($user->deleted || $user->suspended):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'The user is suspended or deleted',
                 ];
                 break;
-            case(!\is_enrolled(($cm->context), $userid, 'block/integrityadvocate:view', true /* Only active users */)) :
+            case (!\is_enrolled(($cm->context), $userid, 'block/integrityadvocate:view', true /* Only active users */)):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => "The userid={$userid} is not enrolled in the target module cmid={$moduleid}",
                 ];
                 break;
-            case(\has_capability('block/integrityadvocate:overview', $cm->context)):
+            case (\has_capability('block/integrityadvocate:overview', $cm->context)):
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'Instructors do not get the proctoring UI so never need to open or close the session',
@@ -206,8 +208,10 @@ trait external_ia_session_tracking {
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && debugging($debugvars);
 
-        $result = \array_merge(['submitted' => false, 'success' => true, 'warnings' => []],
-                self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
+        $result = \array_merge(
+            ['submitted' => false, 'success' => true, 'warnings' => []],
+            self::session_function_validate_params($appid, $courseid, $moduleid, $userid)
+        );
         $debug && debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
@@ -265,8 +269,10 @@ trait external_ia_session_tracking {
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
         $debug && debugging($debugvars);
 
-        $result = \array_merge(['submitted' => false, 'success' => true, 'warnings' => []],
-                self::session_function_validate_params($appid, $courseid, $moduleid, $userid));
+        $result = \array_merge(
+            ['submitted' => false, 'success' => true, 'warnings' => []],
+            self::session_function_validate_params($appid, $courseid, $moduleid, $userid)
+        );
         $debug && debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
@@ -276,8 +282,13 @@ trait external_ia_session_tracking {
         }
         $debug && debugging($fxn . '::No warnings');
 
-        $result['success'] = ia_mu::nonce_set(\implode('_', [INTEGRITYADVOCATE_SESSION_STARTED_KEY,
-                    $appid, $courseid, $moduleid, $userid]));
+        $result['success'] = ia_mu::nonce_set(\implode('_', [
+            INTEGRITYADVOCATE_SESSION_STARTED_KEY,
+            $appid,
+            $courseid,
+            $moduleid,
+            $userid,
+        ]));
         if (!$result['success']) {
             $msg = 'Failed to save the session start flag to the remote IA server';
             $result['warnings'] = [

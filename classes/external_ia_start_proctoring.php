@@ -262,12 +262,12 @@ trait external_ia_start_proctoring {
             $result['success'] = ia_mu::quiz_set_timestart(self::$attemptobj->get_attemptid(), $newtimestart);
 
             // Log this to the Moodle log.
-            $params = array(
+            $params = [
                 'objectid' => self::$attemptobj->get_attemptid(),
                 'relateduserid' => self::$attemptobj->get_userid(),
                 'courseid' => self::$attemptobj->get_courseid(),
                 'context' => self::$attemptobj->get_quizobj()->get_context(),
-            );
+            ];
             $event = \block_integrityadvocate\event\quizattempt_time_updated::create($params);
             $event->add_record_snapshot('quiz', self::$attemptobj->get_quizobj()->get_quiz());
             $event->add_record_snapshot('quiz_attempts', self::$attemptobj->get_attempt());
