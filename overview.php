@@ -51,7 +51,7 @@ $debug = false;
 // Suppress debug notice that we have not done PAGE->set_url().
 $debug && ($debugbackup = $CFG->debug);
 $debug && ($CFG->debug = null);
-$debug && debugging(\basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
+$debug && \debugging(\basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
 $debug && ($CFG->debug = $debugbackup);
 
 \require_login();
@@ -76,7 +76,7 @@ $params = [
 if (empty($courseid) || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
-$debug && debugging("Got courseid={$course->id}");
+$debug && \debugging("Got courseid={$course->id}");
 
 // Check the current USER is logged in *to the course*.
 \require_login($course, false);
@@ -85,14 +85,14 @@ $debug && debugging("Got courseid={$course->id}");
 // Specific sanity/security checks for each one are included in each file.
 switch (true) {
     case ($userid):
-        $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
+        $debug && \debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
         $requestedpage = 'overview-user';
         $params += [
             'userid' => $userid,
         ];
         break;
     case ($courseid && $moduleid):
-        $debug && debugging(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
+        $debug && \debugging(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-module';
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
@@ -100,7 +100,7 @@ switch (true) {
         ];
         break;
     case ($courseid):
-        $debug && debugging(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
+        $debug && \debugging(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
         $requestedpage = 'overview-course';
 
         // The Moodle Participants table wants lots of params.
@@ -129,7 +129,7 @@ switch (true) {
     default:
         throw new \InvalidArgumentException('Failed to figure out which overview to show');
 }
-$debug && debugging('Build params=' . ia_u::var_dump($params));
+$debug && \debugging('Build params=' . ia_u::var_dump($params));
 
 // All overview pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
@@ -173,7 +173,7 @@ $hascapabilityselfview = \has_capability('block/integrityadvocate:selfview', $bl
 // Check for errors that mean we should not show any overview page.
 switch (true) {
     case ($configerrors = $blockinstance->get_config_errors()):
-        $debug && debugging(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
+        $debug && \debugging(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
         if ($hascapabilityoverview) {
             \core\notification::error(\implode(ia_output::BRNL, $configerrors));
@@ -181,7 +181,7 @@ switch (true) {
         break;
 
     case($setuperrors = ia_mu::get_completion_setup_errors($course)):
-        $debug && debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
+        $debug && \debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
         foreach ($setuperrors as $err) {
             echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
         }
@@ -189,18 +189,18 @@ switch (true) {
 
     case(!$hascapabilityoverview && !$hascapabilityselfview):
         $msg = 'No permissions to see anything in the block';
-        $debug && debugging(__FILE__ . "::{$msg}");
+        $debug && \debugging(__FILE__ . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);
         break;
 
     case (\is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
         $msg = get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
-        $debug && debugging(__FILE__ . "::{$msg}");
+        $debug && \debugging(__FILE__ . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);
         break;
 
     default:
-        $debug && debugging(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
+        $debug && \debugging(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
         // Open the requested overview page.
         require_once($requestedpage . '.php');

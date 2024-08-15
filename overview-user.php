@@ -40,7 +40,7 @@ require_once(__DIR__ . '/lib.php');
 $userid = \required_param('userid', \PARAM_INT);
 
 $debug = false;
-$debug && debugging(__FILE__ . '::Started with $userid=' . $userid);
+$debug && \debugging(__FILE__ . '::Started with $userid=' . $userid);
 
 $parentcontext = $blockcontext->get_parent_context();
 
@@ -71,7 +71,7 @@ if (!\is_array($coursemodules)) {
 $user = ia_mu::get_user_as_obj($userid);
 if (ia_u::is_empty($user)) {
     $msg = "Failed to find a Moodle user with id={$userid}";
-    debugging(__FILE__ . '::' . $msg);
+    \debugging(__FILE__ . '::' . $msg);
     throw new \Exception($msg);
 }
 

@@ -67,7 +67,7 @@ trait external_ia_session_tracking {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         self::validate_parameters(
             self::session_function_params(),
@@ -170,13 +170,13 @@ trait external_ia_session_tracking {
                 ];
                 break;
         }
-        $debug && debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            \debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && debugging($fxn . '::No warnings');
+        $debug && \debugging($fxn . '::No warnings');
 
         // Makes sure the current user may execute functions in this context.
         self::validate_context($cm->context);
@@ -206,20 +206,20 @@ trait external_ia_session_tracking {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         $result = \array_merge(
             ['submitted' => false, 'success' => true, 'warnings' => []],
             self::session_function_validate_params($appid, $courseid, $moduleid, $userid)
         );
-        $debug && debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            \debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && debugging($fxn . '::No warnings');
+        $debug && \debugging($fxn . '::No warnings');
 
         $result['success'] = ia_api::close_remote_session($appid, $courseid, $moduleid, $userid);
         if (!$result['success']) {
@@ -228,11 +228,11 @@ trait external_ia_session_tracking {
                 'warningcode' => \get_config(\INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__,
                 'message' => $msg,
             ];
-            debugging($fxn . "::{$msg}; \$debugvars={$debugvars}");
+            \debugging($fxn . "::{$msg}; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
-        $debug && debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 
@@ -267,20 +267,20 @@ trait external_ia_session_tracking {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debugvars = $fxn . "::Started with \$appid={$appid}; \$courseid={$courseid}; \$moduleid={$moduleid}; \$userid={$userid}";
-        $debug && debugging($debugvars);
+        $debug && \debugging($debugvars);
 
         $result = \array_merge(
             ['submitted' => false, 'success' => true, 'warnings' => []],
             self::session_function_validate_params($appid, $courseid, $moduleid, $userid)
         );
-        $debug && debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
-            debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            \debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && debugging($fxn . '::No warnings');
+        $debug && \debugging($fxn . '::No warnings');
 
         $result['success'] = ia_mu::nonce_set(\implode('_', [
             INTEGRITYADVOCATE_SESSION_STARTED_KEY,
@@ -295,11 +295,11 @@ trait external_ia_session_tracking {
                 'warningcode' => \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . __LINE__,
                 'message' => $msg,
             ];
-            debugging($fxn . "::{$msg}; \$debugvars={$debugvars}");
+            \debugging($fxn . "::{$msg}; \$debugvars={$debugvars}");
         }
         $result['submitted'] = true;
 
-        $debug && debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
         return $result;
     }
 

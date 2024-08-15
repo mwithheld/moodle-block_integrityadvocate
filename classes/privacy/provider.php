@@ -65,7 +65,7 @@ class provider implements
     public static function get_metadata(collection $collection): collection {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $collection=' . \var_export($collection, true));
+        $debug && \debugging($fxn . '::Started with $collection=' . \var_export($collection, true));
 
         $privacyitems = [
             // Course info.
@@ -100,7 +100,7 @@ class provider implements
             $privacyitemsarr,
             self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation'
         );
-        $debug && debugging('About to return $collection=' . \var_export($collection, true));
+        $debug && \debugging('About to return $collection=' . \var_export($collection, true));
 
         return $collection;
     }
@@ -115,7 +115,7 @@ class provider implements
     public static function get_users_in_context(userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
+        $debug && \debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -138,7 +138,7 @@ class provider implements
     public static function delete_data_for_users(approved_userlist $userlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
+        $debug && \debugging($fxn . '::Started with $userlist=' . \var_export($userlist, true));
 
         if (empty($userlist->count())) {
             return;
@@ -151,7 +151,7 @@ class provider implements
 
         // Get IA participant data from the remote API.
         $participants = block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && \debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants) || ia_u::is_empty($userlist) || ia_u::is_empty($userids = $userlist->get_userids())) {
             return;
         }
@@ -169,7 +169,7 @@ class provider implements
     public static function delete_data_for_all_users_in_context(\context $context) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $context=' . \var_export($context, true));
+        $debug && \debugging($fxn . '::Started with $context=' . \var_export($context, true));
 
         if (!($context instanceof \context_module)) {
             return;
@@ -177,7 +177,7 @@ class provider implements
 
         // Get IA participant data from the remote API.
         $participants = block_integrityadvocate_get_participants_for_blockcontext($context);
-        $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && \debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return;
         }
@@ -202,7 +202,7 @@ class provider implements
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
+        $debug && \debugging($fxn . '::Started with $contextlist=' . \var_export($contextlist, true));
 
         if (empty($contextlist->count())) {
             return;
@@ -216,7 +216,7 @@ class provider implements
         foreach ($contextlist->get_contexts() as $context) {
             // Get IA participant data from the remote API.
             $participants = block_integrityadvocate_get_participants_for_blockcontext($context);
-            $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+            $debug && \debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
             if (ia_u::is_empty($participants)) {
                 continue;
             }
@@ -306,10 +306,10 @@ class provider implements
     public static function get_participants_from_blockcontext(\context_block $blockcontext): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
+        $debug && \debugging($fxn . '::Started with $blockcontext->id=' . \var_export($blockcontext->id, true));
 
         $participants = block_integrityadvocate_get_participants_for_blockcontext($blockcontext);
-        $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
+        $debug && \debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
         if (ia_u::is_empty($participants)) {
             return [];
         }
