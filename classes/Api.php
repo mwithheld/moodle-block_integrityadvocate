@@ -218,7 +218,7 @@ class Api {
         // Set up request variables. Ref API docs at https://integrityadvocate.com/Developers#aEvents.
         $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params, true) : ''));
         $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
-        $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, null, '&') : '');
+        $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, '', '&') : '');
         $debug && \debugging($fxn . '::Built $requesturi=' . $requesturi);
 
         $requesttimestamp = \time();
