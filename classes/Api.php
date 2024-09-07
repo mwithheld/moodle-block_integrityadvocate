@@ -75,9 +75,9 @@ class Api {
 
     /**
      * Make sure we can reach the IA API.
-     *
-     * @return array<int remote_ip, int http_response_code, string response_body, int total_time>. Numeric values are cleaned but the
-     * response body is unchanged.
+
+     * return array<int remote_ip, int http_response_code, string response_body, int total_time>.
+     * @return array<int,int,string,int> Numeric values are cleaned but the response body is unchanged.
      */
     public static function ping(): array {
         $debug = false;
@@ -102,7 +102,7 @@ class Api {
         $debug && \debugging($fxn . '::Sent url=' . \var_export($requesturi, true) .
                         '; http_code=' . \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
 
-        return [\cleanremoteaddr($responseinfo['primary_ip']), $responsecode, \trim($response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
+        return [\cleanremoteaddr($responseinfo['primary_ip']), $responsecode, \trim((string)$response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
     }
 
     /**
@@ -240,15 +240,16 @@ class Api {
         ]);
 
         $header = \implode(':', ["Authorization: amx {$appid}", $requestsignature, $nonce, $requesttimestamp]);
-        $curl->setHeader($header);
-        $curl->setHeader('X-IntegrityAdvocate-Blockversion:' . \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
-        $curl->setHeader("X-IntegrityAdvocate-Appid:{$appid}");
-        $curl->setHeader("X-IntegrityAdvocate-Blockinstanceid:{$blockinstanceid}");
+        $curl->setHeader([$header]);
+        $curl->setHeader(['X-IntegrityAdvocate-Blockversion:' . \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version')]);
+        $curl->setHeader(["X-IntegrityAdvocate-Appid:{$appid}"]);
+        $curl->setHeader(["X-IntegrityAdvocate-Blockinstanceid:{$blockinstanceid}"]);
         $debug && \debugging($fxn . '::Set $header=' . $header);
 
+        // This returns bool|string.
         $response = $curl->get($requesturi);
 
-        $responseparsed = \json_decode($response);
+        $responseparsed = \json_decode((string)$response);
         $responseinfo = $curl->get_info();
         // Remove certinfo b/c it too much info and we do not need it for \debugging.
         unset($responseinfo['certinfo']);
@@ -404,7 +405,8 @@ class Api {
      * @param string $apikey The API Key to get data for.
      * @param string $appid The AppId to get data for.
      * @param int $courseid Get info for this course.
-     * @return array<int moodleuserid, Participant> Empty array if nothing found; else array of IA participants objects; keys are
+     * return array<int moodleuserid, Participant> Empty array if nothing found; else array of IA participants objects; keys are
+     * @return array<int,Participant> Empty array if nothing found; else array of IA participants objects; keys are
      * Moodle user ids.
      */
     public static function get_participants(string $apikey, string $appid, int $courseid): array {
@@ -498,7 +500,7 @@ class Api {
      * @param string $appid The Appid.
      * @param array $params Query params in key-value format: courseid=>someval is required.  Optional externaluserid=user email.
      * @param string $nexttoken The next token to get subsequent results from the API.
-     * @return array<moodleuserid, Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle
+     * @return array<moodleuserid,Participant> Empty array if nothing found; else array of IA participants objects; keys are Moodle
      * user ids.
      */
     private static function get_participants_data(string $apikey, string $appid, array $params, $nexttoken = null): array {
