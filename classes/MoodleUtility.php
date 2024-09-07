@@ -408,7 +408,7 @@ class MoodleUtility {
     public static function filter_for_visible(\stdClass $cfg, array $modules, int $userid, int $courseid, array $exclusions): array {
         $filteredmodules = [];
         $modinfo = \get_fast_modinfo($courseid, $userid);
-        $coursecontext = \CONTEXT_COURSE::instance($courseid);
+        $coursecontext = \context_course::instance($courseid);
         $hascapabilityviewhiddenactivities = \has_capability('moodle/course:viewhiddenactivities', $coursecontext, $userid);
 
         // Keep only modules that are visible.

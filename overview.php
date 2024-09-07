@@ -73,7 +73,7 @@ $params = [
 ];
 
 // Determine course and course context.
-if (empty($courseid) || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))) {
+if (empty($courseid) || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \context_course::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
 $debug && \debugging("Got courseid={$course->id}");

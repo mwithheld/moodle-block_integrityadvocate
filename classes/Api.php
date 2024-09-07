@@ -1455,7 +1455,7 @@ class Api {
                 case (!($user = ia_mu::get_user_as_obj($userid))):
                     $debug && \debugging($fxn . "::User not found for participantidentifier={$userid}");
                     return null;
-                case (ia_u::is_empty(\get_course($courseid)) || ia_u::is_empty($coursecontext = \CONTEXT_COURSE::instance($courseid, MUST_EXIST))):
+                case (ia_u::is_empty(\get_course($courseid)) || ia_u::is_empty($coursecontext = \context_course::instance($courseid, MUST_EXIST))):
                     $debug && \debugging($fxn . "::Invalid \$courseid={$courseid} specified or course context not found");
                     return null;
                 case (!\is_enrolled($coursecontext, $user /* Include inactive enrolments. */)):
