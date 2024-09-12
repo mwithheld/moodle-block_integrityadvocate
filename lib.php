@@ -78,7 +78,7 @@ const INTEGRITYADVOCATE_SESSION_STARTED_KEY = 'session_started';
 const INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX = \INTEGRITYADVOCATE_BLOCK_NAME . '\\';
 
 /** @var bool Enable the feature: When done proctor setup, update the quiz attempt starttime. */
-const INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED = false;
+const INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED = true;
 
 /**
  * Get participants in this block context.
