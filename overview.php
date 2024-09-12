@@ -213,9 +213,15 @@ switch (true) {
 }
 
 echo $OUTPUT->container_end();
+
+// Show version, appid, blockid.
+echo $blockinstance->get_footer();
+
 // On the module overview page, show the "Back to course" button.
 if ($courseid && $moduleid) {
     echo ia_output::get_button_overview_course($blockinstance);
 }
-echo $OUTPUT->single_button($courseurl, get_string('btn_backto_course', INTEGRITYADVOCATE_BLOCK_NAME));
+echo $OUTPUT->single_button($courseurl, \get_string('btn_backto_course', INTEGRITYADVOCATE_BLOCK_NAME));
+
+// Moodle page footer.
 echo $OUTPUT->footer();
