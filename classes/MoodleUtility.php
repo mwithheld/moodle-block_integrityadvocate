@@ -1076,7 +1076,7 @@ class MoodleUtility {
      * @return bool True if the time was successfully set, false otherwise.
      */
     public static function quiz_set_timestart(int $attemptid, int $newtimestart): bool {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . '::Started with $attemptid=' . $attemptid . '; $newtimestart=' . $newtimestart);
 
