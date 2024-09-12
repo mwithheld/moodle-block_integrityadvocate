@@ -58,13 +58,13 @@ $debug && ($CFG->debug = $debugbackup);
 
 // Gather form data.
 // Used for the APIkey and AppId.
-$blockinstanceid = \required_param('instanceid', PARAM_INT);
+$blockinstanceid = \required_param('instanceid', \PARAM_INT);
 // Used for all overview pages.
-$courseid = \required_param('courseid', PARAM_INT);
+$courseid = \required_param('courseid', \PARAM_INT);
 // Used for overview-user page.
-$userid = \optional_param('userid', 0, PARAM_INT);
+$userid = \optional_param('userid', 0, \PARAM_INT);
 // Used for overview-module page.
-$moduleid = \optional_param('moduleid', 0, PARAM_INT);
+$moduleid = \optional_param('moduleid', 0, \PARAM_INT);
 
 // Params are used to build the current page URL.  These params are used for all overview pages.
 $params = [
@@ -111,14 +111,14 @@ switch (true) {
         $PAGE->set_context($coursecontext);
 
         // The Moodle Participants table wants lots of params.
-        $groupid = \optional_param('group', 0, PARAM_ALPHANUMEXT);
-        $currpage = \optional_param('currpage', 0, PARAM_INT);
-        $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, PARAM_INT);
+        $groupid = \optional_param('group', 0, \PARAM_ALPHANUMEXT);
+        $currpage = \optional_param('currpage', 0, \PARAM_INT);
+        $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, \PARAM_INT);
 
         // To prevent two role= params in the querystring, only set it if not specified.
         // Find the role to display, defaulting to students.  0 means all enrolled users.
         // To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
-        $roleid = \optional_param('role', -1, PARAM_INT);
+        $roleid = \optional_param('role', -1, \PARAM_INT);
         if ($roleid < 0) {
             $roleid = ia_mu::get_default_course_role($coursecontext);
             $params += [
