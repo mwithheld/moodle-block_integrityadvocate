@@ -279,11 +279,11 @@ class MoodleUtility {
     /**
      * Used to compare two modules based on order on course page.
      *
-     * @param object[] $a array of event information
-     * @param object[] $b array of event information
-     * @return int Is less than 0, 0 or greater than 0 depending on order of modules on course page
+     * @param [] $a array of event information.
+     * @param [] $b array of event information.
+     * @return int Is less than 0, 0 or greater than 0 depending on order of modules on course page.
      */
-    protected static function modules_compare_events($a, $b): int {
+    protected static function modules_compare_events(array $a, array $b): int {
         if ($a['section'] != $b['section']) {
             return (int) ($a['section'] - $b['section']);
         } else {
@@ -292,13 +292,13 @@ class MoodleUtility {
     }
 
     /**
-     * Used to compare two modules based their expected completion times
+     * Used to compare two modules based their expected completion times.
      *
-     * @param object[] $a array of event information
-     * @param object[] $b array of event information
+     * @param object[] $a array of event information.
+     * @param object[] $b array of event information.
      * @return int Is less than 0, 0 or greater than 0 depending on time then order of modules.
      */
-    protected static function modules_compare_times($a, $b): int {
+    protected static function modules_compare_times(array $a, array $b): int {
         if ($a['expected'] != 0 && $b['expected'] != 0 && $a['expected'] != $b['expected']) {
             return (int) ($a['expected'] - $b['expected']);
         } else if ($a['expected'] != 0 && $b['expected'] == 0) {
@@ -314,7 +314,8 @@ class MoodleUtility {
      * Given a context, get array of roles usable in a roles select box.
      *
      * @param \context $context The course context.
-     * @return array<roleid, rolename>.
+     * returns array[roleid,rolename].
+     * @return array<int,string>.
      */
     public static function get_roles_for_select(\context $context): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -357,7 +358,7 @@ class MoodleUtility {
     public static function get_modules_with_completion(int $courseid): array {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
-        $debug && \debugging($fxn . "::Started with \$parentcontextid={$parentcontextid}; \$blockinstanceid={$blockinstanceid}");
+        $debug && \debugging($fxn . "::Started with \$courseid={$courseid}");
 
         $modinfo = \get_fast_modinfo($courseid, -1);
         // Used for sorting.
@@ -701,9 +702,9 @@ class MoodleUtility {
      * @param string $blockname Block shortname e.g. for block_html it would be html.
      * @param bool $visibleonly Return only visible instances.
      * @param bool $rownotinstance Since the instance can be hard to deal with, this returns the DB row instead.
-     * @return \block_integrityadvocate Null if none found or if no visible instances found; else an instance of block_integrityadvocate.
+     * @return \block_base Null if none found or if no visible instances found; else an instance of block_integrityadvocate.
      */
-    public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false): ?\block_integrityadvocate {
+    public static function get_first_block(\context $modulecontext, string $blockname, bool $visibleonly = true, bool $rownotinstance = false): ?\block_base {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && \debugging($fxn . "::Started with \$modulecontext->id={$modulecontext->id}; \$blockname={$blockname}; "
@@ -815,7 +816,7 @@ class MoodleUtility {
 
         $userpicture = new \user_picture($user);
         foreach ($params as $key => $val) {
-            if (object_property_exists($userpicture, $key)) {
+            if (\object_property_exists($userpicture, $key)) {
                 $userpicture->{$key} = $val;
             }
         }
@@ -991,9 +992,9 @@ class MoodleUtility {
      *                        MUST_EXIST means we will throw an exception if no record or multiple records found.
      *
      * @return mixed a fieldset object containing the first matching record, false or exception if error not found depending on mode
-     * @throws dml_exception A DML specific exception is thrown for any errors.
+     * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
-    public static function get_record_cached($table, array $conditions, $fields = '*', $strictness = IGNORE_MISSING) {
+    public static function get_record_cached($table, array $conditions, $fields = '*', $strictness = \IGNORE_MISSING) {
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'perrequest');
         $cachekey = self::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, $table, json_encode($conditions), $fields, $strictness]));
         if ($cachedvalue = $cache->get($cachekey)) {
