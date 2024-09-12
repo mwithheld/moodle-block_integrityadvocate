@@ -693,7 +693,7 @@ class block_integrityadvocate extends block_base {
      *
      * @return string Footer HTML.
      */
-    private function get_footer() {
+    public function get_footer() {
         global $CFG;
 
         $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
@@ -705,19 +705,25 @@ class block_integrityadvocate extends block_base {
         global $CFG;
         $returnthis = '';
 
+        // Wrap everything in an enclosing _plugininfo div.
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo">';
+
         $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
-        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' . $lanstring . '">' .
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo_version" title="' . $lanstring . '">' .
                 "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
 
         $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
-        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' .
+        $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo_appid" title="' .
                 $lanstring . '">' . "{$lanstring} " . (isset($this->config->appid) ? $this->config->appid : '') . '</div>';
 
         if ($CFG->debug >= 15) {
             $lanstring = get_string('config_blockid', INTEGRITYADVOCATE_BLOCK_NAME);
-            $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo" title="' .
+            $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo_blockid" title="' .
             $lanstring . '">' . "{$lanstring} " . $this->instance->id . '</div>';
         }
+
+        // Close the enclosing _plugininfo div.
+        $returnthis .= '</div>';
 
         if (!$cache->set($cachekey, $returnthis)) {
             throw new \Exception('Failed to set value in the cache');
