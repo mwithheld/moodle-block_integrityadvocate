@@ -13,9 +13,9 @@ PHPCSStandards
 ----
 cd <blah>/moodle/blocks/integrityadvocate
 #Note the config in phpstan.neon
-curl -OL https://github.com/phpstan/phpstan/releases/download/1.10.18/phpstan.phar
+curl -OL https://github.com/phpstan/phpstan/releases/download/1.12.3/phpstan.phar
 php phpstan.phar analyse --memory-limit=1G ./
-
+php /var/www/html/phpstan.phar --debug --memory-limit=1G --level=8 --configuration=phpstan.neon analyze classes/Api.php
 
 
 Docker: SSH into the machine
