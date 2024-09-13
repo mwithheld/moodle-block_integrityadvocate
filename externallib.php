@@ -40,11 +40,27 @@ class block_integrityadvocate_external extends \external_api {
      */
     protected static function returns_boolean_submitted(): \external_single_structure {
         return new \external_single_structure(
-                [
-            // Usage: external_value($type, $desc, $required, $default, $allownull).
-            'submitted' => new \external_value(PARAM_BOOL, 'submitted', VALUE_REQUIRED, false, NULL_NOT_ALLOWED),
-            'warnings' => new \external_warnings(),
-                ]
+            [
+                // Usage: external_value($type, $desc, $required, $default, $allownull).
+                'submitted' => new \external_value(PARAM_BOOL, 'submitted', (bool)VALUE_REQUIRED, false, NULL_NOT_ALLOWED),
+                'warnings' => new \external_warnings(),
+            ]
+        );
+    }
+
+    /**
+     * Describes a return value that returns an integer value.
+     *
+     * @return external_single_structure
+     */
+    protected static function returns_int(int $result = 0): \external_single_structure {
+        return new \external_single_structure(
+            [
+                // Usage: external_value($type, $desc, $required, $default, $allownull).
+                'submitted' => new \external_value(PARAM_BOOL, 'submitted', (bool)VALUE_REQUIRED, false, NULL_NOT_ALLOWED),
+                'warnings' => new \external_warnings(),
+                'result' => new \external_value(PARAM_INT, 'result', (bool)VALUE_REQUIRED, 0, NULL_NOT_ALLOWED),
+            ]
         );
     }
 }

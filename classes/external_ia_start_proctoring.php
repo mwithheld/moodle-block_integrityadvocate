@@ -188,7 +188,7 @@ trait external_ia_start_proctoring {
             \debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && \debugging($fxn . "'::No warnings; Got courseid=$courseid; userid=$userid'");
+        $debug && \debugging($fxn . "::No warnings; Got courseid=$courseid; userid=$userid");
 
         // If this is not a quiz, do nothing and return success.
 
@@ -228,16 +228,15 @@ trait external_ia_start_proctoring {
         $result['submitted'] = true;
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
-            $result['success'] = false;
-            \debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
+            \debugging($fxn . '::Found warnings so do not check cache' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
             return $result;
         }
-        $debug && \debugging($fxn . '::No warnings');
+        $debug && \debugging($fxn . '::No warnings so check cache');
 
         // The user is allowed to update the quiz timer only once per quiz attempt.
         $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid, \sesskey()]));
-        $debug && \debugging($fxn . '::Got cachekey=' . ia_u::var_dump($cachekey));
+        $debug && \debugging($fxn . '::Built cachekey=' . ia_u::var_dump($cachekey));
 
         // Tested the AJAX network (web services) call with these scenarios:.
         // z- ===========.
@@ -260,46 +259,63 @@ trait external_ia_start_proctoring {
         // z- Open attempt in another browser.
 
         $blockversion = \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
-        if ($cachedvalue = $cache->get($cachekey)) {
-            $debug && \debugging($fxn . '::Got cachedvalue=' . ia_u::var_dump($cachedvalue));
-            $debug && \debugging($fxn . '::Original quiz attempt timestart=' . self::$attemptobj->get_attempt()->timestart);
-            $newtimestart = time();
-            $result['success'] = ia_mu::quiz_set_timestart(self::$attemptobj->get_attemptid(), $newtimestart);
+        $cachedvalue = $cache->get($cachekey);
+        $debug && \debugging($fxn . '::Got cachedvalue=' . ia_u::var_dump($cachedvalue));
+        if ($cachedvalue) {
+            // Disabled bc too much info: $debug && \debugging($fxn . '::Original quiz attempt=' . ia_u::var_dump(self::$attemptobj->get_attempt()));.
+            $originaltimestart = self::$attemptobj->get_attempt()->timestart;
+            $debug && \debugging($fxn . '::Original quiz attempt timestart=' . $originaltimestart);
 
-            // Log this to the Moodle log.
-            $params = [
-                'objectid' => self::$attemptobj->get_attemptid(),
-                'relateduserid' => self::$attemptobj->get_userid(),
-                'courseid' => self::$attemptobj->get_courseid(),
-                'context' => self::$attemptobj->get_quizobj()->get_context(),
-            ];
-            $event = \block_integrityadvocate\event\quizattempt_time_updated::create($params);
-            $event->add_record_snapshot('quiz', self::$attemptobj->get_quizobj()->get_quiz());
-            $event->add_record_snapshot('quiz_attempts', self::$attemptobj->get_attempt());
-            $event->trigger();
+            $quiz = self::$attemptobj->get_quizobj()->get_quiz();
+            $debug && \debugging($fxn . '::Got quiz=' . ia_u::var_dump($quiz));
 
-            if (!$result['success']) {
-                $msg = 'Failed to run start_proctoring items';
-                $result['warnings'][]  = [
-                    'warningcode' => \implode('a', [$blockversion, __LINE__]),
-                    'message' => $msg,
+            $debug && \debugging($fxn . '::Before quiz_set_timestart empty(warnings)=' . empty($result['warnings']));
+            if (empty($result['warnings'])) {
+                // Allow 1 second for processing here + the request to go back to the client.
+                self::$newtimestart = time() + 1;
+                $result['success'] = ia_mu::quiz_set_timestart(self::$attemptobj->get_attemptid(), self::$newtimestart);
+
+                // Log this to the Moodle log.
+                $params = [
+                    'objectid' => self::$attemptobj->get_attemptid(),
+                    'relateduserid' => self::$attemptobj->get_userid(),
+                    'courseid' => self::$attemptobj->get_courseid(),
+                    'context' => self::$attemptobj->get_quizobj()->get_context(),
                 ];
-                \debugging($fxn . "::{$msg}; \$debugvars={$debugvars}");
-            } else {
-                $cache->delete($cachekey);
+                $event = \block_integrityadvocate\event\quizattempt_time_updated::create($params);
+                $event->add_record_snapshot('quiz', $quiz);
+                $event->add_record_snapshot('quiz_attempts', self::$attemptobj->get_attempt());
+                $event->trigger();
+
+                if ($result['success']) {
+                    $cache->delete($cachekey);
+
+                    // The JS quiz timer does not use the quiz start time -- it uses the quiz end time.
+                    // But we really want to tell it how long in seconds to extend the quiz timer for.
+                    $newtimeleft = self::$newtimestart - $originaltimestart;
+                    $result['result'] = $newtimeleft;
+
+                    $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+                    return $result;
+                } else {
+                    $msg = 'Failed to run start_proctoring items';
+                    \debugging($fxn . "::{$msg}; \$debugvars={$debugvars}");
+                    $result['warnings'][]  = [
+                        'warningcode' => \implode('a', [$blockversion, __LINE__]),
+                        'message' => $msg,
+                    ];
+                    return $result;
+                }
             }
         } else {
             $msg = 'Not set or already done';
-            $debug && \debugging($fxn . "::$msg");
+            $debug && \debugging($fxn . "::Cache key not set or did not match: $msg");
             $result['warnings'][] = [
                 'warningcode' => \implode('a', [$blockversion, __LINE__]),
                 'message' => $msg,
             ];
-            $result['success'] = false;
+            return $result;
         }
-
-        $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
-        return $result;
     }
 
     /**
@@ -308,6 +324,6 @@ trait external_ia_start_proctoring {
      * @return \external_single_structure
      */
     public static function start_proctoring_returns(): \external_single_structure {
-        return self::returns_boolean_submitted();
+        return self::returns_int(self::$newtimestart ?? 0);
     }
 }
