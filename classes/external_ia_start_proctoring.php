@@ -45,6 +45,15 @@ trait external_ia_start_proctoring {
      */
     private static $attemptobj;
 
+    private static $newtimestart = 0;
+
+    private static $resultdefault = [
+        'submitted' => false,
+        'success' => false,
+        'warnings' => [],
+        'result' => 0,
+    ];
+
     /**
      * Describes the parameters for these functions - these are reused.
      *
@@ -78,11 +87,7 @@ trait external_ia_start_proctoring {
             ]
         );
 
-        $result = [
-            'submitted' => false,
-            'success' => true,
-            'warnings' => [],
-        ];
+        $result = self::$resultdefault;
         $blockversion = \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
         $coursecontext = null;
 
@@ -215,7 +220,7 @@ trait external_ia_start_proctoring {
         $debug && \debugging($debugvars);
 
         $result = \array_merge(
-            ['submitted' => false, 'success' => true, 'warnings' => []],
+            self::$resultdefault,
             self::start_proctoring_validate_params($attemptid)
         );
         $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
