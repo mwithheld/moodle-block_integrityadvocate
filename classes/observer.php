@@ -63,7 +63,7 @@ class block_integrityadvocate_observer {
 
         // Check this feature is enabled.
         if (!\defined('INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED') || !INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED) {
-            $debug && \debugging($fxn . "::The feature INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED is disabled");
+            \debugging($fxn . '::The feature INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED is disabled');
             return false;
         }
 
