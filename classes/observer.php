@@ -43,9 +43,7 @@ class block_integrityadvocate_observer {
      *
      * Set a one-time-use flag (nonce) that allows the requestor to update the quiz timer
      * for a specific quiz attempt. The nonce is stored in the session cache and should be removed once used.
-     * If the MUC Moodle cache is purged the nonce is cleared like this:
-     * z- $cache = \cache::make('block_integrityadvocate', 'persession');
-     * z- $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid, \sesskey()));
+     * If the MUC Moodle cache is purged the nonce is cleared.
      *
      * @param \mod_quiz\event\attempt_started $event The attempt_started event object containing information about the quiz attempt.
      * @return bool True if the nonce is successfully set, false otherwise.
@@ -102,13 +100,13 @@ class block_integrityadvocate_observer {
         // Once we use the cached value, we remove it.
         $cache = \cache::make('block_integrityadvocate', 'persession');
         $cachekey = ia_mu::get_cache_key(\implode('_', [INTEGRITYADVOCATE_SHORTNAME, $attemptid, \sesskey()]));
-        $debug && \debugging($fxn . '::Got cachekey=' . ia_u::var_dump($cachekey));
+        $debug && \debugging($fxn . '::Built cachekey=' . ia_u::var_dump($cachekey));
 
         $attempttimestart = $DB->get_field('quiz_attempts', 'timestart', ['id' => $attemptid], MUST_EXIST);
         if (!$cache->set($cachekey, $attempttimestart)) {
             throw new \Exception('Failed to set value in the cache');
         }
-        $debug && \debugging($fxn . '::Set cachedvalue=' . ia_u::var_dump($attempttimestart));
+        $debug && \debugging($fxn . '::Set cachedvalue=' . ia_u::var_dump($cache->get($cachekey)));
 
         return true;
     }
