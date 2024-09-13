@@ -141,10 +141,9 @@ M.block_integrityadvocate = {
                         window.console.log(fxn + '::Done the call to block_integrityadvocate_start_proctoring; data=', data);
                         debug && window.console.log(fxn + '::ajax.done');
                         // While you can override the quiz timer UI in JS, the time you actually submit the quiz is still checked vs the server-side value.
-                        if ((typeof data.result === 'number') && Number.isInteger(data.result) && data.result > 0) {
+                        if (M.mod_quiz.timer.endtime > 0  && (typeof data.result === 'number') && Number.isInteger(data.result) && data.result > 0) {
                             // The PHP returns epoch time in seconds, but JS uses milliseconds.
                             newtimeleft = (M.mod_quiz.timer.endtime - Date.now()) / 1000 + data.result;
-                            //(M.mod_quiz.timer.endtime + (data.result * 1000) - Date.now()) / 1000;
                             debug && window.console.log(fxn + '::Timer: Original endtime=' + M.mod_quiz.timer.endtime + '; newtimeleft=' + newtimeleft);
                             if (newtimeleft > 0) {
                                 M.mod_quiz.timer.updateEndTime(newtimeleft);
@@ -152,9 +151,9 @@ M.block_integrityadvocate = {
                                 debug && window.console.error(fxn + '::Skip bc timeleft <= 0');
                             }
                         } else {
-                            window.console.error(fxn + '::Timer: data.result is zero or invalid');
+                            window.console.log(fxn + '::Timer: Timer unused or data.result is zero/invalid');
                         }
-                        typeof callback === 'function' && callback();
+                        typeof callback === 'function' && callback(data);
                     },
                     fail: function (xhr_unused, textStatus, errorThrown) {
                         debug && window.console.log(fxn + '::ajax.fail');
