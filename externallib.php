@@ -50,7 +50,7 @@ class block_integrityadvocate_external extends \external_api {
 
     /**
      * Describes a return value that returns an integer value.
-     * 
+     *
      * @param int $result The integer value to return.
      * @return external_single_structure
      */
