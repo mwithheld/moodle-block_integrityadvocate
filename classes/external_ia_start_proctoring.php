@@ -40,13 +40,18 @@ use block_integrityadvocate\Utility as ia_u;
 trait external_ia_start_proctoring {
 
     /**
-     *
-     * @var quiz_attempt $attemptThe quiz attempt object.
+     * @var quiz_attempt The quiz attempt object.
      */
     private static $attemptobj;
 
+    /**
+     * @var int The time we should set as the quiz start time. If zero then do not use.
+     */
     private static $newtimestart = 0;
 
+    /**
+     * @var stdClass Default empty result for what to return from the AJAX request.
+     */
     private static $resultdefault = [
         'submitted' => false,
         'success' => false,
