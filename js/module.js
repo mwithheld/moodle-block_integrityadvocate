@@ -384,27 +384,7 @@ M.block_integrityadvocate = {
                 }
 
                 // Close IA session on: The quiz timer submits the form.
-                // Override the Moodle core mod_quiz bc other options did not work:.
-                // Z - Intercepting form.submit().
-                // Z - Intercepting (input[name=finishattempt]).
-                M.mod_quiz.timer.originalUpdate = M.mod_quiz.timer.update;
-                M.mod_quiz.timer.update = function () {
-                    var fxn = 'M.block_integrityadvocate.M.mod_quiz.timer.update';
-                    debug && window.console.log(fxn + '::Started');
-
-                    // This next line copied from mod/quiz/module.js::M.mod_quiz.timer.update() MOODLE_404_STABLE 2024Sep.
-                    const secondsleft = Math.floor((M.mod_quiz.timer.endtime - new Date().getTime()) / 1000);
-                    // If time has expired, set the hidden form field that says time has expired and submit
-                    if (secondsleft < 0 && !self.hasClosedIASession) {
-                        debug && window.console.log(fxn + '::Quiz timer expired and we should close the IA session');
-                        // We do not have an e parameter in this case.
-                        closeSession();
-                        //Disabled bc not needed: window.console.log(fxn + '::After call to endIaSession, result=', promise); .
-                    }
-
-                    // Call the original submission process.
-                    M.mod_quiz.timer.originalUpdate();
-                };
+                onQuizTimerExpired(closeSession);
             }
         } else if (document.body.id === 'page-mod-quiz-review') {
             window.console.log(fxn + '::This is a quiz review page');
@@ -444,6 +424,35 @@ M.block_integrityadvocate = {
                     });
             }
         }
+    },
+    /**
+     * Close IA session on: The quiz timer submits the form.
+     * Submits the quiz and navigates to the next page.
+     *
+     * Overrides the Moodle core mod_quiz bc other options did not work:.
+     * Z - Intercepting form.submit().
+     * Z - Intercepting (input[name=finishattempt]).
+     * @param {*} closeSession
+     */
+    onQuizTimerExpired: (closeSession) => {
+        M.mod_quiz.timer.originalUpdate = M.mod_quiz.timer.update;
+        M.mod_quiz.timer.update = function () {
+            var fxn = 'M.block_integrityadvocate.M.mod_quiz.timer.update';
+            debug && window.console.log(fxn + '::Started');
+
+            // This next line copied from mod/quiz/module.js::M.mod_quiz.timer.update() MOODLE_404_STABLE 2024Sep.
+            const secondsleft = Math.floor((M.mod_quiz.timer.endtime - new Date().getTime()) / 1000);
+            // If time has expired, set the hidden form field that says time has expired and submit
+            if (secondsleft < 0 && !self.hasClosedIASession) {
+                debug && window.console.log(fxn + '::Quiz timer expired and we should close the IA session');
+                // We do not have an e parameter in this case.
+                closeSession();
+                //Disabled bc not needed: window.console.log(fxn + '::After call to endIaSession, result=', promise); .
+            }
+
+            // Call the original submission process - this submits the form and navigates to the next page.
+            M.mod_quiz.timer.originalUpdate();
+        };
     },
     /**
      * Async wrapper around the IA JS call to end the IA session.
