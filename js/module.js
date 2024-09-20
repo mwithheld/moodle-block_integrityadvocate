@@ -467,12 +467,14 @@ M.block_integrityadvocate = {
     endIaSession: async (e = null) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.endIaSession';
-        debug && window.console.log(fxn + '::Started with e=', e);
+        window.console.log(fxn + '::Started with e, window.IntegrityAdvocate=', e, window.IntegrityAdvocate);
 
         try {
-            await window.IntegrityAdvocate.endSession(() => {
-                window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
-            });
+            if (typeof window.IntegrityAdvocate == 'object') {
+                await window.IntegrityAdvocate.endSession(() => {
+                    window.console.log(fxn + '::Done IntegrityAdvocate.endSession()');
+                });
+            }
         } catch (error) {
             window.console.error(fxn + '::Error during IntegrityAdvocate.endSession(); error=', error);
         }
