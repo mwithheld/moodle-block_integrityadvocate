@@ -430,7 +430,8 @@ M.block_integrityadvocate = {
      * Z - Intercepting form.submit().
      * Z - Intercepting (input[name=finishattempt]).
      *
-     * @param {*} callback Function to run before passing control back to the original M.mod_quiz.timer.update().
+     * @param {function} callback Function to run before passing control back to the original M.mod_quiz.timer.update().
+     * @returns {null} Nothing.
      */
     onQuizTimerExpired: (callback) => {
         var debug = false;
@@ -540,6 +541,11 @@ M.block_integrityadvocate = {
                 break;
         }
     },
+    /**
+     * On block init setup quiz things.
+     *
+     * @returns {null} Nothing.
+     */
     onBlockInitSetupQuiz: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupQuiz';
@@ -576,6 +582,11 @@ M.block_integrityadvocate = {
                 self.showMainContent();
         }
     },
+    /**
+     * On block init setup scorm things.
+     *
+     * @returns {null} Nothing.
+     */
     onBlockInitSetupScorm: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupScorm';
@@ -601,6 +612,11 @@ M.block_integrityadvocate = {
             return false;
         });
     },
+    /**
+     * Show the main content (which is hidden by this block by default).
+     *
+     * @returns {null} Nothing.
+     */
     showMainContent: () => {
         $('div[role="main"]').show();
         $('#block_integrityadvocate_hidequiz').remove();
