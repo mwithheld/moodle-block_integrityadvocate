@@ -388,15 +388,18 @@ M.block_integrityadvocate = {
             }
         } else if (document.body.id === 'page-mod-quiz-review') {
             window.console.log(fxn + '::This is a quiz review page');
-            debug && window.console.log(fxn + '::Attach endSession to Finish review button');
 
-            // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
-            $('.mod_quiz-next-nav').one('click.block_integrityadvocate', (e) => {
-                var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
-                window.console.log(fxn + '::Started with e=', e);
-                e.preventDefault();
-                closeSession(e);
-            });
+            if (self.proctorquizreviewpages) {
+                debug && window.console.log(fxn + '::Attach endSession to Finish review button');
+
+                // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
+                $('.mod_quiz-next-nav').one('click.block_integrityadvocate', (e) => {
+                    var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
+                    window.console.log(fxn + '::Started with e=', e);
+                    e.preventDefault();
+                    closeSession(e);
+                });
+            }
         } else if (document.body.id === 'page-mod-quiz-summary') {
             window.console.log(fxn + '::This is a quiz summary page AND self.quizshowsreviewpage=', self.quizshowsreviewpage);
 
