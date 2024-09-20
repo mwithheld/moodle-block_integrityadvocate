@@ -33,7 +33,7 @@ M.block_integrityadvocate = {
      * @param {type} encodedString
      * @returns {.document@call;createElement.value|textArea.value}
      */
-    decodeEntities: function (encodedString) {
+    decodeEntities: (encodedString) => {
         if (!encodedString) return '';
         const textArea = document.createElement('textarea');
         textArea.innerHTML = encodedString;
@@ -44,14 +44,14 @@ M.block_integrityadvocate = {
      *
      * @returns {null} Nothing.
      */
-    sessionOpen: function () {
+    sessionOpen: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.sessionOpen';
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
 
         try {
-            require(['core/ajax'], function (ajax) {
+            require(['core/ajax'], (ajax) => {
                 ajax.call([{
                     methodname: 'block_integrityadvocate_session_open',
                     args: {
@@ -60,10 +60,10 @@ M.block_integrityadvocate = {
                         moduleid: self.activityid,
                         userid: self.participantidentifier
                     },
-                    done: function () {
+                    done: () => {
                         debug && window.console.log(fxn + '::ajax.done');
                     },
-                    fail: function (xhr_unused, textStatus, errorThrown) {
+                    fail: (xhr_unused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
                         alert(M.util.get_string('unknownerror', 'moodle') + ' ' + fxn + '::ajax.fail');
@@ -82,14 +82,14 @@ M.block_integrityadvocate = {
      * @param {function} callback Function to call when done.
      * @returns {null} Nothing.
      */
-    sessionClose: function (callback) {
+    sessionClose: (callback) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.sessionClose';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
 
         try {
-            require(['core/ajax'], function (ajax) {
+            require(['core/ajax'], (ajax) => {
                 ajax.call([{
                     methodname: 'block_integrityadvocate_session_close',
                     args: {
@@ -98,11 +98,11 @@ M.block_integrityadvocate = {
                         moduleid: self.activityid,
                         userid: self.participantidentifier
                     },
-                    done: function () {
+                    done: () => {
                         debug && window.console.log(fxn + '::ajax.done');
                         typeof callback === 'function' && callback();
                     },
-                    fail: function (xhr_unused, textStatus, errorThrown) {
+                    fail: (xhr_unused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
                         window.IntegrityAdvocate.endSession();
@@ -122,7 +122,7 @@ M.block_integrityadvocate = {
      * @param {function} callback Function to call when done.
      * @returns {null} Nothing.
      */
-    startProctoring: function (callback) {
+    startProctoring: (callback) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.startProctoring';
         debug && window.console.log(fxn + '::Started');
@@ -135,13 +135,13 @@ M.block_integrityadvocate = {
         }
 
         try {
-            require(['core/ajax'], function (ajax) {
+            require(['core/ajax'], (ajax) => {
                 ajax.call([{
                     methodname: 'block_integrityadvocate_start_proctoring',
                     args: {
                         attemptid: attemptid,
                     },
-                    done: function (data) {
+                    done: (data) => {
                         window.console.log(fxn + '::ajax.done::Done the call to block_integrityadvocate_start_proctoring; data=', data);
                         // While you can override the quiz timer UI in JS, the time you actually submit the quiz is still checked vs the server-side value.
                         if (M.mod_quiz.timer.endtime > 0 && (typeof data.result === 'number') && Number.isInteger(data.result) && data.result > 0) {
@@ -159,7 +159,7 @@ M.block_integrityadvocate = {
                         }
                         typeof callback === 'function' && callback(data);
                     },
-                    fail: function (xhr_unused, textStatus, errorThrown) {
+                    fail: (xhr_unused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
                         window.IntegrityAdvocate.endSession();
@@ -178,7 +178,7 @@ M.block_integrityadvocate = {
      *
      * @returns {null} Nothing.
      */
-    showActivityContent: function () {
+    showActivityContent: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.showActivityContent';
         window.console.log(fxn + '::Started');
@@ -194,7 +194,7 @@ M.block_integrityadvocate = {
                 // Disabled: $('.mod_quiz-next-nav').removeAttr('disabled').off('click.block_integrityadvocate.disable');.
                 $('#block_integrityadvocate_hidequiz').remove();
                 window.console.log(fxn + '.isQuizAttempt::IA is ready: Show the quiz questions', eltMainContent);
-                eltMainContent.show(0, function () { window.console.log(fxn + 'isQuizAttempt: Done: Enable the submit button and show the main content'); });
+                eltMainContent.show(0, () => { window.console.log(fxn + 'isQuizAttempt: Done: Enable the submit button and show the main content'); });
 
                 self.startProctoring();
                 break;
@@ -219,7 +219,7 @@ M.block_integrityadvocate = {
                 self.showMainContent();
                 eltMainContent.show();
                 $('#block_integrityadvocate_loading').remove();
-                $(window).on('beforeunload', function () {
+                $(window).on('beforeunload', () => {
                     debug && window.console.log(fxn + '::Exiting the window - close the IA session');
                     self.sessionClose();
                 });
@@ -237,7 +237,7 @@ M.block_integrityadvocate = {
      * @param {string} proctorjsurl URL to the IA proctor JS.
      * @returns {null} Nothing.
      */
-    loadProctorJs: function (proctorjsurl) {
+    loadProctorJs: (proctorjsurl) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.loadProctorJs';
         debug && window.console.log(fxn + '::Started with proctorjsurl=', proctorjsurl);
@@ -257,7 +257,7 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '.getScript().done');
                 self.onProctorJsLoaded();
             })
-            .fail(function (jqxhr, settings, exception) {
+            .fail((jqxhr, settings, exception) => {
                 // Hide the loading gif.
                 $('#block_integrityadvocate_loading').remove();
                 self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
@@ -277,7 +277,7 @@ M.block_integrityadvocate = {
      *
      * @returns {null} Nothing.
      */
-    onProctorJsLoaded: function () {
+    onProctorJsLoaded: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onProctorJsLoaded';
         window.console.log(fxn + '::Started');
@@ -293,7 +293,7 @@ M.block_integrityadvocate = {
      *
      * @returns {null} Nothing.
      */
-    onEventIAReady: function (script) {
+    onEventIAReady: (script) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onEventIAReady';
         debug && window.console.log(fxn + 'Started with script=', script);
@@ -338,7 +338,7 @@ M.block_integrityadvocate = {
      *
      * @returns {null} Nothing.
      */
-    onEventIaReadySetupQuiz: function () {
+    onEventIaReadySetupQuiz: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz';
         debug && window.console.log(fxn + '::Started with document.body.id=', document.body.id);
@@ -461,7 +461,7 @@ M.block_integrityadvocate = {
      * @param {event} The event that triggered this action e.g. a click event.
      * @returns {event} The event you passed in, so you can trigger it in a .then().
      */
-    endIaSession: async function (e = null) {
+    endIaSession: async (e = null) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.endIaSession';
         debug && window.console.log(fxn + '::Started with e=', e);
@@ -486,7 +486,7 @@ M.block_integrityadvocate = {
      * @param {bool} quizshowsreviewpage True if the quiz shows the review page after the summary page.
      * @returns {null} Nothing.
      */
-    blockinit: function (Y, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) {
+    blockinit: (Y, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.blockinit';
         debug && window.console.log(fxn + '::Started with proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages=' + proctorquizreviewpages + '; quizshowsreviewpage=' + quizshowsreviewpage + '; proctorjsurl=' + proctorjsurl);
@@ -535,7 +535,7 @@ M.block_integrityadvocate = {
                 break;
         }
     },
-    onBlockInitSetupQuiz: function () {
+    onBlockInitSetupQuiz: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupQuiz';
         debug && window.console.log(fxn + '::Started');
@@ -571,7 +571,7 @@ M.block_integrityadvocate = {
                 self.showMainContent();
         }
     },
-    onBlockInitSetupScorm: function () {
+    onBlockInitSetupScorm: () => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupScorm';
         debug && window.console.log(fxn + '::Started');
@@ -596,7 +596,7 @@ M.block_integrityadvocate = {
             return false;
         });
     },
-    showMainContent: function () {
+    showMainContent: () => {
         $('div[role="main"]').show();
         $('#block_integrityadvocate_hidequiz').remove();
     },
@@ -608,9 +608,7 @@ M.block_integrityadvocate = {
      * @param {string} str
      * @returns {bool} True if str is an http(s) URL.
      */
-    isHttpUrl: function (str) {
-        return /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str);
-    },
+    isHttpUrl: (str) => /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str),
     /**
      * Wait for an element to exist, then return the resolved promise result.
      * Source https://stackoverflow.com/a/61511955 .
@@ -618,7 +616,7 @@ M.block_integrityadvocate = {
      * @param {string} An element selector string.
      * @returns {*} A resovled promise.
      */
-    waitForElt: function (selector) {
+    waitForElt: (selector) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.waitForElt';
         debug && window.console.log(fxn + '::Started with selector=', selector);
@@ -643,6 +641,3 @@ M.block_integrityadvocate = {
         });
     }
 };
-
-
-
