@@ -344,11 +344,11 @@ M.block_integrityadvocate = {
         debug && window.console.log(fxn + '::Started with document.body.id=', document.body.id);
         const self = M.block_integrityadvocate;
 
-        const closeSession = (e) => {
+        const closeSession = (e = null) => {
             return self.endIaSession(e)
                 .then(e => {
                     self.hasClosedIASession = true;
-                    log('Done call to endIaSession');
+                    window.console.log('Done call to endIaSession; About to click the original element', e);
                     e.target.click();
                 })
                 .catch(error => window.console.log(fxn + '::endIaSession promise::Error on endIaSession(); error=', error));
@@ -397,7 +397,8 @@ M.block_integrityadvocate = {
                     // If time has expired, set the hidden form field that says time has expired and submit
                     if (secondsleft < 0 && !self.hasClosedIASession) {
                         debug && window.console.log(fxn + '::Quiz timer expired and we should close the IA session');
-                        closeSession(e);
+                        // We do not have an e parameter in this case.
+                        closeSession();
                         //Disabled bc not needed: window.console.log(fxn + '::After call to endIaSession, result=', promise); .
                     }
 
@@ -451,10 +452,10 @@ M.block_integrityadvocate = {
      * @param {event} The event that triggered this action e.g. a click event.
      * @returns {event} The event you passed in, so you can trigger it in a .then().
      */
-    endIaSession: async function (e) {
+    endIaSession: async function (e = null) {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.endIaSession';
-        debug && window.console.log(fxn + '::Started');
+        debug && window.console.log(fxn + '::Started with e=', e);
 
         try {
             await window.IntegrityAdvocate.endSession(() => {
