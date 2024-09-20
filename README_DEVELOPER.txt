@@ -69,19 +69,21 @@ apt-get install per docs: https://docs.cypress.io/guides/getting-started/install
 #Make sure npm installed
 apt-get install npm
 
+#Install node version required
+nvm install 18
+nvm use 18
+
 #Install Cypress and modules on local machine (not docker)
 cd <blah>/moodle/blocks/integrityadvocate
-npm install --save-dev cypress@8.7.0
+npm install --save-dev #cypress@8.7.0
 npx browserslist@latest --update-db
 npm i --save-dev cypress-fail-fast
 
 #Set this baseUrl below to point at the root of your Moodle install.
 
 #Run the test using the Cypress GUI
-./node_modules/.bin/cypress open \
-  --config '{"baseUrl":"https://127.0.0.1","screenshotsFolder":"/tmp/cypress/screenshots","videosFolder":"/tmp/cypress/videos"}'
+./node_modules/.bin/cypress open 
 
 #Run the tests using headless CLI
 cd <blah>/moodle/blocks/integrityadvocate
-./node_modules/.bin/cypress run \
-  --config '{"baseUrl":"https://127.0.0.1","screenshotsFolder":"/tmp/cypress/screenshots","videosFolder":"/tmp/cypress/videos"}'
+./node_modules/.bin/cypress run
