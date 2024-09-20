@@ -71,7 +71,7 @@ M.block_integrityadvocate = {
                 }]);
             });
         } catch (error) {
-            window.console.warn(fxn + '::Caught an error on the ajax call; error=', error);
+            window.console.error(fxn + '::Caught an error on the ajax call; error=', error);
         }
 
         window.console.log(fxn + '::Done');
@@ -111,7 +111,7 @@ M.block_integrityadvocate = {
                 }]);
             });
         } catch (error) {
-            window.console.warn(fxn + '::Caught an error on the ajax call; error=', error);
+            window.console.error(fxn + '::Caught an error on the ajax call; error=', error);
         }
 
         debug && window.console.log(fxn + '::Done');
@@ -151,7 +151,7 @@ M.block_integrityadvocate = {
                             if (newtimeleft > 0) {
                                 M.mod_quiz.timer.updateEndTime(newtimeleft);
                             } else {
-                                debug && window.console.error(fxn + '::Skip bc timeleft <= 0');
+                                debug && window.console.log(fxn + '::Skip bc timeleft <= 0');
                             }
                         } else {
                             // This probably does not warrant a warning/error.
@@ -168,7 +168,7 @@ M.block_integrityadvocate = {
                 }]);
             });
         } catch (error) {
-            window.console.warn(fxn + '::Caught an error on the ajax call; error=', error);
+            window.console.error(fxn + '::Caught an error on the ajax call; error=', error);
         }
 
         debug && window.console.log(fxn + '::Done');
@@ -309,7 +309,7 @@ M.block_integrityadvocate = {
             self.showActivityContent();
             window.console.log(fxn + '::Done showActivityContent()');
         } catch (error) {
-            window.console.log(fxn + '::Caught an error running showActivityContent(); error=', error);
+            window.console.error(fxn + '::Caught an error running showActivityContent(); error=', error);
         }
 
         window.console.log(fxn + '::Got window.IntegrityAdvocate=', window.IntegrityAdvocate);
@@ -351,7 +351,7 @@ M.block_integrityadvocate = {
                     window.console.log('Done call to endIaSession; About to click the original element', e);
                     e && e.target.click();
                 })
-                .catch(error => window.console.log(fxn + '::endIaSession promise::Error on endIaSession(); error=', error));
+                .catch(error => window.console.error(fxn + '::endIaSession promise::Error on endIaSession(); error=', error));
         };
 
         // For quizzes, close the IA session using window.IntegrityAdvocate.endSession().
@@ -408,7 +408,7 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::Quiz review page will not show so attach endSession to Submit all and Finish button');
 
                 // Moodle ~3.5 "Submit all and finish button" throws up a confirmation modal with another "Submit all and finish button".
-                const selectorModal = '.modal-dialog-scrollable .btn-primary, .moodle-dialogue-confirm .btn-primary'
+                const selectorModal = '.modal-dialog-scrollable .btn-primary, .moodle-dialogue-confirm .btn-primary';
                 self.waitForElt(selectorModal)
                     .then(() => {
                         window.console.log(fxn + '::Found selectorModal=', selectorModal);
@@ -420,7 +420,7 @@ M.block_integrityadvocate = {
                         });
                     })
                     .catch(error => {
-                        window.console.log(fxn + '::promise::Error on waitForElt(); error=', error);
+                        window.console.error(fxn + '::promise::Error on waitForElt(); error=', error);
                     });
             }
         }
