@@ -36,8 +36,8 @@ $string['completion_not_enabled'] = 'Completion tracking is not enabled on this 
 $string['completion_not_enabled_course'] = 'Completion tracking is not enabled in this course.';
 
 $string['config_apikey'] = 'API key';
-$string['config_appid'] = 'Application Id';
-$string['config_blockid'] = 'Block Id';
+$string['config_appid'] = 'Application id';
+$string['config_blockid'] = 'Block id';
 $string['config_blockversion'] = 'Version';
 $string['config_debuginfo'] = 'Debug info';
 $string['config_default_title'] = 'Integrity Advocate';
@@ -56,11 +56,11 @@ $string['blocklist_title'] = '{$a} IA block(s) in this course:';
 
 $string['error_curlcloseia'] = 'Curl error closing the IA session';
 $string['error_curlnoremoteinfo'] = 'Error: Got no remote IA participant info. If this is not valid, check the API key and app id are valid.';
-$string['error_invalidappid'] = 'Invalid Application Id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538';
-$string['error_invalidapikey'] = 'Invalid API Key - it is a code that looks a bit like this: c5oMspfrqaUuYX+3/Pem/7/8VnxS385tlmqoV2/bVcA=';
+$string['error_invalidappid'] = 'Invalid Application id - it is a code that looks a bit like this: c56a4180-65aa-42ec-a945-5fd21dec0538';
+$string['error_invalidapikey'] = 'Invalid API key - it is a code that looks a bit like this: c5oMspfrqaUuYX+3/Pem/7/8VnxS385tlmqoV2/bVcA=';
 $string['error_missingconfig'] = 'This block is missing config';
 $string['error_noapikey'] = 'No API key is set';
-$string['error_noappid'] = 'No Application Id is set';
+$string['error_noappid'] = 'No Application id is set';
 $string['error_nousers'] = 'No users found';
 $string['error_notenrolled'] = 'You are not enrolled in this course';
 $string['error_quiz_showblocks'] = 'This quiz is configured with &quot;Show blocks during quiz attempts&quot; = No.  To fix this, edit the quiz settings > Appearance > Show more...';
