@@ -113,11 +113,11 @@ Feature: Add and configure IntegrityAdvocate block to a course
   # And I log out
 
   @javascript @block_integrityadvocate_with_activity_no_config
-  Scenario: When there is an applicable activity the block complains if no config
+  Scenario: When an applicable activity and no config the block shows a warning
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Quiz" to section "1" and I fill the form with:
-      | Name                | Test quiz name        |
+      | Name                | Test quiz 1           |
       | Description         | Test quiz description |
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
@@ -126,13 +126,13 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | completionpassgrade | 1                     |
     #   | completionentriesenabled | 1                                                 |
     #   | completionentries        | 2                                                 |
-    And I add a "True/False" question to the "Test quiz name" quiz with:
+    And I add a "True/False" question to the "Test quiz 1" quiz with:
       | Question name                      | First question                          |
       | Question text                      | Answer the first question               |
-      | General feedback                   | Thank you, this is the general feedback |
+      # | General feedback                   | Thank you, this is the general feedback |
       | Correct answer                     | False                                   |
-      | Feedback for the response 'True'.  | So you think it is true                 |
-      | Feedback for the response 'False'. | So you think it is false                |
+      # | Feedback for the response 'True'.  | So you think it is true                 |
+      # | Feedback for the response 'False'. | So you think it is false                |
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
     Then I should see "No API key is set" in the "block_integrityadvocate" "block"
@@ -141,11 +141,11 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I log out
 
   @javascript @block_integrityadvocate_with_activity_and_config
-  Scenario: When there is an applicable activity the block complains if no config
+  Scenario: When an applicable activity and configured the course block shows to students
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Quiz" to section "1" and I fill the form with:
-      | Name                | Test quiz name        |
+      | Name                | Test quiz 1           |
       | Description         | Test quiz description |
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
@@ -154,13 +154,13 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | completionpassgrade | 1                     |
     #   | completionentriesenabled | 1                                                 |
     #   | completionentries        | 2                                                 |
-    And I add a "True/False" question to the "Test quiz name" quiz with:
+    And I add a "True/False" question to the "Test quiz 1" quiz with:
       | Question name                      | First question                          |
       | Question text                      | Answer the first question               |
-      | General feedback                   | Thank you, this is the general feedback |
+      # | General feedback                   | Thank you, this is the general feedback |
       | Correct answer                     | False                                   |
-      | Feedback for the response 'True'.  | So you think it is true                 |
-      | Feedback for the response 'False'. | So you think it is false                |
+      # | Feedback for the response 'True'.  | So you think it is true                 |
+      # | Feedback for the response 'False'. | So you think it is false                |
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
@@ -169,17 +169,42 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
+    # Course-level block for teacher should show these things
     Then I should not see "No API key is set" in the "block_integrityadvocate" "block"
     And I should not see "No Application id is set" in the "block_integrityadvocate" "block"
     And "Course overview" "button" should be visible
+    And I should see "1 IA block(s) in this course" in the "block_integrityadvocate" "block"
+    And "Course" "link" should exist in the "block_integrityadvocate" "block"
+    And I should see "Version " in the "block_integrityadvocate" "block"
+    And I should see "Application id " in the "block_integrityadvocate" "block"
+    And I should see "Block id " in the "block_integrityadvocate" "block"
     And I log out
     #Scenario: Now students should see the course-level block
     When I log in as "student1"
     And I am on "Course 1" course homepage
     Then "block_integrityadvocate" "block" should exist
     And "Course overview" "button" should not be visible
+    And I should not see "IA block(s) in this course" in the "block_integrityadvocate" "block"
+    And "Course" "link" should not exist in the "block_integrityadvocate" "block"
+    And I should not see "Version " in the "block_integrityadvocate" "block"
+    And I should not see "Application id " in the "block_integrityadvocate" "block"
+    And I should not see "Block id " in the "block_integrityadvocate" "block"
     And I should see "This page uses the Integrity Advocate proctoring service"
-    # Then "Participants" "link" should exist in the "Navigation" "block"
     And "Privacy" "link" should exist in the "block_integrityadvocate" "block"
     And "Support" "link" should exist in the "block_integrityadvocate" "block"
     And I log out
+
+# @javascript @block_integrityadvocate_with_activity_and_config
+# Scenario: When add block to activity it picks up the apikey and appid from the course level block
+# Teacher 
+# And "Course" "link" should exist in the "block_integrityadvocate" "block"
+# And "Test quiz 1" should exist in the "block_integrityadvocate" "block"
+
+# @javascript @block_integrityadvocate_with_activity_and_config
+# Scenario: When add block to course it picks up the apikey and appid from the activity level block
+# Teacher 
+# And "Course" "link" should exist in the "block_integrityadvocate" "block"
+# And "Test quiz 1" should exist in the "block_integrityadvocate" "block"
+# And I should see "1 IA block(s) in this course" in the "block_integrityadvocate" "block"
+# Student should se...
+
