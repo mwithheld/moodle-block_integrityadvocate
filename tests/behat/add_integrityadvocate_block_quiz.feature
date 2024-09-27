@@ -19,12 +19,14 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
       | student1 | C1     | student        |
       | teacher1 | C1     | editingteacher |
 
+  @javascript 
   Scenario: Teacher should be warned if quiz configured to not show blocks
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Quiz" to section "1" and I fill the form with:
       | Name        | Test quiz 1               |
       | Description | Test quiz 1 description   |
+      # This next line is not the standard setup for using this plugin.
       | Show blocks during quiz attempts | 0    |
     And I add a "True/False" question to the "Test quiz 1" quiz with:
       | Question name                      | Quiz Question 1                          |
@@ -37,12 +39,12 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I am on "Course 1" course homepage
     When I follow "Test quiz 1"
     And I add the "Integrity Advocate" block
-    Then I should see "No Api Key is set" in the "block_integrityadvocate" "block"
-    And I should see "No Application Id is set" in the "block_integrityadvocate" "block"
+    Then I should see "No API key is set" in the "block_integrityadvocate" "block"
+    And I should see "No Application id is set" in the "block_integrityadvocate" "block"
     When I configure the "block_integrityadvocate" block
-    And I set the following fields to these values:
-      | Application Id | 123e4567-e89b-12d3-a456-426655440000         |
-      | Api Key        | YTM0NZomIzI2OTsmIzM0NTueYQ== |
+    And block_integrityadvocate I set the fields from CFG:
+      | Application id | block_integrityadvocate_appid |
+      | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
     Then I should see "This quiz is configured with" in the "block_integrityadvocate" "block"
 
@@ -66,9 +68,9 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     When I follow "Test quiz 2"
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
-    And I set the following fields to these values:
-      | Application Id | 123e4567-e89b-12d3-a456-426655440000         |
-      | Api Key        | YTM0NZomIzI2OTsmIzM0NTueYQ== |
+    And block_integrityadvocate I set the fields from CFG:
+      | Application id | block_integrityadvocate_appid |
+      | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
     Then I should not see "No Api Key is set" in the "block_integrityadvocate" "block"
     And I should not see "No Application Id is set" in the "block_integrityadvocate" "block"
