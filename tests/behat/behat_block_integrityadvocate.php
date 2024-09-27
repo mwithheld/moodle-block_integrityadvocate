@@ -9,15 +9,30 @@ class behat_block_integrityadvocate extends behat_base {
     private const OUTPUT_EOL = '; ';
 
     /**
+     * Helper to fill fields in the form.
+     */
+    private function fillField($fieldname, $value) {
+        $session = $this->getSession();
+        $page = $session->getPage();
+        $field = $page->findField($fieldname);
+
+        if (null === $field) {
+            throw new Exception("The field '{$fieldname}' was not found on the page.");
+        }
+
+        $field->setValue($value);
+    }
+
+    /**
      * Set fields dynamically using values from $CFG.
      * Example usage in feature file:
      *   And I set the fields from $CFG:
      *     | Application id | block_integrityadvocate_appid |
      *     | API key        | block_integrityadvocate_apikey |
      *
-     * @Then /^integrityadvocate I set the fields from CFG:$/
+     * @Then /^block_integrityadvocate I set the fields from CFG:$/
      */
-    public function integrityadvocate_i_set_fields_from_cfg(TableNode $table) {
+    public function block_integrityadvocate_i_set_fields_from_cfg(TableNode $table) {
         global $CFG;
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -36,20 +51,5 @@ class behat_block_integrityadvocate extends behat_base {
                 throw new Exception("The \$CFG->{$cfgname} is not set.");
             }
         }
-    }
-
-    /**
-     * Helper to fill fields in the form.
-     */
-    private function fillField($fieldname, $value) {
-        $session = $this->getSession();
-        $page = $session->getPage();
-        $field = $page->findField($fieldname);
-
-        if (null === $field) {
-            throw new Exception("The field '{$fieldname}' was not found on the page.");
-        }
-
-        $field->setValue($value);
     }
 }
