@@ -118,11 +118,6 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Description         | Test quiz description |
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
-      | Require view        | 1                     |
-      | Require grade       | 1                     |
-      | completionpassgrade | 1                     |
-    #   | completionentriesenabled | 1                                                 |
-    #   | completionentries        | 2                                                 |
     And I add a "True/False" question to the "Quiz 1" quiz with:
       | Question name  | First question            |
       | Question text  | Answer the first question |
@@ -142,11 +137,6 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Description         | Test quiz description |
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
-      | Require view        | 1                     |
-      | Require grade       | 1                     |
-      | completionpassgrade | 1                     |
-    #   | completionentriesenabled | 1                                                 |
-    #   | completionentries        | 2                                                 |
     And I add a "True/False" question to the "Quiz 1" quiz with:
       | Question name  | First question            |
       | Question text  | Answer the first question |
@@ -192,11 +182,6 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Description         | Test quiz description |
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
-    # | Require view        | 1                     |
-    # | Require grade       | 1                     |
-    # | completionpassgrade | 1                     |
-    #   | completionentriesenabled | 1                                                 |
-    #   | completionentries        | 2                                                 |
     And I add a "True/False" question to the "Quiz 1" quiz with:
       | Question name  | First question            |
       | Question text  | Answer the first question |
@@ -221,33 +206,38 @@ Feature: Add and configure IntegrityAdvocate block to a course
 
   @javascript @block_integrityadvocate_course_overview_button
   Scenario: When click course overview button I go to the course overview page
-    Given the following "question categories" exist:
-      | contextlevel | reference | name           |
-      | Course       | C1        | Test questions |
-    And the following "questions" exist:
-      | questioncategory | qtype     | name | questiontext    |
-      | Test questions   | truefalse | TF1  | First question  |
-      | Test questions   | truefalse | TF2  | Second question |
-    And the following "activities" exist:
-      | activity | name   | intro              | course | idnumber | grade | navmethod | enabletracking |
-      | quiz     | Quiz 1 | Quiz 1 description | C1     | quiz1    | 100   | free      | 2              |
-    And quiz "Quiz 1" contains the following questions:
-      | question | page | maxmark |
-      | TF1      | 1    |         |
-      | TF2      | 1    |         |
-    And the following "blocks" exist:
-      | blockname         | contextlevel    | reference | pagetypepattern | defaultregion |
-      | integrityadvocate | Course          | C1        | course-view-*   | side-pre      |
-      # | integrityadvocate | Activity module | quiz1     | mod-quiz-*      | side-pre      |
-    When I am on the "Course 1" "course" page logged in as "teacher1"
-    And I turn editing mode on
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    And I add a "Quiz" to section "1" and I fill the form with:
+      | Name                | Quiz 1                |
+      | Description         | Test quiz description |
+      | Grade to pass       | 1.00                  |
+      | Completion tracking | 2                     |
+    And I add a "True/False" question to the "Quiz 1" quiz with:
+      | Question name  | First question            |
+      | Question text  | Answer the first question |
+      | Correct answer | False                     |
+    And I am on "Course 1" course homepage with editing mode on
+    And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
     And block_integrityadvocate I set the fields from CFG:
       # Subsequent steps require a valid appid and apikey.
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
+    When I am on the "Quiz 1" "quiz activity" page logged in as "teacher1"
+    And I turn editing mode on
+    And I add the "Integrity Advocate" block
+    # Course-level block for teacher should show these things
+    Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     Then "Course overview" "button" should be visible
 
-# Course-level block should show student overview?
+# Show students the student overview button and view somewhere
+
+# Activity completion on quiz1 should prevent access to quiz2
+# | Require view        | 1                     |
+# | Require grade       | 1                     |
+# | completionpassgrade | 1                     |
+#   | completionentriesenabled | 1                                                 |
+#   | completionentries        | 2                                                 |
