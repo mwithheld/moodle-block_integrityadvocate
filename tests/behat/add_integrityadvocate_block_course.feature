@@ -1,4 +1,4 @@
-@block @block_integrityadvocate @block_integrityadvocate_course @block_integrityadvocate_config
+@block @block_integrityadvocate @block_integrityadvocate_course @block_integrityadvocate_course_config
 Feature: Add and configure IntegrityAdvocate block to a course
   In order to have an IntegrityAdvocate block on a page
   A a teacher
@@ -7,7 +7,6 @@ Feature: Add and configure IntegrityAdvocate block to a course
   Background:
     Given the following "courses" exist:
       | fullname | shortname | enablecompletion |
-      | Course 0 | C0        | 0                |
       | Course 1 | C1        | 1                |
     And the following "users" exist:
       | username | firstname | lastname | email                |
@@ -15,9 +14,8 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
     And the following "course enrolments" exist:
       | user     | course | role           |
-      | teacher1 | C0     | editingteacher |
-      | student1 | C1     | student        |
       | teacher1 | C1     | editingteacher |
+      | student1 | C1     | student        |
 
   @block_integrityadvocate_config_warn_completion_disabled_site
   Scenario: Teacher should be warned if completion is disabled at the site level
@@ -33,6 +31,13 @@ Feature: Add and configure IntegrityAdvocate block to a course
 
   @block_integrityadvocate_config_warn_completion_disabled_course
   Scenario: Teacher should be warned if completion is disabled at the course level
+    Given the following "courses" exist:
+      | fullname | shortname | enablecompletion |
+      | Course 0 | C0        | 0                |
+    And the following "course enrolments" exist:
+      | user     | course | role           |
+      | teacher1 | C0     | editingteacher |
+      | student1 | C0     | student        |
     When I log in as "teacher1"
     And I am on "Course 0" course homepage with editing mode on
     And I add the "Integrity Advocate" block
@@ -187,9 +192,9 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Description         | Test quiz description |
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
-      | Require view        | 1                     |
-      | Require grade       | 1                     |
-      | completionpassgrade | 1                     |
+    # | Require view        | 1                     |
+    # | Require grade       | 1                     |
+    # | completionpassgrade | 1                     |
     #   | completionentriesenabled | 1                                                 |
     #   | completionentries        | 2                                                 |
     And I add a "True/False" question to the "Quiz 1" quiz with:
@@ -204,20 +209,45 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
-    # Should still be in course editing mode here
-    # And I am on "Course 1" course homepage
-    # When I follow "Quiz 1"
-    # And I am on the "Quiz 1" page
-    # When I am on the "Quiz 1" "mod_quiz" page logged in as "teacher1"
     When I am on the "Quiz 1" "quiz activity" page logged in as "teacher1"
     And I turn editing mode on
     And I add the "Integrity Advocate" block
-    # And the following "blocks" exist:
-    #   | blockname | contextlevel    | reference | pagetypepattern | defaultregion |
-    #   | blog_menu | Activity module | choice1   | mod-choice-*    | side-pre      |
-    # # Course-level block for teacher should show these things
+    # Course-level block for teacher should show these things
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     Then "Course" "link" should exist in the "block_integrityadvocate" "block"
     And "Quiz 1" "link" should exist in the "block_integrityadvocate" "block"
     And I should see "2 IA block(s) in this course" in the "block_integrityadvocate" "block"
+
+  @javascript @block_integrityadvocate_course_overview_button
+  Scenario: When click course overview button I go to the course overview page
+    Given the following "question categories" exist:
+      | contextlevel | reference | name           |
+      | Course       | C1        | Test questions |
+    And the following "questions" exist:
+      | questioncategory | qtype     | name | questiontext    |
+      | Test questions   | truefalse | TF1  | First question  |
+      | Test questions   | truefalse | TF2  | Second question |
+    And the following "activities" exist:
+      | activity | name   | intro              | course | idnumber | grade | navmethod | enabletracking |
+      | quiz     | Quiz 1 | Quiz 1 description | C1     | quiz1    | 100   | free      | 2              |
+    And quiz "Quiz 1" contains the following questions:
+      | question | page | maxmark |
+      | TF1      | 1    |         |
+      | TF2      | 1    |         |
+    And the following "blocks" exist:
+      | blockname         | contextlevel    | reference | pagetypepattern | defaultregion |
+      | integrityadvocate | Course          | C1        | course-view-*   | side-pre      |
+      # | integrityadvocate | Activity module | quiz1     | mod-quiz-*      | side-pre      |
+    When I am on the "Course 1" "course" page logged in as "teacher1"
+    And I turn editing mode on
+    When I configure the "block_integrityadvocate" block
+    And block_integrityadvocate I set the fields from CFG:
+      # Subsequent steps require a valid appid and apikey.
+      | Application id | block_integrityadvocate_appid  |
+      | API key        | block_integrityadvocate_apikey |
+    And I press "Save changes"
+    And I am on "Course 1" course homepage
+    Then "Course overview" "button" should be visible
+
+# Course-level block should show student overview?
