@@ -15,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block Overview showing a single user's Integrity Advocate detailed info.
+ * IntegrityAdvocate block Overview shows on the Course > Participants > User page
+ * (e.g. /user/view.php?id=3&course=2)
+ * a single user's Integrity Advocate detailed info.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
