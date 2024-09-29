@@ -94,3 +94,6 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     Then I should not see "No Api Key is set" in the "block_integrityadvocate" "block"
     And I should not see "No Application Id is set" in the "block_integrityadvocate" "block"
     And "Overview" "button" should be visible
+
+# When I hide the quiz-level block the IA block should not show to students
+# Quiz-level block should show Course Overview and Module Overview
