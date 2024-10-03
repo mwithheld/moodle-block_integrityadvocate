@@ -357,11 +357,11 @@ M.block_integrityadvocate = {
         // For quizzes, close the IA session using window.IntegrityAdvocate.endSession().
         // For non-quizzes, close the IA session using self.sessionClose() and/or db/events.php.  This is setup in loadProctorJs().
         if (self.isQuizAttempt) {
-            window.console.log(fxn + '::This is a quiz attempt');
+            window.console.log(fxn + '::This is a quiz attempt; proctorquizreviewpages=', self.proctorquizreviewpages);
             if (self.proctorquizreviewpages) {
-                debug && window.console.log(fxn + '::proctorquizreviewpages=' + self.proctorquizreviewpages + ' so do nothing');
+                window.console.log(fxn + '::proctorquizreviewpages=' + self.proctorquizreviewpages + ' so do nothing');
             } else {
-                debug && window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to a few places');
+                window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to a few places');
 
                 // Close IA session on: Quiz navigation sidebar "Finish attempt button".
                 $('a.endtestlink').one('click.block_integrityadvocate', (e) => {
@@ -373,6 +373,7 @@ M.block_integrityadvocate = {
 
                 // Close IA session on: Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
                 const eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]');
+                debug && window.console.log(fxn + '::Got eltNextPageArr=', eltNextPageArr);
                 if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
                     // Different versions of Moodle use different selectors.
                     $('#mod_quiz-next-nav, .mod_quiz-next-nav').one('click.block_integrityadvocate', (e) => {
@@ -381,6 +382,7 @@ M.block_integrityadvocate = {
                         e.preventDefault();
                         closeSession(e);
                     });
+                    window.console.log(fxn + '::Attached endSession to Finish review button');
                 }
 
                 // Close IA session on: The quiz timer submits the form.
@@ -390,7 +392,7 @@ M.block_integrityadvocate = {
             window.console.log(fxn + '::This is a quiz review page');
 
             if (self.proctorquizreviewpages) {
-                debug && window.console.log(fxn + '::Attach endSession to Finish review button');
+                debug && window.console.log(fxn + '::Got proctorquizreviewpages=' + proctorquizreviewpages + '; attach endSession to Finish review button');
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
                 $('.mod_quiz-next-nav').one('click.block_integrityadvocate', (e) => {
