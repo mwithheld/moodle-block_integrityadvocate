@@ -92,4 +92,3 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I should see "This page uses the Integrity Advocate proctoring service" in the "block_integrityadvocate" "block"
     When I press "Attempt quiz"
     Then I should see "DEMO mode"
-
