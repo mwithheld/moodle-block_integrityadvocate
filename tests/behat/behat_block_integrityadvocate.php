@@ -71,6 +71,7 @@ class behat_block_integrityadvocate extends behat_base {
 
             if (isset($CFG->{$cfgname})) {
                 $fieldvalue = $CFG->{$cfgname};
+                $debug && print($fxn . '::Looking at $cfgname=' . $cfgname . ' with value=' . $fieldvalue . self::OUTPUT_EOL);
                 $this->fill_field($fieldname, $fieldvalue);
             } else {
                 throw new Exception("The \$CFG->{$cfgname} is not set.");
