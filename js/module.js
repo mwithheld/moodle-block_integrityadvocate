@@ -492,15 +492,16 @@ M.block_integrityadvocate = {
      * Sets up class variables and kick off this block JS functionality.
      *
      * @param {class} Y Moodle Yahoo.
+     * @param {string} versionstring Moodle and block version info.
      * @param {string} proctorjsurl URL to the IA proctor JS.
      * @param {bool} proctorquizreviewpages True to show proctoring on quiz summary and review pages.
      * @param {bool} quizshowsreviewpage True if the quiz shows the review page after the summary page.
      * @returns {null} Nothing.
      */
-    blockinit: (Y, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) => {
+    blockinit: (Y, versionstring, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.blockinit';
-        debug && window.console.log(fxn + '::Started with proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages=' + proctorquizreviewpages + '; quizshowsreviewpage=' + quizshowsreviewpage + '; proctorjsurl=' + proctorjsurl);
+        window.console.log(fxn + '::Started with versionstring=[' + versionstring + ']; proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages = ' + proctorquizreviewpages + '; quizshowsreviewpage = ' + quizshowsreviewpage + '; proctorjsurl = ' + proctorjsurl);
         const self = M.block_integrityadvocate;
 
         // Register input vars for re-use.
@@ -511,6 +512,7 @@ M.block_integrityadvocate = {
             self[decodeURIComponent(key)] = decodeURIComponent(value);
         });
 
+        self.versionstring = versionstring;
         self.proctorjsurl = proctorjsurl;
         self.proctorquizinfopage = parseInt(proctorquizinfopage) === 1;
         self.proctorquizreviewpages = parseInt(proctorquizreviewpages) === 1;

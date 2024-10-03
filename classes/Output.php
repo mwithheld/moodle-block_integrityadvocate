@@ -113,6 +113,8 @@ class Output {
         $blockinstance->page->requires->js_init_call(
             'M.block_integrityadvocate.blockinit',
             [
+                trim(\clean_param(str_replace('</div>', '; ', $blockinstance->get_footer()), \PARAM_NOTAGS), '; '),
+                // \format_text($blockinstance->get_footer(), \FORMAT_PLAIN),
                 $proctorjsurl,
                 (int)(isset($blockinstance->config->proctorquizinfopage) ? $blockinstance->config->proctorquizinfopage : 0),
                 (int)(isset($blockinstance->config->proctorquizreviewpages) ? $blockinstance->config->proctorquizreviewpages : 0),
