@@ -34,7 +34,13 @@ class behat_block_integrityadvocate extends behat_base {
     private const OUTPUT_EOL = '; ';
 
     /**
-     * Helper to fill fields in the form.
+     * Fills a form field with a given value.
+     *
+     * This function locates a form field by its name and sets its value. If the field
+     * is not found, it throws an exception.
+     *
+     * @param string $fieldname The name of the form field to be filled.
+     * @param mixed $value The value to set for the form field.
      */
     private function fill_field($fieldname, $value) {
         $session = $this->getSession();
@@ -56,6 +62,8 @@ class behat_block_integrityadvocate extends behat_base {
      *     | API key        | block_integrityadvocate_apikey |
      *
      * @Then /^block_integrityadvocate I set the fields from CFG:$/
+     *
+     * @param TableNode $table A Behat TableNode object containing rows of field names and corresponding $CFG variables.
      */
     public function block_integrityadvocate_i_set_fields_from_cfg(TableNode $table) {
         global $CFG;
