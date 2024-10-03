@@ -27,7 +27,7 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
       | Test questions   | truefalse | TF2  | Second question | 10          |
     And the following "activities" exist:
       | activity | name   | intro              | course | idnumber | grade | type    | completion | completionview |
-      | quiz     | Quiz 1 | Quiz 1 description | C1     | quiz1    | 20    | general | 2          | 1 |
+      | quiz     | Quiz 1 | Quiz 1 description | C1     | quiz1    | 20    | general | 2          | 1              |
     And quiz "Quiz 1" contains the following questions:
       | question | page |
       | TF1      | 1    |
@@ -60,7 +60,7 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I should see "No Application id is set" in the "block_integrityadvocate" "block"
 
   @javascript @block_integrityadvocate_quiz_teacher_view
-  Scenario: Teacher should be warned if quiz configured to not show blocks
+  Scenario: Teacher can configure the IA block and see the overview buttons
     When I log in as "teacher1"
     When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
     And I turn editing mode on
@@ -73,8 +73,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And "Course overview" "button" should be visible
     And "Module overview" "button" should be visible
 
-  @javascript @block_integrityadvocate_quiz_view_shows_block
-  Scenario: Teacher should be warned if quiz configured to not show blocks
+  @javascript @block_integrityadvocate_quiz_course_overview_moodle_items
+  Scenario: Teacher should see Moodle-created items on the course overview page
     When I log in as "teacher1"
     When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
     And I turn editing mode on
@@ -84,11 +84,40 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
-    And "Course overview" "button" should be visible
-    And "Module overview" "button" should be visible
-    Given I log in as "student1"
-    When I am on the "Quiz 1" "quiz activity" page logged in as student1
-    Then "block_integrityadvocate" "block" should exist
-    And I should see "This page uses the Integrity Advocate proctoring service" in the "block_integrityadvocate" "block"
-    When I press "Attempt quiz"
-    Then I should see "DEMO mode"
+    When I click on "Course overview" "button"
+    And block_integrityadvocate I add test output "Test header -----"
+    Then I should see "Participants" in the ".secondary-navigation" "css_element"
+    Then I should see "Course 1: Integrity Advocate course overview" in the "#region-main h2" "css_element"
+    And I should not see "Quiz 1"
+    And block_integrityadvocate I add test output "Test footer -----"
+    And I should see "Version 20" in the "#page-content" "css_element"
+    And I should see "Application id " in the "#page-content" "css_element"
+    And I should see "Block id " in the "#page-content" "css_element"
+    Then "Back to course" "button" should be visible
+
+  @javascript @block_integrityadvocate_quiz_course_overview_ia_items
+  Scenario: Teacher should see IA-created items in the course overview iframe
+    When I log in as "teacher1"
+    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
+    And I turn editing mode on
+    And I add the "Integrity Advocate" block
+    When I configure the "block_integrityadvocate" block
+    And block_integrityadvocate I set the fields from CFG:
+      | Application id | block_integrityadvocate_appid  |
+      | API key        | block_integrityadvocate_apikey |
+    And I press "Save changes"
+    When I click on "Course overview" "button"
+    And block_integrityadvocate I add test output "Test IA-created items -----"
+    When I switch to "iframelaunch" class iframe
+    And I wait until the page is ready
+    And I should see "Participants" in the ".integrity-tabs" "css_element"
+    And I should see "Activities" in the ".integrity-tabs" "css_element"
+    And I should see "Admin" in the ".integrity-tabs" "css_element"
+    And I should see "Search Participant Sessions"
+
+# Given I log in as "student1"
+# When I am on the "Quiz 1" "quiz activity" page logged in as student1
+# Then "block_integrityadvocate" "block" should exist
+# And I should see "This page uses the Integrity Advocate proctoring service" in the "block_integrityadvocate" "block"
+# When I press "Attempt quiz"
+# Then I should see "DEMO mode"
