@@ -1,8 +1,8 @@
 @block @block_integrityadvocate @block_integrityadvocate_course @block_integrityadvocate_course_config
 Feature: Add and configure IntegrityAdvocate block to a course
-  In order to have an IntegrityAdvocate block on a page
-  A a teacher
-  I need to be able to create, configure and change IntegrityAdvocate blocks
+  In order to have an IntegrityAdvocate block on a course
+  A a teacher or as a student
+  I need to be able to create, configure and change IntegrityAdvocate blocks, and view it as a student
 
   Background:
     Given the following "courses" exist:
@@ -233,7 +233,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I am on "Course 1" course homepage
     Then "Course overview" "button" should be visible
 
-# Show students the student overview button and view somewhere
+# Show students the student overview button on the Course > Participants > User page and view somewhere
 
 # Activity completion on quiz1 should prevent access to quiz2
 # | Require view        | 1                     |
