@@ -36,7 +36,7 @@ class behat_block_integrityadvocate extends behat_base {
     /**
      * Output a string to the behat test output.
      * @Then /^block_integrityadvocate I add test output "([^"]*)"$/
-     * 
+     *
      * @param string $string The string to output.
      */
     public function block_integrityadvocate_add_test_output($string) {
