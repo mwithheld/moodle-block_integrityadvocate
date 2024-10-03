@@ -34,6 +34,16 @@ class behat_block_integrityadvocate extends behat_base {
     private const OUTPUT_EOL = '; ';
 
     /**
+     * Output a string to the behat test output.
+     * @Then /^block_integrityadvocate I add test output "([^"]*)"$/
+     * 
+     * @param string $string The string to output.
+     */
+    public function block_integrityadvocate_add_test_output($string) {
+        print($string);
+    }
+
+    /**
      * Fills a form field with a given value.
      *
      * This function locates a form field by its name and sets its value. If the field
