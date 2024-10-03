@@ -501,7 +501,7 @@ M.block_integrityadvocate = {
     blockinit: (Y, versionstring, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) => {
         var debug = false;
         var fxn = 'M.block_integrityadvocate.blockinit';
-        window.console.log(fxn + '::Started with versionstring=[' + versionstring + ']; proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages = ' + proctorquizreviewpages + '; quizshowsreviewpage = ' + quizshowsreviewpage + '; proctorjsurl = ' + proctorjsurl);
+        window.console.log(fxn + '::Started with versionstring=[' + versionstring + ']; proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages=' + proctorquizreviewpages + '; quizshowsreviewpage=' + quizshowsreviewpage + '; proctorjsurl=' + proctorjsurl);
         const self = M.block_integrityadvocate;
 
         // Register input vars for re-use.
