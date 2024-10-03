@@ -155,7 +155,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And "Course overview" "button" should be visible
     And I should see "1 IA block(s) in this course" in the "block_integrityadvocate" "block"
     And "Course" "link" should exist in the "block_integrityadvocate" "block"
-    And I should see "Version " in the "block_integrityadvocate" "block"
+    And I should see "Version 20" in the "block_integrityadvocate" "block"
     And I should see "Application id " in the "block_integrityadvocate" "block"
     And I should see "Block id " in the "block_integrityadvocate" "block"
     And I log out
@@ -166,7 +166,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And "Course overview" "button" should not be visible
     And I should not see "IA block(s) in this course" in the "block_integrityadvocate" "block"
     And "Course" "link" should not exist in the "block_integrityadvocate" "block"
-    And I should not see "Version " in the "block_integrityadvocate" "block"
+    And I should not see "Version 20" in the "block_integrityadvocate" "block"
     And I should not see "Application id " in the "block_integrityadvocate" "block"
     And I should not see "Block id " in the "block_integrityadvocate" "block"
     And I should see "This page uses the Integrity Advocate proctoring service"
