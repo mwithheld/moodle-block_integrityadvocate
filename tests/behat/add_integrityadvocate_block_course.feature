@@ -119,9 +119,9 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
     And I add a "True/False" question to the "Quiz 1" quiz with:
-      | Question name  | First question            |
-      | Question text  | Answer the first question |
-      | Correct answer | False                     |
+      | Question name  | Question 1            |
+      | Question text  | Answer the Question 1 |
+      | Correct answer | False                 |
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
     Then I should see "No API key is set" in the "block_integrityadvocate" "block"
@@ -138,9 +138,9 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
     And I add a "True/False" question to the "Quiz 1" quiz with:
-      | Question name  | First question            |
-      | Question text  | Answer the first question |
-      | Correct answer | False                     |
+      | Question name  | Question 1            |
+      | Question text  | Answer the Question 1 |
+      | Correct answer | False                 |
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
@@ -183,9 +183,9 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
     And I add a "True/False" question to the "Quiz 1" quiz with:
-      | Question name  | First question            |
-      | Question text  | Answer the first question |
-      | Correct answer | False                     |
+      | Question name  | Question 1            |
+      | Question text  | Answer the Question 1 |
+      | Correct answer | False                 |
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
@@ -214,9 +214,9 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Grade to pass       | 1.00                  |
       | Completion tracking | 2                     |
     And I add a "True/False" question to the "Quiz 1" quiz with:
-      | Question name  | First question            |
-      | Question text  | Answer the first question |
-      | Correct answer | False                     |
+      | Question name  | Question 1            |
+      | Question text  | Answer the Question 1 |
+      | Correct answer | False                 |
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
@@ -231,13 +231,4 @@ Feature: Add and configure IntegrityAdvocate block to a course
     # Course-level block for teacher should show these things
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
-    Then "Course overview" "button" should be visible
-
-# Show students the student overview button on the Course > Participants > User page and view somewhere
-
-# Activity completion on quiz1 should prevent access to quiz2
-# | Require view        | 1                     |
-# | Require grade       | 1                     |
-# | completionpassgrade | 1                     |
-#   | completionentriesenabled | 1                                                 |
-#   | completionentries        | 2                                                 |
+    Then "Course overview" "button" should be visible                                    |

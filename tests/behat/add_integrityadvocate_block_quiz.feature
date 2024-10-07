@@ -22,9 +22,9 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype     | name | questiontext    | defaultmark |
-      | Test questions   | essay     | TF1  | First question  | 10          |
-      | Test questions   | truefalse | TF2  | Second question | 10          |
+      | questioncategory | qtype     | name | questiontext | defaultmark |
+      | Test questions   | truefalse | TF1  | Question 1   | 10          |
+      | Test questions   | truefalse | TF2  | Question 2   | 10          |
     And the following "activities" exist:
       | activity | name   | intro              | course | idnumber | grade | type    | completion | completionview |
       | quiz     | Quiz 1 | Quiz 1 description | C1     | quiz1    | 20    | general | 2          | 1              |
