@@ -96,4 +96,24 @@ class behat_block_integrityadvocate extends behat_base {
             }
         }
     }
+
+     * Click on the element of the specified type which is located inside the second element.
+     *
+     * @When /^I ensure "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" is checked$/
+     * @param string $element Element we look for
+     * @param string $selectortype The type of what we look for
+     */
+    public function i_ensure_is_checked(string $element, string $selectortype) {
+        // $checkboxField = $this->getSession()->getPage()->find('css', 'input[type="checkbox"].' . $classname);
+        $checkboxField = $this->get_selected_node($selectortype, $element);
+
+        if (null === $checkboxField) {
+            throw new \Exception("The checkbox with class '{$classname}' was not found on the page.");
+        }
+
+        // Only check if it's not already checked.
+        if (!$checkboxField->isChecked()) {
+            $checkboxField->check();
+        }
+    }
 }
