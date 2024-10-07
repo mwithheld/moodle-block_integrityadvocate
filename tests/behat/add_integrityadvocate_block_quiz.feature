@@ -32,23 +32,14 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
       | question | page |
       | TF1      | 1    |
       | TF2      | 1    |
-    And the following "blocks" exist:
-      | blockname     | contextlevel | reference | pagetypepattern | defaultregion |
-      | private_files | System       | 1         | my-index        | side-post     |
-
-  # This is for module-level blocks.
-  # And I set the following fields to these values:
-  #   | Application id | invalid-application-id        |
-  #   | API key        | invalid-api-key== |
-  # Then I should see "No API key is set" in the "block_integrityadvocate" "block"
-  # And I should see "No Application id is set" in the "block_integrityadvocate" "block"
-  # And I log out
 
   # Is this still a thing even?
   # Then I should see "This quiz is configured with" in the "block_integrityadvocate" "block"
 
   # When I hide the quiz-level block the IA block should not show to students
   # Quiz-level block should show Course Overview and Module Overview
+
+  # As a student on the quiz intro page I should see the student overview button in the IA block http://localhost:8000/mod/quiz/view.php?id=1
 
   @javascript @block_integrityadvocate_quiz_warn_if_no_config
   Scenario: Teacher should be warned if quiz configured to not show blocks
