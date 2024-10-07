@@ -52,7 +52,7 @@ class behat_block_integrityadvocate extends behat_base {
      * @param string $fieldname The name of the form field to be filled.
      * @param mixed $value The value to set for the form field.
      */
-    private function fill_field($fieldname, $value) {
+    private function fill_field(string $fieldname, $value) {
         $session = $this->getSession();
         $page = $session->getPage();
         $field = $page->findField($fieldname);
@@ -97,6 +97,30 @@ class behat_block_integrityadvocate extends behat_base {
         }
     }
 
+    // /**
+    //  * Set the user agent.
+    //  *
+    //  * @Given /^block_integrityadvocate I set the browser useragent to "([^"]*)"$/
+    //  *
+    //  * @param string $string The user agent to set.
+    //  */
+    // public function iSetTheBrowserUserAgentTo(string $userAgent) {
+    //     $debug = false;
+    //     $fxn = __CLASS__ . '::' . __FUNCTION__;
+    //     $debug && print($fxn . '::Started with userAgent=' . $userAgent);
+
+    //     $session = $this->getSession();
+    //     $driver = $session->getDriver();
+    //     // $driver->getWebDriverSession()->executeScript("
+    //     //     Object.defineProperty(navigator, 'userAgent', {
+    //     //         get: function () { return '$userAgent'; }
+    //     //     });
+    //     // ");
+    //     $debug && print($fxn . '::Got driver='.print_r($driver, true));
+    //     $driver->setRequestHeader('User-Agent', $this->userAgents[$userAgent]);
+    // }
+
+    /**
      * Click on the element of the specified type which is located inside the second element.
      *
      * @When /^I ensure "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" is checked$/
