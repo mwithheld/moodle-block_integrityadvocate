@@ -85,6 +85,7 @@ $debug && \debugging("Got courseid={$course->id}");
 // Specific sanity/security checks for each one are included in each file.
 switch (true) {
     case ($userid):
+        // As a student on the quiz intro page (e.g. /mod/quiz/view.php?id=1) I should see the student overview button in the IA block.
         $debug && \debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
         $requestedpage = 'overview-user';
         $params += [
