@@ -106,9 +106,37 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I should see "Admin" in the ".integrity-tabs" "css_element"
     And I should see "Search Participant Sessions"
 
-# Given I log in as "student1"
-# When I am on the "Quiz 1" "quiz activity" page logged in as student1
-# Then "block_integrityadvocate" "block" should exist
-# And I should see "This page uses the Integrity Advocate proctoring service" in the "block_integrityadvocate" "block"
-# When I press "Attempt quiz"
-# Then I should see "DEMO mode"
+  @javascript @block_integrityadvocate_quiz_course_overview_ia_enble_demo
+  Scenario: Teacher should see IA-created items in the course overview iframe
+    When I log in as "teacher1"
+    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
+    And I turn editing mode on
+    And I add the "Integrity Advocate" block
+    When I configure the "block_integrityadvocate" block
+    And block_integrityadvocate I set the fields from CFG:
+      | Application id | block_integrityadvocate_appid  |
+      | API key        | block_integrityadvocate_apikey |
+    And I press "Save changes"
+    When I click on "Course overview" "button"
+    And I change window size to "1366x968"
+    When I switch to "iframelaunch" class iframe
+    And I wait until the page is ready
+    And block_integrityadvocate I add test output "Enable IA for this module -----"
+    And I click on "Activities" "link"
+    # And I click on ".chkEnableIA" "css_element"
+    # And I set the field "#chkEnableIA_3" to "1"
+    And I ensure ".chkEnableIA" "css_element" is checked
+    # Then I should see "DEMO"
+    # Allow the AJAX POST to finish.
+    And I wait "2" seconds
+    And block_integrityadvocate I add test output "Test as student -----"
+    And I log out
+    # And block_integrityadvocate I set the browser useragent to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+    Given I log in as "student1"
+    When I am on the "Quiz 1" "quiz activity" page logged in as student1
+    Then "block_integrityadvocate" "block" should exist
+    And I should see "This page uses the Integrity Advocate proctoring service" in the "block_integrityadvocate" "block"
+    When I press "Attempt quiz"
+    And I wait until the page is ready
+    And I wait "2" seconds
+    Then I should see "DEMO mode"
