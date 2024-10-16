@@ -100,21 +100,91 @@ class behat_block_integrityadvocate extends behat_base {
     /**
      * Click on the element of the specified type which is located inside the second element.
      *
-     * @When /^I ensure "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" is checked$/
+     * @When /^I ensure "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" is "(?P<checkedunchecked_string>[^"]*)"$/
      * @param string $element Element we look for
      * @param string $selectortype The type of what we look for
+     * @param string $checkedunchecked The string "checked" or "unchecked", whichever you want the box to be.
      */
-    public function i_ensure_is_checked(string $element, string $selectortype) {
-        // $checkboxField = $this->getSession()->getPage()->find('css', 'input[type="checkbox"].' . $classname);
-        $checkboxField = $this->get_selected_node($selectortype, $element);
+    public function i_ensure_is_checked(string $element, string $selectortype, string $checkedunchecked = 'checked') {
+        $$checkbox = $this->get_selected_node($selectortype, $element);
 
-        if (null === $checkboxField) {
+        if (null === $$checkbox) {
             throw new \Exception("The checkbox with class '{$classname}' was not found on the page.");
         }
 
-        // Only check if it's not already checked.
-        if (!$checkboxField->isChecked()) {
-            $checkboxField->check();
+        if (!in_array($checkedunchecked, ['checked', 'unchecked'])) {
+            throw new \InvalidArgumentException("Invalid input param checkedunchecked=$checkedunchecked");
         }
+
+        // Only change the checkbox if needed.
+        if ($checkedunchecked === 'checked' && !$$checkbox->ischecked()) {
+            $$checkbox->check();
+        }
+        if ($checkedunchecked === 'unchecked' && $$checkbox->ischecked()) {
+            $$checkbox->uncheck();
+        }
+    }
+
+    /**
+     * Checks or unchecks all checkboxes within a specific CSS element.
+     *
+     * @When /^block_integrityadvocate I "(?P<checkuncheck_string>[^"]*)" all checkboxes in "(?P<element_string>(?:[^"]|\\")*)"$/
+     *
+     * @param string $checkuncheck Whether to "check" or "uncheck" the checkboxes.
+     * @param string $csselement The CSS element containing the checkboxes.
+     */
+    public function i_check_or_uncheck_all_checkboxes(string $checkuncheck, string $csselement) {
+        // Validate the input.
+        if (!in_array($checkuncheck, ['check', 'uncheck'])) {
+            throw new InvalidArgumentException("Invalid action: $checkuncheck. Use 'check' or 'uncheck'.");
+        }
+
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        // Find the element containing the checkboxes.
+        $container = $page->find('css', $csselement);
+        if (null === $container) {
+            throw new Exception("The CSS element '{$csselement}' was not found on the page.");
+        }
+
+        // Find all checkboxes within the container.
+        $checkboxes = $container->findAll('css', 'input[type="checkbox"]');
+        if (empty($checkboxes)) {
+            throw new Exception("No checkboxes found within the element '{$csselement}'.");
+        }
+
+        // Check or uncheck each checkbox as per the $checkuncheck parameter.
+        foreach ($checkboxes as $checkbox) {
+            $ischecked = $checkbox->ischecked();
+
+            if ($checkuncheck === 'check' && !$ischecked) {
+                $checkbox->check();
+            } else if ($checkuncheck === 'uncheck' && $ischecked) {
+                $checkbox->uncheck();
+            }
+        }
+    }
+
+    /**
+     * Set the value of a simple Select element by its selector and not its name.
+     *
+     * @Then /^block_integrityadvocate I select "(?P<value_string>(?:[^"]|\\")*)" from the "(?P<csselement_string>(?:[^"]|\\")*)" selectbox$/
+     *
+     * @param string $value The value to set.
+     * @param string $csselement The CSS element containing the checkboxes.
+     */
+    public function i_select_value_from_element(string $value, string $csselement) {
+        $session = $this->getSession();
+        $page = $session->getPage();
+
+        // Find the select element by id or class.
+        $select = $page->find('css', $csselement);
+        if (null === $select) {
+            throw new Exception("The select element '{$csselement}' was not found on the page.");
+        }
+
+        // Select the value.
+        $select->selectOption($value);
     }
 }
