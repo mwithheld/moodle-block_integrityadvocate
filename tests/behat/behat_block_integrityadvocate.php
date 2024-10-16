@@ -97,29 +97,6 @@ class behat_block_integrityadvocate extends behat_base {
         }
     }
 
-    // /**
-    //  * Set the user agent.
-    //  *
-    //  * @Given /^block_integrityadvocate I set the browser useragent to "([^"]*)"$/
-    //  *
-    //  * @param string $string The user agent to set.
-    //  */
-    // public function iSetTheBrowserUserAgentTo(string $userAgent) {
-    //     $debug = false;
-    //     $fxn = __CLASS__ . '::' . __FUNCTION__;
-    //     $debug && print($fxn . '::Started with userAgent=' . $userAgent);
-
-    //     $session = $this->getSession();
-    //     $driver = $session->getDriver();
-    //     // $driver->getWebDriverSession()->executeScript("
-    //     //     Object.defineProperty(navigator, 'userAgent', {
-    //     //         get: function () { return '$userAgent'; }
-    //     //     });
-    //     // ");
-    //     $debug && print($fxn . '::Got driver='.print_r($driver, true));
-    //     $driver->setRequestHeader('User-Agent', $this->userAgents[$userAgent]);
-    // }
-
     /**
      * Click on the element of the specified type which is located inside the second element.
      *
