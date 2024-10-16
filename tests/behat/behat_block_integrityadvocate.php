@@ -106,9 +106,9 @@ class behat_block_integrityadvocate extends behat_base {
      * @param string $checkedunchecked The string "checked" or "unchecked", whichever you want the box to be.
      */
     public function i_ensure_is_checked(string $element, string $selectortype, string $checkedunchecked = 'checked') {
-        $$checkbox = $this->get_selected_node($selectortype, $element);
+        $checkbox = $this->get_selected_node($selectortype, $element);
 
-        if (null === $$checkbox) {
+        if (null === $checkbox) {
             throw new \Exception("The checkbox with class '{$classname}' was not found on the page.");
         }
 
@@ -117,11 +117,11 @@ class behat_block_integrityadvocate extends behat_base {
         }
 
         // Only change the checkbox if needed.
-        if ($checkedunchecked === 'checked' && !$$checkbox->ischecked()) {
-            $$checkbox->check();
+        if ($checkedunchecked === 'checked' && !$checkbox->ischecked()) {
+            $checkbox->check();
         }
-        if ($checkedunchecked === 'unchecked' && $$checkbox->ischecked()) {
-            $$checkbox->uncheck();
+        if ($checkedunchecked === 'unchecked' && $checkbox->ischecked()) {
+            $checkbox->uncheck();
         }
     }
 
