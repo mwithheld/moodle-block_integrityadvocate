@@ -86,7 +86,7 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I should see "Block id " in the "#page-content" "css_element"
     Then "Back to course" "button" should be visible
 
-  @javascript @block_integrityadvocate_quiz_course_overview_ia_items
+  @javascript @block_integrityadvocate_quiz_course_overview_ia_items @_switch_iframe
   Scenario: Teacher should see IA-created items in the course overview iframe
     When I log in as "teacher1"
     When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
@@ -106,7 +106,7 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I should see "Admin" in the ".integrity-tabs" "css_element"
     And I should see "Search Participant Sessions"
 
-  @javascript @block_integrityadvocate_quiz_course_overview_ia_enble_demo
+  @javascript @block_integrityadvocate_quiz_course_overview_ia_enble_proctoring @_switch_iframe
   Scenario: Teacher should see IA-created items in the course overview iframe
     When I log in as "teacher1"
     When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
