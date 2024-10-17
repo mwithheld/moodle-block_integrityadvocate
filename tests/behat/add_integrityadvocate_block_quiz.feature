@@ -41,6 +41,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
 
   # As a student on the quiz intro page I should see the student overview button in the IA block http://localhost:8000/mod/quiz/view.php?id=1
 
+  # Quiz timer reset when proctoring starts
+
   @javascript @block_integrityadvocate_quiz_warn_if_no_config
   Scenario: Teacher should be warned if quiz configured to not show blocks
     When I log in as "teacher1"
@@ -125,12 +127,27 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I click on "Activities" "link"
     # And I click on ".chkEnableIA" "css_element"
     # And I set the field "#chkEnableIA_3" to "1"
-    And I ensure ".chkEnableIA" "css_element" is checked
+    And I ensure ".chkEnableIA" "css_element" is "checked"
     # Then I should see "DEMO"
+    Then block_integrityadvocate I select "DEMO" from the ".ddactivationname" selectbox
+    Then I should see "DEMO" in the "#gridActivities" "css_element"
+    # Then block_integrityadvocate I select "Level 2" from the ".ddactivationname" selectbox
+    # Then I should see "Level 2" in the "#gridActivities" "css_element"
+    # -- BEGIN: We do not need these now but they might be useful later.
+    When I click on "Select Rules" "button"
+    And I wait "3" seconds
+    Then I should see "Stay in view of the camera"
+    And block_integrityadvocate I "uncheck" all checkboxes in "#popIntegrityActivityRulesContent"
+    # Remain engaged
+    And I ensure "#chkRules_9" "css_element" is "checked"
+    # Stay in view of the camera
+    And I ensure "#chkRules_1" "css_element" is "checked"
+    And I click on "Submit" "button" 
+    # -- END: We do not need these now but they might be useful later.
     # Allow the AJAX POST to finish.
-    And I wait "2" seconds
-    And block_integrityadvocate I add test output "Test as student -----"
+    And I wait "1" seconds
     And I log out
+    And block_integrityadvocate I add test output "Test as student -----"
     # And block_integrityadvocate I set the browser useragent to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
     Given I log in as "student1"
     When I am on the "Quiz 1" "quiz activity" page logged in as student1
@@ -140,3 +157,11 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I wait until the page is ready
     And I wait "2" seconds
     Then I should see "DEMO mode"
+    # Then I should see "monitor your participation" in the "#integrityadvocate_container" "css_element"
+    And I click on "#integrityadvocate_btnContinue" "css_element"
+    Then I should see "privacy policy" in the "#integrityadvocate_container" "css_element"
+    And I click on "#integrityadvocate_btnContinue" "css_element"
+    Then I should see "Take a picture" in the "#integrityadvocate_container" "css_element"
+    And I click on "#integrityadvocate_btnContinue" "css_element"
+    Then I should see "Not yet answered" in the "#responseform" "css_element"
+
