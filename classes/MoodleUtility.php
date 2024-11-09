@@ -391,7 +391,7 @@ class MoodleUtility {
             }
         }
 
-        \usort($modules, ['self', 'modules_compare_times']);
+        \usort($modules, [static::class, 'modules_compare_times']);
 
         return $modules;
     }
