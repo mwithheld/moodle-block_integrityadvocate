@@ -40,6 +40,9 @@ require_once(__DIR__ . '/lib.php');
  */
 class block_integrityadvocate extends block_base {
 
+    /** @var bool Is this block visible? */
+    public $visible;
+
     /**
      * Sets the block title.
      *
