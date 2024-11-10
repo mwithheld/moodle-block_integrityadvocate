@@ -440,7 +440,7 @@ M.block_integrityadvocate = {
      */
     onQuizTimerExpired: (callback) => {
         var debug = false;
-        var fxn = 'M.block_integrityadvocate.blockinit';
+        var fxn = 'M.block_integrityadvocate.onQuizTimerExpired';
         debug && window.console.log(fxn + '::Started with callback=', callback);
         const self = M.block_integrityadvocate;
 
