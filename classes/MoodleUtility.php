@@ -1057,7 +1057,11 @@ class MoodleUtility {
         $debug && \debugging($fxn . '::Got $quizrecord->reviewattempt dec=' . $quizrecord->reviewattempt . '; hex=' . dechex($quizrecord->reviewattempt));
 
         if (
-            $quizrecord->reviewattempt & \mod_quiz_display_options::IMMEDIATELY_AFTER
+            (
+                // Moodle 4.2 deprecated \mod_quiz_display_options.
+                (\MOODLE_VERSION >= 2022041900 && $quizrecord->reviewattempt && \mod_quiz\question\display_options::IMMEDIATELY_AFTER)
+                || ($quizrecord->reviewattempt && \mod_quiz_display_options::IMMEDIATELY_AFTER)
+            )
             // IMMEDIATELY_AFTER = within 2 mins of clicking 'Submit all and finish'.
             // Disabled bc not needed: || $quizrecord->reviewattempt & \mod_quiz_display_options::LATER_WHILE_OPEN /** After 2 mins but before the quiz close date. */.
         ) {
