@@ -6,7 +6,8 @@ bin/moodle-docker-compose exec -u www-data webserver php admin/tool/behat/cli/ru
 # Some options for admin/cli/run.php:
 # ... --format=pretty --format-settings '{"formats": "html,image", "dir_permissions": "0777"}'
 
-Tests that interact with the Integrity Advocate API or use the IA UI require an API key and AppId in config.php like below. Contact IntegrityAdvocate for more information.
+# Tests that interact with the Integrity Advocate API or use the IA UI...
+# require an API key and AppId in config.php like below. Contact IntegrityAdvocate for more information.
 $CFG->block_integrityadvocate_appid = '0235403f-934b-4785-a54f-546a8465ea8c';
 $CFG->block_integrityadvocate_apikey = 'Oe6fs54bgMGTQ...O4y/ygdgs4qvkhEw=';
 $CFG->behat_extraallowedsettings = array('block_integrityadvocate_appid', 'block_integrityadvocate_apikey');
