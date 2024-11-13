@@ -1081,11 +1081,11 @@ class MoodleUtility {
      * @return bool True if the time was successfully set, false otherwise.
      */
     public static function quiz_set_timestart(int $attemptid, int $newtimestart): bool {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . '::Started with $attemptid=' . $attemptid . '; $newtimestart=' . $newtimestart);
 
-        global $DB, $USER;
+        global $DB;
         $returnthis = false;
 
         $returnthis = $DB->set_field('quiz_attempts', 'timestart', $newtimestart, ['id' => $attemptid]);
