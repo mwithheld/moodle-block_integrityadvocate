@@ -25,6 +25,7 @@
 namespace block_integrityadvocate;
 
 use block_integrityadvocate\Output as ia_output;
+use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -103,4 +104,6 @@ $launchdata['custom_activities'] = \json_encode($activities, \JSON_PARTIAL_OUTPU
 // Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
 require_once($CFG->libdir . '/oauthlib.php');
 $signature = (new \oauth_helper($launchdata))->sign('POST', $launchurl, $launchdata, \urlencode($blockinstance->config->apikey) . '&');
-echo ia_output::get_lti_iframe_html($launchurl, $launchdata, $signature);
+$debug && \debugging(\basename(__FILE__) . "::Got \$signature=" . ia_u::var_dump($signature));
+$html = ia_output::get_lti_iframe_html($launchurl, $launchdata, $signature);
+echo $html;
