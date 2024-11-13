@@ -129,7 +129,9 @@ $launchdata = [
 // Setup the LTI UI for one specific module.
 $module = null;
 $m = null;
+// The var $modules is populated in overview.php.
 foreach ($modules as $key => $thismodule) {
+    $debug && \debugging(__FILE__ . '::Looking at thismodule[\'id\')='.$thismodule['id']);
     if ((int) ($thismodule['id']) === (int) $moduleid) {
         $module = $modules[$key];
         break;
