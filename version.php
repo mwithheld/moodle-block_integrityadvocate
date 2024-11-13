@@ -25,7 +25,7 @@ declare(strict_types=1);
 defined('MOODLE_INTERNAL') || die;
 
 $plugin->component = 'block_integrityadvocate';
-$plugin->version = 2024100200;
+$plugin->version = 2024111300;
 $plugin->release = $plugin->version;
 $plugin->supported = [390, 440];
 $plugin->requires = 20200615; // Moodle 3.9.0.
