@@ -239,12 +239,6 @@ M.block_integrityadvocate = {
         const self = M.block_integrityadvocate;
         $('#block_integrityadvocate_loading').remove();
         self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
-        $('div[role="main"]')
-            .html('<button type="submit" class="btn btn-secondary" id="block_integrityadvocate_backtocourse">' + M.str.core.closebuttontitle + '</button>')
-            .on('click', function () {
-                window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
-            })
-            .show();
     },
     /**
      * AJAX-load the proctor UI JS and run anything needed after.
@@ -280,7 +274,14 @@ M.block_integrityadvocate = {
                         message: msg + ' ' + message,
                         type: "err"
                     });
-                })
+                });
+                // Add a "Back to course" button.
+                $('div[role="main"]')
+                    .html('<button type="submit" class="btn btn-secondary" id="block_integrityadvocate_backtocourse">' + M.str.core.closebuttontitle + '</button>')
+                    .on('click', function () {
+                        window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
+                    })
+                    .show();
             };
             $.getScript(decodedUrl)
                 .done(() => {
