@@ -184,7 +184,7 @@ M.block_integrityadvocate = {
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
 
-        self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
+        self.hideLoadingGif();
         const eltMainContent = $('#responseform, #scormpage, div[role="main"]');
 
         switch (true) {
@@ -229,6 +229,22 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::This is the default page handler');
                 eltMainContent.show();
         }
+    },
+    /**
+     * Hide the loading gif.
+     *
+     * @returns {null} Nothing.
+     */
+    hideLoadingGif: () => {
+        const self = M.block_integrityadvocate;
+        $('#block_integrityadvocate_loading').remove();
+        self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
+        $('div[role="main"]')
+            .html('<button type="submit" class="btn btn-secondary" id="block_integrityadvocate_backtocourse">' + M.str.core.closebuttontitle + '</button>')
+            .on('click', function () {
+                window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
+            })
+            .show();
     },
     /**
      * AJAX-load the proctor UI JS and run anything needed after.
