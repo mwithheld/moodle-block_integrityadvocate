@@ -268,25 +268,46 @@ M.block_integrityadvocate = {
         debug && window.console.log(fxn + '::About to getScript() with decodedUrl=', decodedUrl);
         // With $.getScript(....success(response), the response is undefined if the request is from another domain.
         // Using $.ajax fails bc it blocks CORS.
-        $.getScript(decodedUrl)
-            .done(() => {
-                debug && window.console.log(fxn + '.getScript().done');
-                self.onProctorJsLoaded();
-            })
-            .fail((jqxhr, settings, exception) => {
-                // Hide the loading gif.
-                $('#block_integrityadvocate_loading').remove();
-                self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
-                self.showMainContent();
-                // Dump out some info about what went wrong.
-                var msg = M.util.get_string('proctorjs_load_failed', 'block_integrityadvocate');
-                if (exception.toString() !== 'error') {
-                    msg += "Error details:\n" + exception.toString();
-                }
+        try {
+            // Temporarily override window.alert to suppress any alerts from the script.
+            const originalAlert = window.alert;
+            window.alert = (message) => {
+                msg = 'The remote script threw an alert. This happens when the IA activity rules is set to [Level 1], or to [DEMO + no rules]. The remote alert message= ';
+                window.console.warn(fxn + '::Suppressed alert ' + msg, message);
+                self.hideLoadingGif();
+                require(['core/notification'], function (notification) {
+                    notification.addNotification({
+                        message: msg + ' ' + message,
+                        type: "err"
+                    });
+                })
+            };
+            $.getScript(decodedUrl)
+                .done(() => {
+                    debug && window.console.log(fxn + '.getScript().done');
+                    self.onProctorJsLoaded();
+                })
+                .fail((jqxhr, settings, exception) => {
+                    window.console.log(fxn + '.getScript.fail::Started with exception=', exception);
+                    self.hideLoadingGif();
+                    self.showMainContent();
+                    // Dump out some info about what went wrong.
+                    var msg = M.util.get_string('proctorjs_load_failed', 'block_integrityadvocate');
+                    if (exception.toString() !== 'error') {
+                        msg += "Error details:\n" + exception.toString();
+                    }
 
-                window.console.log(fxn + '.getScript.fail::', msg, 'args=', arguments);
-                self.eltUserNotifications.html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
-            });
+                    window.console.log(fxn + '.getScript.fail::', msg, 'args=', arguments);
+                    self.eltUserNotifications.html('<div class="alert alert-danger alert-block fade in" role="alert" data-aria-autofocus="true">' + msg + '</div>');
+                })
+                .always(() => {
+                    // Restore the original alert function after the request completes.
+                    window.alert = originalAlert;
+                });
+        } catch (error) {
+            window.console.console.error(fxn + '::Error loading remote script with decodedUrl='.decodedUrl, error);
+            window.alert = originalAlert;
+        }
     },
     /**
      * Runs when the IA JS is loaded.
