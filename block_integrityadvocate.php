@@ -539,7 +539,7 @@ class block_integrityadvocate extends block_base {
                                 $this->content->text .= ia_output::get_student_message();
                             } else {
                                 $this->content->text .= ia_output::get_participant_summary_output($this, $participant,
-                                                /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
+                                                /* $showphoto= */ true, /* $showoverviewbutton= */ false);
                             }
                         }
 
@@ -624,13 +624,7 @@ class block_integrityadvocate extends block_base {
                 // The SCORM popup window (mod-scorm-view) does not load any blocks or JS, so
                 // we ignore that possibility.
                 // Other pages should show the overview.
-                $returnthis .= ia_output::get_user_summary_output(
-                    $this,
-                    $USER->id,
-                    true,
-                    true,
-                    true
-                );
+                $returnthis .= ia_output::get_user_summary_output($this, $USER->id, true, true);
             }
         } else {
             // Else it is a SCORM "same window" instance.
@@ -639,7 +633,7 @@ class block_integrityadvocate extends block_base {
             if ($this->page->pagetype === 'mod-scorm-player') {
                 $this->add_proctor_js($USER, true);
             } else {
-                $returnthis .= ia_output::get_user_summary_output($this, $USER->id, true, true, true);
+                $returnthis .= ia_output::get_user_summary_output($this, $USER->id, true, true);
             }
         }
 
@@ -685,7 +679,7 @@ class block_integrityadvocate extends block_base {
             if ($debugdonotloadproctorjs) {
                 $returnthis .= $message;
             } else {
-                $returnthis .= ia_output::get_user_summary_output($this, $USER->id, true, true, true);
+                $returnthis .= ia_output::get_user_summary_output($this, $USER->id, true, true);
             }
         }
         return $returnthis;

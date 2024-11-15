@@ -41,7 +41,6 @@ require_once(__DIR__ . '/classes/Utility.php');
 require_once(__DIR__ . '/classes/MoodleUtility.php');
 require_once(__DIR__ . '/classes/HTTPException.php');
 require_once(__DIR__ . '/classes/Output.php');
-require_once(__DIR__ . '/classes/Status.php');
 require_once(__DIR__ . '/classes/Api.php');
 require_once(__DIR__ . '/classes/Flag.php');
 require_once(__DIR__ . '/classes/Participant.php');

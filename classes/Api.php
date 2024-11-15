@@ -1348,13 +1348,6 @@ class Api {
             $debug && \debugging($fxn . '::Minimally-required fields not found: Status');
             return null;
         }
-        // This function throws an error if the status is invalid.
-        $output->status = ia_status::parse_status_string($input->Status);
-        $debug && \debugging($fxn . '::Got $session->status=' . $output->status);
-        if (isset($input->Override_Status) && !empty($input->Override_Status)) {
-            $output->overridestatus = ia_status::parse_status_string($input->Override_Status);
-        }
-        $debug && \debugging($fxn . '::Got status=' . $output->status . ' overridestatus=' . $output->overridestatus);
 
         // Clean int fields.
         if (true) {
@@ -1506,15 +1499,6 @@ class Api {
             $output->participantphoto = self::parse_participantphoto($input->Participant_Photo);
         }
 
-        // Clean status vs allowlist.
-        if (isset($input->Status)) {
-            $output->status = ia_status::parse_status_string($input->Status);
-        }
-        if (isset($input->Override_Status) && !empty($input->Override_Status)) {
-            $output->overridestatus = ia_status::parse_status_string($input->Override_Status);
-        }
-        $debug && \debugging($fxn . '::Done status fields');
-
         // Handle sessions data.
         $output->sessions = [];
         $time = \time();
@@ -1633,8 +1617,6 @@ class Api {
 
         // Check each of the param types matches what is specified in $validparams[] for that param. Throws an exception if there is a
         // mismatch.
-        $remotestatuses = ia_status::get_statuses();
-        unset($remotestatuses[ia_status::NOTSTARTED_INT]);
         $truefalse = ['true', 'false'];
         foreach ($params as $paramname => $paramval) {
             try {
@@ -1646,11 +1628,8 @@ class Api {
                             throw new \invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
                         }
                         break;
-                    case 'statuses':
-                        if (!\in_array($argval, $remotestatuses, true)) {
-                            throw new \invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
-                        }
-                        break;
+                    default:
+                        $debug && \debugging($fxn . "::No check found for this paramname={$paramname}");
                 }
             } catch (\Exception $e) {
                 // Log a more useful message than Moodle gives us, then just throw it again.

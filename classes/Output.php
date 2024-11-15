@@ -27,7 +27,6 @@ namespace block_integrityadvocate;
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant as ia_participant;
-use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -333,80 +332,32 @@ class Output {
     }
 
     /**
-     * Get HTML for an IA user status.
-     *
-     * @param int $status
-     * @param string $prefix
-     * @return string
-     * @throws \InvalidArgumentException
-     */
-    public static function get_status_html(int $status, string $prefix): string {
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$status={$status}; \$prefix={$prefix}";
-        $debug && \debugging($debugvars);
-
-        $statushtml = '';
-        $cssclassval = $prefix . '_status_val ';
-        $debug && \debugging($fxn . '::Got status=' . $status);
-        switch ($status) {
-            case ia_status::NOTSTARTED_INT:
-                $statushtml = \html_writer::span(\get_string('status_notstarted', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_notstarted");
-                break;
-            case ia_status::INPROGRESS_INT:
-                $statushtml = \html_writer::span(\get_string('status_in_progress', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_inprogress");
-                break;
-            case ia_status::VALID_INT:
-                $statushtml = \html_writer::span(get_string('status_valid', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_valid");
-                break;
-            case ia_status::INVALID_OVERRIDE_INT:
-                $statushtml = \html_writer::span(\get_string('status_invalid_override', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_override");
-                break;
-            case ia_status::INVALID_ID_INT:
-                $statushtml = \html_writer::span(\get_string('status_invalid_id', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_id");
-                break;
-            case ia_status::INVALID_RULES_INT:
-                $statushtml = \html_writer::span(\get_string('status_invalid_rules', INTEGRITYADVOCATE_BLOCK_NAME), "{$cssclassval} {$prefix}_status_invalid_rules");
-                break;
-            default:
-                $error = 'Invalid participant status value=' . \serialize($status);
-                \debugging($error);
-                throw new \InvalidArgumentException($error);
-        }
-
-        return $statushtml;
-    }
-
-    /**
      * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param ia_participant $participant Participant object from the IA API.
      * @param bool $showphoto True to include the user photo.
      * @param bool $showoverviewbutton True to show the Overview button.
-     * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output.
      */
     public static function get_participant_summary_output(
         \block_integrityadvocate $blockinstance,
         ia_participant $participant,
         bool $showphoto = true,
-        bool $showoverviewbutton = true,
-        bool $showstatus = false
+        bool $showoverviewbutton = true
     ): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$blockinstance->instance->id={$blockinstance->instance->id}; "
             . "\$participant->participantidentifier={$participant->participantidentifier}; \$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; "
-            . "\$showstatus={$showstatus}; \$participant->status={$participant->status}";
+            . "\$participant->status={$participant->status}";
         $debug && \debugging($debugvars);
 
         // Sanity check.
-        if (ia_u::is_empty($blockinstance) || ia_u::is_empty($participant) || !ia_status::is_status_int($participant->status)) {
+        if (ia_u::is_empty($blockinstance) || ia_u::is_empty($participant)) {
             $msg = $fxn . '::Input params are invalid; \$debugvars=' . $debugvars;
             \debugging($fxn . '::' . $msg);
-            \debugging($fxn . '::ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) . '; ia_u::is_empty($participant)=' .
-                ia_u::is_empty($participant) . '; ia_status::is_status_int($participant->status)=' . ia_status::is_status_int($participant->status));
+            \debugging($fxn . '::ia_u::is_empty($blockinstance)=' . ia_u::is_empty($blockinstance) . '; ia_u::is_empty($participant)=' . ia_u::is_empty($participant));
             throw new \InvalidArgumentException($msg);
         }
 
@@ -418,29 +369,16 @@ class Output {
             return $cachedvalue;
         }
 
-        $status = Status::NOTSTARTED_INT;
-        if (
-            $showstatus &&
-            ($blockcontext = $blockinstance->context) &&
-            ($modulecontext = $blockcontext->get_parent_context()) &&
-            ($modulecontext->contextlevel == CONTEXT_MODULE)
-        ) {
-            $status = ia_api::get_module_status($modulecontext, $blockinstance->get_user()->id);
-        }
-
         $out = self::get_summary_html(
             $participant->participantidentifier,
-            $status,
             $participant->created,
             $participant->modified,
             ($showphoto ? self::get_participant_photo_output(
                 $participant->participantidentifier,
                 ($participant->participantphoto ?: ''),
-                $participant->status,
                 $participant->email
             ) : ''),
-            ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : ''),
-            $showstatus
+            ($showoverviewbutton ? self::get_button_overview($blockinstance, $participant->participantidentifier) : '')
         );
 
         if (!$cache->set($cachekey, $out)) {
@@ -453,40 +391,29 @@ class Output {
      * Get user summary HTML.
      *
      * @param int $userid
-     * @param int $status
      * @param int $start
      * @param int $end
      * @param string $photohtml
      * @param string $overviewbuttonhtml
-     * @param bool $showstatus
      * @return string
      */
     public static function get_summary_html(
         int $userid,
-        int $status,
         int $start,
         int $end,
         string $photohtml = '',
-        string $overviewbuttonhtml = '',
-        bool $showstatus = false
+        string $overviewbuttonhtml = ''
     ): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$userid={$userid}; \$status={$status}; \$start={$start}; \$end={$end}; "
-            . "\$photohtml={$photohtml}; \$overviewbuttonhtml={$overviewbuttonhtml}; \$showstatus={$showstatus}";
+        $debugvars = $fxn . "::Started with \$userid={$userid}; \$start={$start}; \$end={$end}; "
+            . "\$photohtml={$photohtml}; \$overviewbuttonhtml={$overviewbuttonhtml}";
         $debug && \debugging($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME;
         $outarr = [];
         $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_div']);
         $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_text']);
-
-        if ($showstatus) {
-            $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_status']) .
-                \html_writer::span(\get_string('overview_user_status', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
-                self::get_status_html($status, $prefix) .
-                \html_writer::end_tag('div');
-        }
 
         $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_overview_participant_summary_start']) .
             \html_writer::span(\get_string('created', INTEGRITYADVOCATE_BLOCK_NAME) . ': ', $prefix . '_overview_participant_summary_status_label') .
@@ -524,21 +451,20 @@ class Output {
      *
      * @param int $userid The user id.
      * @param string $photo The user photo base64 string.
-     * @param int $status The IA status.
      * @param string $email The user email.
      * @return string HTML to output
      */
-    public static function get_participant_photo_output(int $userid, string $photo, int $status, string $email): string {
+    public static function get_participant_photo_output(int $userid, string $photo, string $email): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$userid={$userid}; md5(\$photo)=" . \md5($photo) . "\$status={$status}, \$email={$email}";
+        $debugvars = $fxn . "::Started with \$userid={$userid}; md5(\$photo)=" . \md5($photo) . "\$email={$email}";
         $debug && \debugging($debugvars);
 
         $prefix = INTEGRITYADVOCATE_BLOCK_NAME . '_overview_participant';
         $outarr = [];
         $outarr[] = \html_writer::start_tag('div', ['class' => $prefix . '_summary_img_div']);
         if ($photo) {
-            $spanproperties = ['class' => $prefix . '_summary_img ' . $prefix . '_summary_img_' . ($status === ia_status::VALID_INT ? '' : 'in') . 'valid'];
+            $spanproperties = ['class' => $prefix . '_summary_img ' . $prefix . '_summary_img_valid'];
             $outarr[] = \html_writer::start_tag('span', $spanproperties) .
                 \html_writer::img($photo, $email) .
                 \html_writer::end_tag('span');
@@ -557,20 +483,18 @@ class Output {
      * @param int $userid User id to get info for.
      * @param bool $showphoto True to include the photo from the Participant info.
      * @param bool $showoverviewbutton True to show the "View Details" button to get more info about the users IA session.
-     * @param bool $showstatus True to show the latest IA status for the given module the block IF the block is attached to one.
      * @return string HTML output showing latest status, flags, and photos.
      */
     public static function get_user_summary_output(
         \block_integrityadvocate $blockinstance,
         int $userid,
         bool $showphoto = true,
-        bool $showoverviewbutton = true,
-        bool $showstatus = false
+        bool $showoverviewbutton = true
     ): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$userid={$userid}; "
-            . "\$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}; \$showstatusinmodulecontext:gettype=" . \gettype($showstatus);
+            . "\$showphoto={$showphoto}; \$showoverviewbutton={$showoverviewbutton}";
         $debug && \debugging($debugvars);
 
         // Sanity check.
@@ -606,8 +530,7 @@ class Output {
                         $blockinstance,
                         $participant,
                         $showphoto,
-                        $showoverviewbutton,
-                        $showstatus
+                        $showoverviewbutton
                     );
 
                 case ((int) (\CONTEXT_MODULE)):
@@ -622,19 +545,16 @@ class Output {
                     $participant = $latestsession->participant;
                     return self::get_summary_html(
                         $participant->participantidentifier,
-                        $latestsession->status,
                         $latestsession->start,
                         $latestsession->end,
                         ($showphoto ? self::get_participant_photo_output(
                             $participant->participantidentifier,
                             ($latestsession->participantphoto ?: ''),
-                            $latestsession->status,
                             $participant->email
                         ) : ''),
                         ($showoverviewbutton ?
                             self::get_button_overview($blockinstance, $participant->participantidentifier) :
-                            ''),
-                        $showstatus
+                            '')
                     );
 
                 default:
