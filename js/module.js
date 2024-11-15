@@ -275,7 +275,7 @@ M.block_integrityadvocate = {
                         type: "err"
                     });
                 });
-                // Add a "Back to course" button.
+
                 debug && window.console.warn(fxn + '::window.alert::Add a Back to course button');
                 $('div[role="main"]')
                     .html('<button type="submit" class="btn btn-secondary" id="block_integrityadvocate_backtocourse">' + M.str.core.closebuttontitle + '</button>')
