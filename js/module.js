@@ -624,7 +624,9 @@ M.block_integrityadvocate = {
                     self.showMainContent();
                 }
                 break;
-            case ['page-mod-quiz-summary', 'page-mod-quiz-review'].includes(bodyId):
+            case 'page-mod-quiz-summary':
+            // Fall through on purpose.
+            case 'page-mod-quiz-review':
                 debug && window.console.log(fxn + '::This is a quiz summary or review page with self.proctorquizreviewpages=' + self.proctorquizreviewpages);
                 if (self.proctorquizreviewpages) {
                     self.loadProctorJs(self.proctorjsurl);
