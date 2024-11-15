@@ -118,6 +118,7 @@ class Output {
                 $proctorjsurl,
                 (int)(isset($blockinstance->config->proctorquizinfopage) ? $blockinstance->config->proctorquizinfopage : 0),
                 (int)(isset($blockinstance->config->proctorquizreviewpages) ? $blockinstance->config->proctorquizreviewpages : 0),
+                (isset($blockinstance->config->proctorquizreviewpages) ? (int)$blockinstance->config->proctorquizreviewpages : 0),
                 (int)$quizshowsreviewpage,
             ],
             false,
