@@ -35,15 +35,15 @@ class HttpException extends \Exception {
     /**
      * Build an HTTPException object.
      *
-     * @param String $message The exception message.
+     * @param string $message The exception message.
      * @param int $httpstatus HTTP status to send back.
-     * @param String $uri URL where the error occurred.
-     * @param \Exception $previous The Exception that cause this error.
+     * @param string $uri URL where the error occurred.
+     * @param \Exception|null $previous The Exception that cause this error.
      */
     public function __construct(
-            $message,
-            $httpstatus,
-            $uri,
+            string $message,
+            int $httpstatus,
+            string $uri,
             ?\Exception $previous = null
     ) {
         $this->uri = $uri;
