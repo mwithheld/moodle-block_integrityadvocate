@@ -464,6 +464,14 @@ M.block_integrityadvocate = {
                         window.console.error(fxn + '::promise::Error on waitForElt(); error=', error);
                     });
             }
+        } else if (document.body.id === 'page-mod-quiz-view') {
+            // We get to this page on the first click into the quiz before clicking to see the quiz questions.
+            // And after the quiz attempt review after we click "Finish review".
+            // There is not really a good way to tell if the user is about to do the quiz or is on their way out from completing the quiz.
+            // So we don't closeSession() on the JS beforeunload event bc we assume the user will navigate intoto the quiz next.
+            // This is only relevant if self.proctorquizinfopage is trueish.
+        } else {
+            window.console.log(fxn + '::This quiz page has no IA JS handling; document.body.id=[' + document.body.id + ']');
         }
     },
     /**
