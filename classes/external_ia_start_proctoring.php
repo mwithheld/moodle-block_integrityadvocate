@@ -28,8 +28,12 @@ namespace block_integrityadvocate;
 defined('MOODLE_INTERNAL') || die;
 require_once(\dirname(__DIR__) . '/lib.php');
 require_once($CFG->libdir . '/externallib.php');
-require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
-require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
+// Since block version 2024111300: Thes files are deprecated in Moodle 4.2 and removed in 4.6+.
+// Ref https://github.com/moodle/moodle/blob/main/mod/quiz/upgrade.txt .
+if ($CFG->version < 2022041900) {
+    require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
+    require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
+}
 
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
@@ -79,7 +83,7 @@ trait external_ia_start_proctoring {
      * @return array Result array that sent back as the AJAX result.
      */
     private static function start_proctoring_validate_params(int $attemptid): array {
-        global $USER;
+        global $CFG, $USER;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debugvars = $fxn . "::Started with \$attemptid={$attemptid}";
@@ -94,7 +98,14 @@ trait external_ia_start_proctoring {
 
         $result = self::$resultdefault;
         $blockversion = \get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version');
+        $debug && \debugging($fxn . '::Got blockversion=' . $blockversion);
         $coursecontext = null;
+
+        // Moodle 4.2 deprecated \quiz_attempt.
+        // Class 'quiz_attempt' has been renamed for the autoloader and is now deprecated. Please use 'mod_quiz\\quiz_attempt' instead.
+        // Ref https://github.com/moodle/moodle/blob/main/mod/quiz/upgrade.txt .
+        $attemptclass = ($CFG->version < 2022041900) ? 'quiz_attempt' : 'mod_quiz\quiz_attempt';
+        $debug && \debugging($fxn . '::Got $CFG->version=' . $CFG->version . '; attemptclass=' . $attemptclass);
 
         $debug && \debugging($fxn . '::About to check for things that should make this fail');
         switch (true) {
@@ -112,8 +123,8 @@ trait external_ia_start_proctoring {
                     'message' => 'Feature is disabled',
                 ];
                 break;
-            case (!(self::$attemptobj = \quiz_attempt::create($attemptid)) || get_class(self::$attemptobj) !== 'quiz_attempt'):
-                \debugging($fxn . '::Failed check: Create quiz_attempt');
+            case (!(self::$attemptobj = $attemptclass::create($attemptid)) || get_class(self::$attemptobj) !== $attemptclass):
+                \debugging($fxn . '::Failed check: Create quiz_attempt; get_class($attemptclass)=' . ia_u::var_dump(get_class(self::$attemptobj)));
                 $result['warnings'][] = [
                     'warningcode' => \implode('a', [$blockversion, __LINE__]),
                     'message' => 'Failed to get quiz attempt',
