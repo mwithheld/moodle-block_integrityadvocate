@@ -541,6 +541,7 @@ M.block_integrityadvocate = {
      * @param {class} Y Moodle Yahoo.
      * @param {string} versionstring Moodle and block version info.
      * @param {string} proctorjsurl URL to the IA proctor JS.
+     * @param {string} proctorquizinfopage True to show proctoring on quiz view pages.
      * @param {bool} proctorquizreviewpages True to show proctoring on quiz summary and review pages.
      * @param {bool} quizshowsreviewpage True if the quiz shows the review page after the summary page.
      * @returns {null} Nothing.
