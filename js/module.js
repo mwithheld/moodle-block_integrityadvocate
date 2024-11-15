@@ -388,7 +388,7 @@ M.block_integrityadvocate = {
                 .then(e => {
                     self.hasClosedIASession = true;
                     window.console.log('Done call to endIaSession; About to click the original element', e);
-                    e && e.target.click();
+                    (e.type == 'click') && e.target.click();
                 })
                 .catch(error => window.console.error(fxn + '::endIaSession promise::Error on endIaSession(); error=', error));
         };
