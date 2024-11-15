@@ -160,10 +160,10 @@ M.block_integrityadvocate = {
                         typeof callback === 'function' && callback(data);
                     },
                     fail: (xhr_unused, textStatus, errorThrown) => {
-                        window.console.warn(fxn + '::ajax.fail', errorThrown);
-                        window.console.log('textStatus', textStatus);
+                        window.console.warn(fxn + '::ajax.fail:: Got errorThrown=', errorThrown);
+                        window.console.log(fxn + '::ajax.fail:: Got textStatus=', textStatus);
                         window.IntegrityAdvocate.endSession();
-                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.startProctoring::ajax.fail');
+                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown);
                     }
                 }]);
             });
