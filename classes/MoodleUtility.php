@@ -1056,10 +1056,11 @@ class MoodleUtility {
         // Disabled bc TMI: $debug && \debugging($fxn . '::Got $quizrecord=' . ia_u::var_dump($quizrecord, true));.
         $debug && \debugging($fxn . '::Got $quizrecord->reviewattempt dec=' . $quizrecord->reviewattempt . '; hex=' . dechex($quizrecord->reviewattempt));
 
+        global $CFG;
         if (
             (
                 // Moodle 4.2 deprecated \mod_quiz_display_options.
-                (\MOODLE_VERSION >= 2022041900 && $quizrecord->reviewattempt && \mod_quiz\question\display_options::IMMEDIATELY_AFTER)
+                ($CFG->version >= 2022041900 && $quizrecord->reviewattempt && \mod_quiz\question\display_options::IMMEDIATELY_AFTER)
                 || ($quizrecord->reviewattempt && \mod_quiz_display_options::IMMEDIATELY_AFTER)
             )
             // IMMEDIATELY_AFTER = within 2 mins of clicking 'Submit all and finish'.
