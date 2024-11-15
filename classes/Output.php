@@ -601,6 +601,7 @@ class Output {
                         return self::get_student_message();
                     }
 
+                    $debug && \debugging($fxn . '::About to get_participant_summary_output()');
                     return self::get_participant_summary_output(
                         $blockinstance,
                         $participant,
