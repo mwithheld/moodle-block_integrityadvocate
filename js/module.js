@@ -267,7 +267,7 @@ M.block_integrityadvocate = {
             const originalAlert = window.alert;
             window.alert = (message) => {
                 msg = 'The remote script threw an alert. This happens when the IA activity rules is set to [Level 1], or to [DEMO + no rules]. The remote alert message= ';
-                window.console.warn(fxn + '::Suppressed alert ' + msg, message);
+                window.console.warn(fxn + '::window.alert::Suppressed alert ' + msg, message);
                 self.hideLoadingGif();
                 require(['core/notification'], function (notification) {
                     notification.addNotification({
@@ -276,6 +276,7 @@ M.block_integrityadvocate = {
                     });
                 });
                 // Add a "Back to course" button.
+                debug && window.console.warn(fxn + '::window.alert::Add a Back to course button');
                 $('div[role="main"]')
                     .html('<button type="submit" class="btn btn-secondary" id="block_integrityadvocate_backtocourse">' + M.str.core.closebuttontitle + '</button>')
                     .on('click', function () {
@@ -430,12 +431,12 @@ M.block_integrityadvocate = {
             window.console.log(fxn + '::This is a quiz review page');
 
             if (self.proctorquizreviewpages) {
-                debug && window.console.log(fxn + '::Got proctorquizreviewpages=' + proctorquizreviewpages + '; attach endSession to Finish review button');
+                debug && window.console.log(fxn + '::Got proctorquizreviewpages=' + self.proctorquizreviewpages + '; attach endSession to Finish review button');
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
                 $('.mod_quiz-next-nav').one('click.block_integrityadvocate', (e) => {
                     var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
-                    window.console.log(fxn + '::Started with e=', e);
+                    window.console.log(fxn + '::mod_quiz-next-nav::Started with e=', e);
                     e.preventDefault();
                     closeSession(e);
                 });
@@ -454,7 +455,7 @@ M.block_integrityadvocate = {
                         window.console.log(fxn + '::Found selectorModal=', selectorModal);
                         $(selectorModal).one('click.block_integrityadvocate', (e) => {
                             var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.modalSubmitAllAndFinish.click';
-                            window.console.log(fxn + '::Started with e=', e);
+                            window.console.log(fxn + '::waitForElt(selectModal)::Started with e=', e);
                             e.preventDefault();
                             closeSession(e);
                         });
@@ -623,7 +624,7 @@ M.block_integrityadvocate = {
                 }
                 break;
             default:
-                debug && window.console.log(fxn + '::This is a quiz page of unknown type');
+                debug && window.console.log(fxn + '::This is a quiz page of unknown type; bodyId=[' + bodyId + ']');
                 self.showMainContent();
         }
     },
