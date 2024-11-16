@@ -66,7 +66,7 @@ M.block_integrityadvocate = {
                     fail: (xhrUnused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
-                        require(['core/notification'], function(notification) {
+                        require(['core/notification'], function (notification) {
                             notification.alert(M.util.get_string('unknownerror', 'moodle'), fxn + '::ajax.fail', 'Close');
                         });
                     }
@@ -164,7 +164,7 @@ M.block_integrityadvocate = {
                         window.console.warn(fxn + '::ajax.fail:: Got errorThrown=', errorThrown);
                         window.console.log(fxn + '::ajax.fail:: Got textStatus=', textStatus);
                         window.IntegrityAdvocate.endSession();
-                        require(['core/notification'], function(notification) {
+                        require(['core/notification'], function (notification) {
                             notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
                         });
                     }
