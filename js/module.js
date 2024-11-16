@@ -63,10 +63,12 @@ M.block_integrityadvocate = {
                     done: () => {
                         debug && window.console.log(fxn + '::ajax.done');
                     },
-                    fail: (xhr_unused, textStatus, errorThrown) => {
+                    fail: (xhrUnused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
-                        alert(M.util.get_string('unknownerror', 'moodle') + ' ' + fxn + '::ajax.fail');
+                        require(['core/notification'], function(notification) {
+                            notification.alert(M.util.get_string('unknownerror', 'moodle'), fxn + '::ajax.fail', 'Close');
+                        });
                     }
                 }]);
             });
@@ -102,11 +104,10 @@ M.block_integrityadvocate = {
                         debug && window.console.log(fxn + '::ajax.done');
                         typeof callback === 'function' && callback();
                     },
-                    fail: (xhr_unused, textStatus, errorThrown) => {
+                    fail: (xhrUnused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
                         window.IntegrityAdvocate.endSession();
-                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.sessionClose::ajax.fail');
                     }
                 }]);
             });
@@ -159,11 +160,13 @@ M.block_integrityadvocate = {
                         }
                         typeof callback === 'function' && callback(data);
                     },
-                    fail: (xhr_unused, textStatus, errorThrown) => {
+                    fail: (xhrUnused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail:: Got errorThrown=', errorThrown);
                         window.console.log(fxn + '::ajax.fail:: Got textStatus=', textStatus);
                         window.IntegrityAdvocate.endSession();
-                        alert(M.util.get_string('unknownerror', 'moodle') + ' M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown);
+                        require(['core/notification'], function(notification) {
+                            notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
+                        });
                     }
                 }]);
             });
