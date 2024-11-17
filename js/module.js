@@ -147,7 +147,7 @@ M.block_integrityadvocate = {
                         // While you can override the quiz timer UI in JS, the time you actually submit the quiz is still checked vs the server-side value.
                         if (M.mod_quiz.timer.endtime > 0 && (typeof data.result === 'number') && Number.isInteger(data.result) && data.result > 0) {
                             // The PHP returns epoch time in seconds, but JS uses milliseconds.
-                            newtimeleft = (M.mod_quiz.timer.endtime - Date.now()) / 1000 + data.result;
+                            var newtimeleft = (M.mod_quiz.timer.endtime - Date.now()) / 1000 + data.result;
                             debug && window.console.log(fxn + '::Timer: Original endtime=' + M.mod_quiz.timer.endtime + '; newtimeleft=' + newtimeleft);
                             if (newtimeleft > 0) {
                                 M.mod_quiz.timer.updateEndTime(newtimeleft);
@@ -195,7 +195,7 @@ M.block_integrityadvocate = {
                 window.console.log(fxn + '.isQuizAttempt::IA is ready: Enable the submit button', $('.mod_quiz-next-nav'));
                 // Commented out bc prevents Moodle quiz binding the button properly.
                 // Disabled: $('.mod_quiz-next-nav').removeAttr('disabled').off('click.block_integrityadvocate.disable');.
-                $('#block_integrityadvocate_hidequiz').remove();
+                document.querySelector('#block_integrityadvocate_hidequiz')?.remove();
                 window.console.log(fxn + '.isQuizAttempt::IA is ready: Show the quiz questions', eltMainContent);
                 eltMainContent.show(0, () => { window.console.log(fxn + 'isQuizAttempt: Done: Enable the submit button and show the main content'); });
 
@@ -221,12 +221,12 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::On SCORM newwindow, show the Enter form and monitor for page close');
                 self.showMainContent();
                 eltMainContent.show();
-                $('#block_integrityadvocate_loading').remove();
-                $(window).on('beforeunload', () => {
+                document.querySelector('#block_integrityadvocate_loading')?.remove();
+                window.addEventListener('beforeunload', function () {
                     debug && window.console.log(fxn + '::Exiting the window - close the IA session');
                     self.sessionClose();
                 });
-                self.eltScormEnter.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
+                self.eltScormEnter?.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
                 break;
             default:
                 debug && window.console.log(fxn + '::This is the default page handler');
@@ -240,7 +240,7 @@ M.block_integrityadvocate = {
      */
     hideLoadingGif: () => {
         const self = M.block_integrityadvocate;
-        $('#block_integrityadvocate_loading').remove();
+        document.getElementById('block_integrityadvocate_loading')?.remove();
         self.eltUserNotifications.css({ 'background-image': 'none' }).height('auto');
     },
     /**
@@ -280,12 +280,12 @@ M.block_integrityadvocate = {
                 });
 
                 debug && window.console.warn(fxn + '::window.alert::Add a Back to course button');
-                $('div[role="main"]')
-                    .html('<button type="submit" class="btn btn-secondary" id="block_integrityadvocate_backtocourse">' + M.str.core.closebuttontitle + '</button>')
-                    .on('click', function () {
-                        window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
-                    })
-                    .show();
+                var buttonId = 'block_integrityadvocate_backtocourse';
+                var eltMain = document.querySelector('div[role="main"]');
+                eltMain && (eltMain.innerHTML = '<button type="submit" class="btn btn-secondary" id="' + buttonId + '">' + M.str.core.closebuttontitle + '</button>');
+                document.querySelector('#' + buttonId).addEventListener('click', function () {
+                    window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
+                });
             };
             $.getScript(decodedUrl)
                 .done(() => {
@@ -325,9 +325,7 @@ M.block_integrityadvocate = {
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
 
-        $(document).on('IA_Ready', (script) => {
-            self.onEventIAReady(script);
-        });
+        document.addEventListener('IA_Ready', (script) => self.onEventIAReady(script));
     },
     /**
      * Runs when the IA's JS-created IA_Ready event fires.
@@ -406,11 +404,16 @@ M.block_integrityadvocate = {
                 window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to a few places');
 
                 // Close IA session on: Quiz navigation sidebar "Finish attempt button".
-                $('a.endtestlink').one('click.block_integrityadvocate', (e) => {
-                    var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.a.endtestlink.click';
-                    window.console.log(fxn + '::Started with e=', e);
-                    e.preventDefault();
-                    closeSession(e);
+                document.querySelectorAll('a.endtestlink')?.forEach(link => {
+                    link.addEventListener('click', function handler(e) {
+                        var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.a.endtestlink.click';
+                        window.console.log(fxn + '::Started with e=', e);
+                        e.preventDefault();
+                        closeSession(e);
+
+                        // Remove the event listener to mimic jQuery's .one().
+                        link.removeEventListener('click', handler);
+                    });
                 });
 
                 // Close IA session on: Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
@@ -418,11 +421,16 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::Got eltNextPageArr=', eltNextPageArr);
                 if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
                     // Different versions of Moodle use different selectors.
-                    $('#mod_quiz-next-nav, .mod_quiz-next-nav').one('click.block_integrityadvocate', (e) => {
-                        var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltNextPageArr.click';
-                        window.console.log(fxn + '::Started with e=', e);
-                        e.preventDefault();
-                        closeSession(e);
+                    document.querySelectorAll('#mod_quiz-next-nav, .mod_quiz-next-nav')?.forEach(element => {
+                        element.addEventListener('click', function handler(e) {
+                            var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltNextPageArr.click';
+                            window.console.log(fxn + '::Started with e=', e);
+                            e.preventDefault();
+                            closeSession(e);
+
+                            // Remove the event listener to mimic jQuery's `.one()`.
+                            element.removeEventListener('click', handler);
+                        });
                     });
                     window.console.log(fxn + '::Attached endSession to Finish review button');
                 }
@@ -437,11 +445,16 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::Got proctorquizreviewpages=' + self.proctorquizreviewpages + '; attach endSession to Finish review button');
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
-                $('.mod_quiz-next-nav').one('click.block_integrityadvocate', (e) => {
-                    var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
-                    window.console.log(fxn + '::mod_quiz-next-nav::Started with e=', e);
-                    e.preventDefault();
-                    closeSession(e);
+                document.querySelectorAll('.mod_quiz-next-nav')?.forEach(element => {
+                    element.addEventListener('click', function handler(e) {
+                        var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
+                        window.console.log(fxn + '::mod_quiz-next-nav::Started with e=', e);
+                        e.preventDefault();
+                        closeSession(e);
+
+                        // Remove the event listener to mimic jQuery's `.one()` behavior.
+                        element.removeEventListener('click', handler);
+                    });
                 });
             }
         } else if (document.body.id === 'page-mod-quiz-summary') {
@@ -456,11 +469,14 @@ M.block_integrityadvocate = {
                 self.waitForElt(selectorModal)
                     .then(() => {
                         window.console.log(fxn + '::Found selectorModal=', selectorModal);
-                        $(selectorModal).one('click.block_integrityadvocate', (e) => {
+                        document.querySelector(selectorModal)?.addEventListener('click', function handler(e) {
                             var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.modalSubmitAllAndFinish.click';
                             window.console.log(fxn + '::waitForElt(selectModal)::Started with e=', e);
                             e.preventDefault();
                             closeSession(e);
+
+                            // Remove the event listener to mimic jQuery's `.one()` behavior.
+                            this.removeEventListener('click', handler);
                         });
                     })
                     .catch(error => {
@@ -575,7 +591,7 @@ M.block_integrityadvocate = {
         self.isScormPlayerSameWindow = (bodyId === 'page-mod-scorm-player') && !M.mod_scormform;
         self.isScormEntryNewWindow = (bodyId === 'page-mod-scorm-view') && typeof M.mod_scormform !== 'undefined';
         if (self.isScormEntryNewWindow || self.isScormPlayerSameWindow) {
-            self.eltScormEnter = $('#scormviewform input[type="submit"]');
+            self.eltScormEnter = document.querySelector('#scormviewform input[type="submit"]');
         }
 
         // Cache common DOM elements.
@@ -654,20 +670,24 @@ M.block_integrityadvocate = {
         const self = M.block_integrityadvocate;
 
         // Trigger the IA proctoring only on button click.
-        self.eltScormEnter.on('click.block_integrityadvocate', (e) => {
-            $('#scormviewform input[type="submit"]').attr('disabled', 'disabled');
+        self.eltScormEnter && self.eltScormEnter.addEventListener('click', function (e) {
+            var eltScormSubmit = document.querySelector('#scormviewform input[type="submit"]');
+            eltScormSubmit && (eltScormSubmit.disabled = true);
             e.preventDefault();
 
             // Hide the SCORM content until the IA JS is loaded.
-            self.eltDivMain.find('*').hide();
-            self.eltUserNotifications.css('text-align', 'center').append('<i id="block_integrityadvocate_loading" class="fa fa-spinner fa-spin" style="font-size:72px"></i>');
+            self.eltDivMain.querySelectorAll('*').forEach(el => el.style.display = 'none');
+            self.eltUserNotifications.style.textAlign = 'center';
+            self.eltUserNotifications.innerHTML += '<i id="block_integrityadvocate_loading" class="fa fa-spinner fa-spin" style="font-size:72px"></i>';
 
             // Fix display of the loading gif.
-            var offset = self.eltUserNotifications.offset();
-            $('html, body').animate({
-                scrollTop: offset.top - 60,
-                scrollLeft: offset.left - 20
+            var offset = self.eltUserNotifications.getBoundingClientRect();
+            window.scrollTo({
+                top: window.scrollY + offset.top - 60,
+                left: window.scrollX + offset.left - 20,
+                behavior: 'smooth'
             });
+
             self.loadProctorJs(self.proctorjsurl);
             return false;
         });
@@ -678,8 +698,8 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     showMainContent: () => {
-        $('div[role="main"]').show();
-        $('#block_integrityadvocate_hidequiz').remove();
+        document.querySelector('div[role="main"]').style.display = 'block';
+        document.querySelector('#block_integrityadvocate_hidequiz')?.remove();
     },
     /**
      * Test if str is an http(s) URL.
