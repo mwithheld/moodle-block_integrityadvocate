@@ -196,7 +196,6 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I press "Save changes"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
-    And I turn editing mode on
     And I add the "Integrity Advocate" block
     # Course-level block for teacher should show these things
     Given I log in as "teacher1"
@@ -227,9 +226,8 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
     When I am on the "Quiz 1" "quiz activity" page
-    And I turn editing mode on
     And I add the "Integrity Advocate" block
     # Course-level block for teacher should show these things
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
-    Then "Course overview" "button" should be visible                                    |
+    Then "Course overview" "button" should be visible

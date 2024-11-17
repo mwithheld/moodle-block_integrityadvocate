@@ -48,7 +48,6 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
-    And I turn editing mode on
     And I add the "Integrity Advocate" block
     Then I should see "No API key is set" in the "block_integrityadvocate" "block"
     And I should see "No Application id is set" in the "block_integrityadvocate" "block"
@@ -58,7 +57,6 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
-    And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
     And block_integrityadvocate I set the fields from CFG:
@@ -73,7 +71,6 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
-    And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
     And block_integrityadvocate I set the fields from CFG:
@@ -96,7 +93,6 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
-    And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
     And block_integrityadvocate I set the fields from CFG:
@@ -117,7 +113,6 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
-    And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
     And block_integrityadvocate I set the fields from CFG:
