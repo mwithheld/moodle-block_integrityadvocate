@@ -28,6 +28,7 @@ namespace block_integrityadvocate;
 use block_integrityadvocate as ia;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Participant as ia_participant;
+use block_integrityadvocate\Status as ia_status;
 use block_integrityadvocate\Utility as ia_u;
 
 defined('MOODLE_INTERNAL') || die;
@@ -1568,16 +1569,17 @@ class Api {
                 switch ($paramname) {
                     case 'backwardsearch':
                         if (!\in_array($paramval, $truefalse, true)) {
-                            throw new \invalid_parameter_exception('backwardsearch is not a string in the list [\'true\', \'false\']');
+                            throw new \invalid_parameter_exception("The param {$paramname} val={$paramval} is not a string in the list [true, false]");
                         }
                         break;
                     case 'statuses':
-                        if (!\in_array($argval, $remotestatuses, true)) {
-                            throw new \invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
+                        if (!\in_array($paramval, $remotestatuses, true)) {
+                            throw new \invalid_parameter_exception("The param {$paramname} val={$paramval} is not a valid status on the IA side");
                         }
                         break;
                     default:
-                        \debugging($fxn . "::No check found for this paramname={$paramname}");
+                        // These paramname items they are checked in the switch-case above: [courseid, activityid, participantidentifier, limit].
+                        $debug && \debugging($fxn . "::Missing check for this paramname={$paramname}");
                 }
             } catch (\Exception $e) {
                 // Log a more useful message than Moodle gives us, then just throw it again.
