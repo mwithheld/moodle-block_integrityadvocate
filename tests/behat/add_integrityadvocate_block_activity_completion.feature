@@ -31,8 +31,8 @@ Feature: Activity completion on quiz1 should prevent access to quiz2
       | question | page |
       | TF1      | 1    |
     When I log in as "teacher1"
-    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
-    And I turn editing mode on
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
     And block_integrityadvocate I set the fields from CFG:

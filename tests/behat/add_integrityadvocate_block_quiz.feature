@@ -46,7 +46,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
   @javascript @block_integrityadvocate_quiz_warn_if_no_config
   Scenario: Teacher should be warned if quiz configured to not show blocks
     When I log in as "teacher1"
-    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
     And I turn editing mode on
     And I add the "Integrity Advocate" block
     Then I should see "No API key is set" in the "block_integrityadvocate" "block"
@@ -55,7 +56,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
   @javascript @block_integrityadvocate_quiz_teacher_view
   Scenario: Teacher can configure the IA block and see the overview buttons
     When I log in as "teacher1"
-    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
     And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
@@ -69,7 +71,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
   @javascript @block_integrityadvocate_quiz_course_overview_moodle_items
   Scenario: Teacher should see Moodle-created items on the course overview page
     When I log in as "teacher1"
-    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
     And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
@@ -91,7 +94,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
   @javascript @block_integrityadvocate_quiz_course_overview_ia_items @_switch_iframe
   Scenario: Teacher should see IA-created items in the course overview iframe
     When I log in as "teacher1"
-    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
     And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block
@@ -111,7 +115,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
   @javascript @block_integrityadvocate_quiz_course_overview_ia_enble_proctoring @_switch_iframe
   Scenario: Teacher should see IA-created items in the course overview iframe
     When I log in as "teacher1"
-    When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
     And I turn editing mode on
     And I add the "Integrity Advocate" block
     When I configure the "block_integrityadvocate" block

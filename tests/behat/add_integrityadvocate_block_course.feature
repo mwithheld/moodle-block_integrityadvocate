@@ -194,7 +194,8 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
-    When I am on the "Quiz 1" "quiz activity" page logged in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
     And I turn editing mode on
     And I add the "Integrity Advocate" block
     # Course-level block for teacher should show these things
@@ -225,7 +226,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
-    When I am on the "Quiz 1" "quiz activity" page logged in as "teacher1"
+    When I am on the "Quiz 1" "quiz activity" page
     And I turn editing mode on
     And I add the "Integrity Advocate" block
     # Course-level block for teacher should show these things
