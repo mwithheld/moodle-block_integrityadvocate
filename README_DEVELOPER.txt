@@ -14,13 +14,14 @@ $CFG->behat_extraallowedsettings = array('block_integrityadvocate_appid', 'block
 
 PHPCodeSniffer
 ----
-cd <blah>/moodle/blocks/integrityadvocate
-#Install per https://github.com/squizlabs/PHP_CodeSniffer - I just download the .phar file:
+cd blocks/integrityadvocate
+curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar
 git clone https://github.com/PHPCompatibility/PHPCompatibility ./tests/PHPCompatibility
 git clone https://github.com/PHPCSStandards/PHPCSUtils.git ./tests/PHPCSUtils
 php phpcs.phar -p -v --config-set installed_paths $(pwd -LP)/tests/PHPCompatibility,$(pwd -LP)/tests/PHPCSUtils
 
-php phpcs.phar -p -v --ignore=*/vendor/*,*/node_modules/*,*/tests/*,*/cypress/* --standard=PHPCompatibility ./
+php phpcs.phar -p -v --ignore=*/vendor/*,*/node_modules/*,*/tests/* --standard=PHPCompatibility ./
 
 
 PHPCSStandards
