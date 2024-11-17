@@ -1576,6 +1576,8 @@ class Api {
                             throw new \invalid_parameter_exception("The status {$argval} is not a valid status on the IA side");
                         }
                         break;
+                    default:
+                        \debugging($fxn . "::No check found for this paramname={$paramname}");
                 }
             } catch (\Exception $e) {
                 // Log a more useful message than Moodle gives us, then just throw it again.
