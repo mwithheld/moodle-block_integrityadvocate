@@ -332,7 +332,7 @@ class Output {
     }
 
     /**
-     * Parse the IA $participant object and return HTML output showing latest status, flags, and photos.
+     * Parse the IA $participant object and return HTML output showing latest status, and photos.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
      * @param ia_participant $participant Participant object from the IA API.
@@ -476,14 +476,14 @@ class Output {
     }
 
     /**
-     * Get the user $participant info and return HTML output showing latest status, flags, and photos.
+     * Get the user $participant info and return HTML output showing latest status, and photos.
      * After getting the participant data for the userid, this is just a wrapper around get_participant_basic_output()
      *
      * @param \block_integrityadvocate $blockinstance Block instance to get participant data for.
      * @param int $userid User id to get info for.
      * @param bool $showphoto True to include the photo from the Participant info.
      * @param bool $showoverviewbutton True to show the "View Details" button to get more info about the users IA session.
-     * @return string HTML output showing latest status, flags, and photos.
+     * @return string HTML output showing latest status, and photos.
      */
     public static function get_user_summary_output(
         \block_integrityadvocate $blockinstance,

@@ -42,7 +42,6 @@ require_once(__DIR__ . '/classes/MoodleUtility.php');
 require_once(__DIR__ . '/classes/HTTPException.php');
 require_once(__DIR__ . '/classes/Output.php');
 require_once(__DIR__ . '/classes/Api.php');
-require_once(__DIR__ . '/classes/Flag.php');
 require_once(__DIR__ . '/classes/Participant.php');
 require_once(__DIR__ . '/classes/Session.php');
 
@@ -156,7 +155,6 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
  *                    [sessions] => Array()
  *                    [status] =>
  *                )
- *            [flags] => Array()
  *        ), ...
  * )
  */

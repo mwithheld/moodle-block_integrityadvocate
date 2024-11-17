@@ -79,9 +79,6 @@ class Session {
     /** @var Participant parent of this session. */
     public $participant;
 
-    /** @var Flag[] Array of Flag objects in this session */
-    public $flags = [];
-
     /**
      * Return true if the session is overridden.
      *

@@ -68,11 +68,7 @@ $string['error_twoblocks'] = 'This block is added twice to this page, so skippin
 
 $string['eventquizattempt_time_updated'] = 'Updated quiz attempt starttime';
 
-$string['flag_comment'] = 'Details';
 $string['photo'] = 'Captured photo';
-$string['flag_errorcode'] = 'Error code';
-$string['flag_type'] = 'Flag';
-$string['flags_none'] = 'None';
 
 $string['fullname'] = 'Full course name';
 
@@ -106,7 +102,6 @@ $string['btn_overview_user'] = 'User overview';
 $string['overview_course'] = 'Integrity Advocate course overview';
 $string['overview_module'] = 'Integrity Advocate module overview';
 $string['overview_user'] = 'Integrity Advocate user overview';
-$string['flags'] = 'Flags';
 $string['overview_session'] = '<h4>{$a}</h4>';
 $string['overview_sessions'] = '<h3>Sessions for this user</h3>';
 $string['overview_user_status'] = 'Latest status';
@@ -135,7 +130,6 @@ $string['resubmit_link'] = 'Resubmit your ID';
 $string['session_start'] = 'Start';
 $string['session_end'] = 'End';
 $string['session_status'] = 'Status';
-$string['session_flags'] = 'Flags';
 $string['session_overridedate'] = 'Override time';
 $string['session_overridename'] = 'Overrider';
 $string['session_overridereason'] = 'Override reason';

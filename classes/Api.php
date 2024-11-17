@@ -1218,72 +1218,6 @@ class Api {
     }
 
     /**
-     * Extract Flag object info from API session data, cleaning all the fields.
-     *
-     * @param \stdClass $input API flag data
-     * @return null|Flag Null if failed to parse; otherwise a Flag object.
-     */
-    private static function parse_flag(\stdClass $input): ?Flag {
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && \debugging($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
-
-        if (ia_u::is_empty($input)) {
-            $debug && \debugging($fxn . '::Empty object found, so return false');
-            return null;
-        }
-
-        // Cache so multiple calls don't repeat the same work.  Persession cache b/c is keyed on hash of $input.
-        $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
-        $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__]) . \json_encode($input, \JSON_PARTIAL_OUTPUT_ON_ERROR));
-        if ($cachedvalue = $cache->get($cachekey)) {
-            $debug && \debugging($fxn . '::Found a cached value, so return that');
-            return $cachedvalue;
-        }
-
-        // Check required field #1.
-        if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
-            $debug && \debugging($fxn . '::Minimally-required fields not found');
-            return null;
-        }
-        $output = new Flag();
-        $output->id = $input->Id;
-
-        // Clean int fields.
-        if (true) {
-            isset($input->Created) && ($output->created = \clean_param($input->Created, PARAM_INT));
-            isset($input->CaptureDate) && ($output->capturedate = \clean_param($input->CaptureDate, PARAM_INT));
-            isset($input->FlagType_Id) && ($output->flagtypeid = \clean_param($input->FlagType_Id, PARAM_INT));
-        }
-
-        // Clean text fields.
-        if (true) {
-            isset($input->Comment) && ($output->comment = \clean_param($input->Comment, PARAM_TEXT));
-            isset($input->FlagType_Name) && ($output->flagtypename = \clean_param($input->FlagType_Name, PARAM_TEXT));
-        }
-
-        // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
-        if (isset($input->CaptureData)) {
-            $matches = [];
-            switch (true) {
-                case (\preg_match(INTEGRITYADVOCATE_REGEX_DATAURI, $input->CaptureData, $matches)):
-                    $output->capturedata = $matches[0];
-                    break;
-                case (validate_param($input->CaptureData, PARAM_URL)):
-                    $output->capturedata = $input->CaptureData;
-                    break;
-            }
-        }
-
-        if (!$cache->set($cachekey, $output)) {
-            throw new \Exception('Failed to set value in the cache');
-        }
-
-        $debug && \debugging($fxn . '::About to return $flag=' . ia_u::var_dump($output, true));
-        return $output;
-    }
-
-    /**
      * Validate $photostring as either a URL or a base64-encoded image and return it, else return empty string.
      *
      * @param string $photostring String to parse.
@@ -1384,15 +1318,6 @@ class Api {
         // This Photo field is either a URL or a data uri ref https://css-tricks.com/data-uris/.
         if (isset($input->Participant_Photo)) {
             $output->participantphoto = self::parse_participantphoto($input->Participant_Photo);
-        }
-
-        $debug && \debugging($fxn . '::About to check of we have flags');
-        if (isset($input->Flags) && \is_array($input->Flags)) {
-            foreach ($input->Flags as $f) {
-                if (!ia_u::is_empty($flag = self::parse_flag($f))) {
-                    $output->flags[] = $flag;
-                }
-            }
         }
 
         // Link in the parent Participant object.
