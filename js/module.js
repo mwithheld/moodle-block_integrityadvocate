@@ -66,9 +66,9 @@ M.block_integrityadvocate = {
                     fail: (xhrUnused, textStatus, errorThrown) => {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
-                        require(['core/notification'], function (notification) {
-                            notification.alert(M.util.get_string('unknownerror', 'moodle'), fxn + '::ajax.fail', 'Close');
-                        });
+                        require(['core/notification'], (notification) => {
+                                notification.alert(M.util.get_string('unknownerror', 'moodle'), fxn + '::ajax.fail', 'Close');
+                            });
                     }
                 }]);
             });
@@ -164,9 +164,9 @@ M.block_integrityadvocate = {
                         window.console.warn(fxn + '::ajax.fail:: Got errorThrown=', errorThrown);
                         window.console.log(fxn + '::ajax.fail:: Got textStatus=', textStatus);
                         window.IntegrityAdvocate.endSession();
-                        require(['core/notification'], function (notification) {
-                            notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
-                        });
+                        require(['core/notification'], (notification) => {
+                                notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
+                            });
                     }
                 }]);
             });
@@ -222,10 +222,10 @@ M.block_integrityadvocate = {
                 self.showMainContent();
                 eltMainContent.show();
                 document.querySelector('#block_integrityadvocate_loading')?.remove();
-                window.addEventListener('beforeunload', function () {
-                    debug && window.console.log(fxn + '::Exiting the window - close the IA session');
-                    self.sessionClose();
-                });
+                window.addEventListener('beforeunload', () => {
+                        debug && window.console.log(fxn + '::Exiting the window - close the IA session');
+                        self.sessionClose();
+                    });
                 self.eltScormEnter?.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
                 break;
             default:
@@ -265,27 +265,27 @@ M.block_integrityadvocate = {
         debug && window.console.log(fxn + '::About to getScript() with decodedUrl=', decodedUrl);
         // With $.getScript(....success(response), the response is undefined if the request is from another domain.
         // Using $.ajax fails bc it blocks CORS.
+        const originalAlert = window.alert;
         try {
             // Temporarily override window.alert to suppress any alerts from the script.
-            const originalAlert = window.alert;
             window.alert = (message) => {
                 msg = 'The remote script threw an alert. This happens when the IA activity rules is set to [Level 1], or to [DEMO + no rules]. The remote alert message= ';
                 window.console.warn(fxn + '::window.alert::Suppressed alert ' + msg, message);
                 self.hideLoadingGif();
-                require(['core/notification'], function (notification) {
-                    notification.addNotification({
-                        message: msg + ' ' + message,
-                        type: "err"
+                require(['core/notification'], (notification) => {
+                        notification.addNotification({
+                            message: msg + ' ' + message,
+                            type: "err"
+                        });
                     });
-                });
 
                 debug && window.console.warn(fxn + '::window.alert::Add a Back to course button');
                 var buttonId = 'block_integrityadvocate_backtocourse';
                 var eltMain = document.querySelector('div[role="main"]');
-                eltMain && (eltMain.innerHTML = '<button type="submit" class="btn btn-secondary" id="' + buttonId + '">' + M.str.core.closebuttontitle + '</button>');
-                document.querySelector('#' + buttonId).addEventListener('click', function () {
-                    window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
-                });
+                eltMain && (eltMain.innerHTML = '<button type="submit" class="btn btn-secondary" id="' + buttonId + '">' + M.util.get_string('closebuttontitle', 'core') + '</button>');
+                document.querySelector('#' + buttonId).addEventListener('click', () => {
+                        window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
+                    });
             };
             $.getScript(decodedUrl)
                 .done(() => {
@@ -405,7 +405,7 @@ M.block_integrityadvocate = {
 
                 // Close IA session on: Quiz navigation sidebar "Finish attempt button".
                 document.querySelectorAll('a.endtestlink')?.forEach(link => {
-                    link.addEventListener('click', function handler(e) {
+                    link.addEventListener('click', e => {
                         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.a.endtestlink.click';
                         window.console.log(fxn + '::Started with e=', e);
                         e.preventDefault();
@@ -422,7 +422,7 @@ M.block_integrityadvocate = {
                 if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
                     // Different versions of Moodle use different selectors.
                     document.querySelectorAll('#mod_quiz-next-nav, .mod_quiz-next-nav')?.forEach(element => {
-                        element.addEventListener('click', function handler(e) {
+                        element.addEventListener('click', e => {
                             var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltNextPageArr.click';
                             window.console.log(fxn + '::Started with e=', e);
                             e.preventDefault();
@@ -446,7 +446,7 @@ M.block_integrityadvocate = {
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
                 document.querySelectorAll('.mod_quiz-next-nav')?.forEach(element => {
-                    element.addEventListener('click', function handler(e) {
+                    element.addEventListener('click', e => {
                         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
                         window.console.log(fxn + '::mod_quiz-next-nav::Started with e=', e);
                         e.preventDefault();
@@ -511,7 +511,7 @@ M.block_integrityadvocate = {
         const self = M.block_integrityadvocate;
 
         M.mod_quiz.timer.originalUpdate = M.mod_quiz.timer.update;
-        M.mod_quiz.timer.update = function () {
+        M.mod_quiz.timer.update = () => {
             var fxn = 'M.block_integrityadvocate.M.mod_quiz.timer.update';
             debug && window.console.log(fxn + '::Started');
 
@@ -554,7 +554,7 @@ M.block_integrityadvocate = {
         return e;
     },
     /**
-     * Init function for this block called from PHP.
+     * Init for this block called from PHP.
      * Sets up class variables and kick off this block JS functionality.
      *
      * @param {class} Y Moodle Yahoo.
@@ -670,27 +670,27 @@ M.block_integrityadvocate = {
         const self = M.block_integrityadvocate;
 
         // Trigger the IA proctoring only on button click.
-        self.eltScormEnter && self.eltScormEnter.addEventListener('click', function (e) {
-            var eltScormSubmit = document.querySelector('#scormviewform input[type="submit"]');
-            eltScormSubmit && (eltScormSubmit.disabled = true);
-            e.preventDefault();
+        self.eltScormEnter && self.eltScormEnter.addEventListener('click', (e) => {
+                var eltScormSubmit = document.querySelector('#scormviewform input[type="submit"]');
+                eltScormSubmit && (eltScormSubmit.disabled = true);
+                e.preventDefault();
 
-            // Hide the SCORM content until the IA JS is loaded.
-            self.eltDivMain.querySelectorAll('*').forEach(el => el.style.display = 'none');
-            self.eltUserNotifications.style.textAlign = 'center';
-            self.eltUserNotifications.innerHTML += '<i id="block_integrityadvocate_loading" class="fa fa-spinner fa-spin" style="font-size:72px"></i>';
+                // Hide the SCORM content until the IA JS is loaded.
+                self.eltDivMain.querySelectorAll('*').forEach(el => el.style.display = 'none');
+                self.eltUserNotifications.style.textAlign = 'center';
+                self.eltUserNotifications.innerHTML += '<i id="block_integrityadvocate_loading" class="fa fa-spinner fa-spin" style="font-size:72px"></i>';
 
-            // Fix display of the loading gif.
-            var offset = self.eltUserNotifications.getBoundingClientRect();
-            window.scrollTo({
-                top: window.scrollY + offset.top - 60,
-                left: window.scrollX + offset.left - 20,
-                behavior: 'smooth'
+                // Fix display of the loading gif.
+                var offset = self.eltUserNotifications.getBoundingClientRect();
+                window.scrollTo({
+                    top: window.scrollY + offset.top - 60,
+                    left: window.scrollX + offset.left - 20,
+                    behavior: 'smooth'
+                });
+
+                self.loadProctorJs(self.proctorjsurl);
+                return false;
             });
-
-            self.loadProctorJs(self.proctorjsurl);
-            return false;
-        });
     },
     /**
      * Show the main content (which is hidden by this block by default).
@@ -727,7 +727,7 @@ M.block_integrityadvocate = {
                 return resolve(document.querySelector(selector));
             }
 
-            const observer = new MutationObserver(mutations => {
+            const observer = new MutationObserver(() => {
                 if (document.querySelector(selector)) {
                     observer.disconnect();
                     resolve(document.querySelector(selector));
