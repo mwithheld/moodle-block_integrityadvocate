@@ -167,4 +167,3 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     # 2024Nov17 This fails until we can bypass or emulate the camera and microphone.
     #And I click on "#integrityadvocate_btnContinue" "css_element"
     #Then I should see "Not yet answered" in the "#responseform" "css_element"
-
