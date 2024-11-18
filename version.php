@@ -29,4 +29,4 @@ $plugin->version = 2024111700;
 $plugin->release = $plugin->version;
 $plugin->supported = [390, 440];
 $plugin->requires = 2020061500; // Moodle 3.9.0.
-$plugin->maturity = MATURITY_STABLE;
+$plugin->maturity = MATURITY_RC;
