@@ -144,7 +144,7 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And I ensure "#chkRules_9" "css_element" is "checked"
     # Stay in view of the camera
     And I ensure "#chkRules_1" "css_element" is "checked"
-    And I click on "Submit" "button" 
+    And I click on "Submit" "button"
     # -- END: We do not need these now but they might be useful later.
     # Allow the AJAX POST to finish.
     And I wait "1" seconds
