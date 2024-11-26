@@ -67,6 +67,7 @@ $string['error_quiz_showblocks'] = 'This quiz is configured with &quot;Show bloc
 $string['error_twoblocks'] = 'This block is added twice to this page, so skipping the content.  This block will not display to students.';
 
 $string['eventquizattempt_time_updated'] = 'Updated quiz attempt starttime';
+$string['eventia_request_failed'] = 'IA request failed';
 
 $string['photo'] = 'Captured photo';
 

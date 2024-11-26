@@ -264,8 +264,33 @@ class Api {
 
         $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
-            $msg = $fxn . '::Request to the IA server failed on: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            $msg = $fxn . '::Request to the IA server failed on: ' . $requestmethod . ' url=' . \var_export($requesturi, true)
+                . '; Response http_code=' . ia_u::var_dump($responsecode, true);
             \debugging($msg);
+
+            $userid = isset($USER->id) ? $USER->id : 0;
+            // Cache so we only log once per user session.
+            $cache = \cache::make(\INTEGRITYADVOCATE_BLOCK_NAME, 'persession');
+            $cachekey = ia_mu::get_cache_key(\implode('_', [__CLASS__, __FUNCTION__, 'ia_request_failed', $userid, $appid, $requestmethod, $requesturi, $responsecode]));
+            if (!$cache->get($cachekey)) {
+                global $USER;
+                $params = [
+                    'context' => \context_system::instance(),
+                    'relateduserid' => $userid,
+                    'other' => [
+                        'method' => $requestmethod,
+                        'url' => $requesturi,
+                        'responsecode' => $responsecode,
+                    ],
+                ];
+                $event = \block_integrityadvocate\event\ia_request_failed::create($params);
+                $event->trigger();
+
+                if (!$cache->set($cachekey, 1)) {
+                    throw new \Exception('Failed to set value in the cache');
+                }
+            }
+
             throw new HttpException($msg, $responsecode, $requesturi);
         }
 
