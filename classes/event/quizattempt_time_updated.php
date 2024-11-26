@@ -61,9 +61,6 @@ class quizattempt_time_updated extends \core\event\base {
     /**
      * Get the localized name of the event.
      *
-     * This static method returns the localized name of the event using the
-     * 'eventquizattempt_time_updated' string identifier from the 'block_integrityadvocate' language file.
-     *
      * @return string The localized event name.
      */
     public static function get_name() {
@@ -88,6 +85,9 @@ class quizattempt_time_updated extends \core\event\base {
         parent::validate_data();
         if (!isset($this->relateduserid)) {
             throw new \coding_exception('The \'relateduserid\' must be set.');
+        }
+        if (!(isset($this->quizid) && is_numeric($this->quizid))) {
+            throw new \coding_exception('The \'quizid\' must be set.');
         }
     }
 
