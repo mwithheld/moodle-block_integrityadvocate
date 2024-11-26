@@ -2,7 +2,7 @@
 name: Moodle Plugin CI
 
 # Ref https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release .
-on: 
+on:
   push:
     paths:
       - '/version.php'
@@ -37,9 +37,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '8.3'] #'7.4', '8.0', 
+        php: ['7.4', '8.3']
         moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_405_STABLE']
-        database: [mariadb] #pgsql, 
+        database: [mariadb] #pgsql,
 
     steps:
       - name: Check out repository code
