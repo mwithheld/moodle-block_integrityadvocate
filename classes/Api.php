@@ -37,7 +37,7 @@ defined('MOODLE_INTERNAL') || die;
  * Functions to interact with the IntegrityAdvocate API.
  */
 class Api {
-    // API ref https://integrityadvocate.com/Developers#aEndpointMethods .
+    // API ref https://www.integrityadvocateserver.com/developers#apiendpoints .
 
     /** @var string URI to ping IA and see if there is a good response */
     private const ENDPOINT_PING = '/ping';
@@ -58,7 +58,7 @@ class Api {
     private const ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY = '/participantsessions/activity';
 
     /** @var int The API returns 10 results max per call by default, but our UI shows 20 users per page.  Set the number we want per
-     * UI page here. Ref https://integrityadvocate.com/developers. */
+     * UI page here. */
     // Unused at the moment: const RESULTS_PERPAGE = 20;.
 
     /** @var int In case of errors, this limits recursion to some reasonable maximum. */
@@ -215,7 +215,7 @@ class Api {
             return $cachedvalue;
         }
 
-        // Set up request variables. Ref API docs at https://integrityadvocate.com/Developers#aEvents.
+        // Set up request variables. Ref API docs at https://www.integrityadvocateserver.com/developers#aEvents.
         $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params, true) : ''));
         $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
         $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, '', '&') : '');
@@ -352,7 +352,7 @@ class Api {
 
     /**
      * Get a single IA proctoring participant data from the remote API.
-     * @link https://integrityadvocate.com/Developers#aEndpointMethods This endpoint does not allow specifying activityid so you'll
+     * The IA remote endpoint does not allow specifying activityid so you'll
      * have to iterate sessions[] to get the relevant records for just one module.
      *
      * @param string $apikey The API Key to get data for.
@@ -578,8 +578,6 @@ class Api {
 
     /**
      * Get IA proctoring participant sessions from the remote API for the given inputs.
-     *
-     * @link https://integrityadvocate.com/Developers#aEndpointMethods
      *
      * @param string $apikey The API Key to get data for.
      * @param string $appid The AppId to get data for.
@@ -833,8 +831,6 @@ class Api {
 
     /**
      * Get IA proctoring participant sessions activity from the remote API for the given inputs. No photo data is returned.
-     *
-     * @link https://integrityadvocate.com/Developers#aEndpointMethods
      *
      * @param string $apikey The API Key to get data for.
      * @param string $appid The AppId to get data for.
