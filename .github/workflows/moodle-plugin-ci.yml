@@ -37,10 +37,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.3']
-        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_405_STABLE']
-        database: [mariadb] #pgsql,
-
+        # php: ['7.4', '8.3']
+        # moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_405_STABLE']
+        # database: [mariadb] #pgsql,
+        include:
+            - php: '7.4'
+              moodle-branch: 'MOODLE_39_STABLE'
+              database: mariadb
+            - php: '8.3'
+              moodle-branch: 'MOODLE_405_STABLE'
+              database: mariadb
+              
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
