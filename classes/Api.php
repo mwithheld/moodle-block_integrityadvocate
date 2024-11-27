@@ -57,6 +57,9 @@ class Api {
     /** @var string URI to get participant sessions activity info */
     private const ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY = '/participantsessions/activity';
 
+    /** @var string URI to get only the overall status for a single participant for the specified activity. */
+    private const ENDPOINT_PARTICIPANTSESSIONS_STATUS = '/2-0/participantstatus';
+
     /** @var int The API returns 10 results max per call by default, but our UI shows 20 users per page.  Set the number we want per
      * UI page here. */
     // Unused at the moment: const RESULTS_PERPAGE = 20;.
@@ -1117,7 +1120,7 @@ class Api {
      * @return int A block_integrityadvocate\Status status constant _INT value.
      */
     public static function get_module_status(\context $modulecontext, int $userid): int {
-        $debug = false;
+        $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && \debugging($debugvars);
@@ -1150,15 +1153,36 @@ class Api {
             return $notfoundval;
         }
 
-        $latestsession = self::get_module_session_latest($modulecontext, $userid);
-        $debug && \debugging($fxn . '::Got $latestsession=' . ia_u::var_dump($latestsession));
-        if (ia_u::is_empty($latestsession)) {
-            $debug && \debugging($fxn . "::The latest session for userid={$userid} was not found");
+        // Get the APIKey and AppID for this module.
+        $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
+        $debug && \debugging($fxn . '::Got blockinstance with id=' . isset($blockinstance->instance->id) ?: 'empty');
+
+        // If the block is not configured yet, simply return empty result.
+        if (ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_config_errors())) {
+            $debug && \debugging($fxn . '::The blockinstance is empty or has config errors, so return notfoundval');
             return $notfoundval;
         }
 
-        $status = $latestsession->get_status();
-        $debug && \debugging("About to return \$latestsession->status={$status}");
+        // Build params[].
+        $params = [
+            'participantidentifier' => $userid,
+            'courseid' => $course->id,
+            'activityid' => $modulecontext->instanceid,
+        ];
+        $debug && \debugging('Built params=' . ia_u::var_dump($params));
+
+        // Do a GET https://ca.integrityadvocateserver.com/api/2-0/participantstatus?participantidentifier=123456&courseid=101&activityid=2
+        $input = self::get(self::ENDPOINT_PARTICIPANTSESSIONS_STATUS, $blockinstance->config->apikey, $blockinstance->config->appid, $params);
+        $debug && \debugging('Got participantstatus input=' . ia_u::var_dump($input));
+
+        // Check returned data required field.
+        if (!isset($input->Status) || !\is_string($input->Status) || \mb_strlen($input->Status) < 5) {
+            $debug && \debugging($fxn . '::Minimally-required fields not found: Status, so return notfoundval');
+            return $notfoundval;
+        }
+
+        $status = ia_status::parse_status_string($input->Override_Status ?? $input->Status);
+        $debug && \debugging($fxn . '::About to return status=' . ia_u::var_dump($status));
 
         return $status;
     }
@@ -1291,7 +1315,7 @@ class Api {
         $debug && \debugging($fxn . '::About to create \block_integrityadvocate\Session()');
         $output = new \block_integrityadvocate\Session();
 
-        // Check required field #1.
+        // Check returned data required field #1.
         if (!isset($input->Id) || !ia_u::is_guid($input->Id)) {
             $debug && \debugging($fxn . '::Minimally-required fields not found: Id');
             return null;
@@ -1299,11 +1323,12 @@ class Api {
         $output->id = $input->Id;
         $debug && \debugging($fxn . '::Got $session->id=' . $output->id);
 
-        // Check required field #2.
+        // Check returned data required field #2.
         if (!isset($input->Status) || !\is_string($input->Status) || \mb_strlen($input->Status) < 5) {
-            $debug && \debugging($fxn . '::Minimally-required fields not found: Status');
+            $debug && \debugging($fxn . '::Minimally-required fields not found: Status, so return empty');
             return null;
         }
+
         // This function throws an error if the status is invalid.
         $output->status = ia_status::parse_status_string($input->Status);
         $debug && \debugging($fxn . '::Got $session->status=' . $output->status);
@@ -1555,6 +1580,14 @@ class Api {
                     'participantidentifier' => \PARAM_INT,
                 ];
                 $requiredparams = ['activityid'];
+                break;
+            case self::ENDPOINT_PARTICIPANTSESSIONS_STATUS:
+                $validparams = [
+                    'activityid' => \PARAM_INT,
+                    'courseid' => \PARAM_INT,
+                    'participantidentifier' => \PARAM_INT,
+                ];
+                $requiredparams = ['activityid', 'courseid', 'participantidentifier'];
                 break;
             default:
                 throw new \InvalidArgumentException("Unhandled endpoint={$endpoint}");
