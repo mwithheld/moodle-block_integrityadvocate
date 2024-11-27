@@ -198,7 +198,7 @@ trait external_ia_start_proctoring {
                 break;
         }
 
-        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             \debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
@@ -239,7 +239,7 @@ trait external_ia_start_proctoring {
             self::$resultdefault,
             self::start_proctoring_validate_params($attemptid)
         );
-        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
 
         $result['submitted'] = true;
 
@@ -311,7 +311,7 @@ trait external_ia_start_proctoring {
                     $newtimeleft = self::$newtimestart - $originaltimestart;
                     $result['result'] = $newtimeleft;
 
-                    $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+                    $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result));
                     return $result;
                 } else {
                     $msg = 'Failed to run start_proctoring items';

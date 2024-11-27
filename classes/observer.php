@@ -123,7 +123,7 @@ class block_integrityadvocate_observer {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debuginfo = "eventname={$event->eventname}; crud={$event->crud}; courseid={$event->courseid}; userid={$event->userid}";
 
-        // Disabled on purpose: $debug && \debugging($fxn . '::Started with event=' . ia_u::var_dump($event, true));.
+        // Disabled on purpose: $debug && \debugging($fxn . '::Started with event=' . ia_u::var_dump($event));.
         $debug && \debugging($fxn . "::Started with \$debuginfo={$debuginfo}; event->crud={$event->crud}; "
             . "is c/u=" . (\in_array($event->crud, ['c', 'u'], true)));
         $debug && \debugging($fxn . "::Started with event->contextlevel={$event->contextlevel}; "

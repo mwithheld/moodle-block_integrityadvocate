@@ -170,7 +170,7 @@ trait external_ia_session_tracking {
                 ];
                 break;
         }
-        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
             \debugging($fxn . '::' . \serialize($result['warnings']) . "; \$debugvars={$debugvars}");
@@ -212,7 +212,7 @@ trait external_ia_session_tracking {
             ['submitted' => false, 'success' => true, 'warnings' => []],
             self::session_function_validate_params($appid, $courseid, $moduleid, $userid)
         );
-        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
@@ -232,7 +232,7 @@ trait external_ia_session_tracking {
         }
         $result['submitted'] = true;
 
-        $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result));
         return $result;
     }
 
@@ -273,7 +273,7 @@ trait external_ia_session_tracking {
             ['submitted' => false, 'success' => true, 'warnings' => []],
             self::session_function_validate_params($appid, $courseid, $moduleid, $userid)
         );
-        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings'], true));
+        $debug && \debugging($fxn . '::After checking failure conditions, warnings=' . ia_u::var_dump($result['warnings']));
 
         if (isset($result['warnings']) && !empty($result['warnings'])) {
             $result['success'] = false;
@@ -299,7 +299,7 @@ trait external_ia_session_tracking {
         }
         $result['submitted'] = true;
 
-        $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result, true));
+        $debug && \debugging($fxn . '::About to return result=' . ia_u::var_dump($result));
         return $result;
     }
 

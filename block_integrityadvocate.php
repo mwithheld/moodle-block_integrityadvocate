@@ -69,7 +69,7 @@ class block_integrityadvocate extends block_base {
     public function instance_create() {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
-        $debug && \debugging($fxn . '::Started with configdata=' . ia_u::var_dump($this->config, true));
+        $debug && \debugging($fxn . '::Started with configdata=' . ia_u::var_dump($this->config));
 
         // Get the first IA block with APIKey and APPId, and use it for this block.
         global $COURSE;
@@ -97,13 +97,13 @@ class block_integrityadvocate extends block_base {
         if (str_starts_with($this->page->pagetype, 'mod-quiz-')) {
             // A. Show blocks during quiz attempt; and...
             $modulecontext = $this->context->get_parent_context();
-            $debug && \debugging($fxn . '::Got $modulecontext=' . ia_u::var_dump($modulecontext, true));
+            $debug && \debugging($fxn . '::Got $modulecontext=' . ia_u::var_dump($modulecontext));
             $modinfo = \get_fast_modinfo($COURSE, -1);
             $cm = $modinfo->get_cm($modulecontext->instanceid);
-            $debug && \debugging($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
+            $debug && \debugging($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance));
             global $DB;
             $record = ia_mu::get_record_cached('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
-            $debug && \debugging($fxn . '::Got record=' . ia_u::var_dump($record, true));
+            $debug && \debugging($fxn . '::Got record=' . ia_u::var_dump($record));
             if ($record->showblocks < 1) {
                 $record->showblocks = 1;
                 $DB->update_record('quiz', $record);
@@ -436,7 +436,7 @@ class block_integrityadvocate extends block_base {
         $setuperrors = ia_mu::get_completion_setup_errors($COURSE);
         $hascapabilityoverview = \has_capability('block/integrityadvocate:overview', $this->context);
         $debug && \debugging($fxn . '::Permissions check: has_capability(\'block/integrityadvocate:overview\')=' . (bool) $hascapabilityoverview);
-        $debug && \debugging($fxn . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors, true) : ''));
+        $debug && \debugging($fxn . '::Got setup errors=' . ($setuperrors ? ia_u::var_dump($setuperrors) : ''));
 
         if ($hascapabilityoverview) {
             $this->content->footer = $this->get_footer();
@@ -491,7 +491,7 @@ class block_integrityadvocate extends block_base {
 
         // Check if there is any errors.
         if ($configerrors = $this->get_config_errors()) {
-            $debug && \debugging($fxn . '::Error: ' . ia_u::var_dump($configerrors, true));
+            $debug && \debugging($fxn . '::Error: ' . ia_u::var_dump($configerrors));
 
             // Error output is visible only to instructors.
             if ($hascapabilityoverview) {

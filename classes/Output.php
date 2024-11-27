@@ -158,7 +158,7 @@ class Output {
 
         $blockcontext = $blockinstance->context;
         $blockparentcontext = $blockcontext->get_parent_context();
-        $debug && \debugging($fxn . '::Got $blockparentcontext->id=' . ia_u::var_dump($blockparentcontext->id, true));
+        $debug && \debugging($fxn . '::Got $blockparentcontext->id=' . ia_u::var_dump($blockparentcontext->id));
 
         $course = $blockinstance->get_course();
 

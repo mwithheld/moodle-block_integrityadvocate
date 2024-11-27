@@ -143,7 +143,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
 
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $data=' . ia_u::var_dump($data, true));
+        $debug && debugging($fxn . '::Started with $data=' . ia_u::var_dump($data));
 
         $errors = [];
 

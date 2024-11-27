@@ -293,7 +293,7 @@ class Status {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . "::Started with \$statusint={$statusint}");
         $statusints = \array_keys(self::get_statuses());
-        $debug && \debugging($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints, true));
+        $debug && \debugging($fxn . '::Got \$statusints=' . ia_u::var_dump($statusints));
 
         $returnthis = \in_array($statusint, $statusints, true);
         $debug && \debugging($fxn . "::About to return \$returnthis=$returnthis");

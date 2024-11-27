@@ -173,10 +173,10 @@ class MoodleUtility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = ['blockname' => \preg_replace('/^block_/', '', $blockname)];
-        $debug && \debugging($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
+        $debug && \debugging($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params));
 
         $records = $DB->get_records('block_instances', $params);
-        $debug && \debugging($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
+        $debug && \debugging($fxn . '::Found $records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records)));
         if (ia_u::is_empty($records)) {
             $debug && \debugging($fxn . "::No instances of block_{$blockname} found");
             return [];
@@ -185,7 +185,7 @@ class MoodleUtility {
         // Go through each of the block instances and check visibility.
         $blockinstancerecords = [];
         foreach ($records as $r) {
-            $debug && \debugging($fxn . '::Looking at $br=' . ia_u::var_dump($r, true));
+            $debug && \debugging($fxn . '::Looking at $br=' . ia_u::var_dump($r));
 
             // Check if it is visible and get the IA appid from the block instance config.
             $blockinstancevisible = self::is_block_visibile($r->parentcontextid, $r->id);
@@ -472,7 +472,7 @@ class MoodleUtility {
             $params['pagetype'] = $pagetype;
         }
         $record = $DB->get_record('block_positions', $params, 'id,visible', \IGNORE_MULTIPLE);
-        $debug && \debugging($fxn . '::Got $record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record, true)));
+        $debug && \debugging($fxn . '::Got $record=' . (ia_u::is_empty($record) ? '' : ia_u::var_dump($record)));
         if (ia_u::is_empty($record)) {
             $debug && \debugging($fxn . "::There is no block_positions record, and the default is visible");
             return true;
@@ -566,7 +566,7 @@ class MoodleUtility {
                       FROM {course_modules} cm
                       JOIN {course} c ON c.id = cm.course
                      WHERE cm.id = ?', [$cmid], 'id', \IGNORE_MULTIPLE);
-        $debug && \debugging($fxn . '::Got course=' . ia_u::var_dump($course, true));
+        $debug && \debugging($fxn . '::Got course=' . ia_u::var_dump($course));
 
         if (ia_u::is_empty($course) || !isset($course->id)) {
             $debug && \debugging($fxn . "::No course found for cmid={$cmid}");
@@ -712,14 +712,14 @@ class MoodleUtility {
 
         // We cannot filter for if the block is visible here b/c the block_participant row is usually NULL in these cases.
         $params = ['blockname' => \preg_replace('/^block_/', '', $blockname), 'parentcontextid' => $modulecontext->id];
-        $debug && \debugging($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params, true));
+        $debug && \debugging($fxn . '::Looking in table block_instances with params=' . ia_u::var_dump($params));
 
         // Z--.
         // Danger: Caching the resulting $record in the perrequest cache didn't work - we get an invalid stdClass back out.
         // Z--.
         global $DB;
         $records = $DB->get_records('block_instances', $params);
-        $debug && \debugging($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records, true)));
+        $debug && \debugging($fxn . '::Found blockinstance records=' . (ia_u::is_empty($records) ? '' : ia_u::var_dump($records)));
         if (ia_u::is_empty($records)) {
             $debug && \debugging($fxn . "::No instances of block_{$blockname} is associated with this context");
             return null;
@@ -1050,10 +1050,10 @@ class MoodleUtility {
         }
 
         $cm = \get_course_and_cm_from_cmid($cmid, 'quiz', $courseid /* Include even if the participant cannot access the module */)[1];
-        $debug && \debugging($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance, true));
+        $debug && \debugging($fxn . '::Got $cm->instance=' . ia_u::var_dump($cm->instance));
 
         $quizrecord = self::get_record_cached('quiz', ['id' => (int) ($cm->instance)], '*', \MUST_EXIST);
-        // Disabled bc TMI: $debug && \debugging($fxn . '::Got $quizrecord=' . ia_u::var_dump($quizrecord, true));.
+        // Disabled bc TMI: $debug && \debugging($fxn . '::Got $quizrecord=' . ia_u::var_dump($quizrecord));.
         $debug && \debugging($fxn . '::Got $quizrecord->reviewattempt dec=' . $quizrecord->reviewattempt . '; hex=' . dechex($quizrecord->reviewattempt));
 
         global $CFG;

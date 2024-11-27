@@ -89,7 +89,7 @@ const INTEGRITYADVOCATE_FEATURE_QUIZATTEMPT_TIME_UPDATED = true;
 function block_integrityadvocate_get_participants_for_blockcontext(\context $blockcontext): array {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false;
-    $debug && debugging($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext, true));
+    $debug && debugging($fxn . '::Started with $context=' . ia_u::var_dump($blockcontext));
 
     // We only have user data where the block_integrityadvocate is added to a module.
     // In these cases we have existing code to get the user data from the blockinstance.
@@ -251,7 +251,7 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
         $debug && debugging($fxn . '::No $course specified');
         return 'no_course';
     }
-    $debug && debugging($fxn . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : ia_u::var_dump($filter, true)));
+    $debug && debugging($fxn . '::Started with courseid=' . $course->id . '; $filter=' . (empty($filter) ? '' : ia_u::var_dump($filter)));
 
     // Get modules in this course.
     $modules = ia_mu::get_modules_with_completion($course->id);
@@ -329,7 +329,7 @@ function block_integrityadvocate_get_course_ia_modules($course, $filter = []) {
 function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $filter = []): array {
     $fxn = INTEGRITYADVOCATE_NONAMESPACE_FUNCTION_PREFIX . ia_u::filepath_relative_to_plugin(__FILE__) . '::' . __FUNCTION__;
     $debug = false;
-    $debug && debugging($fxn . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter, true) : ''));
+    $debug && debugging($fxn . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter) : ''));
 
     // Since we update the modules in this loop, the $m is purposely by reference.
     foreach ($modules as $key => &$m) {

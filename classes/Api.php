@@ -161,7 +161,7 @@ class Api {
 
         $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
-            $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+            $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode);
             \debugging($msg);
         }
         return $success;
@@ -179,7 +179,7 @@ class Api {
     private static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params, true);
+        $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params);
         $debug && \debugging($debugvars);
 
         // If the block is not configured yet, simply return empty result.
@@ -216,7 +216,7 @@ class Api {
         }
 
         // Set up request variables. Ref API docs at https://www.integrityadvocateserver.com/developers#aEvents.
-        $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params, true) : ''));
+        $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params) : ''));
         $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
         $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, '', '&') : '');
         $debug && \debugging($fxn . '::Built $requesturi=' . $requesturi);
@@ -257,15 +257,15 @@ class Api {
         $responsecode = isset($responseinfo['http_code']) ? ((int) ($responseinfo['http_code'])) : -1;
 
         $debug && \debugging($fxn .
-            '::Sent url=' . ia_u::var_dump($requesturi, true) . '; err_no=' . $curl->get_errno() .
-            '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode, true) : '') .
-            '; $response=' . ia_u::var_dump($response, true) .
-            '; $responseparsed=' . ia_u::var_dump($responseparsed, true));
+            '::Sent url=' . ia_u::var_dump($requesturi) . '; err_no=' . $curl->get_errno() .
+            '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode) : '') .
+            '; $response=' . ia_u::var_dump($response) .
+            '; $responseparsed=' . ia_u::var_dump($responseparsed));
 
         $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed on: ' . $requestmethod . ' url=' . \var_export($requesturi, true)
-                . '; Response http_code=' . ia_u::var_dump($responsecode, true);
+                . '; Response http_code=' . ia_u::var_dump($responsecode);
             \debugging($msg);
 
             $userid = isset($USER->id) ? $USER->id : 0;
@@ -415,7 +415,7 @@ class Api {
                 'blockinstanceid' => $blockinstanceid,
             ]
         );
-        $debug && \debugging($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw, true));
+        $debug && \debugging($fxn . '::Got $participantraw=' . ia_u::var_dump($participantraw));
         if (ia_u::is_empty($participantraw) || !($participantraw instanceof \stdClass)) {
             $debug && \debugging($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
             return null;
@@ -425,7 +425,7 @@ class Api {
         if (!($participant instanceof Participant)) {
             return null;
         }
-        $debug && \debugging($fxn . '::Built $participant=' . ia_u::var_dump($participant, true));
+        $debug && \debugging($fxn . '::Built $participant=' . ia_u::var_dump($participant));
 
         return $participant;
     }
@@ -473,7 +473,7 @@ class Api {
         $participantscached->participantsraw = \array_merge($participantscached->participantsraw, self::get_participants_data($apikey, $appid, $params));
         $debug && \debugging($fxn . '::After get_participants_data() and merge, count($participantscached)=' .
             ia_u::count_if_countable($participantscached->participantsraw) . '; API result=' .
-            ia_u::var_dump($participantscached->participantsraw, true));
+            ia_u::var_dump($participantscached->participantsraw));
 
         if (ia_u::is_empty($participantscached->participantsraw)) {
             $debug && \debugging($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -484,7 +484,7 @@ class Api {
         $debug && \debugging($fxn . '::About to process the participants returned');
         $participantsparsed = [];
         foreach ($participantscached->participantsraw as $pr) {
-            $debug && \debugging($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
+            $debug && \debugging($fxn . '::Looking at $pr=' . ia_u::var_dump($pr));
             if (ia_u::is_empty($pr) || !($pr instanceof \stdClass)) {
                 $debug && \debugging($fxn . '::Skip: This $pr entry is empty');
                 continue;
@@ -495,7 +495,7 @@ class Api {
             if (!($participant instanceof Participant)) {
                 continue;
             }
-            $debug && \debugging($fxn . '::Built $participant=' . ia_u::var_dump($participant, true));
+            $debug && \debugging($fxn . '::Built $participant=' . ia_u::var_dump($participant));
 
             // Skip if parsing failed.
             if (ia_u::is_empty(($participant))) {
@@ -570,7 +570,7 @@ class Api {
 
         // The $result is a array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
-        $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result, true));
+        $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result));
 
         if (ia_u::is_empty($result)) {
             $debug && \debugging($fxn . '::' . \get_string('no_remote_participants', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -596,7 +596,7 @@ class Api {
             $recursecountparticipants--;
         }
 
-        // Disabled on purpose: $debug && \debugging($fxn . '::About to return $participants=' . ia_u::var_dump($participants, true));.
+        // Disabled on purpose: $debug && \debugging($fxn . '::About to return $participants=' . ia_u::var_dump($participants));.
         $debug && \debugging($fxn . '::About to return count($participants)=' . ia_u::count_if_countable($participants));
         return $participants;
     }
@@ -638,7 +638,7 @@ class Api {
 
         // This gets a json-decoded object of the IA API curl result.
         $participantsessionsraw = self::get_participantsessions_data($apikey, $appid, $params);
-        $debug && \debugging($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API results= ' . ia_u::var_dump($participantsessionsraw, true));
+        $debug && \debugging($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API results= ' . ia_u::var_dump($participantsessionsraw));
 
         if (ia_u::is_empty($participantsessionsraw)) {
             $debug && \debugging($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -702,7 +702,7 @@ class Api {
 
         // The $result is a array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTSESSIONS, $apikey, $appid, $params);
-        $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result, true));
+        $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result));
 
         if (ia_u::is_empty($result)) {
             $debug && \debugging($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -735,7 +735,7 @@ class Api {
         }
 
         // Disabled on purpose: $debug && \debugging($fxn . '::About to return $participantsessions=' .
-        // ia_u::var_dump($participantsessions, true));.
+        // ia_u::var_dump($participantsessions));.
         $debug && \debugging($fxn . '::About to return count($participantsessions)=' . ia_u::count_if_countable($participantsessions));
         return $participantsessions;
     }
@@ -754,7 +754,7 @@ class Api {
     private static function attach_sessions_to_mock_participants(int $courseid, int $moduleid, int $userid, array $participantsessionsraw): array {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$courseid={$courseid}; \$moduleid={$moduleid}; \$participantsessionsraw=" . ia_u::var_dump($participantsessionsraw, true);
+        $debugvars = $fxn . "::Started with \$courseid={$courseid}; \$moduleid={$moduleid}; \$participantsessionsraw=" . ia_u::var_dump($participantsessionsraw);
         $debug && \debugging($debugvars);
 
         // Sanity check.
@@ -784,7 +784,7 @@ class Api {
         $parsedparticipantsessions = [];
         $newparticipant = new ia_participant();
         foreach ($participantsessionsraw as $pr) {
-            $debug && \debugging($fxn . '::Looking at $pr=' . ia_u::var_dump($pr, true));
+            $debug && \debugging($fxn . '::Looking at $pr=' . ia_u::var_dump($pr));
             if (ia_u::is_empty($pr) || !isset($pr->ParticipantIdentifier) || !\is_numeric($participantidentifier = $pr->ParticipantIdentifier)) {
                 $debug && \debugging($fxn . '::Skip: This $participantsessionsraw entry is empty or invalid');
                 continue;
@@ -827,14 +827,14 @@ class Api {
                 $participant->email = $user->email;
                 $participants[$participantidentifier] = $participant;
             }
-            $debug && \debugging($fxn . '::Got $participant=' . ia_u::var_dump($participant, true));
+            $debug && \debugging($fxn . '::Got $participant=' . ia_u::var_dump($participant));
 
             // Use the stored participant.
             $participant = $participants[$participantidentifier];
 
             // Parse the participant session returned.
             $participantsession = self::parse_session($pr, $participant);
-            $debug && \debugging($fxn . '::Built $participantsession=' . ia_u::var_dump($participantsession, true));
+            $debug && \debugging($fxn . '::Built $participantsession=' . ia_u::var_dump($participantsession));
 
             // Skip if parsing failed.
             if (ia_u::is_empty(($participantsession)) || !isset($participantsession->id)) {
@@ -896,7 +896,7 @@ class Api {
 
         // This gets a json-decoded object of the IA API curl result.
         $participantsessionsraw = self::get_participantsessions_activity_data($apikey, $appid, $params);
-        $debug && \debugging($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API results= ' . ia_u::var_dump($participantsessionsraw, true));
+        $debug && \debugging($fxn . '::Got ' . ia_u::count_if_countable($participantsessionsraw) . ' API results= ' . ia_u::var_dump($participantsessionsraw));
 
         if (ia_u::is_empty($participantsessionsraw)) {
             $debug && \debugging($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -962,7 +962,7 @@ class Api {
 
         // The $result is a array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY, $apikey, $appid, $params);
-        $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result, true));
+        $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result));
 
         if (ia_u::is_empty($result)) {
             $debug && \debugging($fxn . '::' . \get_string('no_remote_participant_sessions', INTEGRITYADVOCATE_BLOCK_NAME));
@@ -995,7 +995,7 @@ class Api {
         }
 
         // Disabled on purpose: $debug && \debugging($fxn . '::About to return $participantsessions=' .
-        // ia_u::var_dump($participantsessions, true));.
+        // ia_u::var_dump($participantsessions));.
         $debug && \debugging($fxn . '::About to return count($participantsessions)=' . ia_u::count_if_countable($participantsessions));
         return $participantsessions;
     }
@@ -1151,7 +1151,7 @@ class Api {
         }
 
         $latestsession = self::get_module_session_latest($modulecontext, $userid);
-        $debug && \debugging($fxn . '::Got $latestsession=' . ia_u::var_dump($latestsession, true));
+        $debug && \debugging($fxn . '::Got $latestsession=' . ia_u::var_dump($latestsession));
         if (ia_u::is_empty($latestsession)) {
             $debug && \debugging($fxn . "::The latest session for userid={$userid} was not found");
             return $notfoundval;
@@ -1248,7 +1248,7 @@ class Api {
     private static function parse_participantphoto(string $photostring): string {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && \debugging($fxn . '::Started with $photostring=' . ia_u::var_dump($photostring, true));
+        $debug && \debugging($fxn . '::Started with $photostring=' . ia_u::var_dump($photostring));
 
         $matches = [];
         switch (true) {
@@ -1272,7 +1272,7 @@ class Api {
     private static function parse_session(\stdClass $input, ia_participant $participant): ?Session {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && \debugging($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
+        $debug && \debugging($fxn . '::Started with $input=' . ia_u::var_dump($input));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -1356,7 +1356,7 @@ class Api {
             throw new \Exception('Failed to set value in the cache');
         }
 
-        $debug && \debugging($fxn . '::About to return $session=' . ia_u::var_dump($output, true));
+        $debug && \debugging($fxn . '::About to return $session=' . ia_u::var_dump($output));
         return $output;
     }
 
@@ -1369,7 +1369,7 @@ class Api {
     public static function parse_participant(\stdClass $input): ?Participant {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && \debugging($fxn . '::Started with $input=' . ia_u::var_dump($input, true));
+        $debug && \debugging($fxn . '::Started with $input=' . ia_u::var_dump($input));
 
         // Sanity check.
         if (ia_u::is_empty($input)) {
@@ -1492,7 +1492,7 @@ class Api {
         if (!$cache->set($cachekey, $output)) {
             throw new \Exception('Failed to set value in the cache');
         }
-        $debug && \debugging($fxn . '::Done sessions fields. About to return $participant=' . ia_u::var_dump($output, true));
+        $debug && \debugging($fxn . '::Done sessions fields. About to return $participant=' . ia_u::var_dump($output));
         return $output;
     }
 
@@ -1506,7 +1506,7 @@ class Api {
     public static function validate_endpoint_params(string $endpoint, array $params = []): bool {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && \debugging($fxn . "::Started with \$endpoint={$endpoint}; \$params=" . ($params ? ia_u::var_dump($params, true) : ''));
+        $debug && \debugging($fxn . "::Started with \$endpoint={$endpoint}; \$params=" . ($params ? ia_u::var_dump($params) : ''));
 
         // For each endpoint, specify what the accepted params are and their types.
         switch ($endpoint) {
@@ -1604,7 +1604,7 @@ class Api {
                 }
             } catch (\Exception $e) {
                 // Log a more useful message than Moodle gives us, then just throw it again.
-                \debugging($fxn . '::The param is valid but the type is wrong for param=' . $paramname . '; $paramval=' . ia_u::var_dump($paramval, true));
+                \debugging($fxn . '::The param is valid but the type is wrong for param=' . $paramname . '; $paramval=' . ia_u::var_dump($paramval));
                 throw $e;
             }
         }
