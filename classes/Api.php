@@ -334,51 +334,6 @@ class Api {
     }
 
     /**
-     * Get participant sessions related to a user in a specific module.
-     *
-     * @param \context $modulecontext Module context to look in.
-     * @param int $userid User to get participant data for.
-     * @param int $limit How many records to return; default 0=all.
-     * @return array<Session> Array of Sessions; Empty array if nothing found.
-     */
-    public static function get_module_user_sessions(\context $modulecontext, int $userid, int $limit = 0): array {
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}; \$limit={$limit}";
-        $debug && \debugging($debugvars);
-
-        // Sanity check.
-        if (ia_u::is_empty($modulecontext) || ($modulecontext->contextlevel !== \CONTEXT_MODULE)) {
-            $msg = 'Input params are invalid: ' . $debugvars;
-            \debugging($fxn . '::' . $msg . '::' . $debugvars);
-            throw new \InvalidArgumentException($msg);
-        }
-
-        if (empty($userid)) {
-            return [];
-        }
-
-        // Get the APIKey and AppID for this module.
-        $blockinstance = ia_mu::get_first_block($modulecontext, INTEGRITYADVOCATE_SHORTNAME, true);
-        $debug && \debugging($fxn . '::Got blockinstance with id=' . isset($blockinstance->instance->id) ?: 'empty');
-
-        // If the block is not configured yet, simply return empty result.
-        if (ia_u::is_empty($blockinstance) || !ia_u::is_empty($blockinstance->get_config_errors())) {
-            $debug && \debugging($fxn . '::The blockinstance is empty or has config errors, so return empty array');
-            return [];
-        }
-
-        return self::get_participantsessions(
-            $blockinstance->config->apikey,
-            $blockinstance->config->appid,
-            $modulecontext->get_course_context()->instanceid,
-            $modulecontext->instanceid,
-            $userid,
-            $limit
-        );
-    }
-
-    /**
      * Get a single IA proctoring participant data from the remote API.
      * The IA remote endpoint does not allow specifying activityid so you'll
      * have to iterate sessions[] to get the relevant records for just one module.
@@ -1120,7 +1075,7 @@ class Api {
      * @return int A block_integrityadvocate\Status status constant _INT value.
      */
     public static function get_module_status(\context $modulecontext, int $userid): int {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$modulecontext->instanceid={$modulecontext->instanceid}; \$userid={$userid}";
         $debug && \debugging($debugvars);
