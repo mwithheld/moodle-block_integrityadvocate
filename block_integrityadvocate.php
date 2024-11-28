@@ -264,7 +264,7 @@ class block_integrityadvocate extends block_base {
         }
 
         /*
-         * If this block is added to a a quiz, warn instructors if the block is hidden to students during quiz attempts.
+         * If this block is added to a quiz, warn instructors if the block is hidden to students during quiz attempts.
          */
         // @phpcs:ignore
         if (str_starts_with($modulecontext->get_context_name(), 'quiz')) {
