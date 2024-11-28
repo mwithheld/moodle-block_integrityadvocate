@@ -37,7 +37,7 @@ defined('MOODLE_INTERNAL') || die;
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
 
-$debug = true;
+$debug = false;
 $debug && \debugging(__FILE__ . '::Started with $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER.
