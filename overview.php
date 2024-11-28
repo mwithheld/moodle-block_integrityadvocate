@@ -37,8 +37,6 @@ use block_integrityadvocate\Utility as ia_u;
 require_once(\dirname(__FILE__, 3) . '/config.php');
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
-require_once($CFG->dirroot . '/notes/lib.php');
-require_once($CFG->libdir . '/tablelib.php');
 
 /** @var int How many users per page to show by default. */
 const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
@@ -113,29 +111,6 @@ switch (true) {
         $requestedpage = 'overview-course';
 
         $PAGE->set_context($coursecontext);
-
-        // The Moodle Participants table wants lots of params.
-        $groupid = \optional_param('group', 0, \PARAM_ALPHANUMEXT);
-        $currpage = \optional_param('currpage', 0, \PARAM_INT);
-        $perpage = \optional_param('perpage', INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE, \PARAM_INT);
-
-        // To prevent two role= params in the querystring, only set it if not specified.
-        // Find the role to display, defaulting to students.  0 means all enrolled users.
-        // To use the default student role, use second param=ia_mu::get_default_course_role($coursecontext).
-        $roleid = \optional_param('role', -1, \PARAM_INT);
-        if ($roleid < 0) {
-            $roleid = ia_mu::get_default_course_role($coursecontext);
-            $params += [
-                'role' => $roleid,
-            ];
-        }
-
-        // We will add these params to the URL later.
-        $params += [
-            'group' => $groupid,
-            'perpage' => $perpage,
-            'currpage' => $currpage,
-        ];
         break;
     default:
         throw new \InvalidArgumentException('Failed to figure out which overview to show');
@@ -193,7 +168,7 @@ switch (true) {
     case ($setuperrors = ia_mu::get_completion_setup_errors($course)):
         $debug && \debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
         foreach ($setuperrors as $err) {
-            echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
+            echo \get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
         }
         break;
 
@@ -204,7 +179,7 @@ switch (true) {
         break;
 
     case (\is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
-        $msg = get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
+        $msg = \get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
         $debug && \debugging(__FILE__ . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);
         break;
