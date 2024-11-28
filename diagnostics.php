@@ -36,7 +36,7 @@ require_once(__DIR__ . '/lib.php');
 // Bool flag to tell the overview-course.php and overview-user.php pages the include is legit.
 \define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
-$debug = false;
+$debug = true;
 
 \require_login();
 
@@ -71,7 +71,7 @@ $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
     throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" .
-        \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext, true));
+        \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
 }
 
 // Set up page parameters. All $PAGE setup must be done before output.
@@ -97,46 +97,63 @@ $PAGE->navbar->add($pagename);
 // All header parts like JS, CSS must be above this.
 echo $OUTPUT->header();
 // $headingjs = 'document.getElementById("iframelaunch").src=document.getElementById("iframelaunch").src;e.preventDefault();return false';
-echo $OUTPUT->heading($title);// . '&nbsp;' . $OUTPUT->image_icon('i/reload', \get_string('refresh'), 'moodle', ['onclick' => $headingjs]), 2);
+echo $OUTPUT->heading($title); // . '&nbsp;' . $OUTPUT->image_icon('i/reload', \get_string('refresh'), 'moodle', ['onclick' => $headingjs]), 2);
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
-// Gather capabilities for later use.
-$hascapabilitydiagnostics = \has_capability('block/integrityadvocate:diagnostics', $blockcontext);
+// Security: Check capability.
+\require_capability('block/integrityadvocate:diagnostics', $blockcontext);
 
-// Check for errors that mean we should not show any overview page.
-switch (true) {
-    case ($configerrors = $blockinstance->get_config_errors()):
-        $debug && \debugging(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
-        // Instructors see the errors on-screen.
-        if ($hascapabilityoverview) {
-            \core\notification::error(\implode(ia_output::BRNL, $configerrors));
-        }
-        break;
+// Check for errors that mean we should not show the page.
+// switch (true) {
+//     case ($configerrors = $blockinstance->get_config_errors()):
+//         $debug && \debugging(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
+//         \core\notification::error(\implode(ia_output::BRNL, $configerrors ?? ['Something went wrong getting config errors']));
+//         break;
 
-    case ($setuperrors = ia_mu::get_completion_setup_errors($course)):
-        $debug && \debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
-        foreach ($setuperrors as $err) {
-            echo \get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
-        }
-        break;
+//     case ($setuperrors = ia_mu::get_completion_setup_errors($course)):
+//         $debug && \debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
+//         foreach ($setuperrors as $err) {
+//             echo \get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
+//         }
+//         break;
 
-    // case (!$hascapabilityoverview && !$hascapabilityselfview):
-    //     $msg = 'No permissions to see anything in the block';
-    //     $debug && \debugging(__FILE__ . "::{$msg}");
-    //     \core\notification::error($msg . ia_output::BRNL);
-    //     break;
+//     case (\is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
+//         $msg = \get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
+//         $debug && \debugging(__FILE__ . "::{$msg}");
+//         \core\notification::error($msg . ia_output::BRNL);
+//         break;
 
-    case (\is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
-        $msg = \get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
-        $debug && \debugging(__FILE__ . "::{$msg}");
-        \core\notification::error($msg . ia_output::BRNL);
-        break;
-
-    default:
-        $debug && \debugging(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
-}
+//     default:
+//         $debug && \debugging(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
+// }
 
 echo 'Diagnostics go here';
+
+$table = new \html_table();
+$table->data = [];
+$table->head  = [
+    get_string('status'),
+    get_string('check'),
+    get_string('summary'),
+];
+$table->colclasses = [
+    'rightalign status',
+    'leftalign check',
+    'leftalign summary',
+];
+$table->id = 'message_airnotifier_checkconfiguration';
+$table->attributes = ['class' => 'admintable generaltable'];
+$table->data = [];
+
+$senddisabled = false;
+// foreach ($checkresults as $result) {
+//     if ($result->get_status() == core\check\result::CRITICAL || $result->get_status() == core\check\result::ERROR) {
+//         $senddisabled = true;
+//     }
+//     $table->data[] = [$OUTPUT->check_result($result), $result->get_summary(), $result->get_details()];
+// }
+
+echo \html_writer::table($table);
 
 echo $OUTPUT->container_end();
 
