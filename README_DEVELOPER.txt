@@ -4,6 +4,7 @@ Behat on Docker
 bin/moodle-docker-compose exec webserver php admin/tool/behat/cli/init.php
 bin/moodle-docker-compose exec -u www-data webserver php admin/tool/behat/cli/run.php --tags=@block_integrityadvocate_course 
 # Some options for admin/cli/run.php:
+# ... --format=pretty --colors --no-snippets
 # ... --format=pretty --format-settings '{"formats": "html,image", "dir_permissions": "0777"}'
 
 # Tests that interact with the Integrity Advocate API or use the IA UI...
