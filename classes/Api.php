@@ -526,7 +526,7 @@ class Api {
             $params['nexttoken'] = $nexttoken;
         }
 
-        // The $result is a array from the json-decoded results.
+        // The $result is an array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTS, $apikey, $appid, $params);
         $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result));
 
@@ -658,7 +658,7 @@ class Api {
             $params['nexttoken'] = $nexttoken;
         }
 
-        // The $result is a array from the json-decoded results.
+        // The $result is an array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTSESSIONS, $apikey, $appid, $params);
         $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result));
 
@@ -918,7 +918,7 @@ class Api {
             $params['nexttoken'] = $nexttoken;
         }
 
-        // The $result is a array from the json-decoded results.
+        // The $result is an array from the json-decoded results.
         $result = self::get(self::ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY, $apikey, $appid, $params);
         $debug && \debugging($fxn . '::Got API result=' . ia_u::var_dump($result));
 
