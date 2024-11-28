@@ -17,7 +17,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
 
-  @block_integrityadvocate_config_warn_completion_disabled_site
+  @block_integrityadvocate_course_config_warn_completion_disabled_site
   Scenario: Teacher should be warned if completion is disabled at the site level
     When I log in as "admin"
     And I navigate to "Advanced features" in site administration
@@ -29,7 +29,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I add the "Integrity Advocate" block
     Then I should see "Completion tracking is not enabled on this site"
 
-  @block_integrityadvocate_config_warn_completion_disabled_course
+  @block_integrityadvocate_course_config_warn_completion_disabled_course
   Scenario: Teacher should be warned if completion is disabled at the course level
     Given the following "courses" exist:
       | fullname | shortname | enablecompletion |
@@ -48,7 +48,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I am on "Course 0" course homepage
     Then "block_integrityadvocate" "block" should not exist
 
-  @block_integrityadvocate_config_warn_no_completion
+  @block_integrityadvocate_course_config_warn_no_completion
   Scenario: Teacher should be warned if no activities with completion
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
@@ -60,7 +60,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I am on "Course 1" course homepage
     Then "block_integrityadvocate" "block" should not exist
 
-  @javascript @block_integrityadvocate_config_application_id_empty
+  @javascript @block_integrityadvocate_course_config_application_id_empty
   Scenario: Teacher should be warned if block config application id is empty
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
@@ -72,7 +72,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I press "Save changes"
     Then I should see "You must supply a value here."
 
-  @javascript @block_integrityadvocate_config_application_id_invalid
+  @javascript @block_integrityadvocate_course_config_application_id_invalid
   Scenario: Teacher should be warned if block config application id is invalid
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
@@ -85,7 +85,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I press "Save changes"
     Then I should see "Invalid Application id"
 
-  @javascript @block_integrityadvocate_config_api_key_empty
+  @javascript @block_integrityadvocate_course_config_api_key_empty
   Scenario: Teacher should be warned if block config api key is empty
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
@@ -97,7 +97,7 @@ Feature: Add and configure IntegrityAdvocate block to a course
     And I press "Save changes"
     Then I should see "You must supply a value here."
 
-  @javascript @block_integrityadvocate_config_api_key_invalid
+  @javascript @block_integrityadvocate_course_config_api_key_invalid
   Scenario: Teacher should be warned if block config api key is invalid
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
