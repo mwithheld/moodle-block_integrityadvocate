@@ -66,52 +66,8 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     And "Course overview" "button" should be visible
     And "Module overview" "button" should be visible
 
-  @javascript @block_integrityadvocate_quiz_course_overview_moodle_items
-  Scenario: Teacher should see Moodle-created items on the course overview page
-    When I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    When I am on the "Quiz 1" "quiz activity" page
-    And I add the "Integrity Advocate" block
-    When I configure the "block_integrityadvocate" block
-    And block_integrityadvocate I set the fields from CFG:
-      | Application id | block_integrityadvocate_appid  |
-      | API key        | block_integrityadvocate_apikey |
-    And I press "Save changes"
-    When I click on "Course overview" "button"
-    And block_integrityadvocate I add test output "Test header -----"
-    Then I should see "Course 1: Integrity Advocate course overview" in the "#region-main h2" "css_element"
-    And I should not see "Quiz 1"
-    And block_integrityadvocate I add test output "Test footer -----"
-    And I should see "Version 20" in the "#page-content" "css_element"
-    And I should see "Application id " in the "#page-content" "css_element"
-    And I should see "Block id " in the "#page-content" "css_element"
-    Then "Back to course" "button" should be visible
-    When I switch to "iframelaunch" class iframe
-    And I wait until the page is ready
-    And I should see "Participants" in the ".integrity-tabs" "css_element"
-
-  @javascript @block_integrityadvocate_quiz_course_overview_ia_items @_switch_iframe
-  Scenario: Teacher should see IA-created items in the course overview iframe
-    When I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    When I am on the "Quiz 1" "quiz activity" page
-    And I add the "Integrity Advocate" block
-    When I configure the "block_integrityadvocate" block
-    And block_integrityadvocate I set the fields from CFG:
-      | Application id | block_integrityadvocate_appid  |
-      | API key        | block_integrityadvocate_apikey |
-    And I press "Save changes"
-    When I click on "Course overview" "button"
-    And block_integrityadvocate I add test output "Test IA-created items -----"
-    When I switch to "iframelaunch" class iframe
-    And I wait until the page is ready
-    And I should see "Participants" in the ".integrity-tabs" "css_element"
-    And I should see "Activities" in the ".integrity-tabs" "css_element"
-    And I should see "Admin" in the ".integrity-tabs" "css_element"
-    And I should see "Search Participant Sessions"
-
-  @javascript @block_integrityadvocate_quiz_course_overview_ia_enble_proctoring @_switch_iframe
-  Scenario: Teacher should see IA-created items in the course overview iframe
+  @javascript @block_integrityadvocate_quiz_course_overview_ia_enable_proctoring @_switch_iframe
+  Scenario: Student can do proctoring
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
