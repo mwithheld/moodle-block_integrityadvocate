@@ -38,26 +38,17 @@ require_once(\dirname(__FILE__, 3) . '/config.php');
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
 
-/** @var int How many users per page to show by default. */
-const INTEGRITYADVOCATE_DEFAULT_PAGE_SIZE = 10;
-
 // Bool flag to tell the overview-course.php and overview-user.php pages the include is legit.
 \define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false;
-
-// Suppress debug notice that we have not done PAGE->set_url().
-$debug && ($debugbackup = $CFG->debug);
-$debug && ($CFG->debug = null);
-$debug && \debugging(\basename(__FILE__) . "::Started with \$PAGE->url={$PAGE->url}");
-$debug && ($CFG->debug = $debugbackup);
 
 \require_login();
 
 // Gather form data.
 // Used for the APIkey and AppId.
 $blockinstanceid = \required_param('instanceid', \PARAM_INT);
-// Used for all overview pages.
+// Used for all pages.
 $courseid = \required_param('courseid', \PARAM_INT);
 // Used for overview-user page.
 $userid = \optional_param('userid', 0, \PARAM_INT);
@@ -85,14 +76,14 @@ switch (true) {
     case ($userid):
         // As a student on the quiz intro page (e.g. /mod/quiz/view.php?id=1) I should see the student overview button in the IA block.
         $debug && \debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
-        $requestedpage = 'overview-user';
+        $pageslug = 'overview-user';
         $params += [
             'userid' => $userid,
         ];
         break;
     case ($courseid && $moduleid):
         $debug && \debugging(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
-        $requestedpage = 'overview-module';
+        $pageslug = 'overview-module';
 
         // For now, assume the moduleid is valid. We will check it in overview-module.
         $context = \context_module::instance($moduleid);
@@ -108,7 +99,7 @@ switch (true) {
         break;
     case ($courseid):
         $debug && \debugging(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
-        $requestedpage = 'overview-course';
+        $pageslug = 'overview-course';
 
         $PAGE->set_context($coursecontext);
         break;
@@ -128,21 +119,21 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
 // Set up page parameters. All $PAGE setup must be done before output.
 $PAGE->set_pagelayout('report');
 $PAGE->set_course($course);
-$PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
+$PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $pageslug);
 $PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
 
 // Used to build the page URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview.php', $params);
 $PAGE->set_url($baseurl);
 
-$page = \get_string(\str_replace('-', '_', $requestedpage), INTEGRITYADVOCATE_BLOCK_NAME);
-$title = format_string($course->fullname) . ': ' . $page;
+$pagename = \get_string(\str_replace('-', '_', $pageslug), INTEGRITYADVOCATE_BLOCK_NAME);
+$title = \format_string($course->fullname) . ': ' . $pagename;
 $courseurl = new \moodle_url('/course/view.php', ['id' => $courseid]);
 
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->navbar->add(format_string($course->fullname), $courseurl);
-$PAGE->navbar->add($page);
+$PAGE->navbar->add(\format_string($course->fullname), $courseurl);
+$PAGE->navbar->add($pagename);
 
 // Start page output.
 // All header parts like JS, CSS must be above this.
@@ -188,7 +179,7 @@ switch (true) {
         $debug && \debugging(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
         // Open the requested overview page.
-        require_once($requestedpage . '.php');
+        require_once($pageslug . '.php');
 }
 
 echo $OUTPUT->container_end();
