@@ -1,7 +1,7 @@
 # These are course-level tests that require an activity for the test to work.
 
-@block @block_integrityadvocate @block_integrityadvocate_course_with_quiz @block_integrityadvocate_course_config
-Feature: Add and configure IntegrityAdvocate block to a course
+@block @block_integrityadvocate @block_integrityadvocate_course @block_integrityadvocate_activity @block_integrityadvocate_course_with_activity @block_integrityadvocate_course_with_quiz
+Feature: Add IntegrityAdvocate block to a course and an activity
   In order to have an IntegrityAdvocate block on a course
   A a teacher or as a student
   I need to be able to create, configure and change IntegrityAdvocate blocks, and view it as a student
