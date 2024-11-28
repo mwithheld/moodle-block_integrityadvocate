@@ -100,6 +100,9 @@ switch (true) {
         $context = \context_module::instance($moduleid);
         $PAGE->set_context($context);
 
+        [$course, $cm] = \get_course_and_cm_from_cmid($moduleid);
+        $PAGE->set_cm($cm, $COURSE);
+
         // Note this operation does not replace existing values ref https://stackoverflow.com/a/7059731.
         $params += [
             'moduleid' => $moduleid,
@@ -147,7 +150,7 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
         \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext, true));
 }
 
-// Set up page parameters.
+// Set up page parameters. All $PAGE setup must be done before output.
 $PAGE->set_pagelayout('report');
 $PAGE->set_course($course);
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $requestedpage);
@@ -187,14 +190,14 @@ switch (true) {
         }
         break;
 
-    case($setuperrors = ia_mu::get_completion_setup_errors($course)):
+    case ($setuperrors = ia_mu::get_completion_setup_errors($course)):
         $debug && \debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
         foreach ($setuperrors as $err) {
             echo get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
         }
         break;
 
-    case(!$hascapabilityoverview && !$hascapabilityselfview):
+    case (!$hascapabilityoverview && !$hascapabilityselfview):
         $msg = 'No permissions to see anything in the block';
         $debug && \debugging(__FILE__ . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);
