@@ -212,6 +212,17 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
     $debug = false;
     $debug && debugging($fxn . '::Started with ' . ia_u::count_if_countable($modules) . ' modules; $filter=' . ($filter ? ia_u::var_dump($filter) : ''));
 
+    // Cache so multiple calls don't repeat the same work.
+    // Using a persession cache here forces logout.
+    $cache = \cache::make('block_integrityadvocate', 'perrequest');
+    $cachekey = ia_mu::get_cache_key(__CLASS__ . '_' . __FUNCTION__ . '_' . \json_encode($modules, \JSON_PARTIAL_OUTPUT_ON_ERROR)
+        . \json_encode($filter, \JSON_PARTIAL_OUTPUT_ON_ERROR));
+    $debug && \debugging($fxn . "::Built cachekey={$cachekey}");
+    if ($cachedvalue = $cache->get($cachekey)) {
+        $debug && \debugging($fxn . '::Found a cached value, so return that');
+        return $cachedvalue;
+    }
+
     // Since we update the modules in this loop, the $m is purposely by reference.
     foreach ($modules as $key => &$m) {
         $debug && debugging($fxn . '::Looking at module=' . ia_u::var_dump($m));
@@ -267,6 +278,9 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
         $m['block_integrityadvocate_instance']['instance'] = $blockinstance;
     }
 
+    if (!$cache->set($cachekey, $modules)) {
+        throw new \Exception('Failed to set value in the cache');
+    }
     return $modules;
 }
 
