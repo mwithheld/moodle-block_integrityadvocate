@@ -113,7 +113,7 @@ $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
     throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" .
-        \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext, true));
+        \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
 }
 
 // Set up page parameters. All $PAGE setup must be done before output.
@@ -152,7 +152,7 @@ switch (true) {
         $debug && \debugging(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
         if ($hascapabilityoverview) {
-            \core\notification::error(\implode(ia_output::BRNL, $configerrors));
+            \core\notification::error(\implode(ia_output::BRNL, $configerrors ?? ['Something went wrong getting config errors']));
         }
         break;
 
