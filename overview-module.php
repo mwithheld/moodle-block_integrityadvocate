@@ -50,7 +50,7 @@ switch (true) {
         // The above line throws an error if $moduleid is not passed as an integer.
         // But we get here if $moduleid is zero or negative.
         throw new \InvalidArgumentException("Invalid moduleid={$moduleid}");
-    // @phpstan-ignore-next-line .
+        // @phpstan-ignore-next-line .
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
@@ -79,9 +79,6 @@ switch (true) {
 \require_login($course, false, $cm);
 
 // Show basic module name and icon.
-$context = \context_module::instance($cm->id);
-$PAGE->set_context($context);
-\require_capability('mod/quiz:view', $context);
 echo $OUTPUT->context_header();
 
 /*
@@ -131,7 +128,7 @@ $module = null;
 $m = null;
 // The var $modules is populated in overview.php.
 foreach ($modules as $key => $thismodule) {
-    $debug && \debugging(__FILE__ . '::Looking at thismodule[\'id\')='.$thismodule['id']);
+    $debug && \debugging(__FILE__ . '::Looking at thismodule[\'id\')=' . $thismodule['id']);
     if ((int) ($thismodule['id']) === (int) $moduleid) {
         $module = $modules[$key];
         break;
