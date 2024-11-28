@@ -39,4 +39,14 @@ $definitions = [
         'staticacceleration' => true,
         'canuselocalstore' => true,
     ],
+    'persession_changesincourse' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => true,
+        'canuselocalstore' => true,
+        'invalidationevents' => [
+            'changesincourse',
+        ],
+    ],
 ];
