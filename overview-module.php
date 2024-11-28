@@ -37,7 +37,7 @@ defined('MOODLE_INTERNAL') || die;
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
 
-$debug = false;
+$debug = true;
 $debug && \debugging(__FILE__ . '::Started with $moduleid=' . $moduleid);
 
 // The "user" here is always the current $USER.
@@ -75,7 +75,8 @@ switch (true) {
         $debug && \debugging(__FILE__ . '::All requirements are met');
 }
 
-// Check privs..
+// Check the current USER is logged in *to the course*.
+// When $cm parameter specified, this function sets page layout to 'module'.
 \require_login($course, false, $cm);
 
 // Show basic module name and icon.
@@ -128,7 +129,7 @@ $module = null;
 $m = null;
 // The var $modules is populated in overview.php.
 foreach ($modules as $key => $thismodule) {
-    $debug && \debugging(__FILE__ . '::Looking at thismodule[\'id\')=' . $thismodule['id']);
+    $debug && \debugging(__FILE__ . '::Looking at thismodule[\'id\']=' . $thismodule['id']);
     if ((int) ($thismodule['id']) === (int) $moduleid) {
         $module = $modules[$key];
         break;
