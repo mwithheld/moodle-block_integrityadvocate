@@ -136,6 +136,7 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     # Then block_integrityadvocate I select "Level 2" from the ".ddactivationname" selectbox
     # Then I should see "Level 2" in the "#gridActivities" "css_element"
     # -- BEGIN: We do not need these now but they might be useful later.
+    And I change window size to "large"
     When I click on "Select Rules" "button"
     And I wait "3" seconds
     Then I should see "Stay in view of the camera"
