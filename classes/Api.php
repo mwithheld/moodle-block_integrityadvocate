@@ -58,7 +58,7 @@ class Api {
     private const ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY = '/participantsessions/activity';
 
     /** @var string URI to get only the overall status for a single participant for the specified activity. */
-    private const ENDPOINT_PARTICIPANTSESSIONS_STATUS = '/2-0/participantstatus';
+    private const ENDPOINT_PARTICIPANT_STATUS = '/2-0/participantstatus';
 
     /** @var int The API returns 10 results max per call by default, but our UI shows 20 users per page.  Set the number we want per
      * UI page here. */
@@ -1127,7 +1127,7 @@ class Api {
         $debug && \debugging('Built params=' . ia_u::var_dump($params));
 
         // Do a GET https://ca.integrityadvocateserver.com/api/2-0/participantstatus?participantidentifier=123456&courseid=101&activityid=2
-        $input = self::get(self::ENDPOINT_PARTICIPANTSESSIONS_STATUS, $blockinstance->config->apikey, $blockinstance->config->appid, $params);
+        $input = self::get(self::ENDPOINT_PARTICIPANT_STATUS, $blockinstance->config->apikey, $blockinstance->config->appid, $params);
         $debug && \debugging('Got participantstatus input=' . ia_u::var_dump($input));
 
         // Check returned data required field.
@@ -1536,7 +1536,7 @@ class Api {
                 ];
                 $requiredparams = ['activityid'];
                 break;
-            case self::ENDPOINT_PARTICIPANTSESSIONS_STATUS:
+            case self::ENDPOINT_PARTICIPANT_STATUS:
                 $validparams = [
                     'activityid' => \PARAM_INT,
                     'courseid' => \PARAM_INT,
