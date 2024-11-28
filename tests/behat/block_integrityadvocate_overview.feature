@@ -1,5 +1,8 @@
-@block @block_integrityadvocate @block_integrityadvocate_overview @block_integrityadvocate_overview_course
-Feature: IntegrityAdvocate Course Overview page
+@block @block_integrityadvocate @block_integrityadvocate_overview
+Feature: IntegrityAdvocate Course and Module Overview pages
+  In order to use the IntegrityAdvocate block overview pages
+  As a teacher
+  I need to be able to create, configure and change IntegrityAdvocate blocks, and view it as a student
 
   Background:
     Given the following "courses" exist:
@@ -30,8 +33,8 @@ Feature: IntegrityAdvocate Course Overview page
       | TF1      | 1    |
       | TF2      | 1    |
 
-  @javascript @block_integrityadvocate_overview_from_course
-  Scenario: Teacher should see Moodle-created items on the course overview page
+  @javascript @block_integrityadvocate_overview_course @block_integrityadvocate_overview_course_from_course
+  Scenario: Teacher should see the right things on the course overview page
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
@@ -58,8 +61,8 @@ Feature: IntegrityAdvocate Course Overview page
     And I should see "Admin" in the ".integrity-tabs" "css_element"
     And I should see "Search Participant Sessions"
 
-  @javascript @block_integrityadvocate_overview_course_from_quiz @_switch_iframe
-  Scenario: Teacher should see IA-created items in the course overview iframe
+  @javascript @block_integrityadvocate_overview_course @block_integrityadvocate_overview_course_from_quiz @_switch_iframe
+  Scenario: Teacher should see the right things on the course overview page iframe
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
@@ -75,3 +78,37 @@ Feature: IntegrityAdvocate Course Overview page
     And I wait until the page is ready
     And I should see "Participants" in the ".integrity-tabs" "css_element"
 
+  @javascript @block_integrityadvocate_overview_module @_switch_iframe
+  Scenario: Teacher should see the right things on the module overview page
+    When I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    When I am on the "Quiz 1" "quiz activity" page
+    And I add the "Integrity Advocate" block
+    When I configure the "block_integrityadvocate" block
+    And block_integrityadvocate I set the fields from CFG:
+      | Application id | block_integrityadvocate_appid  |
+      | API key        | block_integrityadvocate_apikey |
+    And I press "Save changes"
+    When I click on "Module overview" "button"
+    And block_integrityadvocate I add test output "Test header -----"
+    Then I should see "Course 1: Integrity Advocate module overview" in the "#region-main h2" "css_element"
+    And I should see "Quiz 1" in the ".page-context-header" "css_element"
+    And block_integrityadvocate I add test output "Test footer -----"
+    And I should see "Version 20" in the "#page-content" "css_element"
+    And I should see "Application id " in the "#page-content" "css_element"
+    And I should see "Block id " in the "#page-content" "css_element"
+    Then "Back to course" "button" should be visible
+    When I switch to "iframelaunch" class iframe
+    And block_integrityadvocate I add test output "Test IA-created items -----"
+    And I wait until the page is ready
+    And I should see "Participants" in the ".integrity-tabs" "css_element"
+    And I should see "Activities" in the ".integrity-tabs" "css_element"
+    And I should see "Admin" in the ".integrity-tabs" "css_element"
+    And I should see "Search Participant Sessions"
+    And block_integrityadvocate I add test output "Test footer buttons -----"
+    When I switch to the main frame
+    When I press "Back to course"
+    Then I should see "Course 1" in the ".page-context-header" "css_element"
+    When I am on the "Quiz 1" "quiz activity" page
+    And I press "Course overview"
+    Then I should see "Course 1: Integrity Advocate course overview" in the "#region-main h2" "css_element"
