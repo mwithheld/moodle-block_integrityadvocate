@@ -67,6 +67,16 @@ $capabilities = [
         ],
         'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
+    'block/integrityadvocate:diagnostics' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/my:manageblocks',
+    ],
     'block/integrityadvocate:myaddinstance' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
