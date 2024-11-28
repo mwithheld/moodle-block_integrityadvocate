@@ -25,6 +25,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use block_integrityadvocate\Api as ia_api;
 use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Utility as ia_u;
@@ -110,126 +111,6 @@ function block_integrityadvocate_get_participants_for_blockcontext(\context $blo
     $participants = ia_api::get_participants($blockinstance->config->apikey, $blockinstance->config->appid, $coursecontext->instanceid);
     $debug && debugging($fxn . '::Got count($participants)=' . ia_u::count_if_countable($participants));
 
-    return $participants;
-}
-
-/**
- * Get all IA sessions for all participants in the course.
- *
- * @param string $apikey
- * @param string $appid
- * @param int $courseid
- * @return array<block_integrityadvocate\Session>, e.g.
- * (
- *    [<session_id>=04fda967-25df-4ce0-945f-72a244b862de] => block_integrityadvocate\Session Object (
- *            [activityid] => 2
- *            [clickiamherecount] =>
- *            [end] => 1605913685
- *            [exitfullscreencount] =>
- *            [id] => 04fda967-25df-4ce0-9f82-72a244b862de
- *            [overridedate] => -1
- *            [overridelmsuserfirstname] =>
- *            [overridelmsuserid] =>
- *            [overridelmsuserlastname] =>
- *            [overridereason] =>
- *            [overridestatus] =>
- *            [participantphoto] => redacted_base64_image
- *            [resubmiturl] =>
- *            [start] => 1605913620
- *            [status] => 0
- *            [participant] => block_integrityadvocate\Participant Object (
- *                    [courseid] => 2
- *                    [created] => -1
- *                    [email] => somedude@someemail.com
- *                    [firstname] => Some
- *                    [lastname] => Dude
- *                    [modified] => -1
- *                    [overridedate] => -1
- *                    [overridelmsuserfirstname] =>
- *                    [overridelmsuserid] =>
- *                    [overridelmsuserlastname] =>
- *                    [overridereason] =>
- *                    [overridestatus] =>
- *                    [participantidentifier] => 3
- *                    [participantphoto] =>
- *                    [resubmiturl] =>
- *                    [sessions] => Array()
- *                    [status] =>
- *                )
- *        ), ...
- * )
- */
-function block_integrityadvocate_get_course_sessions(string $apikey, string $appid, int $courseid) {
-    $debug = false;
-    $fxn = __FILE__ . '::' . __FUNCTION__;
-    $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
-    $debug && debugging($debugvars);
-
-    $modules = block_integrityadvocate_get_course_ia_modules($courseid, ['configured' => 1, 'appid' => $appid]);
-    $debug && debugging($fxn . '::Got $modules=' . ia_u::var_dump($modules));
-
-    $participantsessions = [];
-    foreach ($modules as $m) {
-        $debug && debugging($fxn . '::Looking at moduleid=' . $m['id']);
-        // Disabled on purpose: $debug && debugging($fxn . '::Looking at module=' . ia_u::var_dump($m));
-        // Get participant sessions for all users.
-        $modulesessions = ia_api::get_participantsessions($apikey, $appid, $courseid, $m['id']);
-        $debug && debugging($fxn . '::Got $modulesessions=' . ia_u::var_dump($modulesessions));
-        $participantsessions = \array_merge($participantsessions, $modulesessions);
-    }
-
-    $debug && debugging($fxn . '::About to return $participantsessions=' . ia_u::var_dump($participantsessions));
-    return $participantsessions;
-}
-
-/**
- * Get the participants' latest sessions.  Note the participants are only stubs.
- *
- * @param string $apikey The API key.
- * @param string $appid The App ID.
- * @param int $courseid The course id.
- * @return array Array of Participants, each with the sessions attribute sorted by start date ascending.
- */
-function block_integrityadvocate_get_latest_participant_sessions(string $apikey, string $appid, int $courseid) {
-    $debug = false;
-    $fxn = __FILE__ . '::' . __FUNCTION__;
-    $debugvars = $fxn . "::Started with \$apikey={$apikey}; \$appid={$appid}; \$courseid={$courseid};";
-    $debug && debugging($debugvars);
-
-    $participantsessions = block_integrityadvocate_get_course_sessions($apikey, $appid, $courseid);
-    $debug && debugging($fxn . '::Got $participantsessions=' . ia_u::var_dump($participantsessions));
-
-    // Invert the array so sessions are collected for each participant.
-    $participants = [];
-    foreach ($participantsessions as $s) {
-        $debug && debugging($fxn . '::Looking at $s=' . ia_u::var_dump($s));
-        if (!isset($participants[$s->participant->participantidentifier]) || ia_u::is_empty($thisparticipant = $participants[$s->participant->participantidentifier])) {
-            $thisparticipant = $s->participant;
-            $participants[$s->participant->participantidentifier] = $thisparticipant;
-        }
-
-        if (isset($thisparticipant->sessions[$s->id])) {
-            $msg = $fxn . "::Attempting to overwrite an existing session (id={$s->id}) -- this should not happen";
-            $debug && debugging($fxn . "::{$msg}; \$participantsessions=" . ia_u::var_dump($participantsessions));
-            throw new Exception($msg);
-        }
-
-        $thisparticipant->sessions[$s->id] = $s;
-    }
-    $debug && debugging($fxn . '::Built $participants=' . ia_u::var_dump($participants));
-
-    // Sort each participant's sessions.
-    foreach ($participants as &$p) {
-        $debug && debugging($fxn . "::Find latest session: Looking at \$p->participantidentifier={$p->participantidentifier}");
-        \usort($p->sessions, function (/* object */ $a, /* object */ $b): int {
-            if ($a->start == $b->start) {
-                return 0;
-            }
-            return ($a->start > $b->start) ? -1 : 1;
-        });
-    }
-
-    $debug && debugging($fxn . '::About to return $participants=' . ia_u::var_dump($participants));
     return $participants;
 }
 
@@ -345,7 +226,7 @@ function block_integrityadvocate_filter_modules_use_ia_block(array $modules, $fi
 
         $blockinstanceid = $blockinstance->instance->id;
         $debug && debugging($fxn . '::After block_integrityadvocate_get_ia_block() got $blockinstanceid=' .
-                        $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id)); // @phpstan-ignore-line .
+            $blockinstanceid . '; $blockinstance->instance->id=' . (ia_u::is_empty($blockinstance) ? '' : $blockinstance->instance->id)); // @phpstan-ignore-line .
 
         // Init the result to false.
         if (isset($filter['configured']) && $filter['configured'] && $blockinstance->get_config_errors()) {
@@ -411,7 +292,7 @@ function block_integrityadvocate_get_first_course_ia_block(int $courseid, string
 
         // Look for a block in the course specified by courseid with matching APIKey and AppId.
         if (
-                $b->config->apikey == $apikey && $b->config->appid == $appid
+            $b->config->apikey == $apikey && $b->config->appid == $appid
         ) {
             $debug && debugging($fxn . "::Found a courseid={$courseid} block_instance.id={$key} with matching apikey and appid");
             return $b;
