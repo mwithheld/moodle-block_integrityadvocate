@@ -1,7 +1,7 @@
 @block @block_integrityadvocate @block_integrityadvocate_quiz
 Feature: Add and configure IntegrityAdvocate block to a quiz
   In order to have an IntegrityAdvocate block on a quiz page
-  A a teacher or as a student
+  As a teacher or as a student
   I need to be able to create, configure and change IntegrityAdvocate blocks, and view it as a student
 
   Background:

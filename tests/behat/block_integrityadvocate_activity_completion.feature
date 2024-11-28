@@ -1,7 +1,7 @@
 @block @block_integrityadvocate @block_integrityadvocate_activity_completion
 Feature: Activity completion on quiz1 should prevent access to quiz2
   In order to use IntegrityAdvocate acivity restriction
-  A a teacher or as a student
+  As a teacher or as a student
   I need to be able to create, configure and change IntegrityAdvocate activity restriction, and view it as a student
 
   Background:
