@@ -60,4 +60,3 @@ Feature: IntegrityAdvocate Diagnostics page
     Then "Back to course" "button" should be visible
     And block_integrityadvocate I add test output "Test diagnostics results -----"
     Then "The IA API endpoint: /ping" row "Summary" column of "block_integrityadvocate_diagnostics" table should contain "200 Success"
-
