@@ -38,12 +38,13 @@ require_once(\dirname(__FILE__, 3) . '/config.php');
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
 
+\require_login();
+
 // Bool flag to tell the overview-course.php and overview-user.php pages the include is legit.
 \define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false;
-
-\require_login();
+$fxn = __FILE__;
 
 // Gather form data.
 // Used for the APIkey and AppId.
@@ -75,14 +76,14 @@ $debug && \debugging($fxn . "::Got courseid={$course->id}");
 switch (true) {
     case ($userid):
         // As a student on the quiz intro page (e.g. /mod/quiz/view.php?id=1) I should see the student overview button in the IA block.
-        $debug && \debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
+        $debug && \debugging($fxn . '::Request is for overview_user page. Got $userid=' . $userid);
         $pageslug = 'overview-user';
         $params += [
             'userid' => $userid,
         ];
         break;
     case ($courseid && $moduleid):
-        $debug && \debugging(__FILE__ . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
+        $debug && \debugging($fxn . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
         $pageslug = 'overview-module';
 
         // For now, assume the moduleid is valid. We will check it in overview-module.
@@ -98,7 +99,7 @@ switch (true) {
         ];
         break;
     case ($courseid):
-        $debug && \debugging(__FILE__ . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
+        $debug && \debugging($fxn . '::Request is for overview_course (any version) page. Got $moduleid=' . $moduleid);
         $pageslug = 'overview-course';
 
         $PAGE->set_context($coursecontext);
@@ -149,7 +150,7 @@ $hascapabilityselfview = \has_capability('block/integrityadvocate:selfview', $bl
 // Check for errors that mean we should not show any overview page.
 switch (true) {
     case ($configerrors = $blockinstance->get_config_errors()):
-        $debug && \debugging(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
+        $debug && \debugging($fxn . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
         // Instructors see the errors on-screen.
         if ($hascapabilityoverview) {
             \core\notification::error(\implode(ia_output::BRNL, $configerrors ?? ['Something went wrong getting config errors']));
@@ -157,7 +158,7 @@ switch (true) {
         break;
 
     case ($setuperrors = ia_mu::get_completion_setup_errors($course)):
-        $debug && \debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
+        $debug && \debugging($fxn . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
         foreach ($setuperrors as $err) {
             echo \get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
         }
@@ -165,18 +166,18 @@ switch (true) {
 
     case (!$hascapabilityoverview && !$hascapabilityselfview):
         $msg = 'No permissions to see anything in the block';
-        $debug && \debugging(__FILE__ . "::{$msg}");
+        $debug && \debugging($fxn . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);
         break;
 
     case (\is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
         $msg = \get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
-        $debug && \debugging(__FILE__ . "::{$msg}");
+        $debug && \debugging($fxn . "::{$msg}");
         \core\notification::error($msg . ia_output::BRNL);
         break;
 
     default:
-        $debug && \debugging(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
+        $debug && \debugging($fxn . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
 
         // Open the requested overview page.
         require_once($pageslug . '.php');

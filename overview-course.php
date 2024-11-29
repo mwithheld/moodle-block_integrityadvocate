@@ -36,18 +36,19 @@ defined('MOODLE_INTERNAL') || die;
 require_once(__DIR__ . '/lib.php');
 
 $debug = false;
-$debug && \debugging(\basename(__FILE__) . "::Started with courseid={$courseid}");
+$fxn = \basename(__FILE__);
+$debug && \debugging($fxn . "::Started with courseid={$courseid}");
 
 // Check all requirements.
 switch (true) {
-    // @phpstan-ignore-next-line .
+        // @phpstan-ignore-next-line .
     case (!empty(\require_capability('block/integrityadvocate:overview', $coursecontext))):
         // This is not a required permission in the parent file - we only query has_capability().
         // Here, the above line throws an error if the current user is not a teacher, so we should never get here.
-        $debug && \debugging(__FILE__ . '::Checked required capability: overview');
+        $debug && \debugging($fxn . '::Checked required capability: overview');
         break;
     default:
-        $debug && \debugging(__FILE__ . '::All requirements are met');
+        $debug && \debugging($fxn . '::All requirements are met');
 }
 
 /*
@@ -104,6 +105,6 @@ $launchdata['custom_activities'] = \json_encode($activities, \JSON_PARTIAL_OUTPU
 // Moodle's code does the same as the example at https://gist.github.com/matthanger/1171921 but with a bit more cleanup.
 require_once($CFG->libdir . '/oauthlib.php');
 $signature = (new \oauth_helper($launchdata))->sign('POST', $launchurl, $launchdata, \urlencode($blockinstance->config->apikey) . '&');
-$debug && \debugging(\basename(__FILE__) . "::Got \$signature=" . ia_u::var_dump($signature));
+$debug && \debugging($fxn . "::Got \$signature=" . ia_u::var_dump($signature));
 $html = ia_output::get_lti_iframe_html($launchurl, $launchdata, $signature);
 echo $html;
