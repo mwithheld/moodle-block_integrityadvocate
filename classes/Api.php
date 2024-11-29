@@ -68,13 +68,13 @@ class Api {
     private const RECURSEMAX = 250;
 
     /** @var array<int> Accept these HTTP success response codes as successful */
-    private const HTTP_CODE_SUCCESS = [200, 201, 202, 204, 205];
+    public const HTTP_CODE_SUCCESS = [200, 201, 202, 204, 205];
 
     /** @var array<int> Accept these HTTP success response codes as successful */
-    private const HTTP_CODE_REDIRECT = [303, 304];
+    public const HTTP_CODE_REDIRECT = [303, 304];
 
     /** @var array<int> Accept these HTTP success response codes as successful */
-    private const HTTP_CODE_CLIENTERROR = [404, 410];
+    public const HTTP_CODE_CLIENTERROR = [404, 410];
 
     /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
