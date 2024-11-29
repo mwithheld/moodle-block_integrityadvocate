@@ -71,8 +71,7 @@ $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
     $debug && \debugging($fxn . '::Got $blockinstance=' . \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
-    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" .
-        \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
+    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate");
 }
 
 // Set up page parameters. All $PAGE setup must be done before output.
@@ -104,38 +103,16 @@ echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 // Security: Check capability.
 \require_capability('block/integrityadvocate:diagnostics', $blockcontext);
 
-// Check for errors that mean we should not show the page.
-// switch (true) {
-//     case ($configerrors = $blockinstance->get_config_errors()):
-//         $debug && \debugging(__FILE__ . '::No visible IA block found with valid config; $configerrors=' . ia_u::var_dump($configerrors));
-//         \core\notification::error(\implode(ia_output::BRNL, $configerrors ?? ['Something went wrong getting config errors']));
-//         break;
-
-//     case ($setuperrors = ia_mu::get_completion_setup_errors($course)):
-//         $debug && \debugging(__FILE__ . '::Got completion setup errors; $setuperrors=' . ia_u::var_dump($setuperrors));
-//         foreach ($setuperrors as $err) {
-//             echo \get_string($err, INTEGRITYADVOCATE_BLOCK_NAME), ia_output::BRNL;
-//         }
-//         break;
-
-//     case (\is_string($modules = block_integrityadvocate_get_course_ia_modules($courseid))):
-//         $msg = \get_string($modules, INTEGRITYADVOCATE_BLOCK_NAME);
-//         $debug && \debugging(__FILE__ . "::{$msg}");
-//         \core\notification::error($msg . ia_output::BRNL);
-//         break;
-
-//     default:
-//         $debug && \debugging(__FILE__ . "::Got \$blockinstance with apikey={$blockinstance->config->apikey}; appid={$blockinstance->config->appid}");
-// }
-
-echo 'Diagnostics go here';
+$manager = new diagnostics_manager();
+$diagnosticresults = $manager->do_diagnostics($courseid);
+$debug && \debugging($fxn . '::Got diagnosticresults=' . ia_u::var_dump($diagnosticresults));
 
 $table = new \html_table();
 $table->data = [];
 $table->head  = [
-    get_string('status'),
-    get_string('check'),
-    get_string('summary'),
+    \get_string('status'),
+    \get_string('check'),
+    \get_string('summary'),
 ];
 $table->colclasses = [
     'rightalign status',
@@ -147,12 +124,10 @@ $table->attributes = ['class' => 'admintable generaltable'];
 $table->data = [];
 
 $senddisabled = false;
-// foreach ($checkresults as $result) {
-//     if ($result->get_status() == core\check\result::CRITICAL || $result->get_status() == core\check\result::ERROR) {
-//         $senddisabled = true;
-//     }
-//     $table->data[] = [$OUTPUT->check_result($result), $result->get_summary(), $result->get_details()];
-// }
+foreach ($diagnosticresults as $result) {
+    $debug && \debugging(__FILE__ . '::Looking at $result=' . ia_u::var_dump($result));
+    $table->data[] = [$OUTPUT->check_result($result), $result->get_summary(), $result->get_details()];
+}
 
 echo \html_writer::table($table);
 
