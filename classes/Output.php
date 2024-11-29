@@ -47,16 +47,6 @@ class Output {
     public const BRNL = '<br />' . self::NL;
 
     /**
-     * Wrap the $str value in an HTML <PRE> tag and return it.
-     *
-     * @param string $str The string to wrap.
-     * @return string The wrapped $str string.
-     */
-    public static function pre(string $str): string {
-        return '<PRE>' . $str . '</PRE>';
-    }
-
-    /**
      * Add the block's module.js to the current $blockinstance page.
      *
      * @param \block_integrityadvocate $blockinstance Instance of block_integrityadvocate.
@@ -317,19 +307,6 @@ class Output {
                 $debug && \debugging($fxn . '::' . $msg);
                 throw new \Exception($msg);
         }
-    }
-
-    /**
-     * Get HTML for a link to re-submit to IA.
-     * @param string $resubmiturl
-     * @param string $prefix
-     * @return string
-     */
-    public static function get_resubmit_html(string $resubmiturl, string $prefix): string {
-        return \html_writer::span(
-            \format_text(\html_writer::link($resubmiturl, \get_string('resubmit_link', \INTEGRITYADVOCATE_BLOCK_NAME), ['target' => '_blank']), \FORMAT_HTML),
-            $prefix . '_resubmit_link'
-        );
     }
 
     /**
