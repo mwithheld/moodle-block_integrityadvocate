@@ -112,6 +112,8 @@ $string['api_endpoint_name'] = 'The IA API endpoint: {$a}';
 $string['diagnostics'] = 'Diagnostics';
 $string['diagnostics_success'] = 'Success';
 $string['diagnostics_fail'] = 'Failed';
+$string['bad_response_code'] = 'Bad response code';
+$string['bad_response_body'] = 'Bad response body';
 
 $string['privacy:metadata'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://www.integrityadvocate.com/privacy-policy-for-end-users" target="_blank">Integrity Advocate Privacy</a> for more information.';
 $string['privacy:metadata:block_integrityadvocate'] = 'This plugin stores no data in Moodle.  In order to integrate with a remote service, user data needs to be exchanged with that service.  See <a href="https://www.integrityadvocate.com/privacy-policy-for-end-users" target="_blank">Integrity Advocate Privacy</a> for more information.';

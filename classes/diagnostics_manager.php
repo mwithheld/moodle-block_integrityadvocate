@@ -80,7 +80,7 @@ class diagnostics_manager {
         $requesturi = ia_api::ENDPOINT_PING;
         $debug && \debugging($fxn . "'::About to curl_get_unsigned({$requesturi})'");
         [$responsecode, $response, $responseinfo] = ia_api::curl_get_unsigned($requesturi);
-        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . ia_u::var_dump($response) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . \htmlentities(ia_u::var_dump($response)) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
 
         $responsecodeisok = ia_api::http_response_code_is_acceptable($responsecode);
         $debug && \debugging($fxn . '::Got $responsecodeisok=' . ia_u::var_dump($responsecodeisok));
@@ -95,6 +95,12 @@ class diagnostics_manager {
             $returnthis = new moodle_checkresult(moodle_checkresult::OK, $outputcheck, $outputsummary);
         } else {
             $outputsummary = \get_string('diagnostics_fail', INTEGRITYADVOCATE_BLOCK_NAME);
+            if (!$responsecodeisok) {
+                $outputsummary .= '; ' . \get_string('bad_response_code', INTEGRITYADVOCATE_BLOCK_NAME);
+            }
+            if (!$responsebodyisok) {
+                $outputsummary .= '; ' . \get_string('bad_response_body', INTEGRITYADVOCATE_BLOCK_NAME);
+            }
             $outputsummary .= '; responseinfo=' . \clean_param(ia_u::var_dump($responseinfo), \PARAM_TEXT);
             $returnthis = new moodle_checkresult(moodle_checkresult::CRITICAL, $outputcheck, $outputsummary);
         }
@@ -124,7 +130,7 @@ class diagnostics_manager {
         $requesturi = ia_api::ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY;
         $debug && \debugging($fxn . "'::About to curl_get_unsigned({$requesturi})'");
         [$responsecode, $response, $responseinfo] = ia_api::curl_get_unsigned($requesturi, $params);
-        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . ia_u::var_dump($response) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . \htmlentities(ia_u::var_dump($response)) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
 
         $responsecodeisok = ia_api::http_response_code_is_acceptable($responsecode);
         $debug && \debugging($fxn . '::Got $responsecodeisok=' . ia_u::var_dump($responsecodeisok));
@@ -141,6 +147,12 @@ class diagnostics_manager {
             $returnthis = new moodle_checkresult(moodle_checkresult::OK, $outputcheck, $outputsummary);
         } else {
             $outputsummary = \get_string('diagnostics_fail', INTEGRITYADVOCATE_BLOCK_NAME);
+            if (!$responsecodeisok) {
+                $outputsummary .= '; ' . \get_string('bad_response_code', INTEGRITYADVOCATE_BLOCK_NAME);
+            }
+            if (!$responsebodyisok) {
+                $outputsummary .= '; ' . \get_string('bad_response_body', INTEGRITYADVOCATE_BLOCK_NAME);
+            }
             $outputsummary .= '; responseinfo=' . \clean_param(ia_u::var_dump($responseinfo), \PARAM_TEXT);
             $returnthis = new moodle_checkresult(moodle_checkresult::CRITICAL, $outputcheck, $outputsummary);
         }
