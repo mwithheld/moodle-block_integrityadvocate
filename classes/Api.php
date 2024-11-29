@@ -146,7 +146,7 @@ class Api {
 
         // Set up request params (querystring). Ref API docs at https://www.integrityadvocateserver.com/developers#aEvents.
         $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params) : ''));
-        if($endpoint == self::ENDPOINT_PING) {
+        if (strcmp($endpoint, self::ENDPOINT_PING) === 0) {
             $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . $endpoint;
         } else {
             $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
