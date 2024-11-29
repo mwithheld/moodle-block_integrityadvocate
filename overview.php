@@ -58,7 +58,7 @@ $params = [
 ];
 
 // Determine course and course context.
-if (empty($courseid) || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \context_course::instance($courseid, MUST_EXIST))) {
+if (empty($courseid) || (int)$courseid === (int)\SITEID || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \context_course::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
 $debug && \debugging($fxn . "::Got courseid={$course->id}");
@@ -108,7 +108,7 @@ $debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
-    $debug && \debugging($fxn . '::Got $blockinstance='.\var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
+    $debug && \debugging($fxn . '::Got $blockinstance=' . \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
     throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate");
 }
 
