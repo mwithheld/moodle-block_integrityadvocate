@@ -108,34 +108,57 @@ class Api {
         }
 
         // Do not cache these requests.
+
+    /**
+     * Do a curl GET with the given URL with no authorization header.
+     * This function does no validation and minimal input/output cleaning.
+     * 
+     * @param string $endpoint The URL to GET.
+     * @return array [HTTP response code, response body, curl get_info() results].
+     */
+    public static function curl_get_unsigned(string $endpoint, array $params = []): array {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debugvars = $fxn . "::Started with \$url={$endpoint}; \$params=" . ia_u::var_dump($params);
+        $debug && \debugging($debugvars);
+
+        // Sanity check.
+        // @phpcs:ignore
+        if (!\str_starts_with($endpoint, '/')) {
+            $msg = 'Invalid endpoint: ' . $debugvars;
+            \debugging($fxn . '::' . $msg . '::' . $debugvars);
+            throw new \InvalidArgumentException($msg);
+        }
+
+        // Set up request params (querystring). Ref API docs at https://www.integrityadvocateserver.com/developers#aEvents.
+        $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params) : ''));
+        $requestapiurl = 'http://www.somewherefakenoreponse.com' . INTEGRITYADVOCATE_API_PATH . $endpoint;
+        $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, '', '&') : '');
+        $debug && \debugging($fxn . '::Built $requesturi=' . $requesturi);
+
+        $requesturi = 'https://httpstat.us/444';
+
         $curl = new \curl();
         $curl->setopt([
             'CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0,
+            // 'CURLOPT_TIMEOUT' => 5,
         ]);
-        $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_CLOSE_SESSION . '?' .
-            'appid=' . \urlencode($appid) .
-            '&participantidentifier=' . $userid .
-            '&courseid=' . $courseid .
-            '&activityid=' . $moduleid;
+
         $response = $curl->get($requesturi);
 
         $responseinfo = $curl->get_info();
-        $debug && \debugging($fxn . '::$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = (int) ($responseinfo['http_code']);
+        $responseinfo['errno'] = $curl->get_errno();
+        $responsecode = (int) ($responseinfo['http_code']??-1);
         // Remove certinfo b/c it too much info and we do not need it for \debugging.
         unset($responseinfo['certinfo']);
-        $debug && \debugging($fxn . '::Sent url=' . \var_export($requesturi, true) . '; http_code=' .
-            \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
+        $debug && \debugging($fxn . '::Sent url=' . \var_export($endpoint, true) . '; http_code=' . \var_export($responsecode, true));
+        $debug && \debugging($fxn . '::$responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && \debugging($fxn . '::Got response body=' . htmlentities(\var_export($response, true)));
 
-        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
-        if (!$success) {
-            $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode);
-            \debugging($msg);
-        }
-        return $success;
+        return [$responsecode, $response, $responseinfo];
     }
 
     /**
