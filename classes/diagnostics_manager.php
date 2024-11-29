@@ -108,8 +108,7 @@ class diagnostics_manager {
      * @return moodle_checkresult Check result.
      */
     private function test_url_participantsessions_activity(): moodle_checkresult {
-        // ttps://ca.integrityadvocateserver.com/api/participantsessions/activity?courseid=0&activityid=0&participantidentifier=0&limit=1&backwardsearch=true
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . '::Started');
 

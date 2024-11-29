@@ -35,7 +35,7 @@ require_once(__DIR__ . '/lib.php');
 
 \require_login();
 
-$debug = true;
+$debug = false;
 $fxn = __FILE__;
 
 // Gather form data.
