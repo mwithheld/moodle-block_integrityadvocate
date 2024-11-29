@@ -94,8 +94,6 @@ $PAGE->navbar->add($pagename);
 // Start page output.
 // All header parts like JS, CSS must be above this.
 echo $OUTPUT->header();
-// $headingjs = 'document.getElementById("iframelaunch").src=document.getElementById("iframelaunch").src;e.preventDefault();return false';
-echo $OUTPUT->heading($title); // . '&nbsp;' . $OUTPUT->image_icon('i/reload', \get_string('refresh'), 'moodle', ['onclick' => $headingjs]), 2);
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
 // Security: Check capability.
