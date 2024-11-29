@@ -21,11 +21,6 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-/**
- * This code is adapted from block_completion_progress::lib.php::block_completion_progress_bar
- * ATM with IA APIv2 we cannot label and get back proctoring results per module,
- * so we are just getting results for all students associated with the API key and displaying them.
- */
 
 namespace block_integrityadvocate;
 
@@ -40,7 +35,7 @@ require_once(__DIR__ . '/lib.php');
 
 \require_login();
 
-// Bool flag to tell the overview-course.php and overview-user.php pages the include is legit.
+// Bool flag to tell child pages the include is legit.
 \define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
 
 $debug = false;
@@ -109,7 +104,7 @@ switch (true) {
 }
 $debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
-// All overview pages require the blockinstance.
+// All pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
