@@ -56,7 +56,7 @@ $params = [
 if (empty($courseid) || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \context_course::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
-$debug && \debugging("Got courseid={$course->id}");
+$debug && \debugging($fxn . "::Got courseid={$course->id}");
 
 // Check the current USER is logged in *to the course*.
 \require_login($course, false);
@@ -64,12 +64,13 @@ $debug && \debugging("Got courseid={$course->id}");
 $pageslug = 'diagnostics';
 
 $PAGE->set_context($coursecontext);
-$debug && \debugging('Build params=' . ia_u::var_dump($params));
+$debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
 // All overview pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
+    $debug && \debugging($fxn . '::Got $blockinstance=' . \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
     throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" .
         \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
 }

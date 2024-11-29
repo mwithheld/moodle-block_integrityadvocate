@@ -1131,11 +1131,11 @@ class Api {
             'courseid' => $course->id,
             'activityid' => $modulecontext->instanceid,
         ];
-        $debug && \debugging('Built params=' . ia_u::var_dump($params));
+        $debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
         // Do a GET https://ca.integrityadvocateserver.com/api/2-0/participantstatus?participantidentifier=123456&courseid=101&activityid=2
         $input = self::get(self::ENDPOINT_PARTICIPANT_STATUS, $blockinstance->config->apikey, $blockinstance->config->appid, $params);
-        $debug && \debugging('Got participantstatus input=' . ia_u::var_dump($input));
+        $debug && \debugging($fxn . '::Got participantstatus input=' . ia_u::var_dump($input));
 
         // Check returned data required field.
         if (!isset($input->Status) || !\is_string($input->Status) || \mb_strlen($input->Status) < 5) {

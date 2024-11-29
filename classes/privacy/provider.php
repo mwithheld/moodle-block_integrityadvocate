@@ -100,7 +100,7 @@ class provider implements
             $privacyitemsarr,
             self::PRIVACYMETADATA_STR . ':' . INTEGRITYADVOCATE_BLOCK_NAME . ':tableexplanation'
         );
-        $debug && \debugging('About to return $collection=' . \var_export($collection, true));
+        $debug && \debugging($fxn . '::About to return $collection=' . \var_export($collection, true));
 
         return $collection;
     }

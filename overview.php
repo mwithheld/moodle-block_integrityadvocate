@@ -65,7 +65,7 @@ $params = [
 if (empty($courseid) || ia_u::is_empty($course = \get_course($courseid)) || ia_u::is_empty($coursecontext = \context_course::instance($courseid, MUST_EXIST))) {
     throw new \InvalidArgumentException('Invalid $courseid specified');
 }
-$debug && \debugging("Got courseid={$course->id}");
+$debug && \debugging($fxn . "::Got courseid={$course->id}");
 
 // Check the current USER is logged in *to the course*.
 \require_login($course, false);
@@ -106,7 +106,7 @@ switch (true) {
     default:
         throw new \InvalidArgumentException('Failed to figure out which overview to show');
 }
-$debug && \debugging('Build params=' . ia_u::var_dump($params));
+$debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
 // All overview pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
