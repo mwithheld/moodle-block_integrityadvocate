@@ -138,6 +138,7 @@ class Api {
      * This function does no validation and minimal input/output cleaning.
      *
      * @param string $endpoint The URL to GET.
+     * @param array $params Querystring to add to the URL.
      * @return array [HTTP response code, response body, curl get_info() results].
      */
     public static function curl_get_unsigned(string $endpoint, array $params = []): array {
