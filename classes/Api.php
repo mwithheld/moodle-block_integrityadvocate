@@ -77,38 +77,6 @@ class Api {
     private const HTTP_CODE_CLIENTERROR = [404, 410];
 
     /**
-     * Make sure we can reach the IA API.
-
-     * return array<int remote_ip, int http_response_code, string response_body, int total_time>.
-     * @return array<int,int,string,int> Numeric values are cleaned but the response body is unchanged.
-     */
-    public static function ping(): array {
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debugvars = $fxn . '::Started';
-        $debug && \debugging($debugvars);
-
-        $curl = new \curl();
-        $curl->setopt([
-            'CURLOPT_CERTINFO' => 1,
-            'CURLOPT_FOLLOWLOCATION' => 1,
-            'CURLOPT_MAXREDIRS' => 5,
-            'CURLOPT_HEADER' => 0,
-        ]);
-        $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_PING;
-        $response = $curl->get($requesturi);
-
-        $responseinfo = $curl->get_info();
-        $responsecode = (int) ($responseinfo['http_code']);
-        // Remove certinfo b/c it too much info and we do not need it for \debugging.
-        unset($responseinfo['certinfo']);
-        $debug && \debugging($fxn . '::Sent url=' . \var_export($requesturi, true) .
-            '; http_code=' . \var_export($responsecode, true) . '; response body=' . \var_export($response, true));
-
-        return [\cleanremoteaddr($responseinfo['primary_ip']), $responsecode, \trim((string)$response), clean_param($responseinfo['total_time'], PARAM_FLOAT)];
-    }
-
-    /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
      * @link https://www.integrityadvocateserver.com/Developers#endingthesession .
      *
