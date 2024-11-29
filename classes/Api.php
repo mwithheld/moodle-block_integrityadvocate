@@ -114,7 +114,7 @@ class Api {
             '&courseid=' . $courseid .
             '&activityid=' . $moduleid;
         [$responsecode, $response, $responseinfo] = self::curl_get_unsigned($requesturi);
-        
+
         $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode);
@@ -126,7 +126,7 @@ class Api {
     /**
      * Do a curl GET with the given URL with no authorization header.
      * This function does no validation and minimal input/output cleaning.
-     * 
+     *
      * @param string $endpoint The URL to GET.
      * @return array [HTTP response code, response body, curl get_info() results].
      */
@@ -165,11 +165,11 @@ class Api {
 
         $responseinfo = $curl->get_info();
         $responseinfo['errno'] = $curl->get_errno();
-        $responsecode = (int) ($responseinfo['http_code']??-1);
+        $responsecode = (int) ($responseinfo['http_code'] ?? -1);
         // Remove certinfo b/c it too much info and we do not need it for \debugging.
         unset($responseinfo['certinfo']);
-        $debug && \debugging($fxn . '::Sent url=' . \var_export($endpoint, true) . '; http_code=' . \var_export($responsecode, true));
-        $debug && \debugging($fxn . '::$responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && \debugging($fxn . '::Sent url=' . \var_export($endpoint, true) . '; responsecode=' . \var_export($responsecode, true));
+        $debug && \debugging($fxn . '::Got responseinfo=' . ia_u::var_dump($responseinfo));
         $debug && \debugging($fxn . '::Got response body=' . htmlentities(\var_export($response, true)));
 
         return [$responsecode, $response, $responseinfo];
@@ -184,7 +184,7 @@ class Api {
      * @param array $params API params per the URL above.  e.g. ['participantidentifier'=>$user_identifier].
      * @return mixed The JSON-decoded curl response body - see json_decode() return values.
      */
-    private static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
+    public static function get(string $endpoint, string $apikey, string $appid, array $params = []) {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debugvars = $fxn . "::Started with \$endpointpath={$endpoint}; \$apikey={$apikey}; \$appid={$appid}; \$params=" . ia_u::var_dump($params);
@@ -197,7 +197,7 @@ class Api {
 
         // Sanity check.
         // @phpcs:ignore
-        if (!\str_starts_with($endpoint, '/') || !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid) || !\is_array($params)) {
+        if (!\str_starts_with($endpoint, '/') || !ia::is_valid_apikey($apikey) || !ia_u::is_guid($appid)) {
             $msg = 'Input params are invalid: ' . $debugvars;
             \debugging($fxn . '::' . $msg . '::' . $debugvars);
             throw new \InvalidArgumentException($msg);
@@ -223,12 +223,13 @@ class Api {
             return $cachedvalue;
         }
 
-        // Set up request variables. Ref API docs at https://www.integrityadvocateserver.com/developers#aEvents.
+        // Set up request params (querystring). Ref API docs at https://www.integrityadvocateserver.com/developers#aEvents.
         $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params) : ''));
         $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
         $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, '', '&') : '');
         $debug && \debugging($fxn . '::Built $requesturi=' . $requesturi);
 
+        // Build the request signature to put in the header later.
         $requesttimestamp = \time();
         $requestmethod = 'GET';
         $microtime = \explode(' ', \microtime());
@@ -258,17 +259,18 @@ class Api {
         $response = $curl->get($requesturi);
 
         $responseparsed = \json_decode((string)$response);
+
         $responseinfo = $curl->get_info();
+        $responseinfo['errno'] = $curl->get_errno();
+        $responsecode = (int) ($responseinfo['http_code'] ?? -1);
         // Remove certinfo b/c it too much info and we do not need it for \debugging.
         unset($responseinfo['certinfo']);
         $debug && \debugging($fxn . '::$responseinfo=' . ia_u::var_dump($responseinfo));
-        $responsecode = isset($responseinfo['http_code']) ? ((int) ($responseinfo['http_code'])) : -1;
 
-        $debug && \debugging($fxn .
-            '::Sent url=' . ia_u::var_dump($requesturi) . '; err_no=' . $curl->get_errno() .
-            '; $responsecode=' . ($responsecode ? ia_u::var_dump($responsecode) : '') .
-            '; $response=' . ia_u::var_dump($response) .
-            '; $responseparsed=' . ia_u::var_dump($responseparsed));
+        $debug && \debugging($fxn . '::Sent url=' . \var_export($endpoint, true) . '; responsecode=' . \var_export($responsecode, true));
+        $debug && \debugging($fxn . '::Got responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && \debugging($fxn . '::Got response body=' . htmlentities(\var_export($response, true)));
+        $debug && \debugging($fxn . 'Got responseparsed=' . ia_u::var_dump($responseparsed));
 
         $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
         if (!$success) {
