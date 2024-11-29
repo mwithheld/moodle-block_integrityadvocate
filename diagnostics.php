@@ -33,12 +33,10 @@ require_once(\dirname(__FILE__, 3) . '/config.php');
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
 
-// Bool flag to tell the overview-course.php and overview-user.php pages the include is legit.
-\define('INTEGRITYADVOCATE_OVERVIEW_INTERNAL', true);
+\require_login();
 
 $debug = true;
-
-\require_login();
+$fxn = __FILE__;
 
 // Gather form data.
 // Used for the APIkey and AppId.
@@ -125,7 +123,7 @@ $table->data = [];
 
 $senddisabled = false;
 foreach ($diagnosticresults as $result) {
-    $debug && \debugging(__FILE__ . '::Looking at $result=' . ia_u::var_dump($result));
+    $debug && \debugging($fxn . '::Looking at $result=' . ia_u::var_dump($result));
     $table->data[] = [$OUTPUT->check_result($result), $result->get_summary(), $result->get_details()];
 }
 
