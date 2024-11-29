@@ -42,7 +42,7 @@ class diagnostics_manager {
      * @return array Check results.
      */
     public function do_diagnostics(int $courseid = \SITEID): array {
-        $debug = true;
+        $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . '::Started with courseid=' . $courseid);
 
