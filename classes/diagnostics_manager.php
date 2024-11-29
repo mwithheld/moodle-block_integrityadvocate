@@ -31,7 +31,16 @@ use core\check\result as moodle_checkresult;
 
 defined('MOODLE_INTERNAL') || die;
 
+/**
+ * IntegrityAdvocate Diagnostics handler.
+ */
 class diagnostics_manager {
+    /**
+     * Run diagnostics and return results.
+     *
+     * @param int $courseid CourseID to put on requests.
+     * @return array Check results.
+     */
     public function do_diagnostics(int $courseid = \SITEID): array {
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -60,6 +69,10 @@ class diagnostics_manager {
         return $results;
     }
 
+    /**
+     * Test the IA API endpoint ping.
+     * @return moodle_checkresult Check result.
+     */
     private function test_url_ping(): moodle_checkresult {
         $debug = false;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
@@ -74,22 +87,27 @@ class diagnostics_manager {
 
         $success = \in_array($responsecode, \array_merge(ia_api::HTTP_CODE_SUCCESS, ia_api::HTTP_CODE_REDIRECT, ia_api::HTTP_CODE_CLIENTERROR), true);
 
-        $output_check = \get_string('api_endpoint_name', INTEGRITYADVOCATE_BLOCK_NAME, $requesturi);
+        $outputcheck = \get_string('api_endpoint_name', INTEGRITYADVOCATE_BLOCK_NAME, $requesturi);
         if ($success && (strcmp('healthy', $response) === 0)) {
-            $output_summary = $responsecode . ' ' . \get_string('diagnostics_success', INTEGRITYADVOCATE_BLOCK_NAME) .  '; ' . \clean_param($responseinfo['total_time'], PARAM_FLOAT) . ' ' . \get_string('seconds') . '; ip=' . $responseinfo['primary_ip'];
-            $returnthis = new moodle_checkresult(moodle_checkresult::OK, $output_check, $output_summary);
+            $outputsummary = $responsecode . ' ' . \get_string('diagnostics_success', INTEGRITYADVOCATE_BLOCK_NAME) .  '; '
+                . \clean_param($responseinfo['total_time'], PARAM_FLOAT) . ' ' . \get_string('seconds') . '; ip=' . $responseinfo['primary_ip'];
+            $returnthis = new moodle_checkresult(moodle_checkresult::OK, $outputcheck, $outputsummary);
         } else {
-            $output_summary = \get_string('diagnostics_fail', INTEGRITYADVOCATE_BLOCK_NAME);
-            $output_summary .= '; responseinfo=' . \clean_param(ia_u::var_dump($responseinfo), \PARAM_TEXT);
-            $returnthis = new moodle_checkresult(moodle_checkresult::CRITICAL, $output_check, $output_summary);
+            $outputsummary = \get_string('diagnostics_fail', INTEGRITYADVOCATE_BLOCK_NAME);
+            $outputsummary .= '; responseinfo=' . \clean_param(ia_u::var_dump($responseinfo), \PARAM_TEXT);
+            $returnthis = new moodle_checkresult(moodle_checkresult::CRITICAL, $outputcheck, $outputsummary);
         }
 
         $debug && \debugging($fxn . '::About to return returnthis=' . ia_u::var_dump($returnthis));
         return $returnthis;
     }
 
-    // ttps://ca.integrityadvocateserver.com/api/participantsessions/activity?courseid=0&activityid=0&participantidentifier=0&limit=1&backwardsearch=true
+    /**
+     * Test the IA API endpoint participantsessions_activity.
+     * @return moodle_checkresult Check result.
+     */
     private function test_url_participantsessions_activity(): moodle_checkresult {
+        // ttps://ca.integrityadvocateserver.com/api/participantsessions/activity?courseid=0&activityid=0&participantidentifier=0&limit=1&backwardsearch=true
         $debug = true;
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . '::Started');
@@ -111,8 +129,8 @@ class diagnostics_manager {
         $result = ia_api::get($requesturi, $apikey, $appid, $params);
         $debug && \debugging($fxn . '::Got GET result=' . ia_u::var_dump($result));
 
-        $output_check = 'endpoint_participantsessions_activity_name OK';
-        $returnthis = new moodle_checkresult(moodle_checkresult::OK, $output_check, \get_string('endpoint_participantsessions_activity_name', INTEGRITYADVOCATE_BLOCK_NAME));
+        $outputcheck = 'endpoint_participantsessions_activity_name OK';
+        $returnthis = new moodle_checkresult(moodle_checkresult::OK, $outputcheck, \get_string('endpoint_participantsessions_activity_name', INTEGRITYADVOCATE_BLOCK_NAME));
 
         $debug && \debugging($fxn . '::About to return returnthis=' . ia_u::var_dump($returnthis));
         return $returnthis;
