@@ -164,22 +164,29 @@ class Api {
         $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, '', '&') : '');
         $debug && \debugging($fxn . '::Built $requesturi=' . $requesturi);
 
-        // Here is a place to test HTTP responses, reponse code and timeouts.
-        // $requesturi = 'https://httpstat.us/444';
+        // Tests for bad HTTP requests:
+        // $requesturi = 'https://httpstat.us/444?sleep=5000';
+        // $requesturi = 'https://expired.badssl.com/';
+        // $requesturi = 'http://127.0.0.1:65535';
+        // $requesturi = 'http://127.0.0.1:8443';
 
         $curl = new \curl();
         $curl->setopt([
             'CURLOPT_CERTINFO' => 1,
             'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_SSL_VERIFYPEER' => 1,
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_HEADER' => 0,
-            // 'CURLOPT_TIMEOUT' => 5,
+            'CURLOPT_TIMEOUT' => 60,
+            'CURLOPT_CONNECTTIMEOUT' => 60,
         ]);
 
         $response = $curl->get($requesturi);
 
         $responseinfo = $curl->get_info();
         $responseinfo['errno'] = $curl->get_errno();
+        $responseinfo['error'] = $curl->error;
         $responsecode = (int) ($responseinfo['http_code'] ?? -1);
         // Remove certinfo b/c it too much info and we do not need it for \debugging.
         unset($responseinfo['certinfo']);
@@ -261,6 +268,8 @@ class Api {
             'CURLOPT_MAXREDIRS' => 5,
             'CURLOPT_RETURNTRANSFER' => 1,
             'CURLOPT_SSL_VERIFYPEER' => 1,
+            'CURLOPT_TIMEOUT' => 60,
+            'CURLOPT_CONNECTTIMEOUT' => 60,
         ]);
 
         $header = \implode(':', ["Authorization: amx {$appid}", $requestsignature, $nonce, $requesttimestamp]);
