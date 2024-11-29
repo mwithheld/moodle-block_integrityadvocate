@@ -77,6 +77,16 @@ class Api {
     public const HTTP_CODE_CLIENTERROR = [404, 410];
 
     /**
+     * Check if the HTTP response code is one we can consider OK.
+     *
+     * @param int $httpresponsecode The HTTP response code to check.
+     * @return bool True if it is considered OK.
+     */
+    public static function http_response_code_is_acceptable(int $httpresponsecode): bool {
+        return \in_array($httpresponsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
+    }
+
+    /**
      * Attempt to close the remote IA proctoring session.  404=failed to find the session.
      * @link https://www.integrityadvocateserver.com/Developers#endingthesession .
      *
@@ -115,7 +125,7 @@ class Api {
             '&activityid=' . $moduleid;
         [$responsecode, $response, $responseinfo] = self::curl_get_unsigned($requesturi);
 
-        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
+        $success = self::http_response_code_is_acceptable($responsecode);
         if (!$success) {
             $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode);
             \debugging($msg);
