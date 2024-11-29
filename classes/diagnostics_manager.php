@@ -80,7 +80,8 @@ class diagnostics_manager {
         $requesturi = ia_api::ENDPOINT_PING;
         $debug && \debugging($fxn . "'::About to curl_get_unsigned({$requesturi})'");
         [$responsecode, $response, $responseinfo] = ia_api::curl_get_unsigned($requesturi);
-        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . \htmlentities(ia_u::var_dump($response)) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode
+            . '; $response=' . \htmlentities(ia_u::var_dump($response)) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
 
         $responsecodeisok = ia_api::http_response_code_is_acceptable($responsecode);
         $debug && \debugging($fxn . '::Got $responsecodeisok=' . ia_u::var_dump($responsecodeisok));
@@ -130,7 +131,8 @@ class diagnostics_manager {
         $requesturi = ia_api::ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY;
         $debug && \debugging($fxn . "'::About to curl_get_unsigned({$requesturi})'");
         [$responsecode, $response, $responseinfo] = ia_api::curl_get_unsigned($requesturi, $params);
-        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . \htmlentities(ia_u::var_dump($response)) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
+        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode
+            . '; $response=' . \htmlentities(ia_u::var_dump($response)) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
 
         $responsecodeisok = ia_api::http_response_code_is_acceptable($responsecode);
         $debug && \debugging($fxn . '::Got $responsecodeisok=' . ia_u::var_dump($responsecodeisok));
@@ -161,19 +163,11 @@ class diagnostics_manager {
         return $returnthis;
     }
 
-    // private function test_url_participantstatus(int $courseid = \SITEID): array {
-    //     $debug = true;
-    //     $fxn = __CLASS__ . '::' . __FUNCTION__;
-    //     $debug && \debugging($fxn . '::Started with courseid=' . $courseid);
-
-    //     $requesturi = ia_api::ENDPOINT_PARTICIPANT_STATUS;
-    //
-    // Random bogus data here.
-    // $appid = '3e7f91c8-9a3d-4e6b-bf05-72d48a1c9d7e';
-    // $apikey = 'HBgGDFC3X5eHXALg1p92/1GI1JLmiCtJsrdE5tTQVvU=';
-    // $result = ia_api::get($requesturi, $apikey, $appid, $params);
-    // $debug && \debugging($fxn . '::Got GET result=' . ia_u::var_dump($result));
-    //
-    //     return [];
-    // }
+    /**
+     * Test the IA API endpoint participantsessions_activity.
+     * @return moodle_checkresult Check result.
+     */
+    private function test_url_participantstatus(): void {
+        throw Exception('Not implemented');
+    }
 }
