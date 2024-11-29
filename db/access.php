@@ -24,6 +24,18 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
+    'block/integrityadvocate:diagnostics' => [
+        'riskbitmask' => RISK_CONFIG,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/site:manageblocks',
+    ],
     'block/integrityadvocate:overview' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
@@ -66,16 +78,6 @@ $capabilities = [
             'coursecreator' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/site:manageblocks',
-    ],
-    'block/integrityadvocate:diagnostics' => [
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-            'coursecreator' => CAP_ALLOW,
-        ],
-        'clonepermissionsfrom' => 'moodle/my:manageblocks',
     ],
     'block/integrityadvocate:myaddinstance' => [
         'riskbitmask' => RISK_PERSONAL,
