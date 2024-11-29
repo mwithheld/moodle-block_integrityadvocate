@@ -64,7 +64,7 @@ $pageslug = 'diagnostics';
 $PAGE->set_context($coursecontext);
 $debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
-// All overview pages require the blockinstance.
+// All pages require the blockinstance.
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
@@ -76,7 +76,6 @@ if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integri
 $PAGE->set_pagelayout('report');
 $PAGE->set_course($course);
 $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $pageslug);
-// $PAGE->requires->data_for_js('M.block_integrityadvocate', ['appid' => $blockinstance->config->appid, 'courseid' => $courseid, 'moduleid' => $moduleid], true);
 
 // Used to build the page URL.
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/diagnostics.php', $params);
