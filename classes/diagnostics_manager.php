@@ -51,17 +51,16 @@ class diagnostics_manager {
         // Block has an app Id.
         // Course has activity completion enabled.
         // Course activity is visible.
+        // IA remote side: Activity is enabled.
+        // IA remote side: Activity has some rules.
 
         // IA remote side: /ping returns 'healthy'.
         $debug && \debugging($fxn . '::About to test_url_ping()');
         $results[] = self::test_url_ping();
 
-        // IA remote side: Activity is enabled.
-        // IA remote side: Activity has some rules.
-
         // IA remote endpoint for participantsessions works with no real credentials or params.
-        // $debug && \debugging($fxn . '::About to test_url_participantsessions_activity()');
-        // $results[] = self::test_url_participantsessions_activity();
+        $debug && \debugging($fxn . '::About to test_url_participantsessions_activity()');
+        $results[] = self::test_url_participantsessions_activity();
 
         // $result[] = self::test_url_participantstatus($courseid);
 
@@ -78,17 +77,19 @@ class diagnostics_manager {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . '::Started');
 
-        $returnthis = [];
-
         $requesturi = ia_api::ENDPOINT_PING;
         $debug && \debugging($fxn . "'::About to curl_get_unsigned({$requesturi})'");
         [$responsecode, $response, $responseinfo] = ia_api::curl_get_unsigned($requesturi);
         $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . ia_u::var_dump($response) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
 
-        $success = \in_array($responsecode, \array_merge(ia_api::HTTP_CODE_SUCCESS, ia_api::HTTP_CODE_REDIRECT, ia_api::HTTP_CODE_CLIENTERROR), true);
+        $responsecodeisok = ia_api::http_response_code_is_acceptable($responsecode);
+        $debug && \debugging($fxn . '::Got $responsecodeisok=' . ia_u::var_dump($responsecodeisok));
+
+        $responsebodyisok = strcmp('healthy', $response) === 0;
+        $debug && \debugging($fxn . '::Got $responsebodyisok=' . ia_u::var_dump($responsebodyisok));
 
         $outputcheck = \get_string('api_endpoint_name', INTEGRITYADVOCATE_BLOCK_NAME, $requesturi);
-        if ($success && (strcmp('healthy', $response) === 0)) {
+        if ($responsecodeisok && $responsebodyisok) {
             $outputsummary = $responsecode . ' ' . \get_string('diagnostics_success', INTEGRITYADVOCATE_BLOCK_NAME) .  '; '
                 . \clean_param($responseinfo['total_time'], PARAM_FLOAT) . ' ' . \get_string('seconds') . '; ip=' . $responseinfo['primary_ip'];
             $returnthis = new moodle_checkresult(moodle_checkresult::OK, $outputcheck, $outputsummary);
@@ -112,9 +113,6 @@ class diagnostics_manager {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug && \debugging($fxn . '::Started');
 
-        $returnthis = [];
-
-        $requesturi = ia_api::ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY;
         // All the bogus data here should work.
         $params = [
             'courseid' => -1,
@@ -123,14 +121,30 @@ class diagnostics_manager {
             'limit' => -1,
             'backwardsearch' => 'true',
         ];
-        // Random bogus data here too.
-        $appid = '3e7f91c8-9a3d-4e6b-bf05-72d48a1c9d7e';
-        $apikey = 'HBgGDFC3X5eHXALg1p92/1GI1JLmiCtJsrdE5tTQVvU=';
-        $result = ia_api::get($requesturi, $apikey, $appid, $params);
-        $debug && \debugging($fxn . '::Got GET result=' . ia_u::var_dump($result));
 
-        $outputcheck = 'endpoint_participantsessions_activity_name OK';
-        $returnthis = new moodle_checkresult(moodle_checkresult::OK, $outputcheck, \get_string('endpoint_participantsessions_activity_name', INTEGRITYADVOCATE_BLOCK_NAME));
+        $requesturi = ia_api::ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY;
+        $debug && \debugging($fxn . "'::About to curl_get_unsigned({$requesturi})'");
+        [$responsecode, $response, $responseinfo] = ia_api::curl_get_unsigned($requesturi, $params);
+        $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode . '; $response=' . ia_u::var_dump($response) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
+
+        $responsecodeisok = ia_api::http_response_code_is_acceptable($responsecode);
+        $debug && \debugging($fxn . '::Got $responsecodeisok=' . ia_u::var_dump($responsecodeisok));
+
+        $responsebodyisok = strcmp('{}', $response) === 0;
+        $debug && \debugging($fxn . '::Got $responsebodyisok=' . ia_u::var_dump($responsebodyisok));
+
+        $returnthis = new moodle_checkresult(moodle_checkresult::CRITICAL, '$outputcheck here', '$outputsummary here');
+
+        $outputcheck = \get_string('api_endpoint_name', INTEGRITYADVOCATE_BLOCK_NAME, $requesturi);
+        if ($responsecodeisok && $responsebodyisok) {
+            $outputsummary = $responsecode . ' ' . \get_string('diagnostics_success', INTEGRITYADVOCATE_BLOCK_NAME) .  '; '
+                . \clean_param($responseinfo['total_time'], PARAM_FLOAT) . ' ' . \get_string('seconds') . '; ip=' . $responseinfo['primary_ip'];
+            $returnthis = new moodle_checkresult(moodle_checkresult::OK, $outputcheck, $outputsummary);
+        } else {
+            $outputsummary = \get_string('diagnostics_fail', INTEGRITYADVOCATE_BLOCK_NAME);
+            $outputsummary .= '; responseinfo=' . \clean_param(ia_u::var_dump($responseinfo), \PARAM_TEXT);
+            $returnthis = new moodle_checkresult(moodle_checkresult::CRITICAL, $outputcheck, $outputsummary);
+        }
 
         $debug && \debugging($fxn . '::About to return returnthis=' . ia_u::var_dump($returnthis));
         return $returnthis;
@@ -142,9 +156,13 @@ class diagnostics_manager {
     //     $debug && \debugging($fxn . '::Started with courseid=' . $courseid);
 
     //     $requesturi = ia_api::ENDPOINT_PARTICIPANT_STATUS;
-    //     $input = self::get(self::ENDPOINT_PARTICIPANT_STATUS, $blockinstance->config->apikey, $blockinstance->config->appid, $params);
-    //     $debug && \debugging($fxn . '::Got participantstatus input=' . ia_u::var_dump($input));
-
+    //
+    // Random bogus data here.
+    // $appid = '3e7f91c8-9a3d-4e6b-bf05-72d48a1c9d7e';
+    // $apikey = 'HBgGDFC3X5eHXALg1p92/1GI1JLmiCtJsrdE5tTQVvU=';
+    // $result = ia_api::get($requesturi, $apikey, $appid, $params);
+    // $debug && \debugging($fxn . '::Got GET result=' . ia_u::var_dump($result));
+    //
     //     return [];
     // }
 }
