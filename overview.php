@@ -112,8 +112,8 @@ $debug && \debugging('Build params=' . ia_u::var_dump($params));
 $blockinstance = \block_instance_by_id($blockinstanceid);
 // Sanity check that we got an IA block instance.
 if (ia_u::is_empty($blockinstance) || !($blockinstance instanceof \block_integrityadvocate) || !isset($blockinstance->context) || empty($blockcontext = $blockinstance->context)) {
-    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate=" .
-        \var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
+    $debug && \debugging($fxn . '::Got $blockinstance='.\var_export($blockinstance, true) . '; context=' . \var_export($blockcontext ?? '', true));
+    throw new \InvalidArgumentException("Blockinstanceid={$blockinstanceid} is not an instance of block_integrityadvocate");
 }
 
 // Set up page parameters. All $PAGE setup must be done before output.
