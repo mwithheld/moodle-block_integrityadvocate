@@ -83,7 +83,7 @@ $PAGE->add_body_class(INTEGRITYADVOCATE_BLOCK_NAME . '-' . $pageslug);
 $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/diagnostics.php', $params);
 $PAGE->set_url($baseurl);
 
-$pagename = \get_string(\str_replace('-', '_', $pageslug), INTEGRITYADVOCATE_BLOCK_NAME);
+$pagename = \get_string('pluginname', INTEGRITYADVOCATE_BLOCK_NAME) . ' ' . \get_string(\str_replace('-', '_', $pageslug), INTEGRITYADVOCATE_BLOCK_NAME);
 $title = \format_string($course->fullname) . ': ' . $pagename;
 $courseurl = new \moodle_url('/course/view.php', ['id' => $courseid]);
 
@@ -116,7 +116,7 @@ $table->colclasses = [
     'leftalign check',
     'leftalign summary',
 ];
-$table->id = 'message_airnotifier_checkconfiguration';
+$table->id = INTEGRITYADVOCATE_BLOCK_NAME . '_diagnostics';
 $table->attributes = ['class' => 'admintable generaltable'];
 $table->data = [];
 
