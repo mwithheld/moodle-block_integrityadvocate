@@ -146,11 +146,16 @@ class Api {
 
         // Set up request params (querystring). Ref API docs at https://www.integrityadvocateserver.com/developers#aEvents.
         $debug && \debugging($fxn . '::About to build $requesturi with $params=' . ($params ? ia_u::var_dump($params) : ''));
-        $requestapiurl = 'http://www.somewherefakenoreponse.com' . INTEGRITYADVOCATE_API_PATH . $endpoint;
+        if($endpoint == self::ENDPOINT_PING) {
+            $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . $endpoint;
+        } else {
+            $requestapiurl = INTEGRITYADVOCATE_BASEURL_API . INTEGRITYADVOCATE_API_PATH . $endpoint;
+        }
         $requesturi = $requestapiurl . ($params ? '?' . \http_build_query($params, '', '&') : '');
         $debug && \debugging($fxn . '::Built $requesturi=' . $requesturi);
 
-        $requesturi = 'https://httpstat.us/444';
+        // Here is a place to test HTTP responses, reponse code and timeouts.
+        // $requesturi = 'https://httpstat.us/444';
 
         $curl = new \curl();
         $curl->setopt([
