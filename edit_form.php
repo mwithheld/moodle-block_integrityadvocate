@@ -21,6 +21,7 @@
  * @copyright  IntegrityAdvocate.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use block_integrityadvocate as ia;
 use block_integrityadvocate\Utility as ia_u;
 
@@ -65,8 +66,17 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      * @return void.
      */
     protected function specific_definition_ia(MoodleQuickForm $mform) {
-        $mform->addElement('static', 'topnote', get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME),
-                get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME), ['hidden' => true]);
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && \debugging($fxn . '::Started with $mform=' . ia_u::var_dump($mform));
+
+        $mform->addElement(
+            'static',
+            'topnote',
+            get_string('config_topnote', INTEGRITYADVOCATE_BLOCK_NAME),
+            get_string('config_topnote_help', INTEGRITYADVOCATE_BLOCK_NAME),
+            ['hidden' => true]
+        );
 
         $mform->addElement('text', 'config_appid', get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME), ['size' => 39]);
         $mform->setType('config_appid', PARAM_ALPHANUMEXT);
@@ -98,7 +108,22 @@ class block_integrityadvocate_edit_form extends block_edit_form {
             $mform->setDefault('config_proctorquizreviewpages', 0);
         }
 
-        $mform->addElement('static', 'blockversion', get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
+        $mform->addElement('static', 'blockversion', \get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME), get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version'));
+
+        $blockinstance = $this->block->instance;
+        $debug && \debugging($fxn . '::Got blockinstance=' . ia_u::var_dump($blockinstance));
+        $blockcontext = $this->block->context;
+        $debug && \debugging($fxn . '::Got blockcontext=' . ia_u::var_dump($blockcontext));
+        if (\has_capability('block/integrityadvocate:diagnostics', $blockcontext)) {
+            $diagnosticslabel = \get_string('diagnostics', INTEGRITYADVOCATE_BLOCK_NAME);
+            $params = [
+                'instanceid' => $blockinstance->id,
+                'courseid' => $this->page->course->id,
+            ];
+            $diagnosticsurl = new \moodle_url('/blocks/integrityadvocate/diagnostics.php', $params);
+            $diagnosticsurlelement = \html_writer::link($diagnosticsurl, $diagnosticslabel);
+            $mform->addElement('static', 'diagnostics', $diagnosticslabel, $diagnosticsurlelement);
+        }
     }
 
     /**
@@ -110,7 +135,7 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      */
     public function definition_after_data() {
         parent::definition_after_data();
-        $mform = & $this->_form;
+        $mform = &$this->_form;
 
         $appid = $mform->getElementValue('config_appid');
         $apikey = $mform->getElementValue('config_apikey');
@@ -137,13 +162,13 @@ class block_integrityadvocate_edit_form extends block_edit_form {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $unused): array {
+        $debug = false;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug && \debugging($fxn . '::Started with $data=' . ia_u::var_dump($data));
+
         if (!\is_array($data)) {
             throw new InvalidArgumentException('$data must be an array and it appears to be a ' . \gettype($data));
         }
-
-        $debug = false;
-        $fxn = __CLASS__ . '::' . __FUNCTION__;
-        $debug && debugging($fxn . '::Started with $data=' . ia_u::var_dump($data));
 
         $errors = [];
 
