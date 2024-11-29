@@ -40,25 +40,25 @@ class Api {
     // API ref https://www.integrityadvocateserver.com/developers#apiendpoints .
 
     /** @var string URI to ping IA and see if there is a good response */
-    private const ENDPOINT_PING = '/ping';
+    public const ENDPOINT_PING = '/ping';
 
     /** @var string URI to close the remote IA session */
-    private const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
+    public const ENDPOINT_CLOSE_SESSION = '/participants/endsession';
 
     /** @var string URI to get participant info */
-    private const ENDPOINT_PARTICIPANT = '/participant';
+    public const ENDPOINT_PARTICIPANT = '/participant';
 
     /** @var string URI to get participants info */
-    private const ENDPOINT_PARTICIPANTS = '/course/courseid/participants';
+    public const ENDPOINT_PARTICIPANTS = '/course/courseid/participants';
 
     /** @var string URI to get participant session info */
-    private const ENDPOINT_PARTICIPANTSESSIONS = '/course/courseid/participantsessions';
+    public const ENDPOINT_PARTICIPANTSESSIONS = '/course/courseid/participantsessions';
 
     /** @var string URI to get participant sessions activity info */
-    private const ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY = '/participantsessions/activity';
+    public const ENDPOINT_PARTICIPANTSESSIONS_ACTIVITY = '/participantsessions/activity';
 
     /** @var string URI to get only the overall status for a single participant for the specified activity. */
-    private const ENDPOINT_PARTICIPANT_STATUS = '/2-0/participantstatus';
+    public const ENDPOINT_PARTICIPANT_STATUS = '/2-0/participantstatus';
 
     /** @var int The API returns 10 results max per call by default, but our UI shows 20 users per page.  Set the number we want per
      * UI page here. */
