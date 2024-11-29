@@ -108,6 +108,20 @@ class Api {
         }
 
         // Do not cache these requests.
+        $requesturi = INTEGRITYADVOCATE_BASEURL_API . self::ENDPOINT_CLOSE_SESSION . '?' .
+            'appid=' . \urlencode($appid) .
+            '&participantidentifier=' . $userid .
+            '&courseid=' . $courseid .
+            '&activityid=' . $moduleid;
+        [$responsecode, $response, $responseinfo] = self::curl_get_unsigned($requesturi);
+        
+        $success = \in_array($responsecode, \array_merge(self::HTTP_CODE_SUCCESS, self::HTTP_CODE_REDIRECT, self::HTTP_CODE_CLIENTERROR), true);
+        if (!$success) {
+            $msg = $fxn . '::Request to the IA server failed: GET url=' . \var_export($requesturi, true) . '; Response http_code=' . ia_u::var_dump($responsecode);
+            \debugging($msg);
+        }
+        return $success;
+    }
 
     /**
      * Do a curl GET with the given URL with no authorization header.
