@@ -152,20 +152,21 @@ class block_integrityadvocate extends block_base {
      * @return array<string, mixed> where key=location; value=whether it can be added.
      */
     public function applicable_formats(): array {
-        return ['admin' => false,
+        return [
+            'admin' => false,
             'course-view' => true,
             'mod' => true,
             'my' => false,
             'site' => false,
-                // Unused: 'all'.
-                // Unused: 'course'.
-                // Unused: 'course-view-social'.
-                // Unused: 'course-view-topics'.
-                // Unused: 'course-view-weeks'.
-                // Unused: 'mod-quiz'.
-                // Unused: 'site-index'.
-                // Unused: 'tag'.
-                // Unused: 'user-profile'.
+            // Unused: 'all'.
+            // Unused: 'course'.
+            // Unused: 'course-view-social'.
+            // Unused: 'course-view-topics'.
+            // Unused: 'course-view-weeks'.
+            // Unused: 'mod-quiz'.
+            // Unused: 'site-index'.
+            // Unused: 'tag'.
+            // Unused: 'user-profile'.
         ];
     }
 
@@ -310,10 +311,10 @@ class block_integrityadvocate extends block_base {
             // These styles are removed in the js by simply removing this element.
             if ($hidemodulecontent) {
                 $this->content->text .= '<style id="block_integrityadvocate_hidemodulecontent">'
-                        . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
-                        . "#user-notifications{height:100px;background:center no-repeat url('" .
-                        $OUTPUT->image_url('i/loading') . "')}\n"
-                        . '</style>';
+                    . "#responseform, #scormpage, div[role=\"main\"]{display:none}\n"
+                    . "#user-notifications{height:100px;background:center no-repeat url('" .
+                    $OUTPUT->image_url('i/loading') . "')}\n"
+                    . '</style>';
             }
 
             // This must hold some content, otherwise this function runs twice.
@@ -345,8 +346,11 @@ class block_integrityadvocate extends block_base {
         $iamodulesexist = ($blockcount = ia_u::count_if_countable($iablocksinthiscourse)) > 0;
 
         $this->content->text .= \html_writer::start_tag('div', ['class' => "{$prefix}_div"]);
-        $this->content->text .= \html_writer::tag('h6', \get_string('blocklist_title', INTEGRITYADVOCATE_BLOCK_NAME,
-                                (string) $blockcount), ['class' => "{$prefix}_div_title"]);
+        $this->content->text .= \html_writer::tag('h6', \get_string(
+            'blocklist_title',
+            INTEGRITYADVOCATE_BLOCK_NAME,
+            (string) $blockcount
+        ), ['class' => "{$prefix}_div_title"]);
 
         if (!$iamodulesexist) {
             $debug && \debugging($fxn . '::No modules exist');
@@ -371,14 +375,17 @@ class block_integrityadvocate extends block_base {
             // Get the parent module.
             $parentcontext = $blockinstance->context->get_parent_context();
             switch (true) {
-                case($parentcontext->contextlevel == CONTEXT_COURSE) :
-                    $this->content->text .= \html_writer::link($parentcontext->get_url(), get_string('course'));
+                case ($parentcontext->contextlevel == CONTEXT_COURSE):
+                    // Output a link to the course.
+                    $link = \html_writer::link($parentcontext->get_url(), get_string('course'));
+                    $debug && \debugging($fxn . '::Got $link=' . ia_u::var_dump($link, true));
+                    $this->content->text .= $link;
                     break;
-                case($parentcontext->contextlevel == CONTEXT_MODULE) :
+                case ($parentcontext->contextlevel == CONTEXT_MODULE):
                     // Output a link to the module.
                     $module = \context_module::instance($parentcontext->instanceid);
                     $cm = \get_coursemodule_from_id(null, $moduleid);
-                    if ($cm and ! $cm->deletioninprogress) {
+                    if ($cm && ! $cm->deletioninprogress) {
                         $link = \html_writer::link($module->get_url(), $module->get_context_name(false));
                         $debug && \debugging($fxn . '::Got $link=' . ia_u::var_dump($link, true));
                         $this->content->text .= $link;
@@ -415,7 +422,7 @@ class block_integrityadvocate extends block_base {
         $fxn = __CLASS__ . '::' . __FUNCTION__;
         $debug = false;
         $debug && \debugging($fxn . '::Started with url=' . $this->page->url . '; courseid=' . $COURSE->id .
-                        '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
+            '; $USER->id=' . $USER->id . '; $USER->username=' . $USER->username);
 
         if (\is_object($this->content) && isset($this->content->text) && !empty(\trim($this->content->text))) {
             return;
@@ -520,7 +527,7 @@ class block_integrityadvocate extends block_base {
                             $courseid = required_param('course', PARAM_INT);
                             $targetuserid = optional_param('id', $USER->id, PARAM_INT);
                             $debug && \debugging($fxn . '::This is the course-user page, so in the block show the IA proctor summary for this '
-                                            . 'course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
+                                . 'course-user combo: courseid=' . $courseid . '; $targetuserid=' . $targetuserid);
 
                             // Check the user is enrolled in this course, even if inactive.
                             if (!\is_enrolled($parentcontext, $targetuserid)) {
@@ -529,12 +536,17 @@ class block_integrityadvocate extends block_base {
 
                             // Do not show the latest status.
                             try {
-                                $participant = ia_api::get_participant($this->config->apikey, $this->config->appid,
-                                                $this->get_course()->id, $targetuserid, $this->instance->id);
+                                $participant = ia_api::get_participant(
+                                    $this->config->apikey,
+                                    $this->config->appid,
+                                    $this->get_course()->id,
+                                    $targetuserid,
+                                    $this->instance->id
+                                );
                             } catch (ia\HttpException $e) {
                                 // Ignore so that the Participants page can still render.
                                 $msg = "::Get of participant info failed using appid={$this->config->appid}; courseid={$courseid}; ";
-                                $msg += "targetuserid={$targetuserid}; exception=".$e->getMessage();
+                                $msg += "targetuserid={$targetuserid}; exception=" . $e->getMessage();
                                 \debugging($fxn . $msg);
                                 $participant = null;
                             }
@@ -543,8 +555,14 @@ class block_integrityadvocate extends block_base {
                                 $debug && \debugging($fxn . '::Got empty participant, so return empty result');
                                 $this->content->text .= ia_output::get_student_message();
                             } else {
-                                $this->content->text .= ia_output::get_participant_summary_output($this, $participant,
-                                                /* $showphoto= */ true, /* $showoverviewbutton= */ false, /* $showstatus= */ false);
+                                $this->content->text .= ia_output::get_participant_summary_output(
+                                    $this,
+                                    $participant,
+                                    /* $showphoto= */
+                                    true, /* $showoverviewbutton= */
+                                    false, /* $showstatus= */
+                                    false
+                                );
                             }
                         }
 
@@ -578,12 +596,12 @@ class block_integrityadvocate extends block_base {
                         \is_enrolled($parentcontext, $USER, null, true)):
                         // This is someone in a student role.
                         switch (true) {
-                            // @phpcs:ignore
+                                // @phpcs:ignore
                             case (str_starts_with($this->page->pagetype, 'mod-scorm-')):
                                 $this->content->text .= $this->get_content_scorm();
                                 break;
                                 // @phpcs:ignore
-                            case(str_starts_with($this->page->pagetype, 'mod-quiz-')):
+                            case (str_starts_with($this->page->pagetype, 'mod-quiz-')):
                                 $this->content->text .= $this->get_content_quiz($hascapabilityselfview);
                                 break;
                             default:
@@ -677,7 +695,7 @@ class block_integrityadvocate extends block_base {
                 && (isset($this->config->proctorquizreviewpages) && $this->config->proctorquizreviewpages)
             )
         ) {
-            $message = $fxn . '::Pagetype='.$this->page->pagetype.'::Student should see proctoring JS';
+            $message = $fxn . '::Pagetype=' . $this->page->pagetype . '::Student should see proctoring JS';
             $debug && \debugging($message);
             if ($debugdonotloadproctorjs) {
                 $returnthis .= $message;
@@ -685,7 +703,7 @@ class block_integrityadvocate extends block_base {
                 $this->add_proctor_js($USER);
             }
         } else if ($hascapabilityselfview) {
-            $message = $fxn . '::Pagetype='.$this->page->pagetype.'::Student should see summary info';
+            $message = $fxn . '::Pagetype=' . $this->page->pagetype . '::Student should see summary info';
             $debug && \debugging($message);
             if ($debugdonotloadproctorjs) {
                 $returnthis .= $message;
@@ -718,16 +736,16 @@ class block_integrityadvocate extends block_base {
 
         $lanstring = get_string('config_blockversion', INTEGRITYADVOCATE_BLOCK_NAME);
         $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo_version" title="' . $lanstring . '">' .
-                "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
+            "{$lanstring} " . get_config(INTEGRITYADVOCATE_BLOCK_NAME, 'version') . ' on M' . $CFG->release . '</div>';
 
         $lanstring = get_string('config_appid', INTEGRITYADVOCATE_BLOCK_NAME);
         $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo_appid" title="' .
-                $lanstring . '">' . "{$lanstring} " . (isset($this->config->appid) ? $this->config->appid : '') . '</div>';
+            $lanstring . '">' . "{$lanstring} " . (isset($this->config->appid) ? $this->config->appid : '') . '</div>';
 
         if ($CFG->debug >= 15) {
             $lanstring = get_string('config_blockid', INTEGRITYADVOCATE_BLOCK_NAME);
             $returnthis .= '<div class="' . INTEGRITYADVOCATE_BLOCK_NAME . '_plugininfo_blockid" title="' .
-            $lanstring . '">' . "{$lanstring} " . $this->instance->id . '</div>';
+                $lanstring . '">' . "{$lanstring} " . $this->instance->id . '</div>';
         }
 
         // Close the enclosing _plugininfo div.
