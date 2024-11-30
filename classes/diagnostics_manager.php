@@ -81,7 +81,7 @@ class diagnostics_manager {
         $debug && \debugging($fxn . "'::About to curl_get_unsigned({$requesturi})'");
         [$responsecode, $response, $responseinfo] = ia_api::curl_get_unsigned($requesturi);
         $debug && \debugging($fxn . '::Got GET $responsecode]' . $responsecode
-            . '; $response=' . \htmlentities(ia_u::var_dump($response)) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
+            . '; $response=' . ia_u::var_dump($response, true) . '; $responseinfo=' . ia_u::var_dump($responseinfo));
 
         $responsecodeisok = ia_api::http_response_code_is_acceptable($responsecode);
         $debug && \debugging($fxn . '::Got $responsecodeisok=' . ia_u::var_dump($responsecodeisok));
