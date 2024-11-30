@@ -377,7 +377,12 @@ class block_integrityadvocate extends block_base {
                 case($parentcontext->contextlevel == CONTEXT_MODULE) :
                     // Output a link to the module.
                     $module = \context_module::instance($parentcontext->instanceid);
-                    $this->content->text .= \html_writer::link($module->get_url(), $module->get_context_name(false));
+                    $cm = \get_coursemodule_from_id(null, $moduleid);
+                    if ($cm and ! $cm->deletioninprogress) {
+                        $link = \html_writer::link($module->get_url(), $module->get_context_name(false));
+                        $debug && \debugging($fxn . '::Got $link=' . ia_u::var_dump($link, true));
+                        $this->content->text .= $link;
+                    }
                     break;
                 default:
                     $msg = $fxn . '::Found unexpected contextlevel=' . $parentcontext->contextlevel;
