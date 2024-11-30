@@ -367,7 +367,7 @@ class MoodleUtility {
         foreach ($modinfo->instances as $module => $instances) {
             $modulename = \get_string('pluginname', $module);
             foreach ($instances as $cm) {
-                if ($cm->completion != \COMPLETION_TRACKING_NONE && $module != 'label') {
+                if (!$cm->deletioninprogress && $cm->completion != \COMPLETION_TRACKING_NONE && $module != 'label') {
                     $debug && \debugging($fxn . '::Looking at module=' . ia_u::var_dump($module));
                     $debug && \debugging($fxn . '::Looking at cm->url=' . ia_u::var_dump($cm->url));
                     $debug && \debugging($fxn . '::Looking at cm-completion=' . ia_u::var_dump($cm->completion));
