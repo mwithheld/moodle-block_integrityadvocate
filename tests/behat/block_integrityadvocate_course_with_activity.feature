@@ -20,8 +20,10 @@ Feature: Add IntegrityAdvocate block to a course and an activity
       | student1 | C1     | student        |
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    # This Behat step is deprecated as of Moodle 4.4: And I add a "Quiz" to section "1" and I fill the form with:
-    And I add a quiz activity to course "Course 1" section "1" and I fill the form with:
+    # And I add a quiz activity to course "Course 1" section "1" and I fill the form with:.
+    # This Behat step is deprecated as of Moodle 4.4 and should be replaced with the one above.
+    # For now I have set config.php::$CFG->behat_usedeprecated = true;.
+    And I add a "Quiz" to section "1" and I fill the form with:
       | Name          | Quiz 1                |
       | Description   | Test quiz description |
       | Grade to pass | 1.00                  |
