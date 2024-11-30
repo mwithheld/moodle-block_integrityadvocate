@@ -104,6 +104,7 @@ class Utility {
      * Just wraps print_r(), but defaults to returning as a string.  If $expression is an object that has implemented __toString() then this is used.
      *
      * @param mixed $expression <p>The expression to be printed.</p>
+     * @param bool $htmlentities True to convert the returned values to HTML.
      * @param bool $return <p>If you would like to capture the output of <b>print_r()</b>, use the <code>return</code> parameter. When this parameter is set
      * to <b><code>TRUE</code></b>, <b>print_r()</b> will return the information rather than print it.</p>
      * @return mixed <p>If given a <code>string</code>, <code>integer</code> or <code>float</code>, the value itself will be printed.
@@ -111,7 +112,7 @@ class Utility {
      * for <code>object</code>s.</p><p>When the <code>return</code> parameter is <b><code>TRUE</code></b>, this function will return
      * a <code>string</code>. Otherwise, the return value is <b><code>TRUE</code></b>.</p>
      */
-    public static function var_dump($expression, bool $return = true) {
+    public static function var_dump($expression, bool $htmlentities = false, bool $return = true) {
         if (self::is_empty($expression)) {
             // phpcs:ignore
             return \print_r('', $return);
@@ -145,7 +146,11 @@ class Utility {
 
         // Preg_replace prevents dying on base64-encoded images.
         // phpcs:ignore
-        return \print_r(\preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', \print_r($expression, true)), $return);
+        $returnthis = \print_r(\preg_replace(INTEGRITYADVOCATE_REGEX_DATAURI, 'redacted_base64_image', \print_r($expression, true)), $return);
+        if ($htmlentities) {
+            $returnthis = \htmlentities($returnthis);
+        }
+        return $returnthis;
     }
 
     /**
