@@ -38,12 +38,14 @@ Feature: Add IntegrityAdvocate block to a course and an activity
     And I add the "Integrity Advocate" block
 
   @javascript @block_integrityadvocate_course_with_quiz_no_completion
-  Scenario: When an applicable activity and no config the block shows a warning
-    Then I should see "There are no activities that are visible" in the "block_integrityadvocate" "block"
+  Scenario: When add to course and no config the block shows a warning
+    Then I should see "No API key is set" in the "block_integrityadvocate" "block"
+    And I should see "No Application id is set" in the "block_integrityadvocate" "block"
+    # Then I should see "There are no activities that are visible" in the "block_integrityadvocate" "block"
     And "Course overview" "button" should not be visible
 
   @javascript @block_integrityadvocate_course_with_quiz_config_missing
-  Scenario: When an applicable activity and no config the block shows a warning
+  Scenario: When add to a quiz and no config the block shows a warning
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
     And I navigate to "Settings" in current page administration
@@ -56,8 +58,27 @@ Feature: Add IntegrityAdvocate block to a course and an activity
     And I should see "No Application id is set" in the "block_integrityadvocate" "block"
     And "Course overview" "button" should not be visible
 
+  @javascript @block_integrityadvocate_course_no_activities
+  Scenario: When add to course and no applicable activities the block shows a warning
+    When I configure the "block_integrityadvocate" block
+    And block_integrityadvocate I set the fields from CFG:
+      # Subsequent steps require a valid appid and apikey.
+      | Application id | block_integrityadvocate_appid  |
+      | API key        | block_integrityadvocate_apikey |
+    And I press "Save changes"
+    And I follow "Quiz 1"
+    And I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
+    And I set the field "Availability" to "Hide from students"
+    And I click on "Save and display" "button"
+    And I am on "Course 1" course homepage
+    And I wait "3" seconds
+    And I reload the page
+    Then I should see "There are no activities that are visible" in the "block_integrityadvocate" "block"
+    And "Course overview" "button" should not be visible
+
   @javascript @block_integrityadvocate_course_with_quiz_config_replicates_from_activity_to_course
-  Scenario: When an applicable activity and configured the course block shows to students
+  Scenario: When add to a quiz and configured the course block shows to students
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
     And I navigate to "Settings" in current page administration
