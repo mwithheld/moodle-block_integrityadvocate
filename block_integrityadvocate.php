@@ -377,18 +377,21 @@ class block_integrityadvocate extends block_base {
             switch (true) {
                 case ($parentcontext->contextlevel == CONTEXT_COURSE):
                     // Output a link to the course.
-                    $link = \html_writer::link($parentcontext->get_url(), get_string('course'));
+                    $link = \html_writer::link($parentcontext->get_url(), \get_string('course'));
                     $debug && \debugging($fxn . '::Got $link=' . ia_u::var_dump($link, true));
                     $this->content->text .= $link;
                     break;
                 case ($parentcontext->contextlevel == CONTEXT_MODULE):
                     // Output a link to the module.
                     $module = \context_module::instance($parentcontext->instanceid);
-                    $cm = \get_coursemodule_from_id(null, $moduleid);
+                    $cm = \get_coursemodule_from_id(null, $parentcontext->instanceid);
                     if ($cm && ! $cm->deletioninprogress) {
                         $link = \html_writer::link($module->get_url(), $module->get_context_name(false));
                         $debug && \debugging($fxn . '::Got $link=' . ia_u::var_dump($link, true));
                         $this->content->text .= $link;
+                    } else {
+                        // Continue in the for loop.
+                        continue 2;
                     }
                     break;
                 default:
