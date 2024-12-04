@@ -82,19 +82,23 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     When I switch to "iframelaunch" class iframe
     And I wait until the page is ready
     And block_integrityadvocate I add test output "Enable IA for this module -----"
+    And I change window size to "large"
     And I click on "Activities" "link"
     # And I click on ".chkEnableIA" "css_element"
     # And I set the field "#chkEnableIA_3" to "1"
     And I ensure ".chkEnableIA" "css_element" is "checked"
+    And I wait until the page is ready
     # Then I should see "DEMO"
     Then block_integrityadvocate I select "DEMO" from the ".ddactivationname" selectbox
+    And I wait until the page is ready
     Then I should see "DEMO" in the "#gridActivities" "css_element"
     # Then block_integrityadvocate I select "Level 2" from the ".ddactivationname" selectbox
     # Then I should see "Level 2" in the "#gridActivities" "css_element"
+    # # Sometimes the button does not show up.
+    # And I reload the page
     # -- BEGIN: We do not need these now but they might be useful later.
-    And I change window size to "large"
-    When I click on "Select Rules" "button"
-    And I wait "3" seconds
+    When I click on "Select Rules" "button"    
+    And I wait until the page is ready
     Then I should see "Stay in view of the camera"
     And block_integrityadvocate I "uncheck" all checkboxes in "#popIntegrityActivityRulesContent"
     # Remain engaged

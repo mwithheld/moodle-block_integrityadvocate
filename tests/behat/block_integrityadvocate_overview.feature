@@ -92,7 +92,8 @@ Feature: IntegrityAdvocate Course and Module Overview pages
     And I press "Save changes"
     When I click on "Module overview" "button"
     And block_integrityadvocate I add test output "Test header -----"
-    Then I should see "Course 1: Integrity Advocate module overview" in the "#page-header" "css_element"
+    # 3.9 shows "Course1: Integrity Advocate module overview" but the course name is omitted in 4.5.
+    Then I should see "Integrity Advocate module overview" in the "#page-header" "css_element"
     And I should not see "Course 1" in the "div[role='main'] h2" "css_element"
     And I should see "Quiz 1" in the "div[role='main'] h2" "css_element"
     And block_integrityadvocate I add test output "Test footer -----"
