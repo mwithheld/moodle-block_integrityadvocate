@@ -97,7 +97,7 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
     # # Sometimes the button does not show up.
     # And I reload the page
     # -- BEGIN: We do not need these now but they might be useful later.
-    When I click on "Select Rules" "button"    
+    When I click on "Select Rules" "button"
     And I wait until the page is ready
     Then I should see "Stay in view of the camera"
     And block_integrityadvocate I "uncheck" all checkboxes in "#popIntegrityActivityRulesContent"
