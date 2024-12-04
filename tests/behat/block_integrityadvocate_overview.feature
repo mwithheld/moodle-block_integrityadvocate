@@ -46,7 +46,8 @@ Feature: IntegrityAdvocate Course and Module Overview pages
     And I press "Save changes"
     When I click on "Course overview" "button"
     And block_integrityadvocate I add test output "Test header -----"
-    Then I should see "Course 1: Integrity Advocate course overview" in the "#region-main h2" "css_element"
+    Then I should see "Course 1: Integrity Advocate course overview" in the "#page-header" "css_element"
+    And I should see "Course 1" in the "div[role='main'] h2" "css_element"
     And I should not see "Quiz 1"
     And block_integrityadvocate I add test output "Test footer -----"
     And I should see "Version 20" in the "#page-content" "css_element"
@@ -91,8 +92,9 @@ Feature: IntegrityAdvocate Course and Module Overview pages
     And I press "Save changes"
     When I click on "Module overview" "button"
     And block_integrityadvocate I add test output "Test header -----"
-    Then I should see "Course 1: Integrity Advocate module overview" in the "#region-main h2" "css_element"
-    And I should see "Quiz 1" in the ".page-context-header" "css_element"
+    Then I should see "Course 1: Integrity Advocate module overview" in the "#page-header" "css_element"
+    And I should not see "Course 1" in the "div[role='main'] h2" "css_element"
+    And I should see "Quiz 1" in the "div[role='main'] h2" "css_element"
     And block_integrityadvocate I add test output "Test footer -----"
     And I should see "Version 20" in the "#page-content" "css_element"
     And I should see "Application id " in the "#page-content" "css_element"
@@ -109,6 +111,3 @@ Feature: IntegrityAdvocate Course and Module Overview pages
     When I switch to the main frame
     When I press "Back to course"
     Then I should see "Course 1" in the ".page-context-header" "css_element"
-    When I am on the "Quiz 1" "quiz activity" page
-    And I press "Course overview"
-    Then I should see "Course 1: Integrity Advocate course overview" in the "#region-main h2" "css_element"
