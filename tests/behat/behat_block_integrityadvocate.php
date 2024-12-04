@@ -209,7 +209,7 @@ class behat_block_integrityadvocate extends behat_base {
         if ($moodleversion >= 2023101300) {
             $this->execute('behat_course::i_add_to_course_section_and_i_fill_the_form_with', ['quiz', $coursefullname, $section, $tablenode]);
         } else {
-            $this->execute('behat_course::i_add_to_course_section_and_i_fill_the_form_with', ['Quiz', $section, $tablenode]);
+            $this->execute('behat_course::i_add_to_section_and_i_fill_the_form_with', ['Quiz', $section, $tablenode]);
         }
     }
 
