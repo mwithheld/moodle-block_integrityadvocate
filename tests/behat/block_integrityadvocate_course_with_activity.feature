@@ -75,7 +75,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   #     | API key        | block_integrityadvocate_apikey |
   #   And I press "Save changes"
   #   And I follow "Quiz 1"
-  #   And I navigate to "Edit settings" in current page administration
+  #   And block_integrityadvocate I navigate to settings in current page administration
   #   And I expand all fieldsets
   #   And I set the field "Availability" to "Hide from students"
   #   And I click on "Save and display" "button"
@@ -89,7 +89,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When add to a quiz and configured the course block shows to students
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the field "Completion tracking" to "1"
     And I press "Save and display"
     And I am on "Course 1" course homepage
@@ -127,7 +127,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When add to a quiz and configured the course block shows to students
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the following fields to these values:
       | Add requirements  | 1 |
       | View the activity | 1 |
@@ -167,7 +167,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When add block to activity it picks up the apikey and appid from the course level block
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the field "Completion tracking" to "1"
     And I press "Save and display"
     And I am on "Course 1" course homepage
@@ -191,7 +191,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When add block to activity it picks up the apikey and appid from the course level block
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the following fields to these values:
       | Add requirements  | 1 |
       | View the activity | 1 |
@@ -217,7 +217,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When click course overview button I go to the course overview page
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the field "Completion tracking" to "1"
     And I press "Save and display"
     And I am on "Course 1" course homepage
@@ -238,7 +238,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When click course overview button I go to the course overview page
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the following fields to these values:
       | Add requirements  | 1 |
       | View the activity | 1 |
