@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use Behat\Behat\Context\Context;
+// use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 
 /**
@@ -35,6 +35,7 @@ class behat_block_integrityadvocate extends behat_base {
 
     /**
      * Output a string to the behat test output.
+     *
      * @Then /^block_integrityadvocate I add test output "([^"]*)"$/
      *
      * @param string $string The string to output.
@@ -101,6 +102,7 @@ class behat_block_integrityadvocate extends behat_base {
      * Click on the element of the specified type which is located inside the second element.
      *
      * @When /^I ensure "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" is "(?P<checkedunchecked_string>[^"]*)"$/
+     *
      * @param string $element Element we look for
      * @param string $selectortype The type of what we look for
      * @param string $checkedunchecked The string "checked" or "unchecked", whichever you want the box to be.
@@ -186,5 +188,28 @@ class behat_block_integrityadvocate extends behat_base {
 
         // Select the value.
         $select->selectOption($value);
+    }
+
+    /**
+     * Add a quiz activity to a course section, using the correct step for the Moodle version.
+     *
+     * @Given /^block_integrityadvocate I add a quiz activity to course "(?P<coursename>[^"]+)" section "(?P<section>\d+)" and I fill the form with:$/
+     *
+     * @param string $coursefullname The name of the course.
+     * @param int $section The section number.
+     * @param TableNode $tablenode The data for the quiz form.
+     */
+    public function block_integrityadvocate_i_add_a_quiz_activity_to_course_section_and_fill_form(string $coursefullname, int $section, TableNode $tablenode) {
+        global $CFG;
+
+        // Get the Moodle version as a numeric value, e.g., 4.4 becomes 40400.
+        $moodleversion = (int)$CFG->version;
+
+        // Check if Moodle version is 4.4 or above (version 2023101300 corresponds to 4.4).
+        if ($moodleversion >= 2023101300) {
+            $this->execute('behat_course::i_add_to_course_section_and_i_fill_the_form_with', ['quiz', $coursefullname, $section, $tablenode]);
+        } else {
+            $this->execute('And I add a "Quiz" to section "' . $section . '" and I fill the form with:', $tablenode);
+        }
     }
 }

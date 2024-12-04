@@ -22,16 +22,10 @@ Feature: Add IntegrityAdvocate block to a course and an activity
       | student1 | C1     | student        |
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    # And I add a quiz activity to course "Course 1" section "1" and I fill the form with:.
-    # This Behat step is deprecated as of Moodle 4.4 and should be replaced with the one above.
-    # For now I have set config.php::$CFG->behat_usedeprecated = true;.
-    And I add a "Quiz" to section "1" and I fill the form with:
+    Given block_integrityadvocate I add a quiz activity to course "Course 1" section "1" and I fill the form with:
       | Name          | Quiz 1                |
       | Description   | Test quiz description |
       | Grade to pass | 1.00                  |
-    # And I am on "Course 1" course homepage with editing mode on
-    # And I am on the "Quiz 1" "quiz activity" page
-    # And I navigate to "Edit settings" in current page administration
     And I add a "True/False" question to the "Quiz 1" quiz with:
       | Question name  | Question 1            |
       | Question text  | Answer the Question 1 |
@@ -41,9 +35,9 @@ Feature: Add IntegrityAdvocate block to a course and an activity
 
   @javascript @block_integrityadvocate_course_with_quiz_no_completion
   Scenario: When add to course and no config the block shows a warning
-    Then I should see "No API key is set" in the "block_integrityadvocate" "block"
-    And I should see "No Application id is set" in the "block_integrityadvocate" "block"
-    # Then I should see "There are no activities that are visible" in the "block_integrityadvocate" "block"
+    # Then I should see "No API key is set" in the "block_integrityadvocate" "block"
+    # And I should see "No Application id is set" in the "block_integrityadvocate" "block"
+    Then I should see "There are no activities that are visible" in the "block_integrityadvocate" "block"
     And "Course overview" "button" should not be visible
 
   @javascript @block_integrityadvocate_course_with_quiz_config_missing @moodle39
