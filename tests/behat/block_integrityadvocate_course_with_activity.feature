@@ -1,5 +1,5 @@
 # These are course-level tests that require an activity for the test to work.
-# To run on pre-Moodle 4.3: 
+# To run on pre-Moodle 4.3:
 # bin/moodle-docker-compose exec -u www-data webserver php admin/tool/behat/cli/run.php --format=moodle_screenshot --format-settings '{"formats": "image"}' --format=pretty --colors  --tags="@block_integrityadvocate_course_with_quiz&&~@moodle403"
 
 @block @block_integrityadvocate @block_integrityadvocate_course @block_integrityadvocate_activity @block_integrityadvocate_course_with_activity @block_integrityadvocate_course_with_quiz
@@ -44,7 +44,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When add to a quiz and no config the block shows a warning
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the field "Completion tracking" to "1"
     And I press "Save and display"
     And I am on "Course 1" course homepage
@@ -56,7 +56,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
   Scenario: When add to a quiz and no config the block shows a warning
     And I am on "Course 1" course homepage with editing mode on
     And I am on the "Quiz 1" "quiz activity" page
-    And I navigate to "Edit settings" in current page administration
+    And block_integrityadvocate I navigate to settings in current page administration
     And I set the following fields to these values:
       | Add requirements  | 1 |
       | View the activity | 1 |

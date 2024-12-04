@@ -209,7 +209,28 @@ class behat_block_integrityadvocate extends behat_base {
         if ($moodleversion >= 2023101300) {
             $this->execute('behat_course::i_add_to_course_section_and_i_fill_the_form_with', ['quiz', $coursefullname, $section, $tablenode]);
         } else {
-            $this->execute('And I add a "Quiz" to section "' . $section . '" and I fill the form with:', $tablenode);
+            $this->execute('behat_course::i_add_to_course_section_and_i_fill_the_form_with', ['Quiz', $section, $tablenode]);
         }
+    }
+
+    /**
+     * Navigate to "Edit Settings" or "Settings" depending on the Moodle version.
+     *
+     * @Given /^block_integrityadvocate I navigate to settings in current page administration$/
+     */
+    public function block_integrityadvocate_i_navigate_to_settings_in_current_page_administration() {
+        global $CFG;
+
+        // Get the Moodle version as a numeric value, e.g., 4.4 becomes 40400.
+        $moodleversion = (int)$CFG->version;
+
+        // Check if Moodle version is 4.4 or above (version 2023101300 corresponds to 4.4).
+        if ($moodleversion >= 2023101300) {
+            // $this->execute('And I navigate to "Settings" in current page administration');
+            $nodetext = 'Settings';
+        } else {
+            $nodetext = 'Edit settings';
+        }
+        $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', [$nodetext]);
     }
 }
