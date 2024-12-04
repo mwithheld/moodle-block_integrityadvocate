@@ -28,7 +28,6 @@ use block_integrityadvocate\MoodleUtility as ia_mu;
 use block_integrityadvocate\Output as ia_output;
 use block_integrityadvocate\Utility as ia_u;
 
-// Include required files.
 require_once(\dirname(__FILE__, 3) . '/config.php');
 // Make sure we have this blocks constants defined.
 require_once(__DIR__ . '/lib.php');
@@ -51,12 +50,6 @@ $userid = \optional_param('userid', 0, \PARAM_INT);
 // Used for overview-module page.
 $moduleid = \optional_param('moduleid', 0, \PARAM_INT);
 
-// Params are used to build the current page URL.  These params are used for all overview pages.
-$params = [
-    'instanceid' => $blockinstanceid,
-    'courseid' => $courseid,
-];
-
 // Determine course and course context.
 if (
     empty($courseid) || (int)$courseid === (int)\SITEID || ia_u::is_empty($course = \get_course($courseid))
@@ -66,22 +59,40 @@ if (
 }
 $debug && \debugging($fxn . "::Got courseid={$course->id}");
 
-// Check the current USER is logged in *to the course*.
-\require_login($course, false);
+// Check the current USER is logged in to the correct context.
+switch (true) {
+    case ($userid):
+        throw \InvalidArgumentException('The overview-user page is deprecated');
+    case ($courseid && $moduleid):
+        $debug && \debugging($fxn . '::Got a moduleid=' . ia_u::var_dump($moduleid, true));
+        [$course, $cm] = \get_course_and_cm_from_cmid($moduleid);
+        \require_login($courseid, false, $cm);
+        // We will check the module is valid in overview-module.php.
+        $modulecontext = \context_module::instance($moduleid);
+        $PAGE->set_context($modulecontext);
+        break;
+    case ($courseid):
+        \require_login($courseid, false);
+        $coursecontext = \context_course::instance($courseid);
+        $PAGE->set_context($coursecontext);
+        break;
+    default:
+        throw new \InvalidArgumentException('Failed to figure out which overview to show:' . __LINE__);
+}
+
+// Params are used to build the current page URL.  These params are used for all overview pages.
+$params = [
+    'instanceid' => $blockinstanceid,
+    'courseid' => $courseid,
+];
 
 // Set up which overview page we should produce: -user, -module, or -course.
 // Specific sanity/security checks for each one are included in each file.
 switch (true) {
     case ($userid):
-        // As a student on the quiz intro page (e.g. /mod/quiz/view.php?id=1) I should see the student overview button in the IA block.
-        $debug && \debugging($fxn . '::Request is for overview_user page. Got $userid=' . $userid);
-        $pageslug = 'overview-user';
-        $params += [
-            'userid' => $userid,
-        ];
-        break;
+        throw \InvalidArgumentException('The overview-user page is deprecated');
     case ($courseid && $moduleid):
-        $debug && \debugging($fxn . '::Request is for OVERVIEW_MODULE v1 page. Got $moduleid=' . $moduleid);
+        $debug && \debugging($fxn . '::Request is for OVERVIEW_MODULE page. Got $moduleid=' . $moduleid);
         $pageslug = 'overview-module';
 
         // For now, assume the moduleid is valid. We will check it in overview-module.
@@ -103,7 +114,7 @@ switch (true) {
         $PAGE->set_context($coursecontext);
         break;
     default:
-        throw new \InvalidArgumentException('Failed to figure out which overview to show');
+        throw new \InvalidArgumentException('Failed to figure out which overview to show:' . __LINE__);
 }
 $debug && \debugging($fxn . '::Built params=' . ia_u::var_dump($params));
 
@@ -126,19 +137,42 @@ $baseurl = new \moodle_url('/blocks/' . INTEGRITYADVOCATE_SHORTNAME . '/overview
 $PAGE->set_url($baseurl);
 
 $pagename = \get_string(\str_replace('-', '_', $pageslug), INTEGRITYADVOCATE_BLOCK_NAME);
-$title = \format_string($course->fullname) . ': ' . $pagename;
+$pageheading = \format_string($course->fullname) . ': ' . $pagename;
 $courseurl = new \moodle_url('/course/view.php', ['id' => $courseid]);
 
-$PAGE->set_title($title);
-$PAGE->set_heading($title);
+switch (true) {
+    case ($userid):
+        throw \InvalidArgumentException('The overview-user page is deprecated');
+    case ($courseid && $moduleid):
+        $debug && \debugging($fxn . '::Set content header to module name');
+        // Add module breadcrumb.
+        $modname = \format_string($cm->name);
+        $contentheading = \format_string($modname);
+        break;
+    case ($courseid):
+        $debug && \debugging($fxn . '::Set content header to course fullname');
+        $contentheading = \format_string($course->fullname);
+        break;
+    default:
+        throw new \InvalidArgumentException('Failed to figure out which overview to show:' . __LINE__);
+}
+
+$PAGE->set_title($pageheading);
+$PAGE->set_heading($pageheading);
+
 $PAGE->navbar->add(\format_string($course->fullname), $courseurl);
+if ($moduleid) {
+    // Add module breadcrumb.
+    $modname = \format_string($cm->name);
+    $PAGE->navbar->add($modname, new \moodle_url('/mod/' . $cm->modname . '/view.php', ['id' => $moduleid]));
+}
 $PAGE->navbar->add($pagename);
 
-// Start page output.
+// Output starts here.
 // All header parts like JS, CSS must be above this.
 echo $OUTPUT->header();
 $headingjs = 'document.getElementById("iframelaunch").src=document.getElementById("iframelaunch").src;e.preventDefault();return false';
-echo $OUTPUT->heading($title . '&nbsp;' . $OUTPUT->image_icon('i/reload', \get_string('refresh'), 'moodle', ['onclick' => $headingjs]), 2);
+echo $OUTPUT->heading($contentheading . '&nbsp;' . $OUTPUT->image_icon('i/reload', \get_string('refresh'), 'moodle', ['onclick' => $headingjs]), 2);
 echo $OUTPUT->container_start(INTEGRITYADVOCATE_BLOCK_NAME);
 
 // Gather capabilities for later use.

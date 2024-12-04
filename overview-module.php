@@ -80,9 +80,6 @@ switch (true) {
 // When $cm parameter specified, this function sets page layout to 'module'.
 \require_login($course, false, $cm);
 
-// Show basic module name and icon.
-echo $OUTPUT->context_header();
-
 /*
  * Code here is adapted from https://gist.github.com/matthanger/1171921 .
  */
