@@ -222,7 +222,8 @@ class MoodleUtility {
             \debugging($fxn . "::Started with \$contextid={$contextid}; \$blockname={$blockname}; \$visibleonly={$visibleonly}");
             $context = \context::instance_by_id($contextid, \MUST_EXIST);
             $contextlevel = $context->contextlevel;
-            \debugging($fxn . "::Found contextlevel={$contextlevel}; context level name=" . \context_helper::get_level_name($contextlevel) . ($contextlevel === \CONTEXT_MODULE ? '; module type=' . self::get_activity_module_type_from_contextid($contextid) : ''));
+            \debugging($fxn . "::Found contextlevel={$contextlevel}; context level name=" . \context_helper::get_level_name($contextlevel)
+                . ($contextlevel === \CONTEXT_MODULE ? '; module type=' . self::get_activity_module_type_from_contextid($contextid) : ''));
         }
 
         $blockinstancerecords = [];
@@ -264,7 +265,9 @@ class MoodleUtility {
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && \debugging($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel} (" . \context_helper::get_level_name($c->contextlevel) . ')' . ($c->contextlevel === \CONTEXT_MODULE ? '; module type=' . self::get_activity_module_type_from_contextid($c->id) : ''));
+            $debug && \debugging($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel} ("
+                . \context_helper::get_level_name($c->contextlevel) . ')'
+                . ($c->contextlevel === \CONTEXT_MODULE ? '; module type=' . self::get_activity_module_type_from_contextid($c->id) : ''));
             $debug && \debugging($fxn . "::Looking at \$c=" . ia_u::var_dump($c));
             if ((int) ($c->contextlevel) !== (int) (\CONTEXT_MODULE)) {
                 continue;
@@ -292,7 +295,7 @@ class MoodleUtility {
      * @param int $contextid The context ID.
      * @return string The activity module type (e.g., 'quiz', 'page').
      */
-    static function get_activity_module_type_from_contextid(int $contextid): string {
+    public static function get_activity_module_type_from_contextid(int $contextid): string {
         global $DB;
 
         // Get the context instance.

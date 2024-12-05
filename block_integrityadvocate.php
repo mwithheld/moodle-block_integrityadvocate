@@ -38,7 +38,7 @@ require_once(__DIR__ . '/lib.php');
  * @copyright IntegrityAdvocate.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_integrityadvocate extends block_base {
+class block_integrityadvocate extends \block_base {
 
     /** @var bool Is this block visible? */
     public $visible;
@@ -343,20 +343,21 @@ class block_integrityadvocate extends block_base {
 
         $prefix = 'block_integrityadvocate_modulelist';
         $iablocksinthiscourse = ia_mu::get_all_course_blocks($this->get_course()->id, INTEGRITYADVOCATE_SHORTNAME);
-        $iamodulesexist = ($blockcount = ia_u::count_if_countable($iablocksinthiscourse)) > 0;
+        $countiablocksincourse = ia_u::count_if_countable($iablocksinthiscourse);
 
         $this->content->text .= \html_writer::start_tag('div', ['class' => "{$prefix}_div"]);
         $this->content->text .= \html_writer::tag('h6', \get_string(
             'blocklist_title',
             INTEGRITYADVOCATE_BLOCK_NAME,
-            (string) $blockcount
+            (string) $countiablocksincourse
         ), ['class' => "{$prefix}_div_title"]);
 
-        if (!$iamodulesexist) {
+        if (!$countiablocksincourse) {
             $debug && \debugging($fxn . '::No modules exist');
             $this->content->text .= \html_writer::end_tag('div');
             return true;
         }
+        $debug && \debugging($fxn . "::Found {$countiablocksincourse} IA blocks in this course");
 
         global $CFG, $COURSE;
 
@@ -367,7 +368,7 @@ class block_integrityadvocate extends block_base {
         $formstart .= '<input type="hidden" name="edit" value="on">';
 
         $userisediting = $this->page->user_is_editing();
-        $debug && \debugging($fxn . '::Course editing mode=' . ($userisediting ? 1 : 0));
+        $debug && \debugging($fxn . '::Editing mode=' . ($userisediting ? 1 : 0));
 
         foreach ($iablocksinthiscourse as $blockinstance) {
             $debug && \debugging($fxn . '::Looking at block $b=' . ia_u::var_dump($blockinstance));
@@ -375,13 +376,13 @@ class block_integrityadvocate extends block_base {
             // Get the parent module.
             $parentcontext = $blockinstance->context->get_parent_context();
             switch (true) {
-                case ($parentcontext->contextlevel == CONTEXT_COURSE):
+                case ($parentcontext->contextlevel == \CONTEXT_COURSE):
                     // Output a link to the course.
                     $link = \html_writer::link($parentcontext->get_url(), \get_string('course'));
                     $debug && \debugging($fxn . '::Got $link=' . ia_u::var_dump($link, true));
                     $this->content->text .= $link;
                     break;
-                case ($parentcontext->contextlevel == CONTEXT_MODULE):
+                case ($parentcontext->contextlevel == \CONTEXT_MODULE):
                     // Output a link to the module.
                     $module = \context_module::instance($parentcontext->instanceid);
                     $cm = \get_coursemodule_from_id(null, $parentcontext->instanceid);
