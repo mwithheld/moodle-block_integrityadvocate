@@ -33,7 +33,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
 
-  # Disabled bc it fails differently in 3.9 vs 4.5.
+  # TODO: Disabled bc it fails differently in 3.9 vs 4.5.
   # @javascript @block_integrityadvocate_course_with_quiz_no_completion
   # Scenario: When add to course and no config the block shows a warning
   #   We hit this check first in 3.9.
@@ -69,6 +69,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
     And I should see "No Application id is set" in the "block_integrityadvocate" "block"
     And "Course overview" "button" should not be visible
 
+  # TODO: Fix listing when add/hide activity/block.
   # @javascript @block_integrityadvocate_course_no_activities
   # Scenario: When add to course and no applicable activities the block shows a warning
   #   When I configure the "block_integrityadvocate" block

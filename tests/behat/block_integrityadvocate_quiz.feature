@@ -33,15 +33,11 @@ Feature: Add and configure IntegrityAdvocate block to a quiz
       | TF1      | 1    |
       | TF2      | 1    |
 
-  # Is this still a thing even?
-  # Then I should see "This quiz is configured with" in the "block_integrityadvocate" "block"
-
-  # When I hide the quiz-level block the IA block should not show to students
-  # Quiz-level block should show Course Overview and Module Overview
-
-  # As a student on the quiz intro page I should see the student overview button in the IA block http://localhost:8000/mod/quiz/view.php?id=1
-
-  # Quiz timer reset when proctoring starts
+  # TODO: Is this still a thing even? Then I should see "This quiz is configured with" in the "block_integrityadvocate" "block"
+  # TODO: When I hide the quiz-level block the IA block should not show to students
+  # TODO: Quiz-level block should show Course Overview and Module Overview
+  # TODO: Quiz timer reset when proctoring starts
+  # 2024Dec This is not a thing any more: As a student on the quiz intro page I should see the student overview button in the IA block http://localhost:8000/mod/quiz/view.php?id=1
 
   @javascript @block_integrityadvocate_quiz_warn_if_no_config
   Scenario: Teacher should be warned if quiz configured to not show blocks

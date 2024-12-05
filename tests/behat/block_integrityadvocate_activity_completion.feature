@@ -63,10 +63,10 @@ Feature: Activity completion on quiz1 should prevent access to quiz2
     When I turn editing mode off
     Then I should see "Not available unless: The IA result for module Quiz 1 is valid" in the "region-main" "region"
 
-# Todo: Test this
+# TODO: Test this
   # And I set the field "Module" to "Quiz1"
   # And I set the field "Required IA validation status" to "Must have IA status invalid"
 
-# Todo: Test this maybe?
+# TODO: Test this maybe?
   # On Page1 require IA completion status=invalid in Quiz 1
   # As a student I can access Page1
