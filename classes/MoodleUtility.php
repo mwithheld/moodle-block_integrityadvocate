@@ -216,15 +216,27 @@ class MoodleUtility {
      */
     private static function get_blocks_in_context(int $contextid, string $blockname, bool $visibleonly = false): array {
         global $DB;
+        $fxn = __CLASS__ . '::' . __FUNCTION__;
+        $debug = false;
+        if ($debug) {
+            \debugging($fxn . "::Started with \$contextid={$contextid}; \$blockname={$blockname}; \$visibleonly={$visibleonly}");
+            $context = \context::instance_by_id($contextid, \MUST_EXIST);
+            $contextlevel = $context->contextlevel;
+            \debugging($fxn . "::Found contextlevel={$contextlevel}; context level name=" . \context_helper::get_level_name($contextlevel) . ($contextlevel === \CONTEXT_MODULE ? '; module type=' . self::get_activity_module_type_from_contextid($contextid) : ''));
+        }
 
         $blockinstancerecords = [];
         $records = $DB->get_records('block_instances', ['parentcontextid' => $contextid, 'blockname' => \preg_replace('/^block_/', '', $blockname)]);
+        $debug && \debugging($fxn . '::Before filtering for block_visible, count(records)=' . ia_u::count_if_countable($records));
         foreach ($records as $r) {
+            $debug && \debugging($fxn . '::Looking at record r=' . ia_u::var_dump($r));
             // Check if it is visible.
             if ($visibleonly && !self::is_block_visibile($r->parentcontextid, $r->id)) {
+                $debug && \debugging($fxn . '::This block is not visible so skip it');
                 continue;
             }
 
+            $debug && \debugging($fxn . '::Include this block');
             $blockinstancerecords[$r->id] = \block_instance_by_id($r->id);
         }
 
@@ -252,18 +264,55 @@ class MoodleUtility {
 
         // Look in modules for more blocks instances.
         foreach ($coursecontext->get_child_contexts() as $c) {
-            $debug && \debugging($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel}");
+            $debug && \debugging($fxn . "::Looking at \$c->id={$c->id}; \$c->instanceid={$c->instanceid}; \$c->contextlevel={$c->contextlevel} (" . \context_helper::get_level_name($c->contextlevel) . ')' . ($c->contextlevel === \CONTEXT_MODULE ? '; module type=' . self::get_activity_module_type_from_contextid($c->id) : ''));
+            $debug && \debugging($fxn . "::Looking at \$c=" . ia_u::var_dump($c));
             if ((int) ($c->contextlevel) !== (int) (\CONTEXT_MODULE)) {
                 continue;
             }
 
+            $cm = \get_coursemodule_from_id(null, $c->instanceid, $courseid);
+            $debug && \debugging($fxn . '::Got cm=' . ia_u::var_dump($cm));
+            if (!$cm || $cm->deletioninprogress) {
+                $debug && \debugging($fxn . '::Skipping this cm bc does not exist or deletioninprogress');
+                continue;
+            }
+
             $blocksinmodule = self::get_blocks_in_context($c->id, $blockname, $visibleonly);
-            $debug && \debugging($fxn . '::Found module level block count=' . ia_u::count_if_countable($blocksinmodule));
+            $debug && \debugging($fxn . "::Got count(blocksinmodule)=" . ia_u::count_if_countable($blocksinmodule) . "; \$blocksinmodule=" . ia_u::var_dump($blocksinmodule));
             $blockinstancerecords += $blocksinmodule;
         }
 
         $debug && \debugging($fxn . '::About to return blockinstances count=' . ia_u::count_if_countable(ia_u::var_dump($blockinstancerecords)));
         return $blockinstancerecords;
+    }
+
+    /**
+     * Get the type of activity module for a given context ID.
+     *
+     * @param int $contextid The context ID.
+     * @return string The activity module type (e.g., 'quiz', 'page').
+     */
+    static function get_activity_module_type_from_contextid(int $contextid): string {
+        global $DB;
+
+        // Get the context instance.
+        $context = \context::instance_by_id($contextid, \MUST_EXIST);
+
+        // Ensure the context is of type CONTEXT_MODULE.
+        if ($context->contextlevel !== \CONTEXT_MODULE) {
+            throw new \moodle_exception("Invalid context level {$context->contextlevel}. Expected CONTEXT_MODULE=" . CONTEXT_MODULE);
+        }
+
+        // Get the course module ID (cmid) from the context instance.
+        $cmid = $context->instanceid;
+
+        // Retrieve the module ID from the course_modules table.
+        $cm = $DB->get_record('course_modules', ['id' => $cmid], 'module', \MUST_EXIST);
+
+        // Retrieve the module type (name) from the modules table.
+        $module = $DB->get_record('modules', ['id' => $cm->module], 'name', \MUST_EXIST);
+
+        return $module->name; // e.g., 'quiz', 'page', etc.
     }
 
     /**
