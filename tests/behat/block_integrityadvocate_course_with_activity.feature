@@ -138,7 +138,7 @@ Feature: Add IntegrityAdvocate block to a course and an activity
     When I am on the "Quiz 1" "quiz activity" page
     Given I open the "Integrity Advocate" blocks action menu
     When I click on "Delete Integrity Advocate block" "link" in the "Integrity Advocate" "block"
-    And I click on "Yes"
+    And I press "Yes"
     And I wait to be redirected
     Then "Integrity Advocate" "block" should not exist
     And I am on "Course 1" course homepage
