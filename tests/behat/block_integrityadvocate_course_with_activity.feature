@@ -33,15 +33,15 @@ Feature: Add IntegrityAdvocate block to a course and an activity
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Integrity Advocate" block
 
-  # TODO: Disabled bc it fails differently in 3.9 vs 4.5.
-  # @javascript @block_integrityadvocate_course_with_quiz_no_completion
-  # Scenario: When add to course and no config the block shows a warning
-  #   We hit this check first in 3.9.
-  #   # Then I should see "No API key is set" in the "block_integrityadvocate" "block"
-  #   # And I should see "No Application id is set" in the "block_integrityadvocate" "block"
-  #   We hit this check first in 4.5.
-  #   # Then I should see "There are no activities that are visible" in the "block_integrityadvocate" "block"
-  #   And "Course overview" "button" should not be visible
+  # TODO: This fails differently in 3.9 vs 4.5.
+  @javascript @block_integrityadvocate_course_with_quiz_no_completion
+  Scenario: When add to course and no config the block shows a warning
+    # We hit this check first in 3.9.
+    # Then I should see "No API key is set" in the "block_integrityadvocate" "block"
+    # And I should see "No Application id is set" in the "block_integrityadvocate" "block"
+    # We hit this check first in 4.5 and the test passes.
+    Then I should see "There are no activities that are visible" in the "block_integrityadvocate" "block"
+    And "Course overview" "button" should not be visible
 
   @javascript @block_integrityadvocate_course_with_quiz_config_missing @moodle39
   Scenario: When add to a quiz and no config the block shows a warning
@@ -49,6 +49,20 @@ Feature: Add IntegrityAdvocate block to a course and an activity
     And I am on the "Quiz 1" "quiz activity" page
     And block_integrityadvocate I navigate to settings in current page administration
     And I set the field "Completion tracking" to "1"
+    And I press "Save and display"
+    And I am on "Course 1" course homepage
+    Then I should see "No API key is set" in the "block_integrityadvocate" "block"
+    And I should see "No Application id is set" in the "block_integrityadvocate" "block"
+    And "Course overview" "button" should not be visible
+
+  @javascript @block_integrityadvocate_course_with_quiz_config_missing @moodle403
+  Scenario: When add to a quiz and no config the block shows a warning
+    And I am on "Course 1" course homepage with editing mode on
+    And I am on the "Quiz 1" "quiz activity" page
+    And block_integrityadvocate I navigate to settings in current page administration
+    And I set the following fields to these values:
+      | Add requirements  | 1 |
+      | View the activity | 1 |
     And I press "Save and display"
     And I am on "Course 1" course homepage
     Then I should see "No API key is set" in the "block_integrityadvocate" "block"
@@ -207,15 +221,35 @@ Feature: Add IntegrityAdvocate block to a course and an activity
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
+    # Course-level block for teacher should show these things.
+    Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
+    # Next test starts here.
+    And block_integrityadvocate I add test output "Course-level listing should show course-level block only -----"
+    Then "Course" "link" should exist in the "block_integrityadvocate" "block"
+    And "Quiz 1" "link" should not exist in the "block_integrityadvocate" "block"
+    And I should see "1 IA block(s) in this course" in the "block_integrityadvocate" "block"
+    # Next test starts here.
+    And block_integrityadvocate I add test output "Adding the quiz IA block should add it to the course-level listing -----"
     When I am on the "Quiz 1" "quiz activity" page
     And I add the "Integrity Advocate" block
-    # Course-level block for teacher should show these things
-    Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     Then "Course" "link" should exist in the "block_integrityadvocate" "block"
     And "Quiz 1" "link" should exist in the "block_integrityadvocate" "block"
     And I should see "2 IA block(s) in this course" in the "block_integrityadvocate" "block"
+    # Next test starts here.
+    And block_integrityadvocate I add test output "Deleting the quiz IA block should remove it from the course-level listing -----"
+    When I am on the "Quiz 1" "quiz activity" page
+    Given I open the "Integrity Advocate" blocks action menu
+    When I click on "Delete Integrity Advocate block" "link" in the "Integrity Advocate" "block"
+    Then "Delete block?" "dialogue" should exist
+    And I click on "Delete" "button" in the "Delete block?" "dialogue"
+    And I wait to be redirected
+    Then "Integrity Advocate" "block" should not exist
+    And I am on "Course 1" course homepage
+    Then "Course" "link" should exist in the "block_integrityadvocate" "block"
+    And "Quiz 1" "link" should not exist in the "block_integrityadvocate" "block"
+    And I should see "1 IA block(s) in this course" in the "block_integrityadvocate" "block"
 
   @javascript @block_integrityadvocate_course_with_quiz_course_overview_button @moodle39
   Scenario: When click course overview button I go to the course overview page
