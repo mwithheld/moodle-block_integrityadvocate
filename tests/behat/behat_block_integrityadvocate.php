@@ -233,4 +233,38 @@ class behat_block_integrityadvocate extends behat_base {
         }
         $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', [$nodetext]);
     }
+
+    /**
+     * Enable activity completion for a Moodle activity.
+     * 
+     * @Given /^block_integrityadvocate I enable activity completion$/
+     */
+    public function block_integrityadvocate_i_enable_activity_completion() {
+        global $CFG;
+
+        // Get the Moodle version as a numeric value.
+        $moodleversion = (int)$CFG->version;
+
+        // Navigate to the activity's settings page.
+        // $this->block_integrityadvocate_i_navigate_to_settings_in_current_page_administration();
+
+        if ($moodleversion >= 2023101300) { // Moodle 4.3+.
+            // Set the required fields for activity completion.
+            $tablenode = new \Behat\Gherkin\Node\TableNode([
+                ['Add requirements', '1'],
+                ['View the activity', '1'],
+            ]);
+            $this->execute('behat_forms::i_set_the_following_fields_to_these_values', $tablenode);
+
+            // Save the changes.
+            // $this->execute('behat_forms::i_press_button', ['Save and display']);
+        } else { // Moodle 3.9.
+            // Set the "Completion tracking" field to "1".
+            $this->execute('behat_forms::i_set_the_field_to', ['Completion tracking', '1']);
+
+            // Save the changes.
+            // $this->execute('behat_forms::i_press_button', ['Save and display']);
+        }
+    }
+
 }
