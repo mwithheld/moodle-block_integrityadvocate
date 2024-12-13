@@ -15,8 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * In the student view of the module, if the IA block is visible, the "User overview" button links to this page.
- * which has url like: /blocks/integrityadvocate/overview.php?instanceid=12&courseid=2&moduleid=2&userid=3
+ * AS a student
+ * ON the coursemodule page (e.g. quiz page)
+ * IF the IA block is visible
+ * AND the user has some remote IA data for this coursemodule
+ * THEN the "User overview" button links to this current code file you are looking at.
+ * This user-overview page has url like: /blocks/integrityadvocate/overview.php?instanceid=12&courseid=2&moduleid=2&userid=3
  * This page shows a single user's Integrity Advocate sessions for this coursemodule.
  *
  * @package    block_integrityadvocate
