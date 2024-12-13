@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block Overview shows on the Course > Participants > User page
- * (e.g. /user/view.php?id=3&course=2)
- * a single user's Integrity Advocate detailed info.
+ * In the student view of the module, if the IA block is visible, the "User overview" button links to this page.
+ * which has url like: /blocks/integrityadvocate/overview.php?instanceid=12&courseid=2&moduleid=2&userid=3
+ * This page shows a single user's Integrity Advocate sessions for this coursemodule.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
@@ -47,7 +47,7 @@ $debug && \debugging($fxn . '::Started with $userid=' . $userid);
 
 $parentcontext = $blockcontext->get_parent_context();
 
-// Note this capability check is on the parent, not the block instance.
+// This capability check is on the parent, not the block instance.
 if (\has_capability('block/integrityadvocate:overview', $parentcontext)) {
     // For teachers, allow access to any enrolled course user, even if not active.
     if (!\is_enrolled($parentcontext, $userid)) {
