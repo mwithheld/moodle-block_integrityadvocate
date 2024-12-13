@@ -62,7 +62,10 @@ $debug && \debugging($fxn . "::Got courseid={$course->id}");
 // Check the current USER is logged in to the correct context.
 switch (true) {
     case ($userid):
-        throw \InvalidArgumentException('The overview-user page is deprecated');
+        // throw new \InvalidArgumentException('The overview-user page is deprecated');
+        case ($userid):
+            $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
+            break;
     case ($courseid && $moduleid):
         $debug && \debugging($fxn . '::Got a moduleid=' . ia_u::var_dump($moduleid, true));
         [$course, $cm] = \get_course_and_cm_from_cmid($moduleid);
@@ -90,7 +93,14 @@ $params = [
 // Specific sanity/security checks for each one are included in each file.
 switch (true) {
     case ($userid):
-        throw \InvalidArgumentException('The overview-user page is deprecated');
+        // throw new \InvalidArgumentException('The overview-user page is deprecated');
+        case ($userid):
+            $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
+            $pageslug = 'overview-user';
+            $params += [
+                'userid' => $userid,
+            ];
+            break;
     case ($courseid && $moduleid):
         $debug && \debugging($fxn . '::Request is for OVERVIEW_MODULE page. Got $moduleid=' . $moduleid);
         $pageslug = 'overview-module';
@@ -142,7 +152,9 @@ $courseurl = new \moodle_url('/course/view.php', ['id' => $courseid]);
 
 switch (true) {
     case ($userid):
-        throw \InvalidArgumentException('The overview-user page is deprecated');
+        // throw new \InvalidArgumentException('The overview-user page is deprecated');
+        $contentheading = \format_string($modname);
+        break;
     case ($courseid && $moduleid):
         $debug && \debugging($fxn . '::Set content header to module name');
         // Add module breadcrumb.
@@ -161,7 +173,7 @@ $PAGE->set_title($pageheading);
 $PAGE->set_heading($pageheading);
 
 $PAGE->navbar->add(\format_string($course->fullname), $courseurl);
-if ($moduleid) {
+if (!$userid && $moduleid) {
     // Add module breadcrumb.
     $modname = \format_string($cm->name);
     $PAGE->navbar->add($modname, new \moodle_url('/mod/' . $cm->modname . '/view.php', ['id' => $moduleid]));
