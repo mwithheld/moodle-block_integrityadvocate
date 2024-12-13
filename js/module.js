@@ -67,8 +67,8 @@ M.block_integrityadvocate = {
                         window.console.warn(fxn + '::ajax.fail', errorThrown);
                         window.console.log('textStatus', textStatus);
                         require(['core/notification'], (notification) => {
-                                notification.alert(M.util.get_string('unknownerror', 'moodle'), fxn + '::ajax.fail', 'Close');
-                            });
+                            notification.alert(M.util.get_string('unknownerror', 'moodle'), fxn + '::ajax.fail', 'Close');
+                        });
                     }
                 }]);
             });
@@ -165,8 +165,8 @@ M.block_integrityadvocate = {
                         window.console.log(fxn + '::ajax.fail:: Got textStatus=', textStatus);
                         window.IntegrityAdvocate.endSession();
                         require(['core/notification'], (notification) => {
-                                notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
-                            });
+                            notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
+                        });
                     }
                 }]);
             });
@@ -223,9 +223,9 @@ M.block_integrityadvocate = {
                 eltMainContent.show();
                 document.querySelector('#block_integrityadvocate_loading')?.remove();
                 window.addEventListener('beforeunload', () => {
-                        debug && window.console.log(fxn + '::Exiting the window - close the IA session');
-                        self.sessionClose();
-                    });
+                    debug && window.console.log(fxn + '::Exiting the window - close the IA session');
+                    self.sessionClose();
+                });
                 self.eltScormEnter?.removeAttr('disabled').off('click.block_integrityadvocate').click().attr('disabled', 'disabled');
                 break;
             default:
@@ -273,19 +273,19 @@ M.block_integrityadvocate = {
                 window.console.warn(fxn + '::window.alert::Suppressed alert ' + msg, message);
                 self.hideLoadingGif();
                 require(['core/notification'], (notification) => {
-                        notification.addNotification({
-                            message: msg + ' ' + message,
-                            type: "err"
-                        });
+                    notification.addNotification({
+                        message: msg + ' ' + message,
+                        type: "err"
                     });
+                });
 
                 debug && window.console.warn(fxn + '::window.alert::Add a Back to course button');
                 var buttonId = 'block_integrityadvocate_backtocourse';
                 var eltMain = document.querySelector('div[role="main"]');
                 eltMain && (eltMain.innerHTML = '<button type="submit" class="btn btn-secondary" id="' + buttonId + '">' + M.util.get_string('closebuttontitle', 'core') + '</button>');
                 document.querySelector('#' + buttonId).addEventListener('click', () => {
-                        window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
-                    });
+                    window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + M.cfg.courseId;
+                });
             };
             $.getScript(decodedUrl)
                 .done(() => {
@@ -684,26 +684,26 @@ M.block_integrityadvocate = {
 
         // Trigger the IA proctoring only on button click.
         self.eltScormEnter && self.eltScormEnter.addEventListener('click', (e) => {
-                var eltScormSubmit = document.querySelector('#scormviewform input[type="submit"]');
-                eltScormSubmit && (eltScormSubmit.disabled = true);
-                e.preventDefault();
+            var eltScormSubmit = document.querySelector('#scormviewform input[type="submit"]');
+            eltScormSubmit && (eltScormSubmit.disabled = true);
+            e.preventDefault();
 
-                // Hide the SCORM content until the IA JS is loaded.
-                self.eltDivMain.querySelectorAll('*').forEach(el => el.style.display = 'none');
-                self.eltUserNotifications.style.textAlign = 'center';
-                self.eltUserNotifications.innerHTML += '<i id="block_integrityadvocate_loading" class="fa fa-spinner fa-spin" style="font-size:72px"></i>';
+            // Hide the SCORM content until the IA JS is loaded.
+            self.eltDivMain.querySelectorAll('*').forEach(el => el.style.display = 'none');
+            self.eltUserNotifications.style.textAlign = 'center';
+            self.eltUserNotifications.innerHTML += '<i id="block_integrityadvocate_loading" class="fa fa-spinner fa-spin" style="font-size:72px"></i>';
 
-                // Fix display of the loading gif.
-                var offset = self.eltUserNotifications.getBoundingClientRect();
-                window.scrollTo({
-                    top: window.scrollY + offset.top - 60,
-                    left: window.scrollX + offset.left - 20,
-                    behavior: 'smooth'
-                });
-
-                self.loadProctorJs(self.proctorjsurl);
-                return false;
+            // Fix display of the loading gif.
+            var offset = self.eltUserNotifications.getBoundingClientRect();
+            window.scrollTo({
+                top: window.scrollY + offset.top - 60,
+                left: window.scrollX + offset.left - 20,
+                behavior: 'smooth'
             });
+
+            self.loadProctorJs(self.proctorjsurl);
+            return false;
+        });
     },
     /**
      * Show the main content (which is hidden by this block by default).
