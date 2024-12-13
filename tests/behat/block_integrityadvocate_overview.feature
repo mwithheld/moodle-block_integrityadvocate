@@ -7,7 +7,6 @@ Feature: IntegrityAdvocate Course and Module Overview pages
   Background:
     Given the following "courses" exist:
       | fullname | shortname | enablecompletion |
-      #| Course 0 | C0        | 0 |
       | Course 1 | C1        | 1                |
     And the following "users" exist:
       | username | firstname | lastname | email                |
@@ -15,7 +14,6 @@ Feature: IntegrityAdvocate Course and Module Overview pages
       | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
     And the following "course enrolments" exist:
       | user     | course | role           |
-      #| teacher1 | C0     | editingteacher |
       # | student1 | C1     | student        |
       | teacher1 | C1     | editingteacher |
     And the following "question categories" exist:
@@ -32,9 +30,6 @@ Feature: IntegrityAdvocate Course and Module Overview pages
       | question | page |
       | TF1      | 1    |
       | TF2      | 1    |
-
-  @javascript @block_integrityadvocate_overview_course @block_integrityadvocate_overview_course_from_course
-  Scenario: Teacher should see the right things on the course overview page
     When I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     When I am on the "Quiz 1" "quiz activity" page
@@ -44,6 +39,9 @@ Feature: IntegrityAdvocate Course and Module Overview pages
       | Application id | block_integrityadvocate_appid  |
       | API key        | block_integrityadvocate_apikey |
     And I press "Save changes"
+
+  @javascript @block_integrityadvocate_overview_course @block_integrityadvocate_overview_course_from_course
+  Scenario: Teacher should see the right things on the course overview page
     When I click on "Course overview" "button"
     And block_integrityadvocate I add test output "Test header -----"
     Then I should see "Course 1: Integrity Advocate course overview" in the "#page-header" "css_element"
@@ -64,15 +62,6 @@ Feature: IntegrityAdvocate Course and Module Overview pages
 
   @javascript @block_integrityadvocate_overview_course @block_integrityadvocate_overview_course_from_quiz @_switch_iframe
   Scenario: Teacher should see the right things on the course overview page iframe
-    When I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    When I am on the "Quiz 1" "quiz activity" page
-    And I add the "Integrity Advocate" block
-    When I configure the "block_integrityadvocate" block
-    And block_integrityadvocate I set the fields from CFG:
-      | Application id | block_integrityadvocate_appid  |
-      | API key        | block_integrityadvocate_apikey |
-    And I press "Save changes"
     When I click on "Course overview" "button"
     And block_integrityadvocate I add test output "Test IA-created items -----"
     When I switch to "iframelaunch" class iframe
@@ -81,15 +70,6 @@ Feature: IntegrityAdvocate Course and Module Overview pages
 
   @javascript @block_integrityadvocate_overview_module @_switch_iframe
   Scenario: Teacher should see the right things on the module overview page
-    When I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    When I am on the "Quiz 1" "quiz activity" page
-    And I add the "Integrity Advocate" block
-    When I configure the "block_integrityadvocate" block
-    And block_integrityadvocate I set the fields from CFG:
-      | Application id | block_integrityadvocate_appid  |
-      | API key        | block_integrityadvocate_apikey |
-    And I press "Save changes"
     When I click on "Module overview" "button"
     And block_integrityadvocate I add test output "Test header -----"
     # 3.9 shows "Course1: Integrity Advocate module overview" but the course name is omitted in 4.5.
@@ -100,6 +80,7 @@ Feature: IntegrityAdvocate Course and Module Overview pages
     And I should see "Version 20" in the "#page-content" "css_element"
     And I should see "Application id " in the "#page-content" "css_element"
     And I should see "Block id " in the "#page-content" "css_element"
+    Then "Course overview" "button" should be visible
     Then "Back to course" "button" should be visible
     When I switch to "iframelaunch" class iframe
     And block_integrityadvocate I add test output "Test IA-created items -----"
@@ -112,3 +93,36 @@ Feature: IntegrityAdvocate Course and Module Overview pages
     When I switch to the main frame
     When I press "Back to course"
     Then I should see "Course 1" in the ".page-context-header" "css_element"
+
+  # Disabled: This only works AFTER the user has some remote IA data for the coursemodule.
+  # @javascript @block_integrityadvocate_overview_student @_switch_iframe
+  # Scenario: Student should see the right things on the user overview page
+  #   When I log in as "student1"
+  #   And I am on "Course 1" course homepage with editing mode on
+  #   When I am on the "Quiz 1" "quiz activity" page
+  #   And block_integrityadvocate I add test output "Test module block content -----"
+  #   Then I should see "Latest status: " in the "block_integrityadvocate" "block"
+  #   Then I should see "First seen: " in the "block_integrityadvocate" "block"
+  #   Then I should see "Last modified: " in the "block_integrityadvocate" "block"    
+  #   When I click on "User overview" "button"
+  #   And block_integrityadvocate I add test output "Test header -----"
+  #   # 3.9 shows "Course1: Integrity Advocate module overview" but the course name is omitted in 4.5.
+  #   Then I should see "Integrity Advocate user overview" in the "#page-header" "css_element"
+  #   And I should not see "Course 1" in the "div[role='main'] h2" "css_element"
+  #   And I should not see "Quiz 1" in the "div[role='main'] h2" "css_element"
+  #   And I should see "Sam Student1" in the ".block_integrityadvocate_overview_user_userinfo" "css_element"
+  #   And block_integrityadvocate I add test output "Test footer -----"
+  #   And I should see "Version 20" in the "#page-content" "css_element"
+  #   And I should see "Application id " in the "#page-content" "css_element"
+  #   And I should see "Block id " in the "#page-content" "css_element"
+  #   Then "Course overview" "button" should be visible
+  #   Then "Back to course" "button" should be visible
+  #   When I switch to "iframelaunch" class iframe
+  #   And block_integrityadvocate I add test output "Test IA-created items -----"
+  #   And I wait until the page is ready
+  #   # TODO: What will the student see in here?
+  #   And I should see "pickles" in the "#page-content" "css_element"
+  #   And block_integrityadvocate I add test output "Test footer buttons -----"
+  #   When I switch to the main frame
+  #   When I press "Back to course"
+  #   Then I should see "Course 1" in the ".page-context-header" "css_element"
