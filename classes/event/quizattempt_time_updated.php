@@ -86,9 +86,6 @@ class quizattempt_time_updated extends \core\event\base {
         if (!isset($this->relateduserid)) {
             throw new \coding_exception('The \'relateduserid\' must be set.');
         }
-        if (!(isset($this->quizid) && is_numeric($this->quizid))) {
-            throw new \coding_exception('The \'quizid\' must be set.');
-        }
     }
 
     /**
