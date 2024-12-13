@@ -103,7 +103,7 @@ Feature: IntegrityAdvocate Course and Module Overview pages
   #   And block_integrityadvocate I add test output "Test module block content -----"
   #   Then I should see "Latest status: " in the "block_integrityadvocate" "block"
   #   Then I should see "First seen: " in the "block_integrityadvocate" "block"
-  #   Then I should see "Last modified: " in the "block_integrityadvocate" "block"    
+  #   Then I should see "Last modified: " in the "block_integrityadvocate" "block"
   #   When I click on "User overview" "button"
   #   And block_integrityadvocate I add test output "Test header -----"
   #   # 3.9 shows "Course1: Integrity Advocate module overview" but the course name is omitted in 4.5.

@@ -67,4 +67,3 @@ Feature: IntegrityAdvocate Hide Privacy and Support Links
     And I should see "This page uses the Integrity Advocate proctoring service" in the "block_integrityadvocate" "block"
     And "Privacy" "link" should not exist in the "block_integrityadvocate" "block"
     And "Support" "link" should not exist in the "block_integrityadvocate" "block"
-
