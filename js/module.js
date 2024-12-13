@@ -385,11 +385,20 @@ M.block_integrityadvocate = {
         const self = M.block_integrityadvocate;
 
         const closeSession = (e = null) => {
+            if (self.hasClosedIASession) {
+                return;
+            }
+            const originalElement = e.target;
+            // Remove the event listener on the element to avoid infinite loop.
+            originalElement.removeEventListener('click', closeSession);
+
             return self.endIaSession(e)
                 .then(e => {
                     self.hasClosedIASession = true;
                     window.console.log('Done call to endIaSession; About to click the original element', e);
-                    (e.type == 'click') && e.target.click();
+
+                    // Trigger the original click event.
+                    (e.type == 'click') && originalElement.click();
                 })
                 .catch(error => window.console.error(fxn + '::endIaSession promise::Error on endIaSession(); error=', error));
         };
@@ -404,16 +413,17 @@ M.block_integrityadvocate = {
                 window.console.log(fxn + '::proctorquizreviewpages=false so attach endSession to a few places');
 
                 // Close IA session on: Quiz navigation sidebar "Finish attempt button".
-                document.querySelectorAll('a.endtestlink')?.forEach(link => {
-                    link.addEventListener('click', e => {
-                        var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.a.endtestlink.click';
-                        window.console.log(fxn + '::Started with e=', e);
-                        e.preventDefault();
-                        closeSession(e);
+                const clickhandler = (e) => {
+                    var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.a.endtestlink.click';
+                    window.console.log(fxn + '::Started with e=', e);
+                    e.preventDefault();
+                    closeSession(e);
 
-                        // Remove the event listener to mimic jQuery's .one().
-                        link.removeEventListener('click', handler);
-                    });
+                    // Remove the event listener to mimic jQuery.one().
+                    link.removeEventListener('click', clickhandler);
+                }
+                document.querySelectorAll('a.endtestlink')?.forEach(link => {
+                    link.addEventListener('click', e => clickhandler);
                 });
 
                 // Close IA session on: Quiz body "Next"/"Finish attempt" button, but only if this is the last page of the quiz.
@@ -421,16 +431,17 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::Got eltNextPageArr=', eltNextPageArr);
                 if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
                     // Different versions of Moodle use different selectors.
-                    document.querySelectorAll('#mod_quiz-next-nav, .mod_quiz-next-nav')?.forEach(element => {
-                        element.addEventListener('click', e => {
-                            var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltNextPageArr.click';
-                            window.console.log(fxn + '::Started with e=', e);
-                            e.preventDefault();
-                            closeSession(e);
+                    const clickhandler = (e) => {
+                        var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltNextPageArr.click';
+                        window.console.log(fxn + '::Started with e=', e);
+                        e.preventDefault();
+                        closeSession(e);
 
-                            // Remove the event listener to mimic jQuery's `.one()`.
-                            element.removeEventListener('click', handler);
-                        });
+                        // Remove the event listener to mimic jQuery.one().
+                        e.currentTarget.removeEventListener('click', clickhandler);
+                    }
+                    document.querySelectorAll('#mod_quiz-next-nav, .mod_quiz-next-nav')?.forEach(element => {
+                        element.addEventListener('click', clickhandler);
                     });
                     window.console.log(fxn + '::Attached endSession to Finish review button');
                 }
@@ -445,17 +456,18 @@ M.block_integrityadvocate = {
                 debug && window.console.log(fxn + '::Got proctorquizreviewpages=' + self.proctorquizreviewpages + '; attach endSession to Finish review button');
 
                 // Quiz body "Finish review" button - one in the body, one in the sidebar block Quiz Navigation.
-                document.querySelectorAll('.mod_quiz-next-nav')?.forEach(element => {
-                    element.addEventListener('click', e => {
+                    const clickhandler = (e) => {
                         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltQuizNextButtonSet.click';
                         window.console.log(fxn + '::mod_quiz-next-nav::Started with e=', e);
                         e.preventDefault();
                         closeSession(e);
 
-                        // Remove the event listener to mimic jQuery's `.one()` behavior.
-                        element.removeEventListener('click', handler);
+                        // Remove the event listener to mimic jQuery.one() behavior.
+                        e.currentTarget.removeEventListener('click', clickhandler);
+                    }
+                    document.querySelectorAll('.mod_quiz-next-nav')?.forEach(element => {
+                        element.addEventListener('click', e => clickhandler);
                     });
-                });
             }
         } else if (document.body.id === 'page-mod-quiz-summary') {
             window.console.log(fxn + '::This is a quiz summary page AND self.quizshowsreviewpage=', self.quizshowsreviewpage);
@@ -469,15 +481,16 @@ M.block_integrityadvocate = {
                 self.waitForElt(selectorModal)
                     .then(() => {
                         window.console.log(fxn + '::Found selectorModal=', selectorModal);
-                        document.querySelector(selectorModal)?.addEventListener('click', function handler(e) {
+                        const clickhandler = (e) => {
                             var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.modalSubmitAllAndFinish.click';
                             window.console.log(fxn + '::waitForElt(selectModal)::Started with e=', e);
                             e.preventDefault();
                             closeSession(e);
 
-                            // Remove the event listener to mimic jQuery's `.one()` behavior.
-                            this.removeEventListener('click', handler);
-                        });
+                            // Remove the event listener to mimic jQuery.one() behavior.
+                            this.removeEventListener('click', clickhandler);
+                        }
+                        document.querySelector(selectorModal)?.addEventListener('click', clickhandler);
                     })
                     .catch(error => {
                         window.console.error(fxn + '::promise::Error on waitForElt(); error=', error);
