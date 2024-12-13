@@ -297,6 +297,7 @@ trait external_ia_start_proctoring {
                     'relateduserid' => self::$attemptobj->get_userid(),
                     'courseid' => self::$attemptobj->get_courseid(),
                     'context' => self::$attemptobj->get_quizobj()->get_context(),
+                    'quizid' => $quiz->id,
                 ];
                 $event = \block_integrityadvocate\event\quizattempt_time_updated::create($params);
                 $event->add_record_snapshot('quiz', $quiz);
