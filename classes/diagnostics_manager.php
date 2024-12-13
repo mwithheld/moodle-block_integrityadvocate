@@ -168,6 +168,6 @@ class diagnostics_manager {
      * @return moodle_checkresult Check result.
      */
     private function test_url_participantstatus(): void {
-        throw Exception('Not implemented');
+        throw new \Exception('Not implemented');
     }
 }
