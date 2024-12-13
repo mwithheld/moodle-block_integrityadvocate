@@ -318,8 +318,9 @@ class block_integrityadvocate extends \block_base {
             }
 
             // This must hold some content, otherwise this function runs twice.
-            $showstudentmessage = isset($this->config->hidelinksinstudentmessage) && $this->config->hidelinksinstudentmessage;
-            $this->content->text .= ia_output::get_student_message($showstudentmessage);
+            $hidestudentmessage = isset($this->config->hidelinksinstudentmessage) && $this->config->hidelinksinstudentmessage;
+            $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+            $this->content->text .= ia_output::get_student_message(!$hidestudentmessage);
 
             $debug && \debugging($fxn . '::About to add_block_js() with $user=' . $user->id);
             ia_output::add_block_js($this, ia_output::get_proctor_js_url($this, $user));
@@ -557,7 +558,9 @@ class block_integrityadvocate extends \block_base {
 
                             if (ia_u::is_empty($participant)) {
                                 $debug && \debugging($fxn . '::Got empty participant, so return empty result');
-                                $this->content->text .= ia_output::get_student_message();
+                                $hidestudentmessage = isset($this->config->hidelinksinstudentmessage) && $this->config->hidelinksinstudentmessage;
+                                $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+                                $this->content->text .= ia_output::get_student_message(!$hidestudentmessage);
                             } else {
                                 $this->content->text .= ia_output::get_participant_summary_output(
                                     $this,
