@@ -575,7 +575,9 @@ class Output {
 
                     if (ia_u::is_empty($participant)) {
                         $debug && \debugging($fxn . '::Got empty participant, so return empty result');
-                        return self::get_student_message();
+                        $hidestudentmessage = isset($blockinstance->config->hidelinksinstudentmessage) && $blockinstance->config->hidelinksinstudentmessage;
+                        $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+                        return self::get_student_message(!$hidestudentmessage);
                     }
 
                     $debug && \debugging($fxn . '::About to get_participant_summary_output()');
@@ -594,7 +596,9 @@ class Output {
                     $debug && \debugging($fxn . '::Got $latestsession=' . ia_u::is_empty($latestsession) ? '' : $latestsession->__toString());
                     if (ia_u::is_empty($latestsession)) {
                         $debug && \debugging($fxn . '::Got empty $latestsession, so return empty result');
-                        return self::get_student_message();
+                        $hidestudentmessage = isset($blockinstance->config->hidelinksinstudentmessage) && $blockinstance->config->hidelinksinstudentmessage;
+                        $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+                        return self::get_student_message(!$hidestudentmessage);
                     }
                     $participant = $latestsession->participant;
                     return self::get_summary_html(
@@ -659,14 +663,14 @@ class Output {
     /**
      * Returns the HTML message shown in the block when in an activity.
      *
-     * @param bool $nolinks True to remove the http links in the output.
+     * @param bool $showlinks True to remove the http links in the output.
      * @return string The HTML.
      */
-    public static function get_student_message(bool $nolinks = false): string {
+    public static function get_student_message(bool $showlinks = true): string {
         $messagelines = [
             get_string('studentmessage', INTEGRITYADVOCATE_BLOCK_NAME),
         ];
-        if (!$nolinks) {
+        if ($showlinks) {
             $messagelines[] = get_string('studentmessagelinks', INTEGRITYADVOCATE_BLOCK_NAME);
         }
         return \implode(self::BRNL, $messagelines);
