@@ -63,9 +63,9 @@ $debug && \debugging($fxn . "::Got courseid={$course->id}");
 switch (true) {
     case ($userid):
         // throw new \InvalidArgumentException('The overview-user page is deprecated');
-        case ($userid):
-            $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
-            break;
+    case ($userid):
+        $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
+        break;
     case ($courseid && $moduleid):
         $debug && \debugging($fxn . '::Got a moduleid=' . ia_u::var_dump($moduleid, true));
         [$course, $cm] = \get_course_and_cm_from_cmid($moduleid);
@@ -94,13 +94,13 @@ $params = [
 switch (true) {
     case ($userid):
         // throw new \InvalidArgumentException('The overview-user page is deprecated');
-        case ($userid):
-            $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
-            $pageslug = 'overview-user';
-            $params += [
-                'userid' => $userid,
-            ];
-            break;
+    case ($userid):
+        $debug && debugging(__FILE__ . '::Request is for overview_user page. Got $userid=' . $userid);
+        $pageslug = 'overview-user';
+        $params += [
+            'userid' => $userid,
+        ];
+        break;
     case ($courseid && $moduleid):
         $debug && \debugging($fxn . '::Request is for OVERVIEW_MODULE page. Got $moduleid=' . $moduleid);
         $pageslug = 'overview-module';
