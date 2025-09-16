@@ -27,6 +27,6 @@ defined('MOODLE_INTERNAL') || die;
 $plugin->component = 'block_integrityadvocate';
 $plugin->version = 2024121301;
 $plugin->release = 2024121301;
-$plugin->supported = [402];
+$plugin->supported = [402, 550];
 $plugin->requires = 2023042400; // Moodle 4.2.0.
 $plugin->maturity = MATURITY_STABLE;
