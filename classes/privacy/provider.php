@@ -45,8 +45,7 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
 class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
-    \core_privacy\local\request\plugin\provider
-{
+    \core_privacy\local\request\plugin\provider {
     /** @var string Re-usable name for this medatadata */
     private const PRIVACYMETADATA_STR = 'privacy:metadata';
 
