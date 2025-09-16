@@ -164,9 +164,9 @@ M.block_integrityadvocate = {
                         window.console.warn(fxn + '::ajax.fail:: Got errorThrown=', errorThrown);
                         window.console.log(fxn + '::ajax.fail:: Got textStatus=', textStatus);
                         window.IntegrityAdvocate.endSession();
-                        require(['core/notification'], (notification) => {
-                            notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
-                        });
+                        // require(['core/notification'], (notification) => {
+                        //     notification.alert(M.util.get_string('unknownerror', 'moodle'), 'M.block_integrityadvocate.startProctoring::ajax.fail; errorThrown=' + errorThrown, 'Close');
+                        // });
                     }
                 }]);
             });
