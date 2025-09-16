@@ -45,7 +45,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     sessionOpen: () => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.sessionOpen';
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -85,7 +85,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     sessionClose: (callback) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.sessionClose';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -124,7 +124,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     startProctoring: (callback) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.startProctoring';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -182,7 +182,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     showActivityContent: () => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.showActivityContent';
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -251,7 +251,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     loadProctorJs: (proctorjsurl) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.loadProctorJs';
         debug && window.console.log(fxn + '::Started with proctorjsurl=', proctorjsurl);
         const self = M.block_integrityadvocate;
@@ -320,7 +320,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onProctorJsLoaded: () => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.onProctorJsLoaded';
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -334,7 +334,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onEventIAReady: (script) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.onEventIAReady';
         debug && window.console.log(fxn + 'Started with script=', script);
         const self = M.block_integrityadvocate;
@@ -379,7 +379,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onEventIaReadySetupQuiz: () => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz';
         debug && window.console.log(fxn + '::Started with document.body.id=', document.body.id);
         const self = M.block_integrityadvocate;
@@ -516,7 +516,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onQuizTimerExpired: (callback) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.onQuizTimerExpired';
         debug && window.console.log(fxn + '::Started with callback=', callback);
         const self = M.block_integrityadvocate;
@@ -548,7 +548,7 @@ M.block_integrityadvocate = {
      * @returns {event} The event you passed in, so you can trigger it in a .then().
      */
     endIaSession: async (e = null) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.endIaSession';
         window.console.log(fxn + '::Started with e, window.IntegrityAdvocate=', e, window.IntegrityAdvocate);
 
@@ -577,7 +577,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     blockinit: (Y, versionstring, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.blockinit';
         window.console.log(fxn + '::Started with versionstring=[' + versionstring + ']; proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages=' + proctorquizreviewpages + '; quizshowsreviewpage=' + quizshowsreviewpage + '; proctorjsurl=' + proctorjsurl);
         const self = M.block_integrityadvocate;
@@ -632,7 +632,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onBlockInitSetupQuiz: () => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupQuiz';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -675,7 +675,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onBlockInitSetupScorm: () => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupScorm';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -729,7 +729,7 @@ M.block_integrityadvocate = {
      * @returns {*} A resovled promise.
      */
     waitForElt: (selector) => {
-        var debug = true;
+        var debug = false;
         var fxn = 'M.block_integrityadvocate.waitForElt';
         debug && window.console.log(fxn + '::Started with selector=', selector);
         return new Promise(resolve => {
