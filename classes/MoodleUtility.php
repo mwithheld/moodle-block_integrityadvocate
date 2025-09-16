@@ -34,7 +34,6 @@ require_once($CFG->libdir . '/blocklib.php');
  * Utility functions not specific to this module that interact with Moodle core.
  */
 class MoodleUtility {
-
     /**
      * Return true if there are other block instances of the same name (e.g. "navigation" or "block_navigation") on the $page (where "other" means having a different instance id).
      * Adapted from Moodle 3.10 lib/blocklib.php::is_block_present().
@@ -546,7 +545,7 @@ class MoodleUtility {
         $debug = false;
         $debug && \debugging($fxn . "::Started with \$cmid={$cmid}; \$blockname={$blockname}");
 
-        list($course, $cm) = \get_course_and_cm_from_cmid($cmid);
+        [$unused, $cm] = \get_course_and_cm_from_cmid($cmid);
         $debug && \debugging($fxn . "::Got cm=" . ia_u::var_dump($cm));
 
         // Fetch the block instances for the context.

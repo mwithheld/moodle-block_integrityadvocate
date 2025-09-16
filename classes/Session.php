@@ -30,7 +30,6 @@ defined('MOODLE_INTERNAL') || die;
  * Class to represent a single IA participant session.
  */
 class Session {
-
     /** @var int Moodle module ID this is attached to. */
     public $activityid;
 
@@ -112,5 +111,4 @@ class Session {
         $self->participant = null;
         return \json_encode($self, \JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
-
 }

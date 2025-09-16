@@ -29,7 +29,6 @@ require_once($CFG->libdir . '/externallib.php');
  * Answers AJAX calls for this block.
  */
 class block_integrityadvocate_external extends \external_api {
-
     use \block_integrityadvocate\external_ia_session_tracking;
     use \block_integrityadvocate\external_ia_start_proctoring;
 

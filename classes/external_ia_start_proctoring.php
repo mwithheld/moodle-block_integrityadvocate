@@ -42,7 +42,6 @@ use block_integrityadvocate\Utility as ia_u;
  * External methods to run when IA proctoring setup (rules, ID card, room check etc.) is complete and the proctoring actually begins.
  */
 trait external_ia_start_proctoring {
-
     /**
      * @var quiz_attempt The quiz attempt object.
      */

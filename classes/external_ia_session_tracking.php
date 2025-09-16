@@ -36,7 +36,6 @@ use block_integrityadvocate\Utility as ia_u;
  * External methods to track and close IA sessions.
  */
 trait external_ia_session_tracking {
-
     /**
      * Describes the parameters for session_* functions.
      *

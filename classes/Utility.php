@@ -33,7 +33,6 @@ require_once('polyfills.php');
  * Generic utility functions not specific to Moodle.
  */
 class Utility {
-
     /**
      * Wrapper around PHP empty() that also works for objects.
      * If the object has any properties it is considered not empty.

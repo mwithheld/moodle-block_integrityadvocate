@@ -39,7 +39,6 @@ require_once(__DIR__ . '/lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_integrityadvocate extends \block_base {
-
     /** @var bool Is this block visible? */
     public $visible;
 
@@ -319,7 +318,7 @@ class block_integrityadvocate extends \block_base {
 
             // This must hold some content, otherwise this function runs twice.
             $hidestudentmessage = isset($this->config->hidelinksinstudentmessage) && $this->config->hidelinksinstudentmessage;
-            $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+            $debug && \debugging($fxn . '::Got $hidestudentmessage=' . $hidestudentmessage);
             $this->content->text .= ia_output::get_student_message(!$hidestudentmessage);
 
             $debug && \debugging($fxn . '::About to add_block_js() with $user=' . $user->id);
@@ -433,7 +432,7 @@ class block_integrityadvocate extends \block_base {
             return;
         }
 
-        $this->content = new \stdClass;
+        $this->content = new \stdClass();
         $this->content->text = '';
         $this->content->footer = '';
         $debug && \debugging($fxn . '::Done setting up $this->content');
@@ -559,7 +558,7 @@ class block_integrityadvocate extends \block_base {
                             if (ia_u::is_empty($participant)) {
                                 $debug && \debugging($fxn . '::Got empty participant, so return empty result');
                                 $hidestudentmessage = isset($this->config->hidelinksinstudentmessage) && $this->config->hidelinksinstudentmessage;
-                                $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+                                $debug && \debugging($fxn . '::Got $hidestudentmessage=' . $hidestudentmessage);
                                 $this->content->text .= ia_output::get_student_message(!$hidestudentmessage);
                             } else {
                                 $this->content->text .= ia_output::get_participant_summary_output(

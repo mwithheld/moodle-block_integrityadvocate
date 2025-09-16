@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_integrityadvocate_edit_form extends block_edit_form {
-
     /**
      * Overridden to create any form fields specific to this type of block.
      * We can't add a type check here without causing a warning b/c the parent class does not have the type check.

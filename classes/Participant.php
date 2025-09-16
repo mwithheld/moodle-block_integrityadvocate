@@ -29,33 +29,9 @@ use block_integrityadvocate\Utility as ia_u;
 defined('MOODLE_INTERNAL') || die;
 
 /**
- * Minimal Participant object used when caching participants.
- */
-class ParticipantsCache {
-
-    /** @var int Course ID. */
-    public $courseid;
-
-    /** @var int Unix timestamp when this was modified. */
-    public $modified = -1;
-
-    /** @var array<Participant> Array of participant objects attached to this course. */
-    public $participantsraw = [];
-
-    /**
-     * Returns a minimal Participant object.
-     * @param int $courseid The course id.
-     */
-    public function __construct(int $courseid) {
-        $this->courseid = $courseid;
-    }
-}
-
-/**
  * Class to represent a single IA participant.
  */
 class Participant {
-
     /** @var int Course ID. */
     public $courseid;
 

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * IntegrityAdvocate block Overview page showing course participants with a summary of their IntegrityAdvocate data.
+ * IntegrityAdvocate class to represent a single IA participant.
  *
  * @package    block_integrityadvocate
  * @copyright  IntegrityAdvocate.com
@@ -24,28 +24,26 @@
 
 namespace block_integrityadvocate;
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
- * This class represents an HTTP transport error. Copied from GeoIp2\Exception.
+ * Minimal Participant object used when caching participants.
  */
-class HttpException extends \Exception {
-    /** @var string The URI queried. */
-    public $uri;
+class ParticipantsCache {
+    /** @var int Course ID. */
+    public $courseid;
+
+    /** @var int Unix timestamp when this was modified. */
+    public $modified = -1;
+
+    /** @var array<Participant> Array of participant objects attached to this course. */
+    public $participantsraw = [];
 
     /**
-     * Build an HTTPException object.
-     *
-     * @param string $message The exception message.
-     * @param int $httpstatus HTTP status to send back.
-     * @param string $uri URL where the error occurred.
-     * @param \Exception|null $previous The Exception that cause this error.
+     * Returns a minimal Participant object.
+     * @param int $courseid The course id.
      */
-    public function __construct(
-        string $message,
-        int $httpstatus,
-        string $uri,
-        ?\Exception $previous = null
-    ) {
-        $this->uri = $uri;
-        parent::__construct($message, $httpstatus, $previous);
+    public function __construct(int $courseid) {
+        $this->courseid = $courseid;
     }
 }

@@ -36,7 +36,6 @@ defined('MOODLE_INTERNAL') || die;
  * Functions for generating user-visible output.
  */
 class Output {
-
     /** @var string Path to this block JS relative to the moodle root - Requires leading slash but no trailing slash. */
     private const BLOCK_JS_PATH = '/blocks/integrityadvocate/js';
 
@@ -576,7 +575,7 @@ class Output {
                     if (ia_u::is_empty($participant)) {
                         $debug && \debugging($fxn . '::Got empty participant, so return empty result');
                         $hidestudentmessage = isset($blockinstance->config->hidelinksinstudentmessage) && $blockinstance->config->hidelinksinstudentmessage;
-                        $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+                        $debug && \debugging($fxn . '::Got $hidestudentmessage=' . $hidestudentmessage);
                         return self::get_student_message(!$hidestudentmessage);
                     }
 
@@ -597,7 +596,7 @@ class Output {
                     if (ia_u::is_empty($latestsession)) {
                         $debug && \debugging($fxn . '::Got empty $latestsession, so return empty result');
                         $hidestudentmessage = isset($blockinstance->config->hidelinksinstudentmessage) && $blockinstance->config->hidelinksinstudentmessage;
-                        $debug && \debugging($fxn . '::Got $hidestudentmessage='.$hidestudentmessage);
+                        $debug && \debugging($fxn . '::Got $hidestudentmessage=' . $hidestudentmessage);
                         return self::get_student_message(!$hidestudentmessage);
                     }
                     $participant = $latestsession->participant;

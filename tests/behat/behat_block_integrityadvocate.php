@@ -29,7 +29,6 @@ use Behat\Gherkin\Node\TableNode;
  * Behat helper functions.
  */
 class behat_block_integrityadvocate extends behat_base {
-
     /** @var string String to put at the end of behat debug output */
     private const OUTPUT_EOL = '; ';
 

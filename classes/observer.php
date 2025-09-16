@@ -37,7 +37,6 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_integrityadvocate_observer {
-
     /**
      * Setup a nonce to extend the quiz time based on the event data.
      *

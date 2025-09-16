@@ -43,12 +43,10 @@ require_once($CFG->dirroot . '/blocks/integrityadvocate/lib.php');
  * Privacy Subsystem for block_integrityadvocate.
  */
 class provider implements
-    // The block_comments block stores user provided data.
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
-    // The block_comments block provides data directly to core.
-    \core_privacy\local\request\plugin\provider {
-
+    \core_privacy\local\request\plugin\provider
+{
     /** @var string Re-usable name for this medatadata */
     private const PRIVACYMETADATA_STR = 'privacy:metadata';
 
