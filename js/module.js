@@ -45,7 +45,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     sessionOpen: () => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.sessionOpen';
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -85,7 +85,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     sessionClose: (callback) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.sessionClose';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -124,7 +124,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     startProctoring: (callback) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.startProctoring';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -182,7 +182,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     showActivityContent: () => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.showActivityContent';
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -251,7 +251,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     loadProctorJs: (proctorjsurl) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.loadProctorJs';
         debug && window.console.log(fxn + '::Started with proctorjsurl=', proctorjsurl);
         const self = M.block_integrityadvocate;
@@ -320,7 +320,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onProctorJsLoaded: () => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.onProctorJsLoaded';
         window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -334,7 +334,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onEventIAReady: (script) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.onEventIAReady';
         debug && window.console.log(fxn + 'Started with script=', script);
         const self = M.block_integrityadvocate;
@@ -379,7 +379,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onEventIaReadySetupQuiz: () => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz';
         debug && window.console.log(fxn + '::Started with document.body.id=', document.body.id);
         const self = M.block_integrityadvocate;
@@ -430,7 +430,6 @@ M.block_integrityadvocate = {
                 const eltNextPageArr = self.eltDivMain.find('#responseform input[name="nextpage"]');
                 debug && window.console.log(fxn + '::Got eltNextPageArr=', eltNextPageArr);
                 if (eltNextPageArr.length > 0 && eltNextPageArr[0].value == -1) {
-                    // Different versions of Moodle use different selectors.
                     const clickhandler = (e) => {
                         var fxn = 'M.block_integrityadvocate.onEventIaReadySetupQuiz.eltNextPageArr.click';
                         window.console.log(fxn + '::Started with e=', e);
@@ -440,9 +439,8 @@ M.block_integrityadvocate = {
                         // Remove the event listener to mimic jQuery.one().
                         e.currentTarget.removeEventListener('click', clickhandler);
                     }
-                    document.querySelectorAll('#mod_quiz-next-nav, .mod_quiz-next-nav')?.forEach(element => {
-                        element.addEventListener('click', clickhandler);
-                    });
+                    // Different versions of Moodle use different selectors: the use of .mod_quiz-next-nav is legacy.
+                    document.querySelector('#mod_quiz-next-nav').addEventListener('click', clickhandler);
                     window.console.log(fxn + '::Attached endSession to Finish review button');
                 }
 
@@ -518,7 +516,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onQuizTimerExpired: (callback) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.onQuizTimerExpired';
         debug && window.console.log(fxn + '::Started with callback=', callback);
         const self = M.block_integrityadvocate;
@@ -550,7 +548,7 @@ M.block_integrityadvocate = {
      * @returns {event} The event you passed in, so you can trigger it in a .then().
      */
     endIaSession: async (e = null) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.endIaSession';
         window.console.log(fxn + '::Started with e, window.IntegrityAdvocate=', e, window.IntegrityAdvocate);
 
@@ -579,7 +577,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     blockinit: (Y, versionstring, proctorjsurl, proctorquizinfopage, proctorquizreviewpages, quizshowsreviewpage) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.blockinit';
         window.console.log(fxn + '::Started with versionstring=[' + versionstring + ']; proctorquizinfopage=' + proctorquizinfopage + '; proctorquizreviewpages=' + proctorquizreviewpages + '; quizshowsreviewpage=' + quizshowsreviewpage + '; proctorjsurl=' + proctorjsurl);
         const self = M.block_integrityadvocate;
@@ -634,7 +632,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onBlockInitSetupQuiz: () => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupQuiz';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -677,7 +675,7 @@ M.block_integrityadvocate = {
      * @returns {null} Nothing.
      */
     onBlockInitSetupScorm: () => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.onBlockInitSetupScorm';
         debug && window.console.log(fxn + '::Started');
         const self = M.block_integrityadvocate;
@@ -731,7 +729,7 @@ M.block_integrityadvocate = {
      * @returns {*} A resovled promise.
      */
     waitForElt: (selector) => {
-        var debug = false;
+        var debug = true;
         var fxn = 'M.block_integrityadvocate.waitForElt';
         debug && window.console.log(fxn + '::Started with selector=', selector);
         return new Promise(resolve => {
